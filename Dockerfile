@@ -5,8 +5,7 @@ FROM node:20 AS builder
 # Set the working directory to where your app is located
 WORKDIR /app
 COPY ./frontend/package*.json ./
-COPY ./frontend/yarn.lock ./
-RUN npm ci
+RUN npm install
 
 COPY ./frontend/ .
 
@@ -22,8 +21,8 @@ RUN npm run build
 FROM node:20
 WORKDIR /app
 
-# Here, you're copying from the /app directory in the builder stage
-COPY --from=builder /app/next.config.js ./
+# Copying from the /app directory in the builder stage
+#COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules

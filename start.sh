@@ -8,4 +8,10 @@ gradle run &
 
 # go to /frontend and run npm run start
 cd /frontend
-npm run start
+npm run start &
+
+# Wait for any process to exit
+wait -n
+
+# Exit with status of process that exited first
+exit $?

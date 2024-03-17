@@ -5,3 +5,14 @@ For more information navigate to our [wiki](https://github.com/ZHAW-PM4-Compass/
 
 ## Local Setup
 ...
+
+
+# Docker Commands
+### Build Image
+```console
+docker build -t compass .
+```
+### Run Image
+```console
+docker run -e CLERK_SECRET_KEY=<CLERK_SECRET_KEY> -p 3000:3000 -p 8080:8080 --name compass compass
+```

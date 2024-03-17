@@ -18,19 +18,18 @@ COPY ./backend/src src
 RUN gradle build --no-daemon
 
 # Final Image Preparation
-FROM ubuntu:latest
-# Install Node.js and JDK
-RUN apt-get update && \
-    apt-get install -y openjdk-17-jdk nodejs npm && \
-    apt-get clean
+FROM timbru31/java-node:21-20 as final-stage
 
-# Set the working directory in the container
 WORKDIR /app
 
 # Copy frontend and backend artifacts
 COPY --from=frontend-builder /app/.next ./.next
 COPY --from=frontend-builder /app/node_modules ./node_modules
+COPY --from=frontend-builder /app/public ./public
+#COPY --from=frontend-builder /app/next.config.js ./next.config.js
+COPY --from=frontend-builder /app/package.json ./package.json
 COPY --from=backend-builder /app/build/libs/*.jar ./backend/app.jar
+
 
 # Copy the startup script
 COPY start.sh .

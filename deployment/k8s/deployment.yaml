@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: compass-deployment
-  namespace: compass-prod  # Specify the namespace here
+  namespace: compass-prod
   labels:
     app: compass-app
   annotations:
@@ -23,3 +23,5 @@ spec:
         ports:
         - containerPort: 3000
         - containerPort: 8080
+      imagePullSecrets:
+      - name: docker-credentials

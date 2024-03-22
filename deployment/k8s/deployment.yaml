@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: compass-deployment
+  namespace: compass-prod  # Specify the namespace here
   labels:
     app: compass-app
   annotations:

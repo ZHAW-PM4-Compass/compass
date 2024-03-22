@@ -1,4 +1,5 @@
 name: Build, Push and Deploy
+
 on:
   deployment:
 
@@ -7,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -23,7 +24,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: YOUR_DOCKERHUB_USERNAME/your-image-name:${{ github.sha }}
+          tags: pm4compass/compass:${{ github.sha }}
 
   deploy:
     needs: build-and-push
@@ -42,6 +43,10 @@ jobs:
         with:
           kubeconfig: ${{ secrets.KUBECONFIG }}
 
+      - name: Prepare Kubernetes deployment file
+        run: |
+          sed -i 's/pm4compass\/compass:COMMIT_SHA_PLACEHOLDER/pm4compass\/compass:${{ github.sha }}/' ./path/to/deployment.yml
+
       - name: Deploy to Kubernetes
         run: |
-          kubectl set image deployment/your-deployment-name your-container-name=YOUR_DOCKERHUB_USERNAME/your-image-name:${{ github.sha }}
+          kubectl apply -f ./path/to/deployment.yml

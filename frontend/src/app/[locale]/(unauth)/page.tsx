@@ -1,7 +1,5 @@
 import { getTranslations } from 'next-intl/server';
 
-
-
 export async function generateMetadata(props: { params: { locale: string } }) {
   const t = await getTranslations({
     locale: props.params.locale,
@@ -16,12 +14,19 @@ export async function generateMetadata(props: { params: { locale: string } }) {
 
 export default function Index() {
   return (
-    <div className="text-center mx-auto">
+    <div className="mx-auto text-center">
       <p>
-        Discover more about the <span className="font-bold">Compass</span> web application for the <span className="font-bold">Stadtmuur organization</span> by visiting our GitHub project.
+        Discover more about the <span className="font-bold">Compass</span> web
+        application for the{' '}
+        <span className="font-bold">Stadtmuur organization</span> by visiting
+        our GitHub project.
       </p>
       <p>
-        Compass 🧭 is a cutting-edge web application designed to enhance the Stadtmuur organization's operational efficiency. It enables participants to record their working hours, track their mood, monitor exceptional incidents, generate daily reports, and visualize this data comprehensively.
+        Compass 🧭 is a cutting-edge web application designed to enhance the
+        Stadtmuur organization's operational efficiency. It enables participants
+        to record their working hours, track their mood, monitor exceptional
+        incidents, generate daily reports, and visualize this data
+        comprehensively.
       </p>
     </div>
   );

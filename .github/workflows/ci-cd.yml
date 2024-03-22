@@ -38,5 +38,5 @@ jobs:
 
       - name: Deploy to Kubernetes and Trigger Redeployment
         run: |
-          kubectl set image deployment/compass-deployment my-container=pm4compass/compass:latest --record
-          kubectl patch deployment compass-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"forceReDeploy\":\"$(date +%s)\"}}}}}"
+          kubectl set image deployment/compass-deployment my-container=pm4compass/compass:latest -n compass-prod
+          kubectl patch deployment compass-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"forceReDeploy\":\"$(date +%s)\"}}}}}" -n compass-prod

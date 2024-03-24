@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-secret
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: ${{ secrets.DB_HOST }}
+  POSTGRES_USER: ${{ secrets.DB_USERNAME }}
+  POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}

@@ -19,9 +19,6 @@ public class DayService {
     private DayRepository dayRepository;
 
     public GetDayDto createDay(CreateDayDto createDay) {
-        //User user = convertToUser(createUser);
-        //Boolean complete = checkIfComplete(user);
-        //user.setComplete(complete);
         Day day = convertCreateDayDtoToDay(createDay);
         if(dayRepository.getDayByDate(day.getDate()).isPresent())
             throw new DayAlreadyExistsException(day);
@@ -29,11 +26,9 @@ public class DayService {
     }
 
     public GetDayDto getDayById(Long id) throws DayNotFoundException {
-        //return convertToGetDTO(userRepository.getUserById(id).orElseThrow(() -> new UserNotFoundException(id)));
         return convertDayToGetDayDto(dayRepository.getDayById(id).orElseThrow(() -> new DayNotFoundException(id)));
     }
     public GetDayDto getDayByDate(Date date) throws DayNotFoundException {
-        //return convertToGetDTO(userRepository.getUserById(id).orElseThrow(() -> new UserNotFoundException(id)));
         return convertDayToGetDayDto(dayRepository.getDayByDate(date).orElseThrow(() -> new DayNotFoundException(date)));
     }
 

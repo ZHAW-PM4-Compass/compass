@@ -14,10 +14,6 @@ public class DayController {
     @Autowired
     private DayService dayService;
 
-    @GetMapping()
-    public String index() {
-        return "Hallo von Compass Spring Boot!";
-    }
 
     @PostMapping(produces = "application/json")
     public GetDayDto createDay(@RequestBody CreateDayDto day) {

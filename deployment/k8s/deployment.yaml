@@ -23,26 +23,26 @@ spec:
         ports:
         - containerPort: 3000
         - containerPort: 8080
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-configmap
+              key: DB_HOST
+        - name: DDL_AUTO
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-configmap
+              key: DDL_AUTO
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: DB_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: DB_PASSWORD
       imagePullSecrets:
       - name: docker-credentials
-      env:
-      - name: DB_HOST
-        valueFrom:
-          configMapKeyRef:
-            name: postgres-configmap
-            key: DB_HOST
-      - name: DDL_AUTO
-        valueFrom:
-          configMapKeyRef:
-            name: postgres-configmap
-            key: DDL_AUTO
-      - name: DB_USER
-        valueFrom:
-          secretKeyRef:
-            name: postgres-secret
-            key: DB_USERNAME
-      - name: DB_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            name: postgres-secret
-            key: DB_PASSWORD

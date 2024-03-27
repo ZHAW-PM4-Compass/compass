@@ -1,11 +1,9 @@
-name: Build, Push and Deploy
+name: Build, Push and Deploy Staging
 
 on:
   push:
     branches:
-      - feat/deployment
-    tags:
-      - 'release/*'
+      - main
 
 jobs:
   build-and-push:
@@ -28,7 +26,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: pm4compass/compass:latest
+          tags: pm4compass/compass:${{ github.sha }}
 
       - name: Set up K8s context
         uses: azure/k8s-set-context@v1
@@ -38,5 +36,5 @@ jobs:
 
       - name: Deploy to Kubernetes and Trigger Redeployment
         run: |
-          kubectl set image deployment/compass-deployment my-container=pm4compass/compass:latest -n compass-prod
-          kubectl patch deployment compass-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"forceReDeploy\":\"$(date +%s)\"}}}}}" -n compass-prod
+          kubectl set image deployment/compass-deployment my-container=pm4compass/compass:${{ github.sha }} -n compass-stage
+          kubectl patch deployment compass-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"forceReDeploy\":\"$(date +%s)\"}}}}}" -n compass-stage

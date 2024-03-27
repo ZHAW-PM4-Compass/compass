@@ -1,5 +1,5 @@
 # Use the official Gradle image as the base image
-FROM gradle:8.6.0-jdk21 AS build
+FROM gradle:8.7.0-jdk21 AS build
 
 # Set the working directory in the container
 WORKDIR /app

@@ -1,9 +1,7 @@
-name: Build, Push and Deploy
+name: Build, Push and Deploy - Production
 
 on:
   push:
-    branches:
-      - feat/deployment
     tags:
       - 'release/*'
 

@@ -4,10 +4,10 @@ import java.util.Date;
 
 public class DayNotFoundException extends RuntimeException {
     public DayNotFoundException(Long userId) {
-        super("Day not found with id " + userId);
+        super("DaySheet not found with id " + userId);
     }
 
     public DayNotFoundException(Date date) {
-        super("Day not found with id " + date.toString());
+        super("DaySheet not found with id " + date.toString());
     }
 }

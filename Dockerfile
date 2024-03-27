@@ -10,7 +10,7 @@ RUN chmod +x /usr/local/bin/sentry-cli
 RUN npm run build
 
 # Backend Build Stage
-FROM gradle:8.6.0-jdk21 AS backend-builder
+FROM gradle:8.7.0-jdk21 AS backend-builder
 WORKDIR /app
 COPY ./backend/build.gradle .
 COPY ./backend/settings.gradle .

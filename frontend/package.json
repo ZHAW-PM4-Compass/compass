@@ -33,6 +33,7 @@
     "@sentry/nextjs": "^7.104.0",
     "@spotlightjs/spotlight": "^1.2.13",
     "@t3-oss/env-nextjs": "^0.9.2",
+    "axios": "^1.6.8",
     "checkly": "^4.6.1",
     "drizzle-orm": "^0.29.4",
     "next": "^14.1.1",

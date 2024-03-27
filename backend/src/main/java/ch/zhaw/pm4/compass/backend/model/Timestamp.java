@@ -19,14 +19,19 @@ public class Timestamp {
     private Time startTime;
     private Time endTime;
 
-    @ManyToOne(fetch= FetchType.LAZY)
-    @JoinColumn(name="day_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "daySheet_id")
     @JsonIgnore
-    private Day day;
+    private DaySheet daySheet;
 
-    public Timestamp()
-    {
+    public Timestamp() {
 
+    }
+
+    public Timestamp(DaySheet daySheet, Time startTime, Time endTime) {
+        this.daySheet = daySheet;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
 }

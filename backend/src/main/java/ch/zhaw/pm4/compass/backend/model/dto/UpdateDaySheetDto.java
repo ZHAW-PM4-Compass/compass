@@ -7,25 +7,19 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class CreateDayDto {
+public class UpdateDaySheetDto {
 
-
+    private Long id;
     private Date date;
-
     private String day_report;
 
 
-    public CreateDayDto()
-    {
-
+    public UpdateDaySheetDto() {
     }
-    public CreateDayDto(String day_report, Date date)
-    {
+
+    public UpdateDaySheetDto(Long id, String day_report, Date date) {
+        this.id = id;
         this.date = date;
         this.day_report = day_report;
-    }
-    public CreateDayDto(Date date)
-    {
-        this.date = date;
     }
 }

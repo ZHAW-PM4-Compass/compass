@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class GetDayDto {
+public class GetDaySheetDto {
 
     private Long id;
 
@@ -17,17 +17,16 @@ public class GetDayDto {
 
     private String day_report;
 
-
     private Boolean confirmed = false;
 
     private List<Timestamp> timestamps;
 
-    public GetDayDto()
-    {
+    public GetDaySheetDto() {
 
     }
-    public GetDayDto(String day_report, Date date,Boolean confirmed,List<Timestamp> timestamps)
-    {
+
+    public GetDaySheetDto(Long id, String day_report, Date date, Boolean confirmed, List<Timestamp> timestamps) {
+        this.id = id ;
         this.date = date;
         this.day_report = day_report;
         this.confirmed = confirmed;

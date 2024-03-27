@@ -1,13 +1,24 @@
-version: "3.8"
+version: '3.8'
+
 services:
-  app:
-    build:
-      context: ./
-      target: builder
-    volumes:
-      - .:/app
-    command: bash -c "npm run dev"
+  compass:
+    image: compass
+    container_name: compass
     ports:
-      - "3000:3000"
+      - '3000:3000'
+      - '8080:8080'
+
+  postgres:
+    image: 'postgres:latest'
+    container_name: postgres_compass
     environment:
-      NODE_ENV: development
+      POSTGRES_DB: compass
+      POSTGRES_PASSWORD: tr3&osCz%DCbE-j6o46M
+      POSTGRES_USER: dbadmin
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

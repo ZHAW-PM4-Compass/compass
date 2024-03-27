@@ -1,13 +1,6 @@
 version: '3.8'
 
 services:
-  compass:
-    image: compass
-    container_name: compass
-    ports:
-      - '3000:3000'
-      - '8080:8080'
-
   postgres:
     image: 'postgres:latest'
     container_name: postgres_compass
@@ -19,6 +12,19 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  compass:
+    image: compass
+    container_name: compass
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/compass
+      SPRING_DATASOURCE_USERNAME: dbadmin
+      SPRING_DATASOURCE_PASSWORD: tr3&osCz%DCbE-j6o46M
+    ports:
+      - '3000:3000'
+      - '8080:8080'
 
 volumes:
   postgres_data:

@@ -1,121 +1,85 @@
-"use client";
+'use client';
+import React, { useState } from "react";
+// Import the API and DTOs from your client library
+import { DaySheetControllerApi, CreateDaySheetDto } from 'compass-client';
 
-import { useRef, useState} from 'react';
+export default function TimetrackExample() {
+  const [daySheet, setDaySheet] = useState({ id: '', date: '', dayReport: '' });
+  const api = new DaySheetControllerApi();
 
-const SimplePage: React.FC = () => {
-  const [daySheetData, setDaySheetData] = useState<any>(null);
-  const [sheetId, setSheetId] = useState<string>('');
+  // Handle form updates
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setDaySheet({ ...daySheet, [name]: value });
+  };
 
-  const dateRef = useRef<HTMLInputElement>(null);
-
-  const handleSubmitDaysheet = async (e: React.FormEvent<HTMLFormElement>) => {
+  // Handle day sheet creation
+  const handleCreateSubmit = async (e) => {
     e.preventDefault();
-    const dateValue = dateRef.current?.value;
-    const dayReport = "This is a report";
-    
-
-    if ( !dateValue || dayReport === undefined) {
-      console.error('All fields are required');
-      return;
-    }
+    const createDaySheetDto: CreateDaySheetDto = {
+      date: new Date(daySheet.date),
+      dayReport: daySheet.dayReport,
+    };
 
     try {
-      const response = await fetch('http://localhost:8080/api/daysheet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          date: dateValue,
-          dayReport: dayReport
-        }),
-      });
-
-      if (response.ok) {
-        // Timestamp created successfully
-        console.log('Timestamp created successfully');
-        // You can handle success here, e.g., show a success message or redirect the user
-      } else {
-        // Error occurred while creating timestamp
-        console.error('Error creating timestamp:', response.statusText);
-        // You can handle error here, e.g., show an error message to the user
-      }
-    } catch (error: any) {
-      console.error('Error creating timestamp:', error.message);
-      // You can handle error here, e.g., show an error message to the user
-    }
-  };
-
-
-
-  const fetchDaySheet = async (sheetId: string) => {
-    try {
-      const response = await fetch('http://localhost:8080/api/daysheet/' + sheetId , {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setDaySheetData(data);
-        console.log('');
-      } else {
-        console.log(`Error: ${response.statusText}`);
-      }
+      const response = await api.createDaySheet({ createDaySheetDto });
+      alert("Day sheet created successfully!");
+      console.log(response);
     } catch (error) {
-      console.log(`Error: ${error}`);
+      console.error("Failed to create day sheet:", error);
+      alert("Failed to create day sheet.");
     }
   };
-  const handleGetDaySheet = async () => {
-    await fetchDaySheet(sheetId);
-  };
 
+  // Function to handle data fetching by ID
+  const fetchDataById = async (e) => {
+    e.preventDefault();
+    try {
+      const id = parseInt(daySheet.id);
+      const data = await api.getDaySheetById({ id });
+      console.log(data);
+      document.getElementById('dataDisplay').innerHTML = JSON.stringify(data, null, 2);
+    } catch (error) {
+      console.error("Failed to fetch day sheet:", error);
+      document.getElementById('dataDisplay').innerHTML = "Failed to fetch day sheet.";
+    }
+  };
 
   return (
-    <div>
-      <h1>Erstelle einen Zeiteintrag</h1>
-      <br></br>
-      <form onSubmit={handleSubmitDaysheet}>
-      <div>
-          <label>
-            Date:
-            <input
-              type="date"
-              ref={dateRef}
-              required
-            />
-          </label>
-        </div>
-        <button className="border: 1px" type="submit">Create Daysheet</button>
+    <main className="flex min-h-screen flex-col items-center justify-between p-24 bg-gradient-to-br from-gray-50 to-gray-100">
+      <h1 className="text-4xl font-bold dark:text-white">Compass - Time Tracking</h1>
+
+      <form className="mb-8" onSubmit={handleCreateSubmit}>
+        <h2 className="text-xl font-semibold">Create Day Sheet</h2>
+        <input
+          type="date"
+          name="date"
+          placeholder="Date"
+          value={daySheet.date}
+          onChange={handleInputChange}
+        />
+        <textarea
+          name="dayReport"
+          placeholder="Day Report"
+          value={daySheet.dayReport}
+          onChange={handleInputChange}
+        />
+        <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-md">Create Day Sheet</button>
       </form>
-      <hr/>
 
-      <div>
-         <label>
-          Enter Sheet ID:
-          <input
-            type="text"
-            value={sheetId}
-            onChange={(e) => setSheetId(e.target.value)}
-            />
-          </label><br/>
-      <button onClick={handleGetDaySheet}>Get Day Sheet</button>
-      
-        {daySheetData && (
-          <div>
-            <h2>Day Sheet Data:</h2>
-           
-            <p>Date: {daySheetData.date}</p>
-            {/* Render other fields from the day sheet data */}
-          </div>
-          
-        )}
-       
-    </div>
-    </div>
+      <form onSubmit={fetchDataById}>
+        <h2 className="text-xl font-semibold">Get Day Sheet By ID</h2>
+        <input
+          type="text"
+          name="id"
+          placeholder="ID"
+          value={daySheet.id}
+          onChange={handleInputChange}
+        />
+        <button type="submit" className="px-4 py-2 bg-green-500 text-white rounded-md">Fetch Day Sheet</button>
+      </form>
+
+      <pre id="dataDisplay" className="text-left"></pre>
+    </main>
   );
-};
-
-export default SimplePage;
+}

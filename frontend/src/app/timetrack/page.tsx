@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from "react";
 // Import the API and DTOs from your client library
-import { DaySheetControllerApi, CreateDaySheetDto } from 'compass-client';
+import { DaySheetControllerApi, CreateDaySheetDto } from './../../../compassClient';
 
 export default function TimetrackExample() {
   const [daySheet, setDaySheet] = useState({ id: '', date: '', dayReport: '' });
@@ -47,7 +47,7 @@ export default function TimetrackExample() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24 bg-gradient-to-br from-gray-50 to-gray-100">
-      <h1 className="text-4xl font-bold dark:text-white">Compass - Time Tracking</h1>
+      <h1 className="text-4xl font-bold dark:text-white">Time Tracking ⏲️</h1>
 
       <form className="mb-8" onSubmit={handleCreateSubmit}>
         <h2 className="text-xl font-semibold">Create Day Sheet</h2>

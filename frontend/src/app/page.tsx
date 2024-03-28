@@ -2,7 +2,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24 bg-gradient-to-br from-gray-50 to-white">
       <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px]">
-        <h1 className="text-4xl font-bold dark:text-white">Compass</h1>
+        <h1 className="text-4xl font-bold dark:text-white">Compass 🧭</h1>
       </div>
 
       <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">

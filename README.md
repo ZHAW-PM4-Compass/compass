@@ -1,4 +1,4 @@
-[![Build, Push and Deploy](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd.yml)
+[![Build, Push and Deploy - Production](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd-prod.yml/badge.svg)](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd-prod.yml) [![Build, Push and Deploy - Staging](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd-staging.yml/badge.svg)](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd-staging.yml)
 # Compass 🧭
 Compass is a web application for the Stadtmuur organization, which allows the participants to record their working hours, track their mood, track exceptional incidents, create daily reports and visualize this information.
 

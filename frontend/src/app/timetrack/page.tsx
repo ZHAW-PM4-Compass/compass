@@ -1,20 +1,21 @@
 'use client';
-import React, { useState } from "react";
-// Import the API and DTOs from your client library
+// Ensure all imports are at the top
+import React, { useState, ChangeEvent } from "react";
 import { DaySheetControllerApi, CreateDaySheetDto } from './../../../compassClient';
 
-export default function TimetrackExample() {
-  const [daySheet, setDaySheet] = useState({ id: '', date: '', dayReport: '' });
+// Typing the component props (if any) enhances readability and maintainability
+interface TimetrackExampleProps {}
+
+const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
+  const [daySheet, setDaySheet] = useState<{ id: string; date: string; dayReport: string }>({ id: '', date: '', dayReport: '' });
   const api = new DaySheetControllerApi();
 
-  // Handle form updates
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setDaySheet({ ...daySheet, [name]: value });
   };
 
-  // Handle day sheet creation
-  const handleCreateSubmit = async (e) => {
+  const handleCreateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const createDaySheetDto: CreateDaySheetDto = {
       date: new Date(daySheet.date),
@@ -31,17 +32,22 @@ export default function TimetrackExample() {
     }
   };
 
-  // Function to handle data fetching by ID
-  const fetchDataById = async (e) => {
+  const fetchDataById = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const id = parseInt(daySheet.id);
       const data = await api.getDaySheetById({ id });
       console.log(data);
-      document.getElementById('dataDisplay').innerHTML = JSON.stringify(data, null, 2);
+      const element = document.getElementById('dataDisplay');
+      if (element) {
+        element.innerHTML = JSON.stringify(data, null, 2);
+      }
     } catch (error) {
       console.error("Failed to fetch day sheet:", error);
-      document.getElementById('dataDisplay').innerHTML = "Failed to fetch day sheet.";
+      const element = document.getElementById('dataDisplay');
+      if (element) {
+        element.innerHTML = "Failed to fetch day sheet.";
+      }
     }
   };
 
@@ -51,35 +57,20 @@ export default function TimetrackExample() {
 
       <form className="mb-8" onSubmit={handleCreateSubmit}>
         <h2 className="text-xl font-semibold">Create Day Sheet</h2>
-        <input
-          type="date"
-          name="date"
-          placeholder="Date"
-          value={daySheet.date}
-          onChange={handleInputChange}
-        />
-        <textarea
-          name="dayReport"
-          placeholder="Day Report"
-          value={daySheet.dayReport}
-          onChange={handleInputChange}
-        />
+        <input type="date" name="date" placeholder="Date" value={daySheet.date} onChange={handleInputChange} />
+        <textarea name="dayReport" placeholder="Day Report" value={daySheet.dayReport} onChange={handleInputChange} />
         <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-md">Create Day Sheet</button>
       </form>
 
       <form onSubmit={fetchDataById}>
         <h2 className="text-xl font-semibold">Get Day Sheet By ID</h2>
-        <input
-          type="text"
-          name="id"
-          placeholder="ID"
-          value={daySheet.id}
-          onChange={handleInputChange}
-        />
+        <input type="text" name="id" placeholder="ID" value={daySheet.id} onChange={handleInputChange} />
         <button type="submit" className="px-4 py-2 bg-green-500 text-white rounded-md">Fetch Day Sheet</button>
       </form>
 
       <pre id="dataDisplay" className="text-left"></pre>
     </main>
   );
-}
+};
+
+export default TimetrackExample;

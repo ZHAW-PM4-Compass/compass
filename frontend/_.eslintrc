@@ -71,5 +71,14 @@
         ],
       },
     },
+    {
+      "files": ["compassClient/apis/*.ts"], // Adjust the pattern to match your generated files
+      "rules": {
+        // Disable specific rules or all rules
+        "@typescript-eslint/no-unused-vars": "off",
+        // or disable all rules for these files
+        "no-unused-vars": "off",
+      },
+    },
   ],
 }

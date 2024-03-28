@@ -7,7 +7,6 @@ const SimplePage: React.FC = () => {
   const [sheetId, setSheetId] = useState<string>('');
 
   const dateRef = useRef<HTMLInputElement>(null);
-  const sheetIdRef = useRef<HTMLInputElement>(null);
 
   const handleSubmitDaysheet = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -1,9 +1,10 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
-
 import ch.zhaw.pm4.compass.backend.exception.TimestampFormatException;
 import ch.zhaw.pm4.compass.backend.model.dto.*;
 import ch.zhaw.pm4.compass.backend.service.DaySheetService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Tag(name = "DaySheet Controller", description = "DaySheet Endpoint")
 @RestController
 @RequestMapping("/api/daysheet")
 public class DaySheetController {

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: compass-deployment
-  namespace: compass-prod
+  namespace: compass-stage
   labels:
     app: compass-app
   annotations:
@@ -24,6 +24,11 @@ spec:
         - containerPort: 3000
         - containerPort: 8080
         env:
+        - name: APP_URL
+          valueFrom:
+            configMapKeyRef:
+              name: compass-configmap
+              key: APP_URL
         - name: DB_HOST
           valueFrom:
             configMapKeyRef:

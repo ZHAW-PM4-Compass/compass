@@ -1,14 +1,25 @@
 'use client';
 // Ensure all imports are at the top
-import React, { useState, ChangeEvent } from "react";
-import { DaySheetControllerApi, CreateDaySheetDto } from './../../../compassClient';
+import React, { useState, ChangeEvent, useEffect } from "react";
+import { DaySheetControllerApi, CreateDaySheetDto, Configuration } from './../../../compassClient';
 
 // Typing the component props (if any) enhances readability and maintainability
 interface TimetrackExampleProps {}
 
 const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
   const [daySheet, setDaySheet] = useState<{ id: string; date: string; dayReport: string }>({ id: '', date: '', dayReport: '' });
-  const api = new DaySheetControllerApi();
+  const [api, setApi] = useState<DaySheetControllerApi | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/token").then((response) => {
+      response.json().then(({ accessToken }) => {
+        console.log(accessToken)
+        const apiConfig = new Configuration({ headers: { Authorization: `Bearer ${accessToken}` }});
+        const daySheetControllerApi = new DaySheetControllerApi(apiConfig);
+        setApi(daySheetControllerApi);
+      })
+    });
+  }, []);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

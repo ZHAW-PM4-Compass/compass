@@ -19,14 +19,19 @@ const SubTitle: React.FC<{ collapsed: boolean, label: string, withLine?: boolean
   );
 }
 
-const MenuItem: React.FC<{ collapsed: boolean, icon: string; label: string, route: string, className?: any }> = ({ collapsed, icon, label, route, className }) => {
+const MenuItem: React.FC<{ collapsed: boolean, icon: string; label: string, route?: string, onClick?: any, className?: any }> = ({ collapsed, icon, label, route, onClick, className }) => {
   const router = useRouter();
   const pathname = usePathname();
+
+  const onClickHandler = () => {
+    if (route) router.push(route);
+    if (onClick) onClick();
+  }
 
   return (
     <div 
       className={`${className} ${collapsed ? "mt-3 px-1.5 py-1.5 " : "mt-1 flex flex-row px-3 py-2.5"} rounded-lg cursor-pointer hover:bg-gray-100 duration-150 ${pathname === route ? 'bg-gradient-to-r from-gray-100 to-gray-200' : ''}`}
-      onClick={() => router.push(route)}
+      onClick={onClickHandler}
       >
       <img src={icon} className="w-5 h-5 mr-2.5" />
       {!collapsed ? (<p className="text-sm">{label}</p>) : null}
@@ -82,13 +87,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const { user } = useUser();
-  const [menuOpen, setMenuOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const toggleMenu = () => setMenuOpen(!menuOpen);
 
   return (
     <>
       <div className="sm:flex sm:flex-row h-screen w-screen absolute">
         <div className={`${menuOpen ? "w-full sm:w-64" : "hidden sm:block sm:w-16"} absolute sm:relative border-r-0 border-gray-300 z-20 h-full bg-white`}>
-          <div className={`${menuOpen ? "px-7 w-full" : "px-4"} py-6`}>
+          <div className={`${menuOpen ? "px-7 w-full" : "px-4"} py-6 flex flex-col h-full`}>
             <div className="flex">
               {menuOpen ? (
                 <h1 className="text-lg font-bold grow leading-9">Compass 🧭</h1>
@@ -100,17 +107,24 @@ export default function RootLayout({
               </button>
             </div>
             <SubTitle collapsed={!menuOpen} label="Allgemein" />
-            <MenuItem collapsed={!menuOpen} icon="/icons/home.svg" label="Home" route="/home"/>
+            <MenuItem collapsed={!menuOpen} icon="/icons/home.svg" label="Home" route="/home" onClick={toggleMenu}/>
             <SubTitle collapsed={!menuOpen} label="Erfassen" withLine={true} />
-            <MenuItem collapsed={!menuOpen} icon="/icons/timetrack.svg" label="Zeit" route="/times" />
-            <MenuItem collapsed={!menuOpen} icon="/icons/mood.svg" label="Stimmung" route="/moods" />
-            <MenuItem collapsed={!menuOpen} icon="/icons/incident.svg" label="Vorfall" route="/incidents" />
+            <MenuItem collapsed={!menuOpen} icon="/icons/timetrack.svg" label="Zeit" route="/times" onClick={toggleMenu} />
+            <MenuItem collapsed={!menuOpen} icon="/icons/mood.svg" label="Stimmung" route="/moods" onClick={toggleMenu} />
+            <MenuItem collapsed={!menuOpen} icon="/icons/incident.svg" label="Vorfall" route="/incidents" onClick={toggleMenu} />
             <SubTitle collapsed={!menuOpen} label="Verwalten" withLine={true} />
-            <MenuItem collapsed={!menuOpen} icon="/icons/user.svg" label="Benutzer" route="/users" />
-            <MenuItem collapsed={!menuOpen} icon="/icons/user.svg" label="Benutzer" route="/users" />
+            <MenuItem collapsed={!menuOpen} icon="/icons/user.svg" label="Benutzer" route="/users" onClick={toggleMenu} />
+            <div className="grow"></div>
+            {
+              menuOpen ? (
+                <MenuItem className="hidden sm:block" collapsed={false} icon="/icons/collapse.svg" label="Zusammenklappen" onClick={toggleMenu} />
+              ) : (
+                <MenuItem className="hidden sm:block" collapsed={true} icon="/icons/expand.svg" label="Expandieren" onClick={toggleMenu} />
+              )
+            }
           </div>
         </div>
-        <div className="absolute: sm:relative grow z-10 pt-20 sm:pt-0 bg-gray-100">
+        <div className="sm:relative grow z-10 pt-20 sm:pt-0 bg-gray-100 h-full">
           {children}
           {
             user ? (
@@ -118,7 +132,7 @@ export default function RootLayout({
             ) : null
           }
         </div>
-        <button className="absolute left-5 top-5 block sm:hidden p-2 bg-white hover:bg-gray-200 duration-150 border-2 rounded-md" onClick={() => setMenuOpen(!menuOpen)}>
+        <button className="absolute left-5 top-5 block sm:hidden p-2 border-2 border-gray-200 bg-gray-100 hover:bg-gray-200 duration-150 rounded-md" onClick={toggleMenu}>
           <img src="/icons/menu.svg" className="w-5 h-5" />
         </button>
       </div>

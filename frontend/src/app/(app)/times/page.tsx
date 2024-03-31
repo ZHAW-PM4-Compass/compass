@@ -1,7 +1,7 @@
 'use client';
 // Ensure all imports are at the top
 import React, { useState, ChangeEvent, useEffect } from "react";
-import { DaySheetControllerApi, CreateDaySheetDto, Configuration } from './../../../compassClient';
+import { DaySheetControllerApi, CreateDaySheetDto, Configuration } from '../../../../compassClient';
 
 // Typing the component props (if any) enhances readability and maintainability
 interface TimetrackExampleProps {}

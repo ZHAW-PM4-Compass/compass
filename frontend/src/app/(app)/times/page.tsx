@@ -13,7 +13,6 @@ const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
   useEffect(() => {
     fetch("/api/auth/token").then((response) => {
       response.json().then(({ accessToken }) => {
-        console.log(accessToken)
         const apiConfig = new Configuration({ headers: { Authorization: `Bearer ${accessToken}` }});
         const daySheetControllerApi = new DaySheetControllerApi(apiConfig);
         setApi(daySheetControllerApi);
@@ -36,7 +35,6 @@ const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
     try {
       const response = await api.createDaySheet({ createDaySheetDto });
       alert("Day sheet created successfully!");
-      console.log(response);
     } catch (error) {
       console.error("Failed to create day sheet:", error);
       alert("Failed to create day sheet.");
@@ -48,7 +46,6 @@ const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
     try {
       const id = parseInt(daySheet.id);
       const data = await api.getDaySheetById({ id });
-      console.log(data);
       const element = document.getElementById('dataDisplay');
       if (element) {
         element.innerHTML = JSON.stringify(data, null, 2);

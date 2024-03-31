@@ -15,9 +15,9 @@ const Landing: React.FC = () => {
 
   return (
     isLoading || user ? <Loading /> :
-    <div className="w-full h-screen bg-gray-100 backdrop-blur-lg bg-no-repeat bg-center bg-cover flex items-center justify-center">
+    <div className="w-full h-screen bg-slate-100 backdrop-blur-lg bg-no-repeat bg-center bg-cover flex items-center justify-center">
         <div className="flex-col">
-          <h1 className="text-4xl font-bold text-gray-900">Compass 🧭</h1>
+          <h1 className="text-4xl font-bold text-slate-900">Compass 🧭</h1>
           <Button className="mt-6" onClick={login}>Login</Button>
         </div>
     </div>

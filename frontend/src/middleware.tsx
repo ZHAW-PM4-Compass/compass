@@ -3,5 +3,5 @@ import { withMiddlewareAuthRequired } from "@auth0/nextjs-auth0/edge";
 export default withMiddlewareAuthRequired();
 
 export const config = {
-  matcher: ["/home","/timetrack"],
+  matcher: ["/home","/incidents", "/moods", "/times", "/users"],
 };

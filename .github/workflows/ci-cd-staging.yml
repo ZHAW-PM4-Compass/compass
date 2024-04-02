@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: # enables manual trigger
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    environment: staging
     steps:
       - uses: actions/checkout@v2
 

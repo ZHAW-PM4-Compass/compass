@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: compass-configmap
+  namespace: compass-prod
+  labels:
+    app: compass-app
+data:
+  APP_URL: compass.pm4.init-lab.ch

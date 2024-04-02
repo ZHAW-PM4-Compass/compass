@@ -6,10 +6,13 @@ import ch.zhaw.pm4.compass.backend.model.dto.GetDaySheetDto;
 import ch.zhaw.pm4.compass.backend.model.dto.GetTimestampDto;
 import ch.zhaw.pm4.compass.backend.model.dto.UpdateTimestampDto;
 import ch.zhaw.pm4.compass.backend.service.TimestampService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.hibernate.sql.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Timestamp Controller", description = "Timestamp Endpoint")
 @RestController
 @RequestMapping("/api/timestamp")
 public class TimestampController {

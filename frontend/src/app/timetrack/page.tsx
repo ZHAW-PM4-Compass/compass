@@ -1,13 +1,13 @@
 'use client';
-// Ensure all imports are at the top
 import React, { useState, ChangeEvent } from "react";
-import { DaySheetControllerApi, CreateDaySheetDto } from './../../../compassClient';
+// Adjust the import paths according to your project structure
+import { DaySheetControllerApi, CreateDaySheetDto } from './../../api/compassClient';
 
-// Typing the component props (if any) enhances readability and maintainability
 interface TimetrackExampleProps {}
 
 const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
   const [daySheet, setDaySheet] = useState<{ id: string; date: string; dayReport: string }>({ id: '', date: '', dayReport: '' });
+  // Instantiate the API client with Axios configuration if needed
   const api = new DaySheetControllerApi();
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -17,15 +17,17 @@ const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
 
   const handleCreateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Ensure correct date formatting if required by your backend, e.g., ISO string
     const createDaySheetDto: CreateDaySheetDto = {
-      date: new Date(daySheet.date),
-      dayReport: daySheet.dayReport,
+      date: daySheet.date, // Assuming 'date' is expected to be a string in ISO format
+      day_report: daySheet.dayReport,
     };
 
     try {
-      const response = await api.createDaySheet({ createDaySheetDto });
+      // Directly pass parameters without wrapping in an object
+      const response = await api.createDaySheet(createDaySheetDto);
       alert("Day sheet created successfully!");
-      console.log(response);
+      console.log(response.data); // Accessing data property for Axios response
     } catch (error) {
       console.error("Failed to create day sheet:", error);
       alert("Failed to create day sheet.");
@@ -36,11 +38,12 @@ const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
     e.preventDefault();
     try {
       const id = parseInt(daySheet.id);
-      const data = await api.getDaySheetById({ id });
-      console.log(data);
+      // Directly pass parameters without wrapping in an object
+      const response = await api.getDaySheetById(id);
+      console.log(response.data); // Accessing data property for Axios response
       const element = document.getElementById('dataDisplay');
       if (element) {
-        element.innerHTML = JSON.stringify(data, null, 2);
+        element.innerHTML = JSON.stringify(response.data, null, 2);
       }
     } catch (error) {
       console.error("Failed to fetch day sheet:", error);

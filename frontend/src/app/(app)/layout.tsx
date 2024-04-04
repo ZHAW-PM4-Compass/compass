@@ -9,14 +9,17 @@ import HomeIcon from "@fluentui/svg-icons/icons/home_24_regular.svg";
 import HomeIconFilled from "@fluentui/svg-icons/icons/home_24_filled.svg";
 import TimeIcon from "@fluentui/svg-icons/icons/timeline_24_regular.svg";
 import TimeIconFilled from "@fluentui/svg-icons/icons/timeline_24_filled.svg";
-import MoodIcon from "@fluentui/svg-icons/icons/communication_person_24_regular.svg";
-import MoodIconFilled from "@fluentui/svg-icons/icons/communication_person_24_filled.svg";
+import MoodIcon from "@fluentui/svg-icons/icons/person_voice_24_regular.svg";
+import MoodIconFilled from "@fluentui/svg-icons/icons/person_voice_24_filled.svg";
 import IncidentIcon from "@fluentui/svg-icons/icons/alert_24_regular.svg";
 import IncidentIconFilled from "@fluentui/svg-icons/icons/alert_24_filled.svg";
-import UserIcon from "@fluentui/svg-icons/icons/person_24_regular.svg";
-import UserIconFilled from "@fluentui/svg-icons/icons/person_24_filled.svg";
+import UserIcon from "@fluentui/svg-icons/icons/people_24_regular.svg";
+import UserIconFilled from "@fluentui/svg-icons/icons/people_24_filled.svg";
+
 import ExpandMenuIcon from "@fluentui/svg-icons/icons/chevron_right_24_regular.svg";
 import CollapseMenuIcon from "@fluentui/svg-icons/icons/chevron_left_24_regular.svg";
+import MenuIcon from "@fluentui/svg-icons/icons/list_24_regular.svg";
+import MenuCloseIcon from "@fluentui/svg-icons/icons/dismiss_24_regular.svg";
 
 const SubTitle: React.FC<{ collapsed: boolean, label: string, withLine?: boolean }> = ({ collapsed, label, withLine }) => {
   return (
@@ -118,8 +121,8 @@ export default function RootLayout({
               ) : (
                 <h1 className="text-lg px-1.5 py-1.5">🧭</h1>
               )}
-              <button className="p-2 bg-slate-100 hover:bg-slate-200 duration-150 rounded-md sm:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-                <img src="/icons/close.svg" className="w-5 h-5" />
+              <button className="p-2 bg-white hover:bg-slate-100 duration-150 rounded-md sm:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+                <img src={MenuCloseIcon.src} className="w-5 h-5" />
               </button>
             </div>
             <SubTitle collapsed={!menuOpen} label="Allgemein" />
@@ -148,8 +151,8 @@ export default function RootLayout({
             ) : null
           }
         </div>
-        <button className="absolute left-5 top-5 block sm:hidden p-2 bg-white hover:bg-slate-100 duration-150 rounded-md" onClick={toggleMenu}>
-          <img src="/icons/menu.svg" className="w-5 h-5" />
+        <button className="absolute left-5 top-5 block sm:hidden p-2 hover:bg-slate-200 duration-150 rounded-md" onClick={toggleMenu}>
+          <img src={MenuIcon.src} className="w-5 h-5" />
         </button>
       </div>
     </>

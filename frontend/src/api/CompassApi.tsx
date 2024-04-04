@@ -1,4 +1,3 @@
-import { env } from 'process';
 import { Configuration, DaySheetControllerApi } from './compassClient'; // Adjust the import path as necessary
 import axios from 'axios';
 
@@ -6,7 +5,7 @@ class CompassApi {
   getApiConfiguration = () => {
     return this.fetchAccessToken().then(accessToken => {
       return new Configuration({
-        basePath: env.REACT_APP_API_BASE_PATH, // Use the environment variable for the base path
+        basePath: process.env.NEXT_PUBLIC_API_BASE_PATH,
         baseOptions: {
           headers: {
             Authorization: `Bearer ${accessToken}`,

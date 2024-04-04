@@ -29,7 +29,7 @@ const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
 
     try {
       // Directly pass parameters without wrapping in an object
-      const response = await daySheetApi.createDaySheet(createDaySheetDto);
+      const response = daySheetApi ? await daySheetApi.createDaySheet(createDaySheetDto) : null;
       alert("Day sheet created successfully!");
     } catch (error) {
       console.error("Failed to create day sheet:", error);
@@ -42,10 +42,10 @@ const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
     try {
       const id = parseInt(daySheet.id);
       // Directly pass parameters without wrapping in an object
-      const response = await daySheetApi.getDaySheetById(id);
+      const response = daySheetApi ? await daySheetApi.getDaySheetById(id) : null;
       const element = document.getElementById('dataDisplay');
       if (element) {
-        element.innerHTML = JSON.stringify(response.data, null, 2);
+        element.innerHTML = JSON.stringify(response?.data, null, 2);
       }
     } catch (error) {
       console.error("Failed to fetch day sheet:", error);

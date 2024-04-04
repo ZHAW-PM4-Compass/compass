@@ -1,33 +1,32 @@
 import { env } from 'process';
 import { Configuration, DaySheetControllerApi } from './compassClient'; // Adjust the import path as necessary
-
+import axios from 'axios';
 
 class CompassApi {
-  // Function to get the API configuration
-
-
-  // Function to fetch the token; assumed to be asynchronous
-  //async function fetchAccessToken(): Promise<string> {
-  //  const response = await fetch("/api/auth/token");
-  //  const { accessToken } = await response.json();
-  //  return accessToken;
-  //}
-
-  getApiConfiguration() {
-    return new Configuration({
-      basePath: env.REACT_APP_API_BASE_PATH, // Use the environment variable for the base path
-      //accessToken: () => fetchAccessToken(), // Use the async function to fetch the token
+  getApiConfiguration = () => {
+    return this.fetchAccessToken().then(accessToken => {
+      return new Configuration({
+        basePath: env.REACT_APP_API_BASE_PATH, // Use the environment variable for the base path
+        baseOptions: {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        }
+      })
     });
   }
 
-
-  public daySheetApi = () => {
-    const api = new DaySheetControllerApi(this.getApiConfiguration());
-    return api;
+  private fetchAccessToken = () => {
+    return axios.get("/api/auth/token").then(response => {
+      return response.data.accessToken;
+    });
   };
 
-
-  
+  public daySheetApi = async () => {
+    return this.getApiConfiguration().then(config => {
+      return new DaySheetControllerApi(config);
+    });
+  };
 }
 
 export default CompassApi;

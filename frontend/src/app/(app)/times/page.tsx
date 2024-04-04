@@ -2,22 +2,17 @@
 import React, { useState, ChangeEvent, useEffect } from "react";
 import { DaySheetControllerApi, CreateDaySheetDto } from "@/api/compassClient";
 import { Configuration } from "@/api/compassClient";
+import CompassApi from "@/api/CompassApi";
 
 interface TimetrackExampleProps {}
 
 const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
   const [daySheet, setDaySheet] = useState<{ id: string; date: string; dayReport: string }>({ id: '', date: '', dayReport: '' });
-  const [api, setApi] = useState<DaySheetControllerApi | null>(null);
+  const [daySheetApi, setDaySheetApi] = useState<DaySheetControllerApi | null>(null);
 
   useEffect(() => {
-    fetch("/api/auth/token").then((response) => {
-      response.json().then(({ accessToken }) => {
-        const apiConfig = new Configuration({ accessToken });
-        const daySheetControllerApi = new DaySheetControllerApi(apiConfig);
-        setApi(daySheetControllerApi);
-      })
-    });
-  }, []);
+    new CompassApi().daySheetApi().then(api => setDaySheetApi(api));
+  },[]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -34,7 +29,7 @@ const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
 
     try {
       // Directly pass parameters without wrapping in an object
-      const response = await api.createDaySheet(createDaySheetDto);
+      const response = await daySheetApi.createDaySheet(createDaySheetDto);
       alert("Day sheet created successfully!");
     } catch (error) {
       console.error("Failed to create day sheet:", error);
@@ -47,7 +42,7 @@ const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
     try {
       const id = parseInt(daySheet.id);
       // Directly pass parameters without wrapping in an object
-      const response = await api.getDaySheetById(id);
+      const response = await daySheetApi.getDaySheetById(id);
       const element = document.getElementById('dataDisplay');
       if (element) {
         element.innerHTML = JSON.stringify(response.data, null, 2);

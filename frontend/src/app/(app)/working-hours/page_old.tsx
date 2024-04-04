@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, ChangeEvent, useEffect } from "react";
 import { DaySheetControllerApi, CreateDaySheetDto } from "@/api/compassClient";
-import { Configuration } from "@/api/compassClient";
 import CompassApi from "@/api/CompassApi";
 
 interface TimetrackExampleProps {}

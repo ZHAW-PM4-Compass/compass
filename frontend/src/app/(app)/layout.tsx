@@ -128,7 +128,7 @@ export default function RootLayout({
             <SubTitle collapsed={!menuOpen} label="Allgemein" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={HomeIcon} iconActive={HomeIconFilled} label="Home" route="/home" />
             <SubTitle collapsed={!menuOpen} label="Erfassen" withLine={true} />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={TimeIcon} iconActive={TimeIconFilled} label="Zeit" route="/times" />
+            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={TimeIcon} iconActive={TimeIconFilled} label="Arbeitszeit" route="/working-hours" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
             <SubTitle collapsed={!menuOpen} label="Verwalten" withLine={true} />

@@ -5,6 +5,19 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import HomeIcon from "@fluentui/svg-icons/icons/home_24_regular.svg";
+import HomeIconFilled from "@fluentui/svg-icons/icons/home_24_filled.svg";
+import TimeIcon from "@fluentui/svg-icons/icons/timeline_24_regular.svg";
+import TimeIconFilled from "@fluentui/svg-icons/icons/timeline_24_filled.svg";
+import MoodIcon from "@fluentui/svg-icons/icons/communication_person_24_regular.svg";
+import MoodIconFilled from "@fluentui/svg-icons/icons/communication_person_24_filled.svg";
+import IncidentIcon from "@fluentui/svg-icons/icons/alert_24_regular.svg";
+import IncidentIconFilled from "@fluentui/svg-icons/icons/alert_24_filled.svg";
+import UserIcon from "@fluentui/svg-icons/icons/person_24_regular.svg";
+import UserIconFilled from "@fluentui/svg-icons/icons/person_24_filled.svg";
+import ExpandMenuIcon from "@fluentui/svg-icons/icons/chevron_right_24_regular.svg";
+import CollapseMenuIcon from "@fluentui/svg-icons/icons/chevron_left_24_regular.svg";
+
 const SubTitle: React.FC<{ collapsed: boolean, label: string, withLine?: boolean }> = ({ collapsed, label, withLine }) => {
   return (
     collapsed ? (
@@ -19,7 +32,7 @@ const SubTitle: React.FC<{ collapsed: boolean, label: string, withLine?: boolean
   );
 }
 
-const MenuItem: React.FC<{ collapsed: boolean, icon: string; label: string, route?: string, onClick?: any, className?: any }> = ({ collapsed, icon, label, route, onClick, className }) => {
+const MenuItem: React.FC<{ collapsed: boolean, icon: { src: string }; iconActive?: { src: string }; label: string, route?: string, onClick?: any, className?: any }> = ({ collapsed, icon, iconActive, label, route, onClick, className }) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -28,12 +41,15 @@ const MenuItem: React.FC<{ collapsed: boolean, icon: string; label: string, rout
     if (onClick) onClick();
   }
 
+  const isActive = pathname === route;
+  const iconSrc = isActive && iconActive ? iconActive.src : icon.src;
+
   return (
     <div 
-      className={`${className} ${collapsed ? "mt-3 px-1.5 py-1.5 " : "mt-1 flex flex-row px-3 py-2.5"} rounded-lg cursor-pointer hover:bg-slate-100 ${pathname === route ? 'bg-gradient-to-r from-slate-100 to-slate-200' : ''}`}
+      className={`${className} ${collapsed ? "mt-3 px-1.5 py-1.5 " : "mt-1 flex flex-row px-3 py-2.5"} rounded-lg cursor-pointer hover:bg-slate-100 ${isActive ? 'bg-gradient-to-r from-slate-100 to-slate-200' : ''}`}
       onClick={onClickHandler}
       >
-      <img src={icon} className="w-5 h-5 mr-2.5" />
+      <img src={iconSrc} className="w-5 h-5 mr-2.5" />
       {!collapsed ? (<p className="text-sm">{label}</p>) : null}
     </div>
   );
@@ -107,19 +123,19 @@ export default function RootLayout({
               </button>
             </div>
             <SubTitle collapsed={!menuOpen} label="Allgemein" />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon="/icons/home.svg" label="Home" route="/home" />
+            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={HomeIcon} iconActive={HomeIconFilled} label="Home" route="/home" />
             <SubTitle collapsed={!menuOpen} label="Erfassen" withLine={true} />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon="/icons/timetrack.svg" label="Zeit" route="/times" />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon="/icons/mood.svg" label="Stimmung" route="/moods" />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon="/icons/incident.svg" label="Vorfall" route="/incidents" />
+            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={TimeIcon} iconActive={TimeIconFilled} label="Zeit" route="/times" />
+            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
+            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
             <SubTitle collapsed={!menuOpen} label="Verwalten" withLine={true} />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon="/icons/user.svg" label="Benutzer" route="/users" />
+            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={UserIcon} iconActive={UserIconFilled} label="Benutzer" route="/users" />
             <div className="grow"></div>
             {
               menuOpen ? (
-                <MenuItem className="hidden sm:flex" collapsed={!menuOpen} icon="/icons/collapse.svg" label="Zuklappen" onClick={toggleMenu} />
+                <MenuItem className="hidden sm:flex" collapsed={!menuOpen} icon={CollapseMenuIcon} label="Zuklappen" onClick={toggleMenu} />
               ) : (
-                <MenuItem className="hidden sm:flex" collapsed={true} icon="/icons/expand.svg" label="Expandieren" onClick={toggleMenu} />
+                <MenuItem className="hidden sm:flex" collapsed={true} icon={ExpandMenuIcon} label="Expandieren" onClick={toggleMenu} />
               )
             }
           </div>

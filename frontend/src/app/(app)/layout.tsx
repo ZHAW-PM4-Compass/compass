@@ -110,7 +110,7 @@ export default function RootLayout({
   return (
     <>
       <div className="sm:flex sm:flex-row h-screen w-screen absolute">
-        <div className={`${menuOpen ? "w-full sm:w-64" : "hidden sm:block sm:w-16"} absolute sm:relative border-r-0 border-slate-300 z-20 h-full bg-white`}>
+        <div className={`${menuOpen ? "w-full sm:w-64" : "hidden sm:block sm:w-16"} absolute sm:relative border-r-0 border-slate-300 z-20 h-full bg-white overflow-y-auto`}>
           <div className={`${menuOpen ? "p-5 w-full" : "p-4"}  flex flex-col h-full`}>
             <div className="flex">
               {menuOpen ? (

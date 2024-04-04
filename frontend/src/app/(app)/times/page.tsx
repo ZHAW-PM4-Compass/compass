@@ -1,9 +1,8 @@
 'use client';
-// Ensure all imports are at the top
 import React, { useState, ChangeEvent, useEffect } from "react";
-import { DaySheetControllerApi, CreateDaySheetDto, Configuration } from '../../../../compassClient';
+import { DaySheetControllerApi, CreateDaySheetDto } from "@/api/compassClient";
+import { Configuration } from "@/api/compassClient";
 
-// Typing the component props (if any) enhances readability and maintainability
 interface TimetrackExampleProps {}
 
 const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
@@ -13,7 +12,7 @@ const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
   useEffect(() => {
     fetch("/api/auth/token").then((response) => {
       response.json().then(({ accessToken }) => {
-        const apiConfig = new Configuration({ headers: { Authorization: `Bearer ${accessToken}` }});
+        const apiConfig = new Configuration({ accessToken });
         const daySheetControllerApi = new DaySheetControllerApi(apiConfig);
         setApi(daySheetControllerApi);
       })
@@ -27,13 +26,15 @@ const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
 
   const handleCreateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Ensure correct date formatting if required by your backend, e.g., ISO string
     const createDaySheetDto: CreateDaySheetDto = {
-      date: new Date(daySheet.date),
-      dayReport: daySheet.dayReport,
+      date: daySheet.date, // Assuming 'date' is expected to be a string in ISO format
+      day_report: daySheet.dayReport,
     };
 
     try {
-      const response = await api.createDaySheet({ createDaySheetDto });
+      // Directly pass parameters without wrapping in an object
+      const response = await api.createDaySheet(createDaySheetDto);
       alert("Day sheet created successfully!");
     } catch (error) {
       console.error("Failed to create day sheet:", error);
@@ -45,10 +46,11 @@ const TimetrackExample: React.FC<TimetrackExampleProps> = () => {
     e.preventDefault();
     try {
       const id = parseInt(daySheet.id);
-      const data = await api.getDaySheetById({ id });
+      // Directly pass parameters without wrapping in an object
+      const response = await api.getDaySheetById(id);
       const element = document.getElementById('dataDisplay');
       if (element) {
-        element.innerHTML = JSON.stringify(data, null, 2);
+        element.innerHTML = JSON.stringify(response.data, null, 2);
       }
     } catch (error) {
       console.error("Failed to fetch day sheet:", error);

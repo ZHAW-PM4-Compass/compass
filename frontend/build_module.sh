@@ -4,7 +4,7 @@
 DOCS_URL="http://localhost:8080/v3/api-docs"
 
 # Directory to output the generated TypeScript client
-OUTPUT_DIR="./compassClient"
+OUTPUT_DIR="./src/api/compassClient"
 
 # Save the current directory
 CURRENT_DIR=$(pwd)
@@ -14,7 +14,8 @@ if curl --output /dev/null --silent --head --fail "$DOCS_URL"; then
   echo "API docs are accessible. Proceeding with client generation."
 
   # Use openapi-generator-cli to generate the TypeScript client
-  npx @openapitools/openapi-generator-cli generate -i $DOCS_URL -g typescript-fetch -o $OUTPUT_DIR
+  npx @openapitools/openapi-generator-cli generate -i $DOCS_URL -g typescript-axios -o $OUTPUT_DIR
+  # openapi-generator-cli generate -i https://linktomybackendswagger/swagger.json -g typescript-axios -o src/components/api --additional-properties=supportsES6=true
 
   # Check if the TypeScript client was generated successfully
   if [ -d "$OUTPUT_DIR" ] && [ "$(ls -A $OUTPUT_DIR)" ]; then

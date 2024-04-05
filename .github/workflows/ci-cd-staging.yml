@@ -33,5 +33,5 @@ jobs:
         uses: ./.github/actions/setup-redeploy-k8s
         with:
           kubeconfig_data: ${{ secrets.KUBE_CONFIG_DATA }}
-          image_tag: pm4compass/compass:latest
-          namespace: compass-prod
+          image_tag: pm4compass/compass:${{ github.sha }}
+          namespace: compass-stage

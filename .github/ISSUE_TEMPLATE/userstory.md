@@ -1,26 +1,26 @@
 ---
 name: Userstory
 about: This template is set according to our "Definition of Ready" for userstories
-title: ''
+title: As a user/admin/participant/social worker I want to ....
 labels: ''
 assignees: ''
 
 ---
 
-*** Description ***
+**Description**
 If the title is not enough to describe the whole userstory add any missing info here. Else delete section.
 
-*** Estimate ***
+**Estimate**
 xx Storypoints
 
-*** Tasks Checklist ***
-- [] Task 1
-- [] Task 2
-- [] ...
+**Tasks Checklist**
+- [ ] Task 1
+- [ ] Task 2
+- [ ] ...
 
-*** Non-Functional Requirements ***
+**Non-Functional Requirements**
 - If necessary add NFRs here
 - Else delete section
 
-*** Dependencies ***
+**Dependencies**
 This user story (needs, blocks, has to be done with, depends on etc) : #xx

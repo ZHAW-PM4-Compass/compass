@@ -9,12 +9,13 @@ jobs:
   e2e-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Run E2E Tests
-        uses: ./.github/actions/e2e-test-action
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Run E2E Tests and Upload Coverage
+        uses: ./.github/actions/run-e2e-tests
         with:
           working-directory: "./frontend"
-
+          codecov-token: ${{ secrets.CODECOV_TOKEN }}
   build-backend:
     needs: e2e-tests
     runs-on: ubuntu-latest
@@ -44,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set Up K8s and Redeploy Backend
-        uses: ./.github/actions/setup-redeploy-k8s-backend
+        uses: ./.github/actions/redeploy-k8s-backend
         with:
           kubeconfig_data: ${{ secrets.KUBE_CONFIG_DATA }}
           backend_image_tag: pm4compass/compass-backend:${{ github.sha }}
@@ -55,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set Up K8s and Redeploy Frontend
-        uses: ./.github/actions/setup-redeploy-k8s-frontend
+        uses: ./.github/actions/redeploy-k8s-frontend
         with:
           kubeconfig_data: ${{ secrets.KUBE_CONFIG_DATA }}
           frontend_image_tag: pm4compass/compass-frontend:${{ github.sha }}

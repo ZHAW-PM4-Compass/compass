@@ -7,3 +7,4 @@ metadata:
     app: compass-app
 data:
   APP_URL: compass-staging.pm4.init-lab.ch
+  DDL_AUTO: update

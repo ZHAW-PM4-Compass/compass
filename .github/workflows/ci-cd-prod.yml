@@ -45,6 +45,7 @@ jobs:
     needs: [build-backend, build-frontend]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Set Up K8s and Redeploy Backend
         uses: ./.github/actions/redeploy-k8s-backend
         with:
@@ -56,6 +57,7 @@ jobs:
     needs: [build-backend, build-frontend]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Set Up K8s and Redeploy Frontend
         uses: ./.github/actions/redeploy-k8s-frontend
         with:

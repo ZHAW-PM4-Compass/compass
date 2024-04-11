@@ -1,5 +1,5 @@
-name: "Build and Push Docker Image"
-description: "Builds and pushes Docker image to Docker Hub with dynamic tags"
+name: "Build and Push Backend Docker Image"
+description: "Builds and pushes Backend Docker image to Docker Hub with dynamic tags"
 inputs:
   docker_username:
     description: "Docker Hub Username"
@@ -8,7 +8,7 @@ inputs:
     description: "Docker Hub Password"
     required: true
   image_tag:
-    description: "Docker image tag to use for the build"
+    description: "Backend Docker image tag to use for the build"
     required: true
 
 runs:
@@ -25,10 +25,10 @@ runs:
         username: ${{ inputs.docker_username }}
         password: ${{ inputs.docker_password }}
 
-    - name: Build and push Docker image
+    - name: Build and push Docker backend image
       uses: docker/build-push-action@v2
       with:
         context: .
-        file: ./Dockerfile
+        file: ./docker/Dockerfile.backend
         push: true
         tags: ${{ inputs.image_tag }}

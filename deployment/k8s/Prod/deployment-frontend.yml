@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compass-frontend-deployment
+  namespace: compass-prod
+  labels:
+    app: compass-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: compass-frontend
+  template:
+    metadata:
+      labels:
+        app: compass-frontend
+    spec:
+      containers:
+        - name: compass-frontend-container
+          image: pm4compass/compass-frontend:latest # Update this with your frontend image tag dynamically
+          ports:
+            - containerPort: 3000
+          env:
+            - name: APP_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: compass-configmap
+                  key: APP_URL
+          # Include other frontend-specific environment variables here
+      imagePullSecrets:
+        - name: docker-credentials

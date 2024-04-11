@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compass-backend-deployment
+  namespace: compass-prod
+  labels:
+    app: compass-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: compass-backend
+  template:
+    metadata:
+      labels:
+        app: compass-backend
+    spec:
+      containers:
+        - name: compass-backend-container
+          image: pm4compass/compass-backend:latest # Update this with your backend image tag dynamically
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-configmap
+                  key: DB_HOST
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: DB_PASSWORD
+          # Include other backend-specific environment variables here
+      imagePullSecrets:
+        - name: docker-credentials

@@ -1,24 +1,31 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: default
-  namespace: compass-staging
+  name: compass-ingress
+  namespace: compass-stage
 spec:
   ingressClassName: traefik
   rules:
-  - host: compass-staging.pm4.init-lab.ch
-    http:
-      paths:
-      - backend:
-          service:
-            name: compass
-            port:
-              number: 3000
-        path: /
-        pathType: Prefix
+    - host: compass-staging.pm4.init-lab.ch
+      http:
+        paths:
+          - backend:
+              service:
+                name: compass-backend-service
+                port:
+                  number: 8080
+            path: /api
+            pathType: Prefix
+          - backend:
+              service:
+                name: compass-frontend-service
+                port:
+                  number: 3000
+            path: /
+            pathType: Prefix
 status:
   loadBalancer:
     ingress:
-    - ip: 192.168.0.131
-    - ip: 192.168.0.132
-    - ip: 192.168.0.133
+      - ip: 192.168.0.131
+      - ip: 192.168.0.132
+      - ip: 192.168.0.133

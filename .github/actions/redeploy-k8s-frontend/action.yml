@@ -21,6 +21,6 @@ runs:
         kubeconfig: ${{ inputs.kubeconfig_data }}
 
     - run: |
-        kubectl set image deployment/frontend-deployment frontend-container=${{ inputs.frontend_image_tag }} -n ${{ inputs.namespace }}
-        kubectl patch deployment frontend-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"forceReDeployFrontend\":\"$(date +%s)\"}}}}}" -n ${{ inputs.namespace }}
+        kubectl set image deployment/compass-frontend-deployment compass-frontend-container=${{ inputs.frontend_image_tag }} -n ${{ inputs.namespace }}
+        kubectl patch deployment compass-frontend-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"forceReDeploy\":\"$(date +%s)\"}}}}}" -n ${{ inputs.namespace }}
       shell: bash

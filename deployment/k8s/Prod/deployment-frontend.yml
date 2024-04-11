@@ -5,6 +5,8 @@ metadata:
   namespace: compass-prod
   labels:
     app: compass-frontend
+  annotations:
+    forceReDeploy: "INITIAL_VALUE"
 spec:
   replicas: 1
   selector:

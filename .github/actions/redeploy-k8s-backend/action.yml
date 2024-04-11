@@ -21,6 +21,6 @@ runs:
         kubeconfig: ${{ inputs.kubeconfig_data }}
 
     - run: |
-        kubectl set image deployment/backend-deployment backend-container=${{ inputs.backend_image_tag }} -n ${{ inputs.namespace }}
-        kubectl patch deployment backend-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"forceReDeployBackend\":\"$(date +%s)\"}}}}}" -n ${{ inputs.namespace }}
+        kubectl set image deployment/compass-backend-deployment compass-backend-container=${{ inputs.backend_image_tag }} -n ${{ inputs.namespace }}
+        kubectl patch deployment compass-backend-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"forceReDeploy\":\"$(date +%s)\"}}}}}" -n ${{ inputs.namespace }}
       shell: bash

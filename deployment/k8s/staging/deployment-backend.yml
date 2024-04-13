@@ -28,6 +28,11 @@ spec:
                 configMapKeyRef:
                   name: compass-configmap
                   key: APP_URL
+            - name: DOCKER_ON
+              valueFrom:
+                configMapKeyRef:
+                  name: compass-configmap
+                  key: DOCKER_ON
             - name: DDL_AUTO
               valueFrom:
                 configMapKeyRef:

@@ -33,6 +33,11 @@ spec:
                 configMapKeyRef:
                   name: compass-configmap
                   key: DDL_AUTO
+            - name: NEXT_PUBLIC_API_BASE_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: compass-configmap
+                  key: NEXT_PUBLIC_API_BASE_PATH
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:

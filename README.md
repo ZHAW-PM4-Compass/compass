@@ -98,9 +98,20 @@ Refer to the code block from `frontend/README.md` lines 294-304 for more details
 This project can be containerized using Docker and orchestrated with Kubernetes. However, specific instructions for Docker and Kubernetes will depend on your project setup and requirements. Please refer to Docker's [official documentation](https://docs.docker.com/) and Kubernetes' [official documentation](https://kubernetes.io/docs/home/) for more information.
 
 
-## Makefile
-This project includes a Makefile with commands for building and running the project using Docker. Here are some of the commands you might find useful:
+## Makefile Usage
 
-- `make build`: Builds the Docker image for the project.
-- `make run`: Runs the Docker container.
-- `make test`: Runs tests in the Docker container.
+This project includes a Makefile with commands for building and running different components of the project using Docker. Here are some of the commands you might find useful:
+
+### Building Docker Images
+
+- `make build-backend`: Builds the Docker image for the backend part of the project.
+
+- `make build-frontend`: Builds the Docker image for the frontend part of the project.
+
+- `make build`: Builds the Docker images for both the frontend and backend parts of the project.
+
+### Running the Project
+
+- `make run`: Runs the Docker containers for the project using Docker Compose. This command starts up all the services defined in the `docker-compose.yml` file, including the frontend, backend, and any databases or other dependencies.
+
+- `make stop`: Stops all running Docker containers associated with the project's Docker Compose configuration. This command brings down all the services that were started with `make run`.

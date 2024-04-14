@@ -12,6 +12,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 @Tag(name = "DaySheet Controller", description = "DaySheet Endpoint")
 @RestController
@@ -26,7 +27,7 @@ public class DaySheetController {
         return daySheetService.createDay(daySheet);
     }
 
-    @GetMapping(path = "/{id}", produces = "application/json")
+    @GetMapping(path = "/get/{id}", produces = "application/json")
     public GetDaySheetDto getDaySheetById(@PathVariable Long id) {
         return daySheetService.getDaySheetById(id);
     }
@@ -42,9 +43,15 @@ public class DaySheetController {
         }
     }
 
+    @GetMapping(path = "/getAll/", produces = "application/json")
+    public List<GetDaySheetDto> getAllDaySheet() {
+        return daySheetService.getAllDaySheet();
+    }
+
     @PutMapping(produces = "application/json")
     public GetDaySheetDto updateDay(@RequestBody UpdateDaySheetDto updateDay)
     {
         return daySheetService.updateDay(updateDay);
     }
+
 }

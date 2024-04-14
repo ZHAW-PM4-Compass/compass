@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class DaySheetService {
@@ -30,6 +31,11 @@ public class DaySheetService {
     }
     public GetDaySheetDto getDaySheetByDate(Date date) throws DayNotFoundException {
         return convertDayToGetDayDto(daySheetRepository.getDaySheetByDate(date).orElseThrow(() -> new DayNotFoundException(date)));
+    }
+
+    public List<GetDaySheetDto> getAllDaySheet() throws DayNotFoundException {
+        List<DaySheet> daySheetList = daySheetRepository.findAll();
+        return daySheetList.stream().map(daySheet -> convertDayToGetDayDto(daySheet)).toList();
     }
 
     public GetDaySheetDto updateDay(UpdateDaySheetDto updateDay) throws DayNotFoundException{

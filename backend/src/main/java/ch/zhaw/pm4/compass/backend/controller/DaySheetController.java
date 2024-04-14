@@ -27,7 +27,7 @@ public class DaySheetController {
         return daySheetService.createDay(daySheet);
     }
 
-    @GetMapping(path = "/get/{id}", produces = "application/json")
+    @GetMapping(path = "/getById/{id}", produces = "application/json")
     public GetDaySheetDto getDaySheetById(@PathVariable Long id) {
         return daySheetService.getDaySheetById(id);
     }

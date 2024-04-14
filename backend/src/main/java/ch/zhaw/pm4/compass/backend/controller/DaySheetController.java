@@ -44,7 +44,7 @@ public class DaySheetController {
     }
 
     @GetMapping(path = "/getAll/", produces = "application/json")
-    public List<GetDaySheetDto> getAllDaySheet() {
+    public List<WorkHourDto> getAllDaySheet() {
         return daySheetService.getAllDaySheet();
     }
 

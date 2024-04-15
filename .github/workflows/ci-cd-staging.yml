@@ -1,4 +1,4 @@
-name: Build, Push and Deploy - Staging
+name: Deploy to Staging
 
 on:
   push:
@@ -7,36 +7,60 @@ on:
   workflow_dispatch: # enables manual trigger
 
 jobs:
-  build-and-push:
+  e2e-tests:
     runs-on: ubuntu-latest
-    environment: staging
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Run E2E Tests and Upload Coverage
+        uses: ./.github/actions/run-e2e-tests
+        with:
+          working-directory: "./frontend"
+          codecov-token: ${{ secrets.CODECOV_TOKEN }}
+  build-backend:
+    needs: e2e-tests
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v1
+      - name: Build and Push Backend Docker Image
+        uses: ./.github/actions/build-push-docker-backend
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          docker_username: ${{ secrets.DOCKER_USERNAME }}
+          docker_password: ${{ secrets.DOCKER_PASSWORD }}
+          image_tag: pm4compass/compass-backend:${{ github.sha }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+  build-frontend:
+    needs: e2e-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build and Push Frontend Docker Image
+        uses: ./.github/actions/build-push-docker-frontend
         with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: pm4compass/compass:${{ github.sha }}
+          docker_username: ${{ secrets.DOCKER_USERNAME }}
+          docker_password: ${{ secrets.DOCKER_PASSWORD }}
+          image_tag: pm4compass/compass-frontend:${{ github.sha }}
 
-      - name: Set up K8s context
-        uses: azure/k8s-set-context@v1
+  deploy-backend:
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set Up K8s and Redeploy Backend
+        uses: ./.github/actions/redeploy-k8s-backend
         with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
+          kubeconfig_data: ${{ secrets.KUBE_CONFIG_DATA }}
+          backend_image_tag: pm4compass/compass-backend:${{ github.sha }}
+          namespace: compass-stage
 
-      - name: Deploy to Kubernetes and Trigger Redeployment
-        run: |
-          kubectl set image deployment/compass-deployment my-container=pm4compass/compass:${{ github.sha }} -n compass-stage
-          kubectl patch deployment compass-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"forceReDeploy\":\"$(date +%s)\"}}}}}" -n compass-stage
+  deploy-frontend:
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set Up K8s and Redeploy Frontend
+        uses: ./.github/actions/redeploy-k8s-frontend
+        with:
+          kubeconfig_data: ${{ secrets.KUBE_CONFIG_DATA }}
+          frontend_image_tag: pm4compass/compass-frontend:${{ github.sha }}
+          namespace: compass-stage

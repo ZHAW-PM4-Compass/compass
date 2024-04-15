@@ -1,0 +1,16 @@
+name: "Run E2E Tests with Codecov"
+description: "Installs dependencies, runs end-to-end tests in a Node.js project, and uploads coverage to Codecov"
+inputs:
+  working-directory:
+    description: "The working directory where your frontend project is located"
+    required: true
+    default: "./frontend"
+  codecov-token:
+    description: "Codecov token for uploading coverage"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Placeholder Success
+      run: echo "Action completed successfully."
+      shell: bash

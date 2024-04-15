@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Timestamp Controller", description = "Timestamp Endpoint")
 @RestController
-@RequestMapping("/api/timestamp")
+@RequestMapping("/timestamp")
 public class TimestampController {
     @Autowired
     private TimestampService timestampService;

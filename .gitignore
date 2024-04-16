@@ -56,3 +56,9 @@ local
 
 # Sentry Config File
 .sentryclirc
+
+# vscode
+.vscode
+
+# local properties
+application-local.properties

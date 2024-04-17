@@ -30,6 +30,7 @@ import ExpandMenuIcon from "@fluentui/svg-icons/icons/chevron_right_24_regular.s
 import CollapseMenuIcon from "@fluentui/svg-icons/icons/chevron_left_24_regular.svg";
 import MenuIcon from "@fluentui/svg-icons/icons/list_24_regular.svg";
 import MenuCloseIcon from "@fluentui/svg-icons/icons/dismiss_24_regular.svg";
+import Roles from "@/constants/roles";
 
 const SubTitle: React.FC<{ collapsed: boolean, label: string, withLine?: boolean }> = ({ collapsed, label, withLine }) => {
   return (
@@ -142,28 +143,35 @@ export default function RootLayout({
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
 
-            <SubTitle collapsed={!menuOpen} label="Sozialarbeiter" withLine={true} />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Arbeitszeit" route="/working-hours-check" />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={OverviewIcon} iconActive={OverviewIconFilled} label="Übersicht" route="/overview" />
+            { user && (user["compass/roles"] as Array<string>).includes(Roles.SOCIAL_WORKER) && (
+              <>
+                <SubTitle collapsed={!menuOpen} label="Sozialarbeiter" withLine={true} />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Arbeitszeit" route="/working-hours-check" />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={OverviewIcon} iconActive={OverviewIconFilled} label="Übersicht" route="/overview" />
+              </>
+            )}
 
-            <SubTitle collapsed={!menuOpen} label="Admin" withLine={true} />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={UserIcon} iconActive={UserIconFilled} label="Benutzer" route="/users" />
+            { user && (user["compass/roles"] as Array<string>).includes(Roles.ADMIN) && (
+              <>
+                <SubTitle collapsed={!menuOpen} label="Admin" withLine={true} />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={UserIcon} iconActive={UserIconFilled} label="Benutzer" route="/users" />
+              </>
+            )}
+            
             <div className="grow"></div>
-            {
-              menuOpen ? (
-                <MenuItem className="hidden sm:flex" collapsed={!menuOpen} icon={CollapseMenuIcon} label="Zuklappen" onClick={toggleMenu} />
-              ) : (
-                <MenuItem className="hidden sm:flex" collapsed={true} icon={ExpandMenuIcon} label="Expandieren" onClick={toggleMenu} />
-              )
-            }
+            { menuOpen ? (
+              <MenuItem className="hidden sm:flex" collapsed={!menuOpen} icon={CollapseMenuIcon} label="Zuklappen" onClick={toggleMenu} />
+            ) : (
+              <MenuItem className="hidden sm:flex" collapsed={true} icon={ExpandMenuIcon} label="Expandieren" onClick={toggleMenu} />
+            )}
           </div>
         </div>
         <div className="sm:relative grow z-10 pt-20 sm:pt-0 bg-slate-100 h-full">
           {children}
           {
-            user ? (
+            user && (
               <Profile user={user} />
-            ) : null
+            )
           }
         </div>
         <button className="absolute left-5 top-5 block sm:hidden p-2 hover:bg-slate-200 duration-150 rounded-md" onClick={toggleMenu}>

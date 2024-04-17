@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import Roles from "./constants/roles";
 
 const homeRoute = "/home";
+
 const participantRoutes = ["/incidents", "/moods", "/working-hours"];
 const socialWorkerRoutes = ["/working-hours-check", "/overview"];
 const adminRoutes = ["/users"];

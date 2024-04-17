@@ -92,7 +92,7 @@ const Profile: React.FC<{user: any}> = ({ user }) => {
         className="absolute top-5 right-5 rounded-full flex duration-150 hover:bg-slate-200 cursor-pointer"
         onClick={() => setShowMenu(!showMenu)}
       >
-        <span className="leading-10 mx-4 text-sm">{user.given_name ? user.given_name : user.nickname}</span>
+        <span className="leading-10 ml-4 mr-3 text-sm">{user.given_name ? user.given_name : user.nickname}</span>
         <div className="h-10 w-10 relative">
           <Image fill={true} src={user.picture} alt="" className="border-2 border-slate-400 bg-slate-400 rounded-full" />
         </div>
@@ -162,7 +162,7 @@ export default function RootLayout({
             { menuOpen ? (
               <MenuItem className="hidden sm:flex" collapsed={!menuOpen} icon={CollapseMenuIcon} label="Zuklappen" onClick={toggleMenu} />
             ) : (
-              <MenuItem className="hidden sm:flex" collapsed={true} icon={ExpandMenuIcon} label="Expandieren" onClick={toggleMenu} />
+              <MenuItem className="hidden sm:flex mb-2" collapsed={true} icon={ExpandMenuIcon} label="Expandieren" onClick={toggleMenu} />
             )}
           </div>
         </div>

@@ -1,14 +1,13 @@
 import { getSession, withMiddlewareAuthRequired, type Session } from "@auth0/nextjs-auth0/edge";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import Roles from "./constants/roles";
 
 const homeRoute = "/home";
-
 const participantRoutes = ["/incidents", "/moods", "/working-hours"];
 const socialWorkerRoutes = ["/working-hours-check", "/overview"];
 const adminRoutes = ["/users"];
 
-export default withMiddlewareAuthRequired(async (request) => {
+export default withMiddlewareAuthRequired(async (request: NextRequest) => {
   const requestedPath = request.nextUrl.pathname;
   const response = NextResponse.next();
   const { user } = await getSession(request, response) as Session;
@@ -25,13 +24,13 @@ export default withMiddlewareAuthRequired(async (request) => {
     return NextResponse.redirect(new URL(homeRoute, request.url))
   }
 
-  if (requestedPath === "/" && isLoggedIn) {
-    return NextResponse.redirect(new URL("/home", request.url))
+  if (isLoggedIn && requestedPath === "/") {
+    return NextResponse.redirect(new URL(homeRoute, request.url))
   }
 
-  return null;
+  return response;
 });
 
 export const config = {
-  matcher: [homeRoute, ...participantRoutes, ...socialWorkerRoutes, ...adminRoutes],
+  matcher: ["/home", "/incidents", "/moods", "/working-hours", "/working-hours-check", "/overview", "/users"],
 };

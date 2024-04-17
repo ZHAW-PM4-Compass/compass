@@ -1,6 +1,16 @@
-build-image:
-	docker build --no-cache -t compass .
+BACKEND_IMAGE_NAME=compass_backend
+FRONTEND_IMAGE_NAME=compass_frontend
+
+build-backend:
+	docker build --no-cache -f docker/Dockerfile.backend -t $(BACKEND_IMAGE_NAME) .
+
+build-frontend:
+	docker build --no-cache -f docker/Dockerfile.frontend -t $(FRONTEND_IMAGE_NAME) .
+
+build: build-backend build-frontend
+
 run:
-	docker compose up
+	docker-compose -f docker/docker-compose.yml up
+
 stop:
-	docker compose down
+	docker-compose -f docker/docker-compose.yml down

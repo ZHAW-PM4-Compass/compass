@@ -17,7 +17,7 @@ export default withMiddlewareAuthRequired(async (request) => {
   const isSocialWorker = user["compass/roles"].includes(Roles.SOCIAL_WORKER);
   const isAdmin = user["compass/roles"].includes(Roles.ADMIN);
 
-  if (!isSocialWorker && socialWorkerRoutes.includes(requestedPath)) {
+  if (!isSocialWorker && !isAdmin && socialWorkerRoutes.includes(requestedPath)) {
     return NextResponse.redirect(new URL(homeRoute, request.url))
   }
 

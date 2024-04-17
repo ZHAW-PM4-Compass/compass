@@ -143,7 +143,7 @@ export default function RootLayout({
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
 
-            { user && (user["compass/roles"] as Array<string>).includes(Roles.SOCIAL_WORKER) && (
+            { user && ((user["compass/roles"] as Array<string>).includes(Roles.SOCIAL_WORKER) || (user["compass/roles"] as Array<string>).includes(Roles.ADMIN)) && (
               <>
                 <SubTitle collapsed={!menuOpen} label="Sozialarbeiter" withLine={true} />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Arbeitszeit" route="/working-hours-check" />

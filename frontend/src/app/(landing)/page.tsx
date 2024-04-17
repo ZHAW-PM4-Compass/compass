@@ -5,11 +5,9 @@ import Loading from "@/components/loading";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { useRouter } from "next/navigation";
 
-const Landing: React.FC = () => {
+export default function LandingPage() {
   const router = useRouter();
   const { user, isLoading } = useUser();
-
-  if (user) router.push('/home');
 
   const login = () => router.push('/api/auth/login?returnTo=/home');
 
@@ -23,5 +21,3 @@ const Landing: React.FC = () => {
     </div>
   );
 }
-
-export default Landing;

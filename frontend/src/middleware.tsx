@@ -13,6 +13,7 @@ export default withMiddlewareAuthRequired(async (request) => {
   const response = NextResponse.next();
   const { user } = await getSession(request, response) as Session;
 
+  const isLoggedIn = !!user;
   const isSocialWorker = user["compass/roles"].includes(Roles.SOCIAL_WORKER);
   const isAdmin = user["compass/roles"].includes(Roles.ADMIN);
 
@@ -22,6 +23,10 @@ export default withMiddlewareAuthRequired(async (request) => {
 
   if (!isAdmin && adminRoutes.includes(requestedPath)) {
     return NextResponse.redirect(new URL(homeRoute, request.url))
+  }
+
+  if (requestedPath === "/" && isLoggedIn) {
+    return NextResponse.redirect(new URL("/home", request.url))
   }
 
   return null;

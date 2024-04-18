@@ -1,16 +1,14 @@
 package ch.zhaw.pm4.compass.backend.service;
 
-import ch.zhaw.pm4.compass.backend.exception.DayAlreadyExistsException;
-import ch.zhaw.pm4.compass.backend.exception.DayNotFoundException;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
-import ch.zhaw.pm4.compass.backend.model.dto.CreateDaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.GetDaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DaySheetService {
@@ -18,32 +16,64 @@ public class DaySheetService {
     @Autowired
     private DaySheetRepository daySheetRepository;
 
-    public GetDaySheetDto createDay(CreateDaySheetDto createDay) {
-        DaySheet daySheet = convertCreateDayDtoToDay(createDay);
-        if(daySheetRepository.getDaySheetByDate(daySheet.getDate()).isPresent())
-            throw new DayAlreadyExistsException(daySheet);
-        return convertDayToGetDayDto(daySheetRepository.save(daySheet));
+    public DaySheetDto createDay(DaySheetDto createDay, String user_id)  {
+        DaySheet daySheet = convertDaySheetDtoToDaySheet(createDay);
+        daySheet.setUser_id(user_id);
+        Optional<List<DaySheet>> optional = daySheetRepository.getDaySheetByDate(daySheet.getDate());
+        if(optional.isPresent()) {
+            List<DaySheet> list = optional.get();
+            boolean  found = false;
+            for(DaySheet day : list)
+            {
+                if(day.getUser_id() == user_id)
+                    found = true;
+            }
+            if(found)
+                return null;
+        }
+        return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
     }
 
-    public GetDaySheetDto getDaySheetById(Long id) throws DayNotFoundException {
-        return convertDayToGetDayDto(daySheetRepository.getDaySheetById(id).orElseThrow(() -> new DayNotFoundException(id)));
+    public DaySheetDto getDaySheetById(Long id, String user_id)  {
+        Optional<DaySheet> optional = daySheetRepository.getDaySheetById(id);
+        if(optional.isPresent())
+            if(optional.get().getUser_id() == user_id)
+                return convertDaySheetToDaySheetDto(optional.get());
+
+        return null;
     }
-    public GetDaySheetDto getDaySheetByDate(Date date) throws DayNotFoundException {
-        return convertDayToGetDayDto(daySheetRepository.getDaySheetByDate(date).orElseThrow(() -> new DayNotFoundException(date)));
+    public DaySheetDto getDaySheetByDate(LocalDate date, String user_id)  {
+        Optional<List<DaySheet>> optional = daySheetRepository.getDaySheetByDate(date);
+        if(optional.isPresent())
+        {
+            List<DaySheet> list = optional.get();
+            for(DaySheet day : list) {
+                if (day.getUser_id() == user_id)
+                    return convertDaySheetToDaySheetDto(day);
+            }
+        }
+
+        return null;
     }
 
-    public GetDaySheetDto updateDay(UpdateDaySheetDto updateDay) throws DayNotFoundException{
-        DaySheet daySheet = daySheetRepository.getDaySheetById(updateDay.getId()).orElseThrow(() -> new DayNotFoundException(updateDay.getId()));
-        daySheet.setDay_report(updateDay.getDay_report());
-        daySheet.setDate(updateDay.getDate());
-        return convertDayToGetDayDto(daySheetRepository.save(daySheet));
+    public DaySheetDto updateDay(DaySheetDto updateDay, String user_id) {
+        Optional<DaySheet> optional = daySheetRepository.getDaySheetById(updateDay.getId());
+        if(optional.isEmpty())
+            return null;
+        DaySheet daySheet = optional.get();
+        if(daySheet.getUser_id() == user_id) {
+            daySheet.setDay_report(updateDay.getDay_report());
+            daySheet.setDate(updateDay.getDate());
+            return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
+        }
+        return null;
     }
-    private DaySheet convertCreateDayDtoToDay(CreateDaySheetDto dayDto)
+    public DaySheet convertDaySheetDtoToDaySheet(DaySheetDto dayDto)
     {
-        return new DaySheet(dayDto.getDay_report(),dayDto.getDate());
+        return new DaySheet(dayDto.getId(), dayDto.getDay_report(), dayDto.getDate());
     }
-    private GetDaySheetDto convertDayToGetDayDto(DaySheet daySheet)
+    public DaySheetDto convertDaySheetToDaySheetDto(DaySheet daySheet)
     {
-        return new GetDaySheetDto(daySheet.getId(), daySheet.getDay_report(), daySheet.getDate(), daySheet.getConfirmed(), daySheet.getTimestamps());
+        return new DaySheetDto(daySheet.getId(), daySheet.getDay_report(), daySheet.getDate(), daySheet.getConfirmed(), daySheet.getTimestamps());
     }
 }

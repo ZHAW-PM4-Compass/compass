@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-**Description**
+**Further Details**
 If the title is not enough to describe the whole userstory add any missing info here. Else delete section.
 
 **Estimate**

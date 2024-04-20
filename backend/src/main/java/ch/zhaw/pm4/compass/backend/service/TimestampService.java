@@ -61,9 +61,10 @@ public class TimestampService {
         if(response.isPresent())
             if(response.get().getUser_id().equals(user_id)) {
                 Timestamp timestamp = response.get();
-                timestamp.setStartTime(updateTimestampDto.getStart_time());
-                timestamp.setEndTime(updateTimestampDto.getEnd_time());
-                if (checkNoDoubleEntry(timestamp)) {
+                Timestamp newTimestamp = new Timestamp(timestamp.getDaySheet(), updateTimestampDto.getStart_time(), updateTimestampDto.getStart_time());
+                if (checkNoDoubleEntry(newTimestamp)) {
+                    timestamp.setStartTime(updateTimestampDto.getStart_time());
+                    timestamp.setEndTime(updateTimestampDto.getEnd_time());
                     return convertTimestampToTimestampDto(timestampRepository.save(timestamp));
                 }
             }

@@ -158,13 +158,19 @@ class TimestampServiceTest {
     void testAllTimestampsByDayId()
     {
         TimestampDto getTimestampDto0 = getTimestampDto();
+
         TimestampDto getTimestampDto1 = getUpdateTimestamp();
         getTimestampDto1.setId(2l);
         getTimestampDto1.setStart_time(Time.valueOf("14:00:00"));
         getTimestampDto1.setEnd_time(Time.valueOf("15:00:00"));
         DaySheet daySheet = getDaySheet();
-        daySheet.getTimestamps().add(new Timestamp(1l,daySheet,Time.valueOf("13:00:00"),Time.valueOf("14:00:00")));
-        daySheet.getTimestamps().add(new Timestamp(2l,daySheet,Time.valueOf("14:00:00"),Time.valueOf("15:00:00")));
+        daySheet.setUser_id(user_id);
+        Timestamp timestamp1 = new Timestamp(1l,daySheet,Time.valueOf("13:00:00"),Time.valueOf("14:00:00"));
+        timestamp1.setUser_id(user_id);
+        daySheet.getTimestamps().add(timestamp1);
+        Timestamp timestamp2 = new Timestamp(2l,daySheet,Time.valueOf("14:00:00"),Time.valueOf("15:00:00"));
+        timestamp2.setUser_id(user_id);
+        daySheet.getTimestamps().add(timestamp2);
         ArrayList<TimestampDto> timestampsDto = new ArrayList<TimestampDto>();
         timestampsDto.add(getTimestampDto0);
         timestampsDto.add(getTimestampDto1);

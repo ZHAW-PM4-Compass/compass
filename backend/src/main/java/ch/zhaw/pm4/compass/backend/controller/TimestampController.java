@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 
 @RestController
-@RequestMapping("/api/timestamp")
+@RequestMapping("/timestamp")
 public class TimestampController {
     @Autowired
     private TimestampService timestampService;

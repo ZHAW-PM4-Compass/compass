@@ -64,7 +64,7 @@ public class DaySheetControllerTest {
 
 
     @BeforeAll
-    private void getToken()
+    public void getToken()
     {
         try {
             token = TestUtils.initMockWithToken(mockMvc);
@@ -88,7 +88,7 @@ public class DaySheetControllerTest {
 
 
         // Act and Assert//
-        mockMvc.perform(post("/api/daysheet")
+        mockMvc.perform(post("/daysheet")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                         .content("{\"day_report\": \""+reportText+"\", \"date\": \"" + dateNow.toString() +"\"}"))
@@ -113,7 +113,7 @@ public class DaySheetControllerTest {
 
 
         // Act and Assert//.header("Authorization", "Bearer " + token))
-        mockMvc.perform(post("/api/daysheet")
+        mockMvc.perform(post("/daysheet")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                         .content("{}"))
@@ -138,7 +138,7 @@ public class DaySheetControllerTest {
         when(daySheetRepository.save(any(DaySheet.class))).thenReturn(daySheet);
 
         // Act and Assert//.header("Authorization", "Bearer " + token))
-        mockMvc.perform(post("/api/daysheet")
+        mockMvc.perform(post("/daysheet")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                         .content("{\"day_report\": \""+reportText+"\", \"date\": \"" + dateNow.toString() +"\"}"))
@@ -165,7 +165,7 @@ public class DaySheetControllerTest {
 
 
         // Act and Assert//.header("Authorization", "Bearer " + token))
-        mockMvc.perform(put("/api/daysheet")
+        mockMvc.perform(put("/daysheet")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                         .content("{\"id\": 1,\"day_report\": \""+reportText+"1"+"\", \"date\": \"" + dateNow.toString() +"\"}"))
@@ -187,7 +187,7 @@ public class DaySheetControllerTest {
         when(daySheetService.getDaySheetByDate(any(LocalDate.class),any(String.class))).thenReturn(getDay);
 
         // Act and Assert//.header("Authorization", "Bearer " + token))
-        mockMvc.perform(get("/api/daysheet/getByDate/" + getDay.getDate().toString()).header("Authorization", "Bearer " + token))
+        mockMvc.perform(get("/daysheet/getByDate/" + getDay.getDate().toString()).header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
                 .andExpect(jsonPath("$.day_report").value(getDay.getDay_report()))
@@ -203,7 +203,7 @@ public class DaySheetControllerTest {
         when(daySheetService.getDaySheetById(any(Long.class),any(String.class))).thenReturn(getDay);
 
         // Act and Assert//.header("Authorization", "Bearer " + token))
-        mockMvc.perform(get("/api/daysheet/getById/" + getDay.getId()).header("Authorization", "Bearer " + token))
+        mockMvc.perform(get("/daysheet/getById/" + getDay.getId()).header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
                 .andExpect(jsonPath("$.day_report").value(getDay.getDay_report()))

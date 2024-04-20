@@ -25,8 +25,10 @@ public class DaySheetService {
             boolean  found = false;
             for(DaySheet day : list)
             {
-                if(day.getUser_id() == user_id)
+                if (day.getUser_id().equals(user_id)) {
                     found = true;
+                    break;
+                }
             }
             if(found)
                 return null;
@@ -37,7 +39,7 @@ public class DaySheetService {
     public DaySheetDto getDaySheetById(Long id, String user_id)  {
         Optional<DaySheet> optional = daySheetRepository.getDaySheetById(id);
         if(optional.isPresent())
-            if(optional.get().getUser_id() == user_id)
+            if(optional.get().getUser_id().equals(user_id))
                 return convertDaySheetToDaySheetDto(optional.get());
 
         return null;
@@ -48,7 +50,7 @@ public class DaySheetService {
         {
             List<DaySheet> list = optional.get();
             for(DaySheet day : list) {
-                if (day.getUser_id() == user_id)
+                if (day.getUser_id().equals(user_id))
                     return convertDaySheetToDaySheetDto(day);
             }
         }
@@ -61,7 +63,7 @@ public class DaySheetService {
         if(optional.isEmpty())
             return null;
         DaySheet daySheet = optional.get();
-        if(daySheet.getUser_id() == user_id) {
+        if(daySheet.getUser_id().equals(user_id)) {
             daySheet.setDay_report(updateDay.getDay_report());
             daySheet.setDate(updateDay.getDate());
             return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));

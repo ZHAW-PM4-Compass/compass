@@ -79,7 +79,7 @@ public class TimestampControllerTest {
         when(timestampService.createTimestamp(any(TimestampDto.class),any(String.class))).thenReturn(getTimestamp);
 
         // Act and Assert//)
-        mockMvc.perform(post("/api/timestamp")
+        mockMvc.perform(post("/timestamp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                         .content("{\"day_sheet_id\": 1, \"start_time\": \"" + getTimestamp.getStart_time().toString() +"\", \"start_time\": \"" + getTimestamp.getEnd_time().toString() +"\"}"))
@@ -101,7 +101,7 @@ public class TimestampControllerTest {
         when(timestampService.createTimestamp(any(TimestampDto.class),any(String.class))).thenReturn(null);
 
         // Act and Assert//.header("Authorization", "Bearer " + token))
-        mockMvc.perform(post("/api/timestamp")
+        mockMvc.perform(post("/timestamp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                         .content("{\"day_sheet_id\": 1, \"start_time\": \"" + getTimestamp.getStart_time().toString() +"\", \"start_time\": \"" + getTimestamp.getEnd_time().toString() +"\"}"))
@@ -122,7 +122,7 @@ public class TimestampControllerTest {
 
 
         // Act and Assert//.header("Authorization", "Bearer " + token))
-        mockMvc.perform(put("/api/timestamp")
+        mockMvc.perform(put("/timestamp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                         .content("{\"day_sheet_id\": 1, \"start_time\": \"" + updateTimestamp.getStart_time().toString() +"\", \"start_time\": \"" + updateTimestamp.getEnd_time().toString() +"\"}"))
@@ -147,7 +147,7 @@ public class TimestampControllerTest {
         when(timestampService.getTimestampById(any(Long.class),any(String.class))).thenReturn(getTimestamp);
 
         // Act and Assert//.header("Authorization", "Bearer " + token))
-        mockMvc.perform(get("/api/timestamp/getById/" + getTimestamp.getId()).header("Authorization", "Bearer " + token))
+        mockMvc.perform(get("/timestamp/getById/" + getTimestamp.getId()).header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
                 .andExpect(jsonPath("$.day_sheet_id").value(1l))
@@ -173,7 +173,7 @@ public class TimestampControllerTest {
         when(timestampService.getAllTimestampsByDaySheetId(any(Long.class),any(String.class))).thenReturn(timestamps);
 
         // Act and Assert//.header("Authorization", "Bearer " + token))
-        String res = mockMvc.perform(get("/api/timestamp/allbydaysheetid/" + daySheet.getId()).header("Authorization", "Bearer " + token))
+        String res = mockMvc.perform(get("/timestamp/allbydaysheetid/" + daySheet.getId()).header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         assertEquals("[{\"id\":1,\"day_sheet_id\":1,\"start_time\":\"13:00:00\",\"end_time\":\"14:00:00\"},{\"id\":1,\"day_sheet_id\":1,\"start_time\":\"14:00:00\",\"end_time\":\"15:00:00\"}]",res);
@@ -187,7 +187,7 @@ public class TimestampControllerTest {
         when(timestampService.getAllTimestampsByDaySheetId(any(Long.class),any(String.class))).thenReturn(timestamps);
 
         // Act and Assert//.header("Authorization", "Bearer " + token))
-        mockMvc.perform(get("/api/timestamp/allbydaysheetid/" + daySheet.getId()).header("Authorization", "Bearer " + token))
+        mockMvc.perform(get("/timestamp/allbydaysheetid/" + daySheet.getId()).header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
         verify(timestampService, times(1)).getAllTimestampsByDaySheetId(any(Long.class),any(String.class));
     }

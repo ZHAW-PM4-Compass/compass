@@ -1,10 +1,70 @@
+"use client"
 
-const Moods: React.FC = () => {
+import Button from "@/components/button";
+import Table from "@/components/table";
+import Title from "@/components/title";
+import { PersonAdd24Regular, Delete24Regular, Edit24Regular } from "@fluentui/react-icons";
+
+export default function UsersPage() {
+  const users = [
+    {
+      id: 1,
+      firstName: "Noah",
+      surname: "Baumgartner",
+      role: "Admin"
+    },
+    {
+      id: 2,
+      firstName: "Noah",
+      surname: "Baumgartner",
+      role: "Admin"
+    },
+    {
+      id: 3,
+      firstName: "Noah",
+      surname: "Baumgartner",
+      role: "Admin"
+    }
+  ]
+
   return (
-    <div className="p-5 sm:p-10 bg-slate-100 w-full h-full">
-      <h1 className="text-xl font-bold">User verwalten</h1>
-    </div>
+    <>
+      <div className="flex flex-row justify-between">
+        <Title>Benutzerverwaltung</Title>
+        <Button Icon={PersonAdd24Regular}>Erstellen</Button>
+      </div>
+      <Table 
+        className="mt-5"
+        data={users}
+        columns={[
+          {
+            header: "Id",
+            title: "id"
+          },
+          {
+            header: "Vorname",
+            title: "firstName"
+          },
+          {
+            header: "Nachname",
+            title: "surname"
+          },
+          {
+            header: "Rolle",
+            title: "role"
+          }
+        ]}
+        actions={[
+          {
+            icon: Delete24Regular,
+            label: "Löschen",
+            onClick: () => {}
+          },
+          {
+            icon: Edit24Regular,
+            onClick: () => {}
+          }
+        ]}/>
+    </>
   );
 }
-  
-export default Moods;

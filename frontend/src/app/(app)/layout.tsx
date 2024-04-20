@@ -167,12 +167,14 @@ export default function RootLayout({
           </div>
         </div>
         <div className="sm:relative grow z-10 pt-20 sm:pt-0 bg-slate-100 h-full">
+          <div className=" w-full h-full sm:container sm:mx-auto px-5 sm:px-24 lg:px-48 sm:pt-24">
           {children}
           {
             user && (
               <Profile user={user} />
             )
           }
+          </div>
         </div>
         <button className="absolute left-5 top-5 block sm:hidden p-2 hover:bg-slate-200 duration-150 rounded-md" onClick={toggleMenu}>
           <img src={MenuIcon.src} className="w-5 h-5" />

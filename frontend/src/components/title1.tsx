@@ -5,7 +5,7 @@ const poppins = Poppins({
   weight: "600",
 })
 
-export default function Title({ children, className }: Readonly<{
+export default function Title1({ children, className }: Readonly<{
   children: React.ReactNode;
   className?: string;
 }>) {

@@ -1,6 +1,3 @@
-import { tr } from "@faker-js/faker"
-import { index } from "drizzle-orm/mysql-core"
-
 const Header = ({ columns }: Readonly<{
   columns: Array<{ header: string, title: string }>
 }>) => {

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the URL for your Swagger/OpenAPI documentation
-DOCS_URL="http://localhost:8080/v3/api-docs"
+DOCS_URL="http://localhost:8080/api/v3/api-docs"
 
 # Directory to output the generated TypeScript client
 OUTPUT_DIR="./src/api/compassClient"

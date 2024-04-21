@@ -1,41 +1,20 @@
 "use client"
 
+import { createUser } from "@/actions/users";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import Modal from "@/components/modal";
 import Select from "@/components/select";
 import Table from "@/components/table";
-import TextArea from "@/components/textarea";
 import Title1 from "@/components/title1";
-import roles from "@/constants/roles";
 import Roles from "@/constants/roles";
 import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular } from "@fluentui/react-icons";
-import type { title } from "process";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function UsersPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
-
-  const users = [
-    {
-      email: "baumgartner.noah@outlook.com",
-      firstName: "Noah",
-      surname: "Baumgartner",
-      role: "Admin"
-    },
-    {
-      email: "baumgartner.noah@outlook.com",
-      firstName: "Noah",
-      surname: "Baumgartner",
-      role: "Admin"
-    },
-    {
-      email: "baumgartner.noah@outlook.com",
-      firstName: "Noah",
-      surname: "Baumgartner",
-      role: "Admin"
-    }
-  ]
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [users, setUsers] = useState([]);
 
   const roles = [
     {
@@ -52,12 +31,39 @@ export default function UsersPage() {
     }
   ]
 
+  useEffect(() => {
+    fetch("/proxy/users")
+      .then(res => res.json())
+      .then(data => setUsers(data));
+  }, []);
+
   return (
     <>
       {showCreateModal && (
+
+        <form action={createUser}>
+          <Modal
+            title="Benutzer erstellen"
+            close={() => setShowCreateModal(false)}
+            footerActions={
+              <Button Icon={Save24Regular} type="submit">Speichern</Button>
+            }
+          >
+            <Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" name="given_name" />
+            <Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" name="family_name" />
+            <Select
+              className="mb-4 mr-4 w-32 block"
+              placeholder="Rolle wählen"
+              data={roles} />
+            <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name="email" />
+            <Input type="password" placeholder="Initiales Passwort" className="mb-4 mr-4 w-48 block" name="password" />
+          </Modal>
+        </form>
+      )}
+      {showUpdateModal && (
         <Modal
-          title="Benutzer erstellen"
-          close={() => setShowCreateModal(false)}
+          title="Benutzer bearbeiten"
+          close={() => setShowUpdateModal(false)}
           footerActions={
             <Button Icon={Save24Regular}>Speichern</Button>
           }
@@ -68,8 +74,7 @@ export default function UsersPage() {
             className="mb-4 mr-4 w-32 block"
             placeholder="Rolle wählen"
             data={roles} />
-          <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" />
-          <Input type="password" placeholder="Initiales Passwort" className="mb-4 mr-4 w-48 block" />
+          <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" disabled={true} />
         </Modal>
       )}
       <div className="flex flex-col sm:flex-row justify-between">
@@ -84,11 +89,11 @@ export default function UsersPage() {
         columns={[
           {
             header: "Vorname",
-            title: "firstName"
+            title: "given_name"
           },
           {
             header: "Nachname",
-            title: "surname"
+            title: "family_name"
           },
           {
             header: "Email",
@@ -107,7 +112,7 @@ export default function UsersPage() {
           },
           {
             icon: Edit24Regular,
-            onClick: () => {}
+            onClick: () => setShowUpdateModal(true)
           }
         ]}/>
     </>

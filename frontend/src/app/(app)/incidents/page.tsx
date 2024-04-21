@@ -1,10 +1,9 @@
+'use server';
 
-const Incidents: React.FC = () => {
+export default async function IncidentsPage() {
   return (
-    <div className="p-5 sm:p-10 bg-slate-100 w-full h-full">
+    <div className="p-5 sm:p-10 w-full h-full">
       <h1 className="text-xl font-bold">Vorfall erfassen</h1>
     </div>
   );
 }
-  
-export default Incidents;

@@ -7,12 +7,22 @@ import { useEffect, useState } from "react";
 
 import HomeIcon from "@fluentui/svg-icons/icons/home_24_regular.svg";
 import HomeIconFilled from "@fluentui/svg-icons/icons/home_24_filled.svg";
-import TimeIcon from "@fluentui/svg-icons/icons/timeline_24_regular.svg";
-import TimeIconFilled from "@fluentui/svg-icons/icons/timeline_24_filled.svg";
+
+// participant
+import WorkingHoursIcon from "@fluentui/svg-icons/icons/shifts_24_regular.svg";
+import WorkingHoursIconFilled from "@fluentui/svg-icons/icons/shifts_24_filled.svg";
 import MoodIcon from "@fluentui/svg-icons/icons/person_voice_24_regular.svg";
 import MoodIconFilled from "@fluentui/svg-icons/icons/person_voice_24_filled.svg";
 import IncidentIcon from "@fluentui/svg-icons/icons/alert_24_regular.svg";
 import IncidentIconFilled from "@fluentui/svg-icons/icons/alert_24_filled.svg";
+
+// social worker
+import WorkingHoursCheckIcon from "@fluentui/svg-icons/icons/shifts_checkmark_24_regular.svg";
+import WorkingHoursCheckIconFilled from "@fluentui/svg-icons/icons/shifts_checkmark_24_filled.svg";
+import OverviewIcon from "@fluentui/svg-icons/icons/arrow_trending_lines_24_regular.svg";
+import OverviewIconFilled from "@fluentui/svg-icons/icons/arrow_trending_lines_24_filled.svg";
+
+// admin
 import UserIcon from "@fluentui/svg-icons/icons/people_24_regular.svg";
 import UserIconFilled from "@fluentui/svg-icons/icons/people_24_filled.svg";
 
@@ -20,6 +30,7 @@ import ExpandMenuIcon from "@fluentui/svg-icons/icons/chevron_right_24_regular.s
 import CollapseMenuIcon from "@fluentui/svg-icons/icons/chevron_left_24_regular.svg";
 import MenuIcon from "@fluentui/svg-icons/icons/list_24_regular.svg";
 import MenuCloseIcon from "@fluentui/svg-icons/icons/dismiss_24_regular.svg";
+import Roles from "@/constants/roles";
 
 const SubTitle: React.FC<{ collapsed: boolean, label: string, withLine?: boolean }> = ({ collapsed, label, withLine }) => {
   return (
@@ -81,7 +92,7 @@ const Profile: React.FC<{user: any}> = ({ user }) => {
         className="absolute top-5 right-5 rounded-full flex duration-150 hover:bg-slate-200 cursor-pointer"
         onClick={() => setShowMenu(!showMenu)}
       >
-        <span className="leading-10 mx-4 text-sm">{user.given_name ? user.given_name : user.nickname}</span>
+        <span className="leading-10 ml-4 mr-3 text-sm">{user.given_name ? user.given_name : user.nickname}</span>
         <div className="h-10 w-10 relative">
           <Image fill={true} src={user.picture} alt="" className="border-2 border-slate-400 bg-slate-400 rounded-full" />
         </div>
@@ -127,28 +138,40 @@ export default function RootLayout({
             </div>
             <SubTitle collapsed={!menuOpen} label="Allgemein" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={HomeIcon} iconActive={HomeIconFilled} label="Home" route="/home" />
-            <SubTitle collapsed={!menuOpen} label="Erfassen" withLine={true} />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={TimeIcon} iconActive={TimeIconFilled} label="Zeit" route="/times" />
+            <SubTitle collapsed={!menuOpen} label="Teilnehmer" withLine={true} />
+            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursIcon} iconActive={WorkingHoursIconFilled} label="Arbeitszeit" route="/working-hours" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
-            <SubTitle collapsed={!menuOpen} label="Verwalten" withLine={true} />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={UserIcon} iconActive={UserIconFilled} label="Benutzer" route="/users" />
+
+            { user && ((user["compass/roles"] as Array<string>).includes(Roles.SOCIAL_WORKER) || (user["compass/roles"] as Array<string>).includes(Roles.ADMIN)) && (
+              <>
+                <SubTitle collapsed={!menuOpen} label="Sozialarbeiter" withLine={true} />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Arbeitszeit" route="/working-hours-check" />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={OverviewIcon} iconActive={OverviewIconFilled} label="Übersicht" route="/overview" />
+              </>
+            )}
+
+            { user && (user["compass/roles"] as Array<string>).includes(Roles.ADMIN) && (
+              <>
+                <SubTitle collapsed={!menuOpen} label="Admin" withLine={true} />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={UserIcon} iconActive={UserIconFilled} label="Benutzer" route="/users" />
+              </>
+            )}
+            
             <div className="grow"></div>
-            {
-              menuOpen ? (
-                <MenuItem className="hidden sm:flex" collapsed={!menuOpen} icon={CollapseMenuIcon} label="Zuklappen" onClick={toggleMenu} />
-              ) : (
-                <MenuItem className="hidden sm:flex" collapsed={true} icon={ExpandMenuIcon} label="Expandieren" onClick={toggleMenu} />
-              )
-            }
+            { menuOpen ? (
+              <MenuItem className="hidden sm:flex" collapsed={!menuOpen} icon={CollapseMenuIcon} label="Zuklappen" onClick={toggleMenu} />
+            ) : (
+              <MenuItem className="hidden sm:flex mb-2" collapsed={true} icon={ExpandMenuIcon} label="Expandieren" onClick={toggleMenu} />
+            )}
           </div>
         </div>
         <div className="sm:relative grow z-10 pt-20 sm:pt-0 bg-slate-100 h-full">
           {children}
           {
-            user ? (
+            user && (
               <Profile user={user} />
-            ) : null
+            )
           }
         </div>
         <button className="absolute left-5 top-5 block sm:hidden p-2 hover:bg-slate-200 duration-150 rounded-md" onClick={toggleMenu}>

@@ -6,25 +6,32 @@ services:
     container_name: postgres_compass
     environment:
       POSTGRES_DB: compass
-      POSTGRES_PASSWORD: tr3&osCz%DCbE-j6o46M
+      POSTGRES_PASSWORD: password
       POSTGRES_USER: dbadmin
     ports:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  compass:
-    image: compass
-    container_name: compass
+  backend:
+    image: compass_backend
+    container_name: compass_backend
     depends_on:
       - postgres
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/compass
       SPRING_DATASOURCE_USERNAME: dbadmin
-      SPRING_DATASOURCE_PASSWORD: tr3&osCz%DCbE-j6o46M
+      SPRING_DATASOURCE_PASSWORD: password
+    ports:
+      - '8080:8080'
+
+  frontend:
+    image: compass_frontend
+    container_name: compass_frontend
+    depends_on:
+      - backend
     ports:
       - '3000:3000'
-      - '8080:8080'
 
 volumes:
   postgres_data:

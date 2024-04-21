@@ -8,3 +8,4 @@ DB_USERNAME=compass_admin
 
 DDL_AUTO=update
 DOCKER_ON=true or false
+SWAGGER_UI_ON=true or false

@@ -4,6 +4,7 @@ import Button from "@/components/button";
 import Input from "@/components/input";
 import Modal from "@/components/modal";
 import Table from "@/components/table";
+import TextArea from "@/components/textarea";
 import Title1 from "@/components/title1";
 import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular } from "@fluentui/react-icons";
 import { useState } from "react";
@@ -13,19 +14,19 @@ export default function UsersPage() {
 
   const users = [
     {
-      id: 1,
+      email: "baumgartner.noah@outlook.com",
       firstName: "Noah",
       surname: "Baumgartner",
       role: "Admin"
     },
     {
-      id: 2,
+      email: "baumgartner.noah@outlook.com",
       firstName: "Noah",
       surname: "Baumgartner",
       role: "Admin"
     },
     {
-      id: 3,
+      email: "baumgartner.noah@outlook.com",
       firstName: "Noah",
       surname: "Baumgartner",
       role: "Admin"
@@ -44,7 +45,6 @@ export default function UsersPage() {
         >
           <Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" />
           <Input type="text" placeholder="Nachname" className="mb-4 inline-block" />
-          <Input type="text" placeholder="Rolle" className="block" />
         </Modal>
       )}
       <div className="flex flex-col sm:flex-row justify-between">
@@ -58,16 +58,16 @@ export default function UsersPage() {
         data={users}
         columns={[
           {
-            header: "Id",
-            title: "id"
-          },
-          {
             header: "Vorname",
             title: "firstName"
           },
           {
             header: "Nachname",
             title: "surname"
+          },
+          {
+            header: "Email",
+            title: "email"
           },
           {
             header: "Rolle",

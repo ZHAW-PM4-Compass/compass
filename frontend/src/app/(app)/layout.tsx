@@ -166,8 +166,8 @@ export default function RootLayout({
             )}
           </div>
         </div>
-        <div className="sm:relative grow z-10 pt-20 sm:pt-0 bg-slate-100 h-full">
-          <div className=" w-full h-full sm:container sm:mx-auto px-5 sm:px-24 lg:px-48 sm:pt-24">
+        <div className="sm:relative grow z-10 pt-20 md:pt-0 bg-slate-100 h-full">
+          <div className="w-full h-full md:container md:mx-auto px-5 md:px-24 lg:px-48 md:pt-24">
           {children}
           {
             user && (

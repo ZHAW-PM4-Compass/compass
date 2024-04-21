@@ -5,11 +5,12 @@ const poppins = Poppins({
   weight: "600",
 })
 
-export default function Title({ children }: Readonly<{
+export default function Title({ children, className }: Readonly<{
   children: React.ReactNode;
+  className?: string;
 }>) {
   return (
-    <h1 className={"text-2xl font-bold " + poppins.className}>
+    <h1 className={`text-2xl font-bold block ${poppins.className} ${className}`}>
       {children}
     </h1>
   );

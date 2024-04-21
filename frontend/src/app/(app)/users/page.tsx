@@ -29,9 +29,11 @@ export default function UsersPage() {
 
   return (
     <>
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-col sm:flex-row justify-between">
         <Title>Benutzerverwaltung</Title>
-        <Button Icon={PersonAdd24Regular}>Erstellen</Button>
+        <div className="mt-2 sm:mt-0">
+          <Button Icon={PersonAdd24Regular}>Erstellen</Button>
+        </div>
       </div>
       <Table 
         className="mt-5"

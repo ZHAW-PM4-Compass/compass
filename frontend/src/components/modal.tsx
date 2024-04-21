@@ -1,16 +1,13 @@
-import { onClose } from "@spotlightjs/spotlight";
 import { useEffect } from "react";
-import Button from "./button";
 import Title2 from "./title2";
 
 import { Dismiss24Regular } from '@fluentui/react-icons';
-import Select from "./select";
 
-export default function Modal({ children, close, title, saveButton }: Readonly<{
+export default function Modal({ children, close, title, footerActions }: Readonly<{
   children?: React.ReactNode;
   close: () => void;
   title: string;
-  saveButton: React.ReactNode;
+  footerActions: React.ReactNode;
 }>) {
   useEffect(() => {
     const handleEsc = (event: any) => {
@@ -19,21 +16,6 @@ export default function Modal({ children, close, title, saveButton }: Readonly<{
 
     window.addEventListener('keydown', handleEsc);
   }, []);
-
-  const participants = [
-    {
-      id: "1",
-      label: "Noah Baumgartner"
-    },
-    {
-      id: "2",
-      label: "Max Mustermann"
-    },
-    {
-      id: "3",
-      label: "Erika Mustermann"
-    }
-  ];
 
   return (
     <div className="absolute top-0 right-0 bottom-0 left-0 bg-slate-900/40 backdrop-blur-sm z-30">
@@ -45,15 +27,11 @@ export default function Modal({ children, close, title, saveButton }: Readonly<{
                 <Dismiss24Regular className="color-black w-5 h-5 -mt-1" />
             </button>
           </div>
-          <div className="mt-5 min-h-36 max-h-[50vh] -m-4 p-4 overflow-y-scroll">
-            <Select 
-              placeholder="Teilnehmer wählen" 
-              className="mb-4 block"
-              data={participants} />
+          <div className="mt-1 min-h-36 max-h-[50vh] -m-4 p-4 overflow-y-scroll">
             {children}
           </div>
           <div className="flex justify-end pt-8">
-            {saveButton}
+            {footerActions}
           </div>
         </div>
       </div>

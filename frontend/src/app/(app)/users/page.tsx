@@ -3,10 +3,12 @@
 import Button from "@/components/button";
 import Input from "@/components/input";
 import Modal from "@/components/modal";
+import Select from "@/components/select";
 import Table from "@/components/table";
 import TextArea from "@/components/textarea";
 import Title1 from "@/components/title1";
 import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular } from "@fluentui/react-icons";
+import type { title } from "process";
 import { useState } from "react";
 
 export default function UsersPage() {
@@ -39,7 +41,7 @@ export default function UsersPage() {
         <Modal
           title="Benutzer erstellen"
           close={() => setShowCreateModal(false)}
-          saveButton={
+          footerActions={
             <Button Icon={Save24Regular}>Speichern</Button>
           }
         >

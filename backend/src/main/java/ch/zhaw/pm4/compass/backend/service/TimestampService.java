@@ -88,7 +88,7 @@ public class TimestampService {
         return null;
     }
 
-    private TimestampDto convertTimestampToTimestampDto(Timestamp timestamp)
+    public TimestampDto convertTimestampToTimestampDto(Timestamp timestamp)
     {
         return new TimestampDto(timestamp.getId(), timestamp.getDaySheet().getId(), timestamp.getStartTime(), timestamp.getEndTime()) ;
     }

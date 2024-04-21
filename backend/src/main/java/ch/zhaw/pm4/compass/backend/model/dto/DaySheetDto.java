@@ -1,6 +1,5 @@
 package ch.zhaw.pm4.compass.backend.model.dto;
 
-import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,13 +19,13 @@ public class DaySheetDto {
 
     private Boolean confirmed = false;
 
-    private List<Timestamp> timestamps;
+    private List<TimestampDto> timestamps;
 
     public DaySheetDto() {
 
     }
 
-    public DaySheetDto(Long id, String day_report, LocalDate date, Boolean confirmed, List<Timestamp> timestamps) {
+    public DaySheetDto(Long id, String day_report, LocalDate date, Boolean confirmed, List<TimestampDto> timestamps) {
         this.id = id ;
         this.date = date;
         this.day_report = day_report;

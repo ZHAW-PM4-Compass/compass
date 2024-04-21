@@ -2,8 +2,8 @@ package ch.zhaw.pm4.compass.backend.service;
 
 
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
-import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +41,7 @@ class DaySheetServiceTest {
         return new DaySheetDto(1l,reportText+"1",dateNow.plusDays(1),false);
     }
     private DaySheetDto getDaySheetDto(){
-        return new DaySheetDto(1l,reportText,dateNow,false,new ArrayList<Timestamp>());
+        return new DaySheetDto(1l,reportText,dateNow,false,new ArrayList<TimestampDto>());
     }
     private DaySheet getDaySheet(){
         return new DaySheet(1l,user_id,reportText,dateNow,false,new ArrayList<>());

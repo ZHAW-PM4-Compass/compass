@@ -1,12 +1,15 @@
 package ch.zhaw.pm4.compass.backend.service;
 
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
+import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +19,8 @@ public class DaySheetService {
     @Autowired
     private DaySheetRepository daySheetRepository;
 
+    @Autowired
+    TimestampService timestampService;
     public DaySheetDto createDay(DaySheetDto createDay, String user_id)  {
         DaySheet daySheet = convertDaySheetDtoToDaySheet(createDay);
         daySheet.setUser_id(user_id);
@@ -76,6 +81,9 @@ public class DaySheetService {
     }
     public DaySheetDto convertDaySheetToDaySheetDto(DaySheet daySheet)
     {
-        return new DaySheetDto(daySheet.getId(), daySheet.getDay_report(), daySheet.getDate(), daySheet.getConfirmed(), daySheet.getTimestamps());
+        List<TimestampDto> timestampDtos = new ArrayList<>();
+        for(Timestamp timestamp : daySheet.getTimestamps())
+            timestampDtos.add(timestampService.convertTimestampToTimestampDto(timestamp));
+        return new DaySheetDto(daySheet.getId(), daySheet.getDay_report(), daySheet.getDate(), daySheet.getConfirmed(), timestampDtos);
     }
 }

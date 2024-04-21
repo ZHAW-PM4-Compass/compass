@@ -7,6 +7,8 @@ import Select from "@/components/select";
 import Table from "@/components/table";
 import TextArea from "@/components/textarea";
 import Title1 from "@/components/title1";
+import roles from "@/constants/roles";
+import Roles from "@/constants/roles";
 import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular } from "@fluentui/react-icons";
 import type { title } from "process";
 import { useState } from "react";
@@ -35,6 +37,21 @@ export default function UsersPage() {
     }
   ]
 
+  const roles = [
+    {
+      id: Roles.PARTICIPANT,
+      label: "Teilnehmer"
+    },
+    {
+      id: Roles.SOCIAL_WORKER,
+      label: "Sozialarbeiter"
+    },
+    {
+      id: Roles.ADMIN,
+      label: "Admin"
+    }
+  ]
+
   return (
     <>
       {showCreateModal && (
@@ -46,7 +63,13 @@ export default function UsersPage() {
           }
         >
           <Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" />
-          <Input type="text" placeholder="Nachname" className="mb-4 inline-block" />
+          <Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" />
+          <Select
+            className="mb-4 mr-4 w-32 block"
+            placeholder="Rolle wählen"
+            data={roles} />
+          <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" />
+          <Input type="password" placeholder="Initiales Passwort" className="mb-4 mr-4 w-48 block" />
         </Modal>
       )}
       <div className="flex flex-col sm:flex-row justify-between">

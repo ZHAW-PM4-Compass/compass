@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -94,7 +93,7 @@ public class DaySheetControllerTest {
                         .content("{\"day_report\": \""+reportText+"\", \"date\": \"" + dateNow.toString() +"\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
-                .andExpect(jsonPath("$.day_report").value(reportText))
+                .andExpect(jsonPath("$.dayReport").value(reportText))
                 .andExpect(jsonPath("$.date").value(dateNow.toString()));
 
 
@@ -132,16 +131,14 @@ public class DaySheetControllerTest {
         DaySheetDto dayDto = getDaySheetDto();
 
         DaySheet daySheet = getDaySheet();
-        List<DaySheet> returnlist =  new ArrayList<DaySheet>();
-        returnlist.add(daySheet);
-        when(daySheetRepository.getDaySheetByDate(any(LocalDate.class))).thenReturn(Optional.of(returnlist));
+        when(daySheetRepository.findByDateAndUserId(any(LocalDate.class),any(String.class))).thenReturn(Optional.of(daySheet));
         when(daySheetRepository.save(any(DaySheet.class))).thenReturn(daySheet);
 
         // Act and Assert//.header("Authorization", "Bearer " + token))
         mockMvc.perform(post("/daysheet")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
-                        .content("{\"day_report\": \""+reportText+"\", \"date\": \"" + dateNow.toString() +"\"}"))
+                        .content("{\"dayReport\": \""+reportText+"\", \"date\": \"" + dateNow.toString() +"\"}"))
 
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$").doesNotExist());
@@ -158,7 +155,7 @@ public class DaySheetControllerTest {
 
 
         DaySheetDto getDay = getDaySheetDto();
-        getDay.setDay_report(reportText+"1");
+        getDay.setDayReport(reportText+"1");
         getDay.setDate(dateNow.plusDays(1));
         DaySheetDto updateDay = getUpdateDaySheet();
         when(daySheetService.updateDay(any(DaySheetDto.class),any(String.class))).thenReturn(updateDay);
@@ -171,7 +168,7 @@ public class DaySheetControllerTest {
                         .content("{\"id\": 1,\"day_report\": \""+reportText+"1"+"\", \"date\": \"" + dateNow.toString() +"\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
-                .andExpect(jsonPath("$.day_report").value(updateDay.getDay_report()))
+                .andExpect(jsonPath("$.dayReport").value(updateDay.getDayReport()))
                 .andExpect(jsonPath("$.date").value(updateDay.getDate().toString()));
 
 
@@ -190,7 +187,7 @@ public class DaySheetControllerTest {
         mockMvc.perform(get("/daysheet/getByDate/" + getDay.getDate().toString()).header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
-                .andExpect(jsonPath("$.day_report").value(getDay.getDay_report()))
+                .andExpect(jsonPath("$.dayReport").value(getDay.getDayReport()))
                 .andExpect(jsonPath("$.date").value(getDay.getDate().toString()));
 
         verify(daySheetService, times(1)).getDaySheetByDate(any(LocalDate.class),any(String.class));
@@ -206,7 +203,7 @@ public class DaySheetControllerTest {
         mockMvc.perform(get("/daysheet/getById/" + getDay.getId()).header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
-                .andExpect(jsonPath("$.day_report").value(getDay.getDay_report()))
+                .andExpect(jsonPath("$.dayReport").value(getDay.getDayReport()))
                 .andExpect(jsonPath("$.date").value(getDay.getDate().toString()));
 
         verify(daySheetService, times(1)).getDaySheetById(any(Long.class),any(String.class));

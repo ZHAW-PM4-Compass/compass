@@ -23,67 +23,44 @@ public class DaySheetService {
     TimestampService timestampService;
     public DaySheetDto createDay(DaySheetDto createDay, String user_id)  {
         DaySheet daySheet = convertDaySheetDtoToDaySheet(createDay);
-        daySheet.setUser_id(user_id);
-        Optional<List<DaySheet>> optional = daySheetRepository.getDaySheetByDate(daySheet.getDate());
-        if(optional.isPresent()) {
-            List<DaySheet> list = optional.get();
-            boolean  found = false;
-            for(DaySheet day : list)
-            {
-                if (day.getUser_id().equals(user_id)) {
-                    found = true;
-                    break;
-                }
-            }
-            if(found)
-                return null;
-        }
+        daySheet.setUserId(user_id);
+        Optional<DaySheet> optional = daySheetRepository.findByDateAndUserId(daySheet.getDate(),user_id);
+        if(optional.isPresent())
+            return null;
         return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
     }
 
     public DaySheetDto getDaySheetById(Long id, String user_id)  {
-        Optional<DaySheet> optional = daySheetRepository.getDaySheetById(id);
+        Optional<DaySheet> optional = daySheetRepository.findByIdAndUserId(id,user_id);
         if(optional.isPresent())
-            if(optional.get().getUser_id().equals(user_id))
-                return convertDaySheetToDaySheetDto(optional.get());
+            return convertDaySheetToDaySheetDto(optional.get());
 
         return null;
     }
     public DaySheetDto getDaySheetByDate(LocalDate date, String user_id)  {
-        Optional<List<DaySheet>> optional = daySheetRepository.getDaySheetByDate(date);
+        Optional<DaySheet> optional = daySheetRepository.findByDateAndUserId(date,user_id);
         if(optional.isPresent())
-        {
-            List<DaySheet> list = optional.get();
-            for(DaySheet day : list) {
-                if (day.getUser_id().equals(user_id))
-                    return convertDaySheetToDaySheetDto(day);
-            }
-        }
-
+            return convertDaySheetToDaySheetDto(optional.get());
         return null;
     }
 
     public DaySheetDto updateDay(DaySheetDto updateDay, String user_id) {
-        Optional<DaySheet> optional = daySheetRepository.getDaySheetById(updateDay.getId());
+        Optional<DaySheet> optional = daySheetRepository.findByIdAndUserId(updateDay.getId(),user_id);
         if(optional.isEmpty())
             return null;
         DaySheet daySheet = optional.get();
-        if(daySheet.getUser_id().equals(user_id)) {
-            daySheet.setDay_report(updateDay.getDay_report());
-            daySheet.setDate(updateDay.getDate());
-            return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
-        }
-        return null;
+        daySheet.setDayReport(updateDay.getDayReport());
+        return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
     }
     public DaySheet convertDaySheetDtoToDaySheet(DaySheetDto dayDto)
     {
-        return new DaySheet(dayDto.getId(), dayDto.getDay_report(), dayDto.getDate());
+        return new DaySheet(dayDto.getId(), dayDto.getDayReport(), dayDto.getDate());
     }
     public DaySheetDto convertDaySheetToDaySheetDto(DaySheet daySheet)
     {
         List<TimestampDto> timestampDtos = new ArrayList<>();
         for(Timestamp timestamp : daySheet.getTimestamps())
             timestampDtos.add(timestampService.convertTimestampToTimestampDto(timestamp));
-        return new DaySheetDto(daySheet.getId(), daySheet.getDay_report(), daySheet.getDate(), daySheet.getConfirmed(), timestampDtos);
+        return new DaySheetDto(daySheet.getId(), daySheet.getDayReport(), daySheet.getDate(), daySheet.getConfirmed(), timestampDtos);
     }
 }

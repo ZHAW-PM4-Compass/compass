@@ -19,11 +19,11 @@ public class DaySheet {
     //@Temporal(TemporalType.DATE)
     private LocalDate date;
 
-    private String day_report;
+    private String dayReport;
 
     private Boolean confirmed = false;
 
-    private String user_id;
+    private String userId;
     @OneToMany(mappedBy = "daySheet", cascade = CascadeType.ALL)
     private List<Timestamp> timestamps;
 
@@ -31,38 +31,38 @@ public class DaySheet {
 
     }
 
-    public DaySheet(String day_report, LocalDate date) {
+    public DaySheet(String dayReport, LocalDate date) {
         this.date = date;
-        this.day_report = day_report;
+        this.dayReport = dayReport;
         this.timestamps = new ArrayList<>();
     }
-    public DaySheet(Long id,String day_report, LocalDate date) {
+    public DaySheet(Long id, String dayReport, LocalDate date) {
         this.id = id;
         this.date = date;
-        this.day_report = day_report;
+        this.dayReport = dayReport;
         this.timestamps = new ArrayList<>();
     }
-    public DaySheet(Long id,String day_report, LocalDate date,Boolean confirmed) {
+    public DaySheet(Long id, String dayReport, LocalDate date, Boolean confirmed) {
         this.id = id;
         this.date = date;
-        this.day_report = day_report;
+        this.dayReport = dayReport;
         this.confirmed = confirmed;
         this.timestamps = new ArrayList<>();
     }
-    public DaySheet(Long id, String day_report, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
+    public DaySheet(Long id, String dayReport, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
         this.id = id;
         this.date = date;
-        this.day_report = day_report;
-        this.confirmed = confirmed;
-        this.timestamps = timestamps;
-    }
-    public DaySheet(Long id,String user_id, String day_report, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
-        this.id = id;
-        this.date = date;
-        this.day_report = day_report;
+        this.dayReport = dayReport;
         this.confirmed = confirmed;
         this.timestamps = timestamps;
-        this.user_id = user_id;
+    }
+    public DaySheet(Long id, String userId, String dayReport, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
+        this.id = id;
+        this.date = date;
+        this.dayReport = dayReport;
+        this.confirmed = confirmed;
+        this.timestamps = timestamps;
+        this.userId = userId;
     }
     public DaySheet(LocalDate date) {
         this.date = date;

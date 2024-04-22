@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -38,53 +37,49 @@ public class TimestampService {
         Optional<Timestamp> response = timestampRepository.findById(id);
         if(response.isEmpty())
             return null;
-         if(response.get().getUser_id().equals(user_id))
+         if(response.get().getUserId().equals(user_id))
                 return convertTimestampToTimestampDto(response.get());
          return null;
     }
 
-    public ArrayList<TimestampDto> getAllTimestampsByDaySheetId(Long id, String user_id) {
+    public ArrayList<TimestampDto> getAllTimestampsByDaySheetId(Long id, String userId) {
         ArrayList<TimestampDto> resultList = new ArrayList<>();
-        Iterable<Timestamp> list = timestampRepository.findAllByDaySheetId(id);
+        Iterable<Timestamp> list = timestampRepository.findAllByDaySheetIdAndUserId(id, userId);
         for(Timestamp timestamp : list)
-        {
-            if(timestamp.getUser_id().equals(user_id))
-                resultList.add(convertTimestampToTimestampDto(timestamp));
-        }
+            resultList.add(convertTimestampToTimestampDto(timestamp));
+
         return resultList;
     }
 
-    public TimestampDto updateTimestampById(TimestampDto updateTimestampDto, String user_id) {
-        Optional<Timestamp> response = timestampRepository.findById(updateTimestampDto.getId());
+    public TimestampDto updateTimestampById(TimestampDto updateTimestampDto, String userId) {
+        Optional<Timestamp> response = timestampRepository.findByIdAndUserId(updateTimestampDto.getId(),userId);
         if(response.isEmpty())
             return null;
         if(response.isPresent())
-            if(response.get().getUser_id().equals(user_id)) {
+        {
                 Timestamp timestamp = response.get();
-                Timestamp newTimestamp = new Timestamp(timestamp.getDaySheet(), updateTimestampDto.getStart_time(), updateTimestampDto.getStart_time());
+                Timestamp newTimestamp = new Timestamp(timestamp.getId(),timestamp.getDaySheet(), updateTimestampDto.getStart_time(), updateTimestampDto.getStart_time());
                 if (checkNoDoubleEntry(newTimestamp)) {
                     timestamp.setStartTime(updateTimestampDto.getStart_time());
                     timestamp.setEndTime(updateTimestampDto.getEnd_time());
                     return convertTimestampToTimestampDto(timestampRepository.save(timestamp));
                 }
-            }
+        }
 
         return null;
 
     }
 
-    public void deleteTimestamp(Long id, String user_id){
-        Optional<Timestamp> timestamp =  timestampRepository.findById(id);
+    public void deleteTimestamp(Long id, String userId){
+        Optional<Timestamp> timestamp =  timestampRepository.findByIdAndUserId(id,userId);
         if(timestamp.isPresent())
-            if(timestamp.get().getUser_id().equals(user_id))
-                timestampRepository.delete(timestamp.get());
+            timestampRepository.delete(timestamp.get());
     }
 
     private Timestamp convertTimestampDtoToDTimestamp(TimestampDto timestampDto, String user_id) {
-        Optional<DaySheet> option = daySheetRepository.getDaySheetById(timestampDto.getDay_sheet_id());
+        Optional<DaySheet> option = daySheetRepository.findByIdAndUserId(timestampDto.getDay_sheet_id(),user_id);
         if(option.isPresent())
-            if(option.get().getUser_id().equals(user_id))
-                return new Timestamp(timestampDto.getId(), option.get(), timestampDto.getStart_time(), timestampDto.getEnd_time(),user_id);
+            return new Timestamp(timestampDto.getId(), option.get(), timestampDto.getStart_time(), timestampDto.getEnd_time(),user_id);
         return null;
     }
 
@@ -95,11 +90,8 @@ public class TimestampService {
 
     private boolean checkNoDoubleEntry(Timestamp timestampToCheck)
     {
-        Iterable<Timestamp> timestampsAll = timestampRepository.findAllByDaySheetId(timestampToCheck.getDaySheet().getId());
-        List<Timestamp> timestamps = new ArrayList<>();
-        for(Timestamp timestamp : timestampsAll)
-            if(timestamp.getUser_id().equals(timestampToCheck.getUser_id()))
-                timestamps.add(timestamp);
+        Iterable<Timestamp> timestamps = timestampRepository.findAllByDaySheetIdAndUserId(timestampToCheck.getDaySheet().getId(), timestampToCheck.getUserId());
+
         boolean noDoubleEntry = true;
         for(Timestamp timestamp : timestamps)
         {

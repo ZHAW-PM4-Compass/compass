@@ -28,11 +28,11 @@ public class CategoryService {
 		return convertEntityToDto(categoryRepository.findByName(name).orElseThrow(), withRatings);
 	}
 
-	private Category convertDtoToEntity(CategoryDto dto) {
+	public Category convertDtoToEntity(CategoryDto dto) {
 		return new Category(dto.getName(), dto.getMinimumValue(), dto.getMaximumValue());
 	}
 
-	private CategoryDto convertEntityToDto(Category entity, Boolean withRatings) {
+	public CategoryDto convertEntityToDto(Category entity, Boolean withRatings) {
 		CategoryDto dto = new CategoryDto(entity.getName(), entity.getMinimumValue(), entity.getMaximumValue(), null);
 		if (withRatings) {
 			List<RatingDto> ratingDtoList = entity.getMoodRatings().stream()

@@ -2,6 +2,7 @@ package ch.zhaw.pm4.compass.backend.model;
 
 import org.springframework.data.annotation.PersistenceCreator;
 
+import ch.zhaw.pm4.compass.backend.RatingType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -10,11 +11,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 @Entity
 public class Rating {
 	@Id

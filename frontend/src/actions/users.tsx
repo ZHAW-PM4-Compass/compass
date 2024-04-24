@@ -20,5 +20,5 @@ export async function createUser(formData: FormData) {
   } catch (error) {
       console.error(error);
   }
-  return response;
+  return;
 }

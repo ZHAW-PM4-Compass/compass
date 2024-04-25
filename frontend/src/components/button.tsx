@@ -12,7 +12,7 @@ export default function Button({ children, onClick, className, type, Icon }: Rea
   return (
     <button 
       onClick={onClick} 
-      type={type || "button"}
+      type={type ?? "button"}
       className={ `cursor-pointer bg-black rounded-md text-white px-4 py-2 text-sm drop-shadow flex flex-row hover:bg-slate-800 duration-200 focus:outline-0 ${className}` }>
       {Icon && ( <Icon className="text-white w-5 h-5 mr-2.5" /> )}
       {children}

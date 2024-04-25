@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 
-export default function Select({ className, placeholder, data }: Readonly<{
+export default function Select({ className, placeholder, data, required }: Readonly<{
   className?: string;
   placeholder?: string;
   data: Array<{ id: string, label: string}>;
+  required?: boolean;
 }>) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [dropdownItems, setDropdownItems] = useState(data);

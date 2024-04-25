@@ -1,25 +1,18 @@
-import { getSession } from '@auth0/nextjs-auth0';
 import { Configuration, DaySheetControllerApi, UserControllerApi } from './compassClient';
 
-async function getApiConfiguration() {
-  const session = await getSession();
+function getApiConfiguration() {
   const config = new Configuration({
-      basePath: process.env.API_BASE_PATH,
-      baseOptions: {
-          headers: {
-              Authorization: `Bearer ${session?.accessToken}`,
-          }
-      }
+      basePath: "/api/proxy",
   });
   return config;
 }
 
-export async function getDaySheetControllerApi() {
-  const config = await getApiConfiguration();
+export function getDaySheetControllerApi() {
+  const config = getApiConfiguration();
   return new DaySheetControllerApi(config);
 }
 
-export async function getUserControllerApi() {
-  const config = await getApiConfiguration();
+export function getUserControllerApi() {
+  const config = getApiConfiguration();
   return new UserControllerApi(config);
 }

@@ -5,6 +5,7 @@ export default function Select({ className, placeholder, data, required }: Reado
   placeholder?: string;
   data: Array<{ id: string, label: string}>;
   required?: boolean;
+  value?: string;
 }>) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [dropdownItems, setDropdownItems] = useState(data);

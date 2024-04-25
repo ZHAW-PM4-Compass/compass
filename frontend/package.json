@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",
+    "@fluentui/react-icons": "^2.0.236",
     "@fluentui/svg-icons": "^1.1.233",
     "@hookform/resolvers": "^3.3.4",
     "@libsql/client": "^0.5.2",

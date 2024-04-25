@@ -5,6 +5,9 @@ inputs:
     description: "The working directory where your backend project is located"
     required: true
     default: "./backend"
+  codecov-token:
+    description: "Codecov token for uploading coverage"
+    required: true
 
 runs:
   using: "composite"

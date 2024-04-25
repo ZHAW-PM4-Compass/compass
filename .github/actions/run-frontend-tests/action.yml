@@ -32,7 +32,7 @@ runs:
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+        token: ${{ inputs.codecov-token }}
         directory: ${{ inputs.working-directory }}/coverage
         flags: frontend
         fail_ci_if_error: true

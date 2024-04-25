@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -98,6 +99,11 @@ public class DaySheetControllerTest {
 
 
         verify(daySheetService, times(1)).createDay(any(DaySheetDto.class),any(String.class));
+    }
+    @Test
+    void testFailsForTestingGithubAction()
+    {
+        assertTrue(false);
     }
     @Test
     void testCreateDaySheetWithEmptyBody() throws Exception {

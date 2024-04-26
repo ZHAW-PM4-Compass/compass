@@ -15,7 +15,7 @@ public class DaySheetDto {
 
     private LocalDate date;
 
-    private String dayReport;
+    private String day_report;
 
     private Boolean confirmed = false;
 
@@ -28,19 +28,19 @@ public class DaySheetDto {
     public DaySheetDto(Long id, String day_report, LocalDate date, Boolean confirmed, List<TimestampDto> timestamps) {
         this.id = id ;
         this.date = date;
-        this.dayReport = day_report;
+        this.day_report = day_report;
         this.confirmed = confirmed;
         this.timestamps = timestamps;
     }
     public DaySheetDto(Long id, String day_report, LocalDate date, Boolean confirmed) {
         this.id = id ;
         this.date = date;
-        this.dayReport = day_report;
+        this.day_report = day_report;
         this.confirmed = confirmed;
     }
     public DaySheetDto( String day_report, LocalDate date, Boolean confirmed) {
         this.date = date;
-        this.dayReport = day_report;
+        this.day_report = day_report;
         this.confirmed = confirmed;
     }
 }

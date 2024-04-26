@@ -7,20 +7,29 @@ import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.TimestampRepository;
 import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 import ch.zhaw.pm4.compass.backend.service.TimestampService;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -29,11 +38,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@RunWith(SpringRunner.class)
+@ContextConfiguration
 public class DaySheetControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
+    @Autowired
+    private WebApplicationContext controller;
 
     @MockBean
     private DaySheetService daySheetService;
@@ -44,9 +56,10 @@ public class DaySheetControllerTest {
     private TimestampService timestampService;
     @MockBean
     private TimestampRepository timestampRepository;
-    static String token ="";
+    @MockBean
+    @SuppressWarnings("unused")
+    private JwtDecoder jwtDecoder;
 
-    private String user_id = "löasdjflkajsdf983475908347";
     private LocalDate dateNow = LocalDate.now();
     private String reportText = "Testdate";
     private DaySheetDto getDaySheetDto(){
@@ -60,21 +73,17 @@ public class DaySheetControllerTest {
     }
 
 
+    @Before
+    public void setup() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(controller)
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .build();
 
-
-    @BeforeAll
-    public void getToken()
-    {
-        try {
-            token = TestUtils.initMockWithToken(mockMvc);
-        }
-        catch(Exception ex)
-        {
-            String errorMessage = ex.getMessage();
-            new AssertionError(errorMessage);
-        }
     }
+
     @Test
+    @WithMockUser(username = "testuser",roles = {})
     void testCreateDay() throws Exception {
         // Arrange
 
@@ -89,57 +98,51 @@ public class DaySheetControllerTest {
         // Act and Assert//
         mockMvc.perform(post("/daysheet")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content("{\"day_report\": \""+reportText+"\", \"date\": \"" + dateNow.toString() +"\"}"))
+                        .content("{\"day_report\": \""+reportText+"\", \"date\": \"" + dateNow.toString() +"\"}").with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
-                .andExpect(jsonPath("$.dayReport").value(reportText))
+                .andExpect(jsonPath("$.day_report").value(reportText))
                 .andExpect(jsonPath("$.date").value(dateNow.toString()));
 
 
         verify(daySheetService, times(1)).createDay(any(DaySheetDto.class),any(String.class));
     }
     @Test
+    @WithMockUser(username = "testuser",roles = {})
+    void testFailsForTestingGithubAction()
+    {
+        assertTrue(false);
+    }
+    @Test
+    @WithMockUser(username = "testuser",roles = {})
     void testCreateDaySheetWithEmptyBody() throws Exception {
         // Arrange
-
-
-
-        //CreateDaySheetDto day = getCreateDaySheet();
         DaySheetDto getDay = getDaySheetDto();
 
         when(daySheetService.createDay(any(DaySheetDto.class),any(String.class))).thenReturn(getDay);
-
-
-        // Act and Assert//.header("Authorization", "Bearer " + token))
         mockMvc.perform(post("/daysheet")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content("{}"))
+                        .content("{}")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isForbidden());
 
 
         verify(daySheetService, times(0)).createDay(any(DaySheetDto.class),any(String.class));
     }
     @Test
+    @WithMockUser(username = "testuser",roles = {})
     public void testDayAlreadyExists() throws Exception {
         // Arrange
-        // Arrange
 
-
-
-        DaySheetDto dayDto = getDaySheetDto();
 
         DaySheet daySheet = getDaySheet();
         when(daySheetRepository.findByDateAndUserId(any(LocalDate.class),any(String.class))).thenReturn(Optional.of(daySheet));
         when(daySheetRepository.save(any(DaySheet.class))).thenReturn(daySheet);
 
-        // Act and Assert//.header("Authorization", "Bearer " + token))
         mockMvc.perform(post("/daysheet")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content("{\"dayReport\": \""+reportText+"\", \"date\": \"" + dateNow.toString() +"\"}"))
-
+                        .content("{\"day_report\": \""+reportText+"\", \"date\": \"" + dateNow.toString() +"\"}")
+                .       with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$").doesNotExist());
 
@@ -148,6 +151,7 @@ public class DaySheetControllerTest {
         verify(daySheetService, times(1)).createDay(any(DaySheetDto.class),any(String.class));
     }
     @Test
+    @WithMockUser(username = "testuser",roles = {})
     void testUpdateDay() throws Exception {
         // Arrange
 
@@ -155,20 +159,20 @@ public class DaySheetControllerTest {
 
 
         DaySheetDto getDay = getDaySheetDto();
-        getDay.setDayReport(reportText+"1");
+        getDay.setDay_report(reportText+"1");
         getDay.setDate(dateNow.plusDays(1));
         DaySheetDto updateDay = getUpdateDaySheet();
         when(daySheetService.updateDay(any(DaySheetDto.class),any(String.class))).thenReturn(updateDay);
 
 
-        // Act and Assert//.header("Authorization", "Bearer " + token))
+        //Act
         mockMvc.perform(put("/daysheet")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content("{\"id\": 1,\"day_report\": \""+reportText+"1"+"\", \"date\": \"" + dateNow.toString() +"\"}"))
+                        .content("{\"id\": 1,\"day_report\": \""+reportText+"1"+"\", \"date\": \"" + dateNow.toString() +"\"}")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
-                .andExpect(jsonPath("$.dayReport").value(updateDay.getDayReport()))
+                .andExpect(jsonPath("$.day_report").value(updateDay.getDay_report()))
                 .andExpect(jsonPath("$.date").value(updateDay.getDate().toString()));
 
 
@@ -178,32 +182,34 @@ public class DaySheetControllerTest {
 
 
     @Test
+    @WithMockUser(username = "testuser",roles = {})
     void testGetDayByDate() throws Exception {
         // Arrange
         DaySheetDto getDay = getDaySheetDto();
         when(daySheetService.getDaySheetByDate(any(LocalDate.class),any(String.class))).thenReturn(getDay);
 
-        // Act and Assert//.header("Authorization", "Bearer " + token))
-        mockMvc.perform(get("/daysheet/getByDate/" + getDay.getDate().toString()).header("Authorization", "Bearer " + token))
+        mockMvc.perform(get("/daysheet/getByDate/" + getDay.getDate().toString())
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
-                .andExpect(jsonPath("$.dayReport").value(getDay.getDayReport()))
+                .andExpect(jsonPath("$.day_report").value(getDay.getDay_report()))
                 .andExpect(jsonPath("$.date").value(getDay.getDate().toString()));
 
         verify(daySheetService, times(1)).getDaySheetByDate(any(LocalDate.class),any(String.class));
     }
 
     @Test
+    @WithMockUser(username = "testuser",roles = {})
     void testGetDayById() throws Exception {
         // Arrange
         DaySheetDto getDay = getDaySheetDto();
         when(daySheetService.getDaySheetById(any(Long.class),any(String.class))).thenReturn(getDay);
 
-        // Act and Assert//.header("Authorization", "Bearer " + token))
-        mockMvc.perform(get("/daysheet/getById/" + getDay.getId()).header("Authorization", "Bearer " + token))
+        mockMvc.perform(get("/daysheet/getById/" + getDay.getId())
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
-                .andExpect(jsonPath("$.dayReport").value(getDay.getDayReport()))
+                .andExpect(jsonPath("$.day_report").value(getDay.getDay_report()))
                 .andExpect(jsonPath("$.date").value(getDay.getDate().toString()));
 
         verify(daySheetService, times(1)).getDaySheetById(any(Long.class),any(String.class));

@@ -49,12 +49,12 @@ public class DaySheetService {
         if(optional.isEmpty())
             return null;
         DaySheet daySheet = optional.get();
-        daySheet.setDayReport(updateDay.getDayReport());
+        daySheet.setDayReport(updateDay.getDay_report());
         return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
     }
     public DaySheet convertDaySheetDtoToDaySheet(DaySheetDto dayDto)
     {
-        return new DaySheet(dayDto.getId(), dayDto.getDayReport(), dayDto.getDate());
+        return new DaySheet(dayDto.getId(), dayDto.getDay_report(), dayDto.getDate());
     }
     public DaySheetDto convertDaySheetToDaySheetDto(DaySheet daySheet)
     {

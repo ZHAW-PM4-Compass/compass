@@ -1,5 +1,5 @@
-name: "Run Backend Tests"
-description: "Installs dependencies, runs Gradle tests, and uploads test coverage in a Java project"
+name: "Run Backend Tests with PostgreSQL"
+description: "Sets up a PostgreSQL database, installs dependencies, runs Gradle tests with the database, and uploads test coverage in a Java project"
 inputs:
   working-directory:
     description: "The working directory where your backend project is located"
@@ -8,7 +8,6 @@ inputs:
   codecov-token:
     description: "Codecov token for uploading coverage"
     required: true
-
 runs:
   using: "composite"
   steps:
@@ -20,9 +19,11 @@ runs:
       with:
         java-version: "21"
         distribution: "temurin"
+
     - name: Install dependencies, run tests, and collect coverage
       shell: bash
-      run: cd ${{ inputs.working-directory }} && gradle build
+      run: cd ${{ inputs.working-directory }} && gradle test
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:

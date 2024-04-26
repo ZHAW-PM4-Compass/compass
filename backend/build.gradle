@@ -60,5 +60,6 @@ tasks.register("local") {
 }
 
 tasks.named('test') {
+	systemProperties['spring.profiles.active'] = 'local'
     useJUnitPlatform()
 }

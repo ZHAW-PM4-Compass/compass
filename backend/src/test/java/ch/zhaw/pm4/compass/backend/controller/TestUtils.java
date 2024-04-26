@@ -27,10 +27,10 @@ public class TestUtils {
 
         JSONObject requestJson = new JSONObject();
         requestJson.put("grant_type", "client_credentials");
-        requestJson.put("client_id", System.getenv("AUTH0_CLIENT_ID"));
-        requestJson.put("client_secret", System.getenv("AUTH0_CLIENT_SECRET"));
+        requestJson.put("client_id", System.getenv("AUTH0_MGMT_CLIENT_ID"));
+        requestJson.put("client_secret", System.getenv("AUTH0_MGMT_CLIENT_SECRET"));
 
-        requestJson.put("audience", System.getenv("AUTH0_AUDIENCE"));
+        requestJson.put("audience", System.getenv("AUTH0_MGMT_AUDIENCE"));
 
 
         HttpEntity<String> request = new HttpEntity<String>(requestJson.toString(), headers);

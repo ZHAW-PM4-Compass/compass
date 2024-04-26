@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -93,11 +94,16 @@ public class DaySheetControllerTest {
                         .content("{\"day_report\": \""+reportText+"\", \"date\": \"" + dateNow.toString() +"\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
-                .andExpect(jsonPath("$.dayReport").value(reportText))
+                .andExpect(jsonPath("$.day_report").value(reportText))
                 .andExpect(jsonPath("$.date").value(dateNow.toString()));
 
 
         verify(daySheetService, times(1)).createDay(any(DaySheetDto.class),any(String.class));
+    }
+    @Test
+    void testFailsForTestingGithubAction()
+    {
+        assertTrue(false);
     }
     @Test
     void testCreateDaySheetWithEmptyBody() throws Exception {
@@ -138,7 +144,7 @@ public class DaySheetControllerTest {
         mockMvc.perform(post("/daysheet")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
-                        .content("{\"dayReport\": \""+reportText+"\", \"date\": \"" + dateNow.toString() +"\"}"))
+                        .content("{\"day_report\": \""+reportText+"\", \"date\": \"" + dateNow.toString() +"\"}"))
 
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$").doesNotExist());
@@ -155,7 +161,7 @@ public class DaySheetControllerTest {
 
 
         DaySheetDto getDay = getDaySheetDto();
-        getDay.setDayReport(reportText+"1");
+        getDay.setDay_report(reportText+"1");
         getDay.setDate(dateNow.plusDays(1));
         DaySheetDto updateDay = getUpdateDaySheet();
         when(daySheetService.updateDay(any(DaySheetDto.class),any(String.class))).thenReturn(updateDay);
@@ -168,7 +174,7 @@ public class DaySheetControllerTest {
                         .content("{\"id\": 1,\"day_report\": \""+reportText+"1"+"\", \"date\": \"" + dateNow.toString() +"\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
-                .andExpect(jsonPath("$.dayReport").value(updateDay.getDayReport()))
+                .andExpect(jsonPath("$.day_report").value(updateDay.getDay_report()))
                 .andExpect(jsonPath("$.date").value(updateDay.getDate().toString()));
 
 
@@ -187,7 +193,7 @@ public class DaySheetControllerTest {
         mockMvc.perform(get("/daysheet/getByDate/" + getDay.getDate().toString()).header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
-                .andExpect(jsonPath("$.dayReport").value(getDay.getDayReport()))
+                .andExpect(jsonPath("$.day_report").value(getDay.getDay_report()))
                 .andExpect(jsonPath("$.date").value(getDay.getDate().toString()));
 
         verify(daySheetService, times(1)).getDaySheetByDate(any(LocalDate.class),any(String.class));
@@ -203,7 +209,7 @@ public class DaySheetControllerTest {
         mockMvc.perform(get("/daysheet/getById/" + getDay.getId()).header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
-                .andExpect(jsonPath("$.dayReport").value(getDay.getDayReport()))
+                .andExpect(jsonPath("$.day_report").value(getDay.getDay_report()))
                 .andExpect(jsonPath("$.date").value(getDay.getDate().toString()));
 
         verify(daySheetService, times(1)).getDaySheetById(any(Long.class),any(String.class));

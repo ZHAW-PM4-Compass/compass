@@ -44,7 +44,6 @@ function UserCreateModal({ close, onSave }: Readonly<{
 		};
 
 		getUserControllerApi().createUser(createUserDto).then(response => {
-      console.log(response);
 			close();
 			setTimeout(() => onSave(), 1000);
 
@@ -104,7 +103,7 @@ const onSubmit = (formData: FormData) => {
       toast.error(toastMessages.USER_NOT_UPDATED);
     }
 	}).catch(() => {
-		toast.success(toastMessages.USER_NOT_UPDATED);
+		toast.error(toastMessages.USER_NOT_UPDATED);
 	})
 }
 
@@ -141,9 +140,8 @@ export default function UsersPage() {
 			const users = response?.data;
 			users.sort((a, b) => (a?.given_name || '').localeCompare(b?.given_name || ''));
 			setUsers(users);
-			console.log(users);
 		}).catch(() => {
-			toast.error(toastMessages.USERS_NOT_LOADED);
+			toast.error(toastMessages.DATA_NOT_LOADED);
 		})
 	}
 

@@ -1,5 +1,5 @@
 enum toastMessages {
-  USERS_NOT_LOADED = "User konnten nicht geladen werden",
+  DATA_NOT_LOADED = "Daten konnten nicht geladen werden",
   USER_CREATED = "User erstellt",
   USER_NOT_CREATED = "User konnte nicht erstellt werden",
   USER_UPDATED = "User aktualisiert",

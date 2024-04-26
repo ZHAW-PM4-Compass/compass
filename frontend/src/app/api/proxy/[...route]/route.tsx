@@ -12,14 +12,14 @@ async function callBackend(request: NextRequest) {
     "Content-Length": body ? Buffer.byteLength(body) : 0,
   });
 
-  console.log(`Calling ${request.method} ${requestUrl}`);
-
   return fetch(requestUrl, {
     method: request.method,
     headers: headers,
     body: body ? body : undefined,
   }).then(response => {
     return response
+  }).catch(() => {
+    return new Response("Internal Server Error", { status: 500 });
   });
 }
 

@@ -7,15 +7,23 @@ import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.TimestampRepository;
 import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 import ch.zhaw.pm4.compass.backend.service.TimestampService;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.sql.Time;
 import java.time.LocalDate;
@@ -30,12 +38,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@RunWith(SpringRunner.class)
+@ContextConfiguration
 public class TimestampControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
+    @Autowired
+    private WebApplicationContext controller;
     @MockBean
     private TimestampService timestampService;
     @MockBean
@@ -45,6 +55,9 @@ public class TimestampControllerTest {
 
     @MockBean
     private DaySheetRepository daySheetRepository;
+    @MockBean
+    @SuppressWarnings("unused")
+    private JwtDecoder jwtDecoder;
     static String token = "";
     private LocalDate dateNow = LocalDate.now();
     private String reportText = "Testdate";
@@ -60,29 +73,26 @@ public class TimestampControllerTest {
     private Timestamp getTimestamp(){
         return new Timestamp(1l,getDaySheet(),Time.valueOf("13:00:00"),Time.valueOf("14:00:00"));
     }
-    @BeforeAll
-    private void getToken()
-    {
-        try {
-            token = TestUtils.initMockWithToken(mockMvc);
-        }
-        catch(Exception ex)
-        {
-            String errorMessage = ex.getMessage();
-            new AssertionError(errorMessage);
-        }
+    @Before
+    public void setup() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(controller)
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .build();
+
     }
     @Test
+    @WithMockUser(username = "testuser",roles = {})
     void testCreateTimestamp() throws Exception {
         // Arrange
         TimestampDto getTimestamp = getTimestampDto();
         when(timestampService.createTimestamp(any(TimestampDto.class),any(String.class))).thenReturn(getTimestamp);
 
-        // Act and Assert//)
+        // Act
         mockMvc.perform(post("/timestamp")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content("{\"day_sheet_id\": 1, \"start_time\": \"" + getTimestamp.getStart_time().toString() +"\", \"start_time\": \"" + getTimestamp.getEnd_time().toString() +"\"}"))
+                        .content("{\"day_sheet_id\": 1, \"start_time\": \"" + getTimestamp.getStart_time().toString() +"\", \"start_time\": \"" + getTimestamp.getEnd_time().toString() +"\"}")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
                 .andExpect(jsonPath("$.day_sheet_id").value(1l))
@@ -94,17 +104,18 @@ public class TimestampControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "testuser",roles = {})
     public void testTimestampAlreadyExists() throws Exception {
         // Arrange
         // Arrange
         TimestampDto getTimestamp = getTimestampDto();
         when(timestampService.createTimestamp(any(TimestampDto.class),any(String.class))).thenReturn(null);
 
-        // Act and Assert//.header("Authorization", "Bearer " + token))
+        // Act
         mockMvc.perform(post("/timestamp")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content("{\"day_sheet_id\": 1, \"start_time\": \"" + getTimestamp.getStart_time().toString() +"\", \"start_time\": \"" + getTimestamp.getEnd_time().toString() +"\"}"))
+                        .content("{\"day_sheet_id\": 1, \"start_time\": \"" + getTimestamp.getStart_time().toString() +"\", \"start_time\": \"" + getTimestamp.getEnd_time().toString() +"\"}")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$").doesNotExist());
 
@@ -114,6 +125,7 @@ public class TimestampControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "testuser",roles = {})
     void testUpdateTimestamp() throws Exception {
         // Arrange
         TimestampDto getTimestamp = getUpdateTimestamp();
@@ -121,11 +133,11 @@ public class TimestampControllerTest {
         when(timestampService.updateTimestampById(any(TimestampDto.class),any(String.class))).thenReturn(updateTimestamp);
 
 
-        // Act and Assert//.header("Authorization", "Bearer " + token))
+        // Act and Assert
         mockMvc.perform(put("/timestamp")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content("{\"day_sheet_id\": 1, \"start_time\": \"" + updateTimestamp.getStart_time().toString() +"\", \"start_time\": \"" + updateTimestamp.getEnd_time().toString() +"\"}"))
+                        .content("{\"day_sheet_id\": 1, \"start_time\": \"" + updateTimestamp.getStart_time().toString() +"\", \"start_time\": \"" + updateTimestamp.getEnd_time().toString() +"\"}")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
                 .andExpect(jsonPath("$.day_sheet_id").value(1l))
@@ -141,13 +153,15 @@ public class TimestampControllerTest {
 
 
     @Test
+    @WithMockUser(username = "testuser",roles = {})
     void testGetTimestampById() throws Exception {
         // Arrange
         TimestampDto getTimestamp = getTimestampDto();
         when(timestampService.getTimestampById(any(Long.class),any(String.class))).thenReturn(getTimestamp);
 
-        // Act and Assert//.header("Authorization", "Bearer " + token))
-        mockMvc.perform(get("/timestamp/getById/" + getTimestamp.getId()).header("Authorization", "Bearer " + token))
+        // Act and Assert//
+        mockMvc.perform(get("/timestamp/getById/" + getTimestamp.getId())
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
                 .andExpect(jsonPath("$.day_sheet_id").value(1l))
@@ -157,6 +171,7 @@ public class TimestampControllerTest {
         verify(timestampService, times(1)).getTimestampById(any(Long.class),any(String.class));
     }
     @Test
+    @WithMockUser(username = "testuser",roles = {})
     void testGetAllTimestampsByDayId() throws Exception {
         // Arrange
         TimestampDto getTimestamp = getTimestampDto();
@@ -172,14 +187,16 @@ public class TimestampControllerTest {
         timestamps.add(getTimestamp1);
         when(timestampService.getAllTimestampsByDaySheetId(any(Long.class),any(String.class))).thenReturn(timestamps);
 
-        // Act and Assert//.header("Authorization", "Bearer " + token))
-        String res = mockMvc.perform(get("/timestamp/allbydaysheetid/" + daySheet.getId()).header("Authorization", "Bearer " + token))
+        // Act and Assert//
+        String res = mockMvc.perform(get("/timestamp/allbydaysheetid/" + daySheet.getId())
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         assertEquals("[{\"id\":1,\"day_sheet_id\":1,\"start_time\":\"13:00:00\",\"end_time\":\"14:00:00\"},{\"id\":1,\"day_sheet_id\":1,\"start_time\":\"14:00:00\",\"end_time\":\"15:00:00\"}]",res);
         verify(timestampService, times(1)).getAllTimestampsByDaySheetId(any(Long.class),any(String.class));
     }
     @Test
+    @WithMockUser(username = "testuser",roles = {})
     void testGetAllTimestampsByDayIdEmpty() throws Exception {
         // Arrange
         DaySheet daySheet = getDaySheet();
@@ -187,7 +204,8 @@ public class TimestampControllerTest {
         when(timestampService.getAllTimestampsByDaySheetId(any(Long.class),any(String.class))).thenReturn(timestamps);
 
         // Act and Assert//.header("Authorization", "Bearer " + token))
-        mockMvc.perform(get("/timestamp/allbydaysheetid/" + daySheet.getId()).header("Authorization", "Bearer " + token))
+        mockMvc.perform(get("/timestamp/allbydaysheetid/" + daySheet.getId())
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNotFound());
         verify(timestampService, times(1)).getAllTimestampsByDaySheetId(any(Long.class),any(String.class));
     }

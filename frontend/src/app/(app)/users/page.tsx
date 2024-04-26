@@ -1,7 +1,7 @@
 "use client"
 
-import { UserDto } from "@/api/compassClient";
-import { getUserControllerApi } from "@/api/connector";
+import { UserDto } from "@/openapi/compassClient";
+import { getUserControllerApi } from "@/openapi/connector";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import Modal from "@/components/modal";
@@ -10,8 +10,9 @@ import Table from "@/components/table";
 import Title1 from "@/components/title1";
 import Roles from "@/constants/roles";
 import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular } from "@fluentui/react-icons";
-import { on } from "events";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
+import { toast } from 'react-hot-toast';
+import toastMessages from "@/constants/toastMessages";
 
 const roles = [
   {
@@ -43,10 +44,17 @@ function UserCreateModal({ close, onSave }: Readonly<{
 		};
 
 		getUserControllerApi().createUser(createUserDto).then(response => {
+      console.log(response);
 			close();
-			setTimeout(() => onSave(), 1000); 
-		}).catch(error => {
-			console.error(error);
+			setTimeout(() => onSave(), 1000);
+
+      if (response.status === 200) {
+        toast.success(toastMessages.USER_CREATED);
+      } else {
+        toast.error(toastMessages.USER_NOT_CREATED);
+      }
+		}).catch(() => {
+      toast.error(toastMessages.USER_NOT_CREATED);
 		})
 	}
 
@@ -90,8 +98,13 @@ const onSubmit = (formData: FormData) => {
 	getUserControllerApi().createUser(createUserDto).then(response => {
 		close();
 		setTimeout(() => onSave(), 1000); 
-	}).catch(error => {
-		console.error(error);
+    if (response.status === 200) {
+      toast.success(toastMessages.USER_UPDATED);
+    } else {
+      toast.error(toastMessages.USER_NOT_UPDATED);
+    }
+	}).catch(() => {
+		toast.success(toastMessages.USER_NOT_UPDATED);
 	})
 }
 
@@ -129,8 +142,8 @@ export default function UsersPage() {
 			users.sort((a, b) => (a?.given_name || '').localeCompare(b?.given_name || ''));
 			setUsers(users);
 			console.log(users);
-		}).catch(error => {
-			
+		}).catch(() => {
+			toast.error(toastMessages.USERS_NOT_LOADED);
 		})
 	}
 

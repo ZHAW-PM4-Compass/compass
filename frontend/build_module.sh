@@ -4,7 +4,7 @@
 DOCS_URL="http://localhost:8080/api/v3/api-docs"
 
 # Directory to output the generated TypeScript client
-OUTPUT_DIR="./src/api/compassClient"
+OUTPUT_DIR="./src/openapi/compassClient"
 
 # Save the current directory
 CURRENT_DIR=$(pwd)

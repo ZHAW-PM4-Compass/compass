@@ -4,11 +4,5 @@ WORKDIR /app
 COPY ./backend/build.gradle .
 COPY ./backend/settings.gradle .
 COPY ./backend/src src
-RUN gradle build --no-daemon --exclude-task test
-
-# Testing Image Preparation
-FROM gradle:8.6.0-jdk21
-WORKDIR /app
-COPY --from=builder /app/build /app/build
-COPY --from=builder /app/src /app/src    
+RUN gradle assemble --no-daemon
 CMD ["gradle", "test"]                   

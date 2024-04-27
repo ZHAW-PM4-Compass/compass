@@ -15,10 +15,6 @@ runs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Print working directory
-      shell: bash
-      run: pwd && ls -l
-
     - name: Build Docker Image
       shell: bash
       run: docker build -t backend-tests -f ./docker/test/Dockerfile.backend .

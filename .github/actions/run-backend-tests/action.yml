@@ -42,7 +42,7 @@ runs:
 
     - name: Debug Report dir
       shell: bash
-      run: cat ./reports/tests/test/index.html
+      run: cd reports && ls -la
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

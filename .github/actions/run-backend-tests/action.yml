@@ -22,8 +22,7 @@ runs:
     - name: Run Tests in Docker Container
       shell: bash
       run: |
-        docker run --name test-container backend-tests \
-          -e DOCKER_ON='false' \
+        docker run -e DOCKER_ON='false' \
           -e PORT='8080' \
           -e DB_HOST='localhost:5432' \
           -e DB_USERNAME='postgres' \
@@ -35,7 +34,9 @@ runs:
           -e AUTH0_MGMT_CLIENT_ID='' \
           -e AUTH0_MGMT_CLIENT_SECRET='' \
           -e AUTH0_MGMT_AUDIENCE='' \
-          -e APP_URL=''
+          -e APP_URL='' \
+          --name test-container backend-tests \
+          /bin/sh -c "gradle test; tail -f /dev/null"
 
     - name: Copy Coverage Reports from Docker Container
       shell: bash

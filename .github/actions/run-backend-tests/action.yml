@@ -40,6 +40,10 @@ runs:
           backend-tests \
           /bin/sh -c "gradle test"
 
+    - name: Debug Report dir
+      shell: bash
+      run: cat ./reports/tests/test/index.html
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:

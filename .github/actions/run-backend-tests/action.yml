@@ -17,11 +17,11 @@ runs:
 
     - name: Print working directory
       shell: bash
-      run: pwd && ls -la
+      run: pwd && ls -l
 
     - name: Build Docker Image
       shell: bash
-      run: docker build -t backend-tests -f Dockerfile ./docker/test/Dockerfile.backend
+      run: docker build -t backend-tests -f ./docker/test/Dockerfile.backend .
 
     - name: Run Tests in Docker Container
       shell: bash

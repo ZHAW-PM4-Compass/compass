@@ -16,11 +16,14 @@ import ch.zhaw.pm4.compass.backend.repository.CategoryRepository;
 public class CategoryService {
 	@Autowired
 	private CategoryRepository categoryRepository;
+	@Autowired
+	private DaySheetService daySheetService;
 
 	public CategoryDto createCategory(CategoryDto createCategory) throws CategoryAlreadyExistsException {
 		Category category = convertDtoToEntity(createCategory);
-		if (categoryRepository.findByName(category.getName()).isPresent())
+		if (categoryRepository.findByName(category.getName()).isPresent()) {
 			throw new CategoryAlreadyExistsException(category);
+		}
 		return convertEntityToDto(categoryRepository.save(category), false);
 	}
 
@@ -33,10 +36,12 @@ public class CategoryService {
 	}
 
 	public CategoryDto convertEntityToDto(Category entity, Boolean withRatings) {
-		CategoryDto dto = new CategoryDto(entity.getName(), entity.getMinimumValue(), entity.getMaximumValue(), null);
+		CategoryDto dto = new CategoryDto(entity.getId(), entity.getName(), entity.getMinimumValue(),
+				entity.getMaximumValue());
 		if (withRatings) {
-			List<RatingDto> ratingDtoList = entity.getMoodRatings().stream()
-					.map(i -> new RatingDto(dto, i.getRating(), i.getRatingRole())).toList();
+			List<RatingDto> ratingDtoList = entity.getMoodRatings().stream().map(i -> new RatingDto(dto,
+					daySheetService.convertDaySheetToDaySheetDto(i.getDaySheet()), i.getRating(), i.getRatingRole()))
+					.toList();
 			dto.setMoodRatings(ratingDtoList);
 		}
 		return dto;

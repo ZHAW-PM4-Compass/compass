@@ -16,11 +16,21 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 public class CategoryDto {
 	@NonNull
+	private Long id;
+
 	private String name;
-	@NonNull
+
 	private Integer minimumValue;
-	@NonNull
+
 	private Integer maximumValue;
 
 	private List<RatingDto> moodRatings;
+
+	public CategoryDto(Long id, String name, Integer minimumValue, Integer maximumValue) {
+		this.id = id;
+		this.name = name;
+		this.minimumValue = minimumValue;
+		this.maximumValue = maximumValue;
+	}
+
 }

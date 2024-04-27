@@ -10,6 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,14 +23,15 @@ public class DaySheet {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-    //@Temporal(TemporalType.DATE)
-    private LocalDate date;
+	@Temporal(TemporalType.DATE)
+	private LocalDate date;
 
-    private String dayReport;
+	private String dayReport;
 
 	private Boolean confirmed = false;
 
-    private String userId;
+	private String userId;
+
 	@OneToMany(mappedBy = "daySheet", cascade = CascadeType.ALL)
 	private List<Timestamp> timestamps;
 
@@ -39,40 +42,46 @@ public class DaySheet {
 
 	}
 
-    public DaySheet(String dayReport, LocalDate date) {
-        this.date = date;
-        this.dayReport = dayReport;
-        this.timestamps = new ArrayList<>();
-    }
-    public DaySheet(Long id, String dayReport, LocalDate date) {
-        this.id = id;
-        this.date = date;
-        this.dayReport = dayReport;
-        this.timestamps = new ArrayList<>();
-    }
-    public DaySheet(Long id, String dayReport, LocalDate date, Boolean confirmed) {
-        this.id = id;
-        this.date = date;
-        this.dayReport = dayReport;
-        this.confirmed = confirmed;
-        this.timestamps = new ArrayList<>();
-    }
-    public DaySheet(Long id, String dayReport, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
-        this.id = id;
-        this.date = date;
-        this.dayReport = dayReport;
-        this.confirmed = confirmed;
-        this.timestamps = timestamps;
-    }
-    public DaySheet(Long id, String userId, String dayReport, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
-        this.id = id;
-        this.date = date;
-        this.dayReport = dayReport;
-        this.confirmed = confirmed;
-        this.timestamps = timestamps;
-        this.userId = userId;
-    }
-    public DaySheet(LocalDate date) {
-        this.date = date;
-    }
+	public DaySheet(String dayReport, LocalDate date) {
+		this.date = date;
+		this.dayReport = dayReport;
+		this.timestamps = new ArrayList<>();
+	}
+
+	public DaySheet(Long id, String dayReport, LocalDate date) {
+		this.id = id;
+		this.date = date;
+		this.dayReport = dayReport;
+		this.timestamps = new ArrayList<>();
+	}
+
+	public DaySheet(Long id, String dayReport, LocalDate date, Boolean confirmed) {
+		this.id = id;
+		this.date = date;
+		this.dayReport = dayReport;
+		this.confirmed = confirmed;
+		this.timestamps = new ArrayList<>();
+	}
+
+	public DaySheet(Long id, String dayReport, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
+		this.id = id;
+		this.date = date;
+		this.dayReport = dayReport;
+		this.confirmed = confirmed;
+		this.timestamps = timestamps;
+	}
+
+	public DaySheet(Long id, String userId, String dayReport, LocalDate date, Boolean confirmed,
+			ArrayList<Timestamp> timestamps) {
+		this.id = id;
+		this.date = date;
+		this.dayReport = dayReport;
+		this.confirmed = confirmed;
+		this.timestamps = timestamps;
+		this.userId = userId;
+	}
+
+	public DaySheet(LocalDate date) {
+		this.date = date;
+	}
 }

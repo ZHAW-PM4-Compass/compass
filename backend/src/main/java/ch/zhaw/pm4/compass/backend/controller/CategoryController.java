@@ -41,4 +41,13 @@ public class CategoryController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
+
+	@GetMapping(path = "/getByNameWithAllRatings/{name}", produces = "application/json")
+	public ResponseEntity<CategoryDto> getCategoryByNameWithRatings(@PathVariable String name) {
+		try {
+			return ResponseEntity.ok(categoryService.getCategoryByName(name, true));
+		} catch (NoSuchElementException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
 }

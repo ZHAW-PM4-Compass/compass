@@ -14,9 +14,8 @@ import lombok.NonNull;
 public class RatingDto {
 	@NonNull
 	private CategoryDto category;
-	// @NonNull
-	// private DaySheetDto daySheet;
-
+	@NonNull
+	private DaySheetDto daySheet;
 	@NonNull
 	private Integer rating;
 	@NonNull

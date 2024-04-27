@@ -32,10 +32,8 @@ public class Rating {
 	private DaySheet daySheet;
 
 	@PersistenceCreator
-	public Rating(int rating, RatingType ratingRole, Category category, DaySheet daySheet) {
+	public Rating(int rating, RatingType ratingRole) {
 		this.rating = rating;
 		this.ratingRole = ratingRole;
-		this.category = category;
-		this.daySheet = daySheet;
 	}
 }

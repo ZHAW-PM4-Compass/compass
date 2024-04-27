@@ -38,6 +38,6 @@ public class Category {
 	}
 
 	public boolean isValidRating(Rating rating) {
-		return rating.getRating() <= this.minimumValue && rating.getRating() <= this.maximumValue;
+		return rating.getRating() >= this.minimumValue && rating.getRating() <= this.maximumValue;
 	}
 }

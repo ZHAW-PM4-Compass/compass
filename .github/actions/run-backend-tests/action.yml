@@ -16,15 +16,15 @@ runs:
       uses: actions/checkout@v4
 
     - name: Build Docker Image
-      shell: /bin/bash
+      shell: bash
       run: docker build -t backend-tests -f Dockerfile ./docker/test/Dockerfile.backend
 
     - name: Run Tests in Docker Container
-      shell: /bin/bash
+      shell: bash
       run: docker run --name test-container backend-tests
 
     - name: Copy Coverage Reports from Docker Container
-      shell: /bin/bash
+      shell: bash
       run: docker cp test-container:/app/build/reports ./reports
 
     - name: Upload coverage to Codecov

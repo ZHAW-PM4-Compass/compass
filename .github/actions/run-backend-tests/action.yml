@@ -1,5 +1,5 @@
-name: "Run Backend Tests with PostgreSQL"
-description: "Sets up a PostgreSQL database, installs dependencies, runs Gradle tests with the database, and uploads test coverage in a Java project"
+name: "Run Backend Tests with PostgreSQL in Docker"
+description: "Builds a Docker image and runs Gradle tests within the container, then uploads test coverage in a Java project"
 inputs:
   working-directory:
     description: "The working directory where your backend project is located"
@@ -8,27 +8,30 @@ inputs:
   codecov-token:
     description: "Codecov token for uploading coverage"
     required: true
+
 runs:
   using: "composite"
   steps:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: "21"
-        distribution: "temurin"
+    - name: Build Docker Image
+      shell: /bin/bash
+      run: docker build -t backend-tests -f Dockerfile ./docker/test/Dockerfile.backend
 
-    - name: Install dependencies, run tests, and collect coverage
-      shell: bash
-      run: cd ${{ inputs.working-directory }} && gradle test
+    - name: Run Tests in Docker Container
+      shell: /bin/bash
+      run: docker run --name test-container backend-tests
+
+    - name: Copy Coverage Reports from Docker Container
+      shell: /bin/bash
+      run: docker cp test-container:/app/build/reports ./reports
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
         token: ${{ inputs.codecov-token }}
-        directory: ${{ inputs.working-directory }}/build/reports
+        directory: ./reports
         flags: backend
         fail_ci_if_error: true
         verbose: true

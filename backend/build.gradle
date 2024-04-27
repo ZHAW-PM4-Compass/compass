@@ -56,11 +56,11 @@ tasks.named('test') {
 
 
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = "0.8.12"
 }
 
 jacocoTestReport {
-    dependsOn test
+    // Configure report outputs and requirements
     reports {
         xml.required = true
         html.required = true
@@ -71,8 +71,8 @@ jacocoTestReport {
     }
 }
 
-
 test {
+    // Use finalizedBy to ensure jacocoTestReport runs after tests
+    finalizedBy 'jacocoTestReport'
     ignoreFailures = true
-    finalizedBy 'jacocoTestReport' 
 }

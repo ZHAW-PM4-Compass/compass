@@ -20,5 +20,4 @@ public class RatingDto {
 	private Integer rating;
 	@NonNull
 	private RatingType ratingRole;
-
 }

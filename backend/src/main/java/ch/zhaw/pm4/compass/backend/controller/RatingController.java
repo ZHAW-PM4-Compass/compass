@@ -13,6 +13,7 @@ import ch.zhaw.pm4.compass.backend.exception.DaySheetNotFoundException;
 import ch.zhaw.pm4.compass.backend.exception.RatingIsNotValidException;
 import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
 import ch.zhaw.pm4.compass.backend.service.RatingService;
+import io.swagger.v3.oas.annotations.media.SchemaProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Rating Controller", description = "Rating Enpoint")
@@ -23,6 +24,7 @@ public class RatingController {
 	private RatingService ratingService;
 
 	@PostMapping(produces = "application/json")
+	@SchemaProperties()
 	public ResponseEntity<RatingDto> createRating(@RequestBody RatingDto rating) {
 		try {
 			return ResponseEntity.ok(ratingService.createRating(rating));

@@ -17,7 +17,7 @@ runs:
 
     - name: Print working directory
       shell: bash
-      run: pwd
+      run: pwd && ls -la
 
     - name: Build Docker Image
       shell: bash

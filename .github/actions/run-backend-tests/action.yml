@@ -35,12 +35,10 @@ runs:
           -e AUTH0_MGMT_CLIENT_SECRET='' \
           -e AUTH0_MGMT_AUDIENCE='' \
           -e APP_URL='' \
-          --name test-container backend-tests \
-          /bin/sh -c "gradle test; tail -f /dev/null"
-
-    - name: Copy Coverage Reports from Docker Container
-      shell: bash
-      run: docker cp test-container:/app/build/reports ./reports
+          --name test-container \
+          -v $(pwd)/reports:/app/build/reports \
+          backend-tests \
+          /bin/sh -c "gradle test"
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

@@ -1,6 +1,9 @@
 package ch.zhaw.pm4.compass.backend.service;
 
+import ch.zhaw.pm4.compass.backend.model.CompassUser;
+import ch.zhaw.pm4.compass.backend.model.dto.FullUserDto;
 import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
+import ch.zhaw.pm4.compass.backend.repository.CompassUserRepository;
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
@@ -23,6 +26,10 @@ public class UserService {
     private String clientId;
     private String clientSecret;
     private String audience;
+
+    @Autowired
+    CompassUserRepository compassUserRepository;
+
     private OkHttpClient client = new OkHttpClient().newBuilder().build();
 
     @PostConstruct
@@ -33,8 +40,8 @@ public class UserService {
         audience = env.getProperty("auth0.mgmt.audience");
     }
 
-    public UserDto getUserById(String userID) {
-        UserDto userDto = null;
+    public FullUserDto getUserById(String userID) {
+        FullUserDto fullUserDto = null;
 
         try {
             Request request = new Request.Builder()
@@ -43,17 +50,23 @@ public class UserService {
                     .addHeader("Authorization", "Bearer " + getToken())
                     .build();
             Response response = client.newCall(request).execute();
-            userDto = (new Gson()).fromJson(response.body().string(), UserDto.class);
-
+            if (response.isSuccessful()) {
+                fullUserDto = (new Gson()).fromJson(response.body().string(), FullUserDto.class);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return userDto;
+        if (fullUserDto != null) {
+            //add role to user
+            fullUserDto.setRole(getUserRole(fullUserDto.getUser_id()));
+        }
+
+        return fullUserDto;
     }
 
-    public List<UserDto> getAllUsers() {
-        List<UserDto> userDtos = new ArrayList<>();
+    public List<FullUserDto> getAllUsers() {
+        List<FullUserDto> fullUserDtos = new ArrayList<>();
 
         try {
             Request request = new Request.Builder()
@@ -62,21 +75,27 @@ public class UserService {
                     .addHeader("Authorization", "Bearer " + getToken())
                     .build();
             Response response = client.newCall(request).execute();
-            userDtos = (new Gson()).fromJson(response.body().string(), new TypeToken<List<UserDto>>() {
-            }.getType());
+            if (response.isSuccessful()) {
+                fullUserDtos = (new Gson()).fromJson(response.body().string(), new TypeToken<List<FullUserDto>>() {
+                }.getType());
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return userDtos;
+        for (FullUserDto fullUserDto : fullUserDtos) {
+            fullUserDto.setRole(getUserRole(fullUserDto.getUser_id()));
+        }
+
+        return fullUserDtos;
     }
 
-    public UserDto createUser(UserDto user) {
-        UserDto responseUserDto = null;
+    public FullUserDto createUser(FullUserDto createUserDto) {
+        FullUserDto fullUserDto = null;
 
         try {
             MediaType mediaType = MediaType.parse("application/json");
-            RequestBody body = RequestBody.create(mediaType, (new Gson()).toJson(user));
+            RequestBody body = RequestBody.create(mediaType, (new Gson()).toJson(createUserDto, UserDto.class));
             Request request = new Request.Builder()
                     .url(baseUrl + "/api/v2/users")
                     .addHeader("Accept", "application/json")
@@ -84,12 +103,28 @@ public class UserService {
                     .method("POST", body)
                     .build();
             Response response = client.newCall(request).execute();
-            responseUserDto = (new Gson()).fromJson(response.body().string(), UserDto.class);
+            if (response.isSuccessful()) {
+                fullUserDto = (new Gson()).fromJson(response.body().string(), FullUserDto.class);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return responseUserDto;
+        if (fullUserDto != null) {
+            //persist user with role
+            compassUserRepository.save(new CompassUser(fullUserDto.getUser_id(), createUserDto.getRole()));
+            fullUserDto.setRole(createUserDto.getRole());
+        }
+
+        return fullUserDto;
+    }
+
+    private String getUserRole(String id) {
+        CompassUser user = compassUserRepository.findById(id).orElse(null);
+        if (user != null) {
+            return user.getRole();
+        }
+        return null;
     }
 
     private String getToken() {
@@ -110,7 +145,9 @@ public class UserService {
                     .build();
 
             Response response = client.newCall(request).execute();
-            token = response.body().string();
+            if (response.isSuccessful()) {
+                token = response.body().string();
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -38,9 +38,19 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
-    @GetMapping(path = "getAll", produces = "application/json")
-    public ResponseEntity<List<UserDto>> getAll() {
+    @GetMapping(path = "getAllUsers", produces = "application/json")
+    public ResponseEntity<List<UserDto>> getAllUsers() {
         List<UserDto> queryUsers = (List<UserDto>)(List<?>) userService.getAllUsers();
+        if (queryUsers != null) {
+            return ResponseEntity.ok(queryUsers);
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
+
+    @GetMapping(path = "getAllParticipants", produces = "application/json")
+    public ResponseEntity<List<UserDto>> getAllParticipants() {
+        List<UserDto> queryUsers = (List<UserDto>)(List<?>) userService.getAllParticipants();
         if (queryUsers != null) {
             return ResponseEntity.ok(queryUsers);
         }

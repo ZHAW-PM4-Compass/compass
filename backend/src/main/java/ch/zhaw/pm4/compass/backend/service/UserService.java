@@ -93,6 +93,9 @@ public class UserService {
         return authZeroUserDtos;
     }
 
+    public List<AuthZeroUserDto> getAllParticipants() {
+        return getAllUsers().stream().filter(authorizesUserDTO -> "Participant".equals(authorizesUserDTO.getRole())).toList();
+    }
     public AuthZeroUserDto createUser(AuthZeroUserDto createUserDto) {
         AuthZeroUserDto authZeroUserDto = null;
         String role = createUserDto.getRole();

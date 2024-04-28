@@ -4,6 +4,8 @@ import {ParticipantDto, UpdateDaySheetDto, WorkHourDto} from "@/openapi/compassC
 import Table from "@/components/table";
 import {Checkmark24Regular, Edit24Regular} from "@fluentui/react-icons";
 import {toast} from "react-hot-toast";
+import {useRouter} from "next/navigation";
+import Title1 from "@/components/title1";
 
 const Home: React.FC = () => {
     // Sample data for demonstration
@@ -16,8 +18,9 @@ const Home: React.FC = () => {
 
     const [workHourDtos, setWorkHourDtos] = useState<WorkHourDto[]>([]);
     const [selectedWorkHourDto, setSelectedWorkHourDto] = useState<WorkHourDto>();
-    let initLoad = false;
+    const router = useRouter();
 
+    let initLoad = false;
     useEffect(() => {
         if (!initLoad) {
             initLoad = true;
@@ -116,8 +119,25 @@ const Home: React.FC = () => {
         return total.toFixed(2); // Round to 2 decimal places
     };
 
+    const navigateToSingleDay = () => {
+        if (selectedWorkHourDto != undefined && selectedWorkHourDto.date != undefined) {
+            const dateString = encodeURIComponent(selectedWorkHourDto.date.toString());
+            router.push(`/working-hours-single-day?date=${dateString}`);
+        }
+    };
+
+    const participantName = (workHourDto: WorkHourDto): string => {
+        if (workHourDto !== undefined) {
+            if (workHourDto.participant !== undefined) {
+                if (workHourDto.participant.name != undefined) return workHourDto.participant.name;
+            }
+        }
+        return '';
+    }
+
     return (
         <div>
+            <Title1>Kontrolle Arbeitszeit</Title1>
             <Table
                 data={workHourDtos}
                 columns={[
@@ -127,7 +147,7 @@ const Home: React.FC = () => {
                     },
                     {
                         header: "Teilnehmer",
-                        title: "participant?.name"
+                        titleFunction: participantName
                     },
                     {
                         header: "Erfasste Arbeitszeit",
@@ -148,6 +168,7 @@ const Home: React.FC = () => {
                         icon: Edit24Regular,
                         onClick: (id) => {
                             setSelectedWorkHourDto(workHourDtos[id]);
+                            navigateToSingleDay();
                         }
                     }
                 ]}>

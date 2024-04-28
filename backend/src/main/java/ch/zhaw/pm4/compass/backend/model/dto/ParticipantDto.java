@@ -1,14 +1,12 @@
 package ch.zhaw.pm4.compass.backend.model.dto;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-@Data
-@NoArgsConstructor
+@Getter
+@RequiredArgsConstructor
 public class ParticipantDto {
 	@NonNull
-	private Long id;
-	@NonNull
-	private String name;
+	private String id;
 }

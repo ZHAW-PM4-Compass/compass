@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.zhaw.pm4.compass.backend.exception.CategoryAlreadyExistsException;
+import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
 import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
 import ch.zhaw.pm4.compass.backend.service.CategoryService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +29,7 @@ public class CategoryController {
 	public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto category) {
 		try {
 			return ResponseEntity.ok(categoryService.createCategory(category));
-		} catch (CategoryAlreadyExistsException e) {
+		} catch (CategoryAlreadyExistsException | NotValidCategoryOwnerException e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}

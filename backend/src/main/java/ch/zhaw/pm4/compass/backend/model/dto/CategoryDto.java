@@ -23,14 +23,17 @@ public class CategoryDto {
 
 	private Integer maximumValue;
 
+	private List<ParticipantDto> categoryOwners;
+
 	@Schema(accessMode = Schema.AccessMode.READ_ONLY)
 	private List<RatingDto> moodRatings;
 
-	public CategoryDto(Long id, String name, Integer minimumValue, Integer maximumValue) {
+	public CategoryDto(Long id, String name, Integer minimumValue, Integer maximumValue,
+			List<ParticipantDto> categoryOwners) {
 		this.id = id;
 		this.name = name;
 		this.minimumValue = minimumValue;
 		this.maximumValue = maximumValue;
+		this.categoryOwners = categoryOwners;
 	}
-
 }

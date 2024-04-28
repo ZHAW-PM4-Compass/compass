@@ -36,12 +36,14 @@ public class DaySheet {
         this.dayReport = dayReport;
         this.timestamps = new ArrayList<>();
     }
+
     public DaySheet(Long id, String dayReport, LocalDate date) {
         this.id = id;
         this.date = date;
         this.dayReport = dayReport;
         this.timestamps = new ArrayList<>();
     }
+
     public DaySheet(Long id, String dayReport, LocalDate date, Boolean confirmed) {
         this.id = id;
         this.date = date;
@@ -49,6 +51,7 @@ public class DaySheet {
         this.confirmed = confirmed;
         this.timestamps = new ArrayList<>();
     }
+
     public DaySheet(Long id, String dayReport, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
         this.id = id;
         this.date = date;
@@ -56,6 +59,7 @@ public class DaySheet {
         this.confirmed = confirmed;
         this.timestamps = timestamps;
     }
+
     public DaySheet(Long id, String userId, String dayReport, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
         this.id = id;
         this.date = date;
@@ -64,6 +68,7 @@ public class DaySheet {
         this.timestamps = timestamps;
         this.userId = userId;
     }
+
     public DaySheet(LocalDate date) {
         this.date = date;
     }

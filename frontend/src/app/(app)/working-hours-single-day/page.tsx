@@ -1,20 +1,16 @@
 'use client';
-import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import {useRouter} from 'next/navigation';
+import React, {useEffect, useState} from 'react';
 import Table from "@/components/table";
-import {
-    Delete24Regular,
-    Edit24Regular,
-    Save24Regular
-} from "@fluentui/react-icons";
+import {Delete24Regular, Edit24Regular, Save24Regular} from "@fluentui/react-icons";
 import Title1 from "@/components/title1";
 import Button from "@/components/button";
-import {GetDaySheetDto, GetTimestampDto, ParticipantDto, UserDto, WorkHourDto} from "@/openapi/compassClient";
+import {GetTimestampDto} from "@/openapi/compassClient";
 import {toast} from "react-hot-toast";
 import Modal from "@/components/modal";
 import Input from "@/components/input";
 
-function TimestampUpdateModal({ close, onSave, timestamp }: Readonly<{
+function TimestampUpdateModal({close, onSave, timestamp}: Readonly<{
     close: () => void;
     onSave: () => void;
     timestamp: GetTimestampDto | undefined;
@@ -39,8 +35,10 @@ function TimestampUpdateModal({ close, onSave, timestamp }: Readonly<{
             close={close}
             onSubmit={onSubmit}
         >
-            <Input type="text" placeholder="Startuhrzeit" className="mb-4 mr-4 w-48 inline-block" name="given_name" required={true} value={timestamp?.start_time} />
-            <Input type="text" placeholder="Enduhrzeit" className="mb-4 mr-4 w-48 inline-block" name="family_name" required={true} value={timestamp?.end_time} />
+            <Input type="text" placeholder="Startuhrzeit" className="mb-4 mr-4 w-48 inline-block" name="given_name"
+                   required={true} value={timestamp?.start_time}/>
+            <Input type="text" placeholder="Enduhrzeit" className="mb-4 mr-4 w-48 inline-block" name="family_name"
+                   required={true} value={timestamp?.end_time}/>
         </Modal>
     );
 }
@@ -53,10 +51,10 @@ const DaySheetViewSingleDay: React.FC = () => {
     const [showUpdateModal, setShowUpdateModal] = useState(false);
 
     const mockdata: GetTimestampDto[] = [
-        { id: 0, day_sheet_id: 0, start_time: "08:00", end_time: "17:00" } as GetTimestampDto,
-        { id: 1, day_sheet_id: 1, start_time: "08:15", end_time: "17:55" } as GetTimestampDto,
-        { id: 2, day_sheet_id: 2, start_time: "08:20", end_time: "17:05" } as GetTimestampDto,
-        { id: 3, day_sheet_id: 3, start_time: "08:45", end_time: "17:00" } as GetTimestampDto,
+        {id: 0, day_sheet_id: 0, start_time: "08:00", end_time: "17:00"} as GetTimestampDto,
+        {id: 1, day_sheet_id: 1, start_time: "08:15", end_time: "17:55"} as GetTimestampDto,
+        {id: 2, day_sheet_id: 2, start_time: "08:20", end_time: "17:05"} as GetTimestampDto,
+        {id: 3, day_sheet_id: 3, start_time: "08:45", end_time: "17:00"} as GetTimestampDto,
     ];
 
     let initLoad = false;
@@ -102,14 +100,16 @@ const DaySheetViewSingleDay: React.FC = () => {
             throw error;
         }
     };
-    
+
     return (
         <div>
             {showUpdateModal && (
                 <TimestampUpdateModal
                     close={() => setShowUpdateModal(false)}
-                    onSave={() => {if (currentDate) getDaysheet(currentDate)}}
-                    timestamp={selectedTimestamp} />
+                    onSave={() => {
+                        if (currentDate) getDaysheet(currentDate)
+                    }}
+                    timestamp={selectedTimestamp}/>
             )}
             <div className="flex flex-col sm:flex-row justify-between">
                 <Title1>Kontrolle Arbeitszeit</Title1>
@@ -137,7 +137,8 @@ const DaySheetViewSingleDay: React.FC = () => {
                     {
                         icon: Delete24Regular,
                         label: "Löschen",
-                        onClick: (id) => {}
+                        onClick: (id) => {
+                        }
                     },
                     {
                         icon: Edit24Regular,

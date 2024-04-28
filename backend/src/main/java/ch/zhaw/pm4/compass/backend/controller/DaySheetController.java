@@ -3,7 +3,9 @@ package ch.zhaw.pm4.compass.backend.controller;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
+import ch.zhaw.pm4.compass.backend.model.dto.WorkHourDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,7 +35,7 @@ public class DaySheetController {
         return daySheetService.createDay(daySheet);
     }
 
-    @GetMapping(path = "/{id}", produces = "application/json")
+    @GetMapping(path = "/getById/{id}", produces = "application/json")
     public GetDaySheetDto getDaySheetById(@PathVariable Long id) {
         return daySheetService.getDaySheetById(id);
     }
@@ -49,9 +51,15 @@ public class DaySheetController {
         }
     }
 
+    @GetMapping(path = "/getAll/", produces = "application/json")
+    public List<WorkHourDto> getAllDaySheet() {
+        return daySheetService.getAllDaySheet();
+    }
+
     @PutMapping(produces = "application/json")
     public GetDaySheetDto updateDay(@RequestBody UpdateDaySheetDto updateDay)
     {
         return daySheetService.updateDay(updateDay);
     }
+
 }

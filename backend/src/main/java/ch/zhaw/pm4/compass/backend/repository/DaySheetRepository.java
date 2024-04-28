@@ -7,9 +7,10 @@ import java.util.Date;
 import java.util.Optional;
 
 
-public interface DaySheetRepository extends JpaRepository<DaySheet, Long>{
+public interface DaySheetRepository extends JpaRepository<DaySheet, Long> {
 
     Optional<DaySheet> getDaySheetById(Long authId);
 
     Optional<DaySheet> getDaySheetByDate(Date day);
+
 }

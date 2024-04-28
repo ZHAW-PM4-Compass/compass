@@ -5,6 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "java",
+      "name": "BackendApplication",
+      "request": "launch",
+      "mainClass": "ch.zhaw.pm4.compass.backend.BackendApplication",
+      "projectName": "compass-backend"
+    },
+    {
       "name": "Next.js: debug full stack",
       "type": "node-terminal",
       "request": "launch",

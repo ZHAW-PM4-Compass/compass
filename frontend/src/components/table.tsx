@@ -12,10 +12,11 @@ const Header = ({ columns }: Readonly<{
         <th></th>
       </tr>
     </thead>
-  )  
+  )
 }
 
-const Item = ({ item, columns, actions }: Readonly<{
+const Item = ({ itemIndex, item, columns, actions }: Readonly<{
+  itemIndex: number,
   item: any,
   columns: Array<{ header: string, title: string }>
   actions?: Array<{ icon: any, label?: string, onClick: (id: number) => void }>
@@ -30,7 +31,7 @@ const Item = ({ item, columns, actions }: Readonly<{
       <td className="text-right text-md pr-2 min-w-48">
         {actions && actions.map((action, index) => {
           return (
-            <button key={index} onClick={() => action.onClick(index)} className={`rounded-md hover:bg-slate-100 text-sm mr-2 px-2 py-1.5 focus:outline-2 focus:outline-black duration-200 ${!action.label && "w-9"}`}>
+            <button key={index} onClick={() => action.onClick(itemIndex)} className={`rounded-md hover:bg-slate-100 text-sm mr-2 px-2 py-1.5 focus:outline-2 focus:outline-black duration-200 ${!action.label && "w-9"}`}>
               {action.icon && <action.icon className="w-5 h-5 mr-2" />}
               {action.label}
             </button>
@@ -38,7 +39,7 @@ const Item = ({ item, columns, actions }: Readonly<{
         })}
       </td>
     </tr>
-  )  
+  )
 }
 
 export default function Table({ className, data, columns, actions }: Readonly<{
@@ -53,7 +54,7 @@ export default function Table({ className, data, columns, actions }: Readonly<{
         <Header columns={columns}></Header>
         <tbody>
           {data && data.map((item,index) => {
-            return (<Item key={index} item={item} columns={columns} actions={actions}></Item>)
+            return (<Item key={index} itemIndex={index} item={item} columns={columns} actions={actions}></Item>)
           })}
         </tbody>
       </table>

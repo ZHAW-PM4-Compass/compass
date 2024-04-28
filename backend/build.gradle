@@ -48,6 +48,16 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
 }
 
+tasks.register("local") {
+    group = "application"
+    description = "Runs the Spring Boot application with the local profile"
+
+    doFirst {
+        tasks.bootRun.systemProperties['spring.profiles.active'] = 'local'
+    }
+    finalizedBy("bootRun")
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }

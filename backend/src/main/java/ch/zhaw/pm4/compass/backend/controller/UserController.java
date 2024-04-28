@@ -1,6 +1,7 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
-import ch.zhaw.pm4.compass.backend.model.dto.FullUserDto;
+import ch.zhaw.pm4.compass.backend.model.dto.AuthZeroUserDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
 import ch.zhaw.pm4.compass.backend.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,8 @@ public class UserController {
     private UserService userService;
 
     @PostMapping(produces = "application/json")
-    public ResponseEntity<FullUserDto> createUser(@RequestBody FullUserDto userDto) {
-        FullUserDto queryUser = userService.createUser(userDto);
+    public ResponseEntity<UserDto> createUser(@RequestBody AuthZeroUserDto userDto) {
+        UserDto queryUser = userService.createUser(userDto);
         if (queryUser != null) {
             return ResponseEntity.ok(queryUser);
         }
@@ -28,8 +29,8 @@ public class UserController {
     }
 
     @GetMapping(path = "getById/{id}", produces = "application/json")
-    public ResponseEntity<FullUserDto> getUserById(@PathVariable String id) {
-        FullUserDto queryUser = userService.getUserById(id);
+    public ResponseEntity<UserDto> getUserById(@PathVariable String id) {
+        UserDto queryUser = userService.getUserById(id);
         if (queryUser != null) {
             return ResponseEntity.ok(queryUser);
         }
@@ -38,8 +39,8 @@ public class UserController {
     }
 
     @GetMapping(path = "getAll", produces = "application/json")
-    public ResponseEntity<List<FullUserDto>> getAll() {
-        List<FullUserDto> queryUsers = userService.getAllUsers();
+    public ResponseEntity<List<UserDto>> getAll() {
+        List<UserDto> queryUsers = (List<UserDto>)(List<?>) userService.getAllUsers();
         if (queryUsers != null) {
             return ResponseEntity.ok(queryUsers);
         }

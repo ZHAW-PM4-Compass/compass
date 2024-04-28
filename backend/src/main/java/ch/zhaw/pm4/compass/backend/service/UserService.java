@@ -1,9 +1,9 @@
 package ch.zhaw.pm4.compass.backend.service;
 
-import ch.zhaw.pm4.compass.backend.model.CompassUser;
-import ch.zhaw.pm4.compass.backend.model.dto.FullUserDto;
+import ch.zhaw.pm4.compass.backend.model.LocalUser;
+import ch.zhaw.pm4.compass.backend.model.dto.AuthZeroUserDto;
 import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
-import ch.zhaw.pm4.compass.backend.repository.CompassUserRepository;
+import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -28,7 +30,7 @@ public class UserService {
     private String audience;
 
     @Autowired
-    CompassUserRepository compassUserRepository;
+    LocalUserRepository localUserRepository;
 
     private OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -40,8 +42,8 @@ public class UserService {
         audience = env.getProperty("auth0.mgmt.audience");
     }
 
-    public FullUserDto getUserById(String userID) {
-        FullUserDto fullUserDto = null;
+    public AuthZeroUserDto getUserById(String userID) {
+        AuthZeroUserDto authZeroUserDto = null;
 
         try {
             Request request = new Request.Builder()
@@ -51,22 +53,22 @@ public class UserService {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
-                fullUserDto = (new Gson()).fromJson(response.body().string(), FullUserDto.class);
+                authZeroUserDto = (new Gson()).fromJson(response.body().string(), AuthZeroUserDto.class);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        if (fullUserDto != null) {
+        if (authZeroUserDto != null) {
             //add role to user
-            fullUserDto.setRole(getUserRole(fullUserDto.getUser_id()));
+            authZeroUserDto.setRole(getUserRole(authZeroUserDto.getUser_id()));
         }
 
-        return fullUserDto;
+        return authZeroUserDto;
     }
 
-    public List<FullUserDto> getAllUsers() {
-        List<FullUserDto> fullUserDtos = new ArrayList<>();
+    public List<AuthZeroUserDto> getAllUsers() {
+        List<AuthZeroUserDto> authZeroUserDtos = new ArrayList<>();
 
         try {
             Request request = new Request.Builder()
@@ -76,26 +78,29 @@ public class UserService {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
-                fullUserDtos = (new Gson()).fromJson(response.body().string(), new TypeToken<List<FullUserDto>>() {
+                authZeroUserDtos = (new Gson()).fromJson(response.body().string(), new TypeToken<List<AuthZeroUserDto>>() {
                 }.getType());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        for (FullUserDto fullUserDto : fullUserDtos) {
-            fullUserDto.setRole(getUserRole(fullUserDto.getUser_id()));
+        Map<String, String> localUserMap = getAllLocalUsers();
+        for (AuthZeroUserDto AuthZeroUserDto : authZeroUserDtos) {
+            AuthZeroUserDto.setRole(localUserMap.get(AuthZeroUserDto.getUser_id()));
         }
 
-        return fullUserDtos;
+        return authZeroUserDtos;
     }
 
-    public FullUserDto createUser(FullUserDto createUserDto) {
-        FullUserDto fullUserDto = null;
+    public AuthZeroUserDto createUser(AuthZeroUserDto createUserDto) {
+        AuthZeroUserDto authZeroUserDto = null;
+        String role = createUserDto.getRole();
+        createUserDto.setRole(null);
 
         try {
             MediaType mediaType = MediaType.parse("application/json");
-            RequestBody body = RequestBody.create(mediaType, (new Gson()).toJson(createUserDto, UserDto.class));
+            RequestBody body = RequestBody.create(mediaType, (new Gson()).toJson(createUserDto, AuthZeroUserDto.class));
             Request request = new Request.Builder()
                     .url(baseUrl + "/api/v2/users")
                     .addHeader("Accept", "application/json")
@@ -104,27 +109,40 @@ public class UserService {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
-                fullUserDto = (new Gson()).fromJson(response.body().string(), FullUserDto.class);
+                authZeroUserDto = (new Gson()).fromJson(response.body().string(), AuthZeroUserDto.class);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        if (fullUserDto != null) {
+        if (authZeroUserDto != null) {
             //persist user with role
-            compassUserRepository.save(new CompassUser(fullUserDto.getUser_id(), createUserDto.getRole()));
-            fullUserDto.setRole(createUserDto.getRole());
+            localUserRepository.save(new LocalUser(authZeroUserDto.getUser_id(), role));
+            authZeroUserDto.setRole(role);
         }
 
-        return fullUserDto;
+        return authZeroUserDto;
     }
 
     private String getUserRole(String id) {
-        CompassUser user = compassUserRepository.findById(id).orElse(null);
+        LocalUser user = localUserRepository.findById(id).orElse(null);
         if (user != null) {
             return user.getRole();
         }
         return null;
+    }
+
+    private Map<String, String> getAllLocalUsers() {
+        return localUserRepository.findAll().stream()
+                .map(localUser -> {
+                    if(localUser.getRole() == null ) {
+                        localUser.setRole("Keine Rolle");
+                    }
+                    return  localUser;
+                })
+                .collect(Collectors.toMap(
+                        LocalUser::getId,
+                        LocalUser::getRole));
     }
 
     private String getToken() {

@@ -9,17 +9,17 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-public class CompassUser {
+public class LocalUser {
     @Id
     private String id;
 
     private String role;
 
-    public CompassUser() {
+    public LocalUser() {
 
     }
 
-    public CompassUser(String id, String role) {
+    public LocalUser(String id, String role) {
         this.id = id;
         this.role = role;
     }

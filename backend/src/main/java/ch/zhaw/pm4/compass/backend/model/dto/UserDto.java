@@ -9,16 +9,14 @@ public class UserDto {
     private String email;
     private String given_name;
     private String family_name;
-    private String password;
-    private String connection;
+    private String role;
     private String user_id;
 
-    public UserDto(String email, String given_name, String family_name, String password, String connection, String user_id) {
+    public UserDto(String email, String given_name, String family_name, String role, String user_id) {
         this.email = email;
         this.given_name = given_name;
         this.family_name = family_name;
-        this.password = password;
-        this.connection = connection;
+        this.role = role;
         this.user_id = user_id;
     }
 }

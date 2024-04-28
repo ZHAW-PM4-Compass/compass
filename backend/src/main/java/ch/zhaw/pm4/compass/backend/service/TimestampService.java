@@ -24,7 +24,7 @@ public class TimestampService {
 
     public GetTimestampDto createTimestamp(CreateTimestampDto createTimestamp) {
         Timestamp timestamp = convertCreateTimestampDtoToDay(createTimestamp);
-        //CompassUser user = convertToUser(createUser);
+        //LocalUser user = convertToUser(createUser);
         //Boolean complete = checkIfComplete(user);
         //user.setComplete(complete);
         //return convertToGetDTO(userRepository.save(user));

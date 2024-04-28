@@ -6,14 +6,15 @@ import {Checkmark24Regular, Edit24Regular, NoteAddRegular} from "@fluentui/react
 import {toast} from "react-hot-toast";
 import {useRouter} from "next/navigation";
 import Title1 from "@/components/title1";
+import axios from "axios";
 
 const Home: React.FC = () => {
     // Sample data for demonstration
     const mockdata: WorkHourDto[] = [
-        { daySheetId: 0, date: '2024-04-14', confirmed: false, workHours: 2.0, id: 1, name: "Hans", notes:"foo" } as WorkHourDto,
-        { daySheetId: 1, date: '2024-04-13', confirmed: false, workHours: 3.5,  id:2,  name:  "Alice", notes:""} as WorkHourDto,
-        { daySheetId: 2, date: '2024-04-12', confirmed: true, workHours: 4.0,  id:3, name: "Bob", notes:"bar"} as WorkHourDto,
-        { daySheetId: 3, date: '2024-04-11', confirmed: false, workHours: 1.5, id: 4, name: "Eve" , notes:""} as WorkHourDto,
+        { daySheetId: 0, date: '2024-04-14', confirmed: false, workHours: 2.0, participant: {id: 1, name: "Hans"}, notes:"foo" } as WorkHourDto,
+        { daySheetId: 1, date: '2024-04-13', confirmed: false, workHours: 3.5,  participant: {id:2,  name:  "Alice"}, notes:""} as WorkHourDto,
+        { daySheetId: 2, date: '2024-04-12', confirmed: true, workHours: 4.0,  participant: {id:3, name: "Bob"}, notes:"bar"} as WorkHourDto,
+        { daySheetId: 3, date: '2024-04-11', confirmed: false, workHours: 1.5, participant: {id: 4, name: "Eve"} , notes:""} as WorkHourDto,
     ];
 
 
@@ -235,7 +236,7 @@ const Home: React.FC = () => {
             </div>
             <div id="myModal" className="modal hidden top-0 left-0 w-full h-full z-1 bg-gray-500/80 absolute justify-center items-center ">
                 <div className="modal-content bg-slate-100 flex flex-col justify-center w-4/5 m-auto">
-                    <div className="flex justify-center p-4 mb-4">Notizen erfassen für: ID: {selectedWorkerHourDto?.id}, Name: {selectedWorkerHourDto?.name}</div>
+                    <div className="flex justify-center p-4 mb-4">Notizen erfassen für: ID: {selectedWorkerHourDto?.participant?.id}, Name: {selectedWorkerHourDto?.participant?.name}</div>
                     <div className="flex justify-center">
                         <textarea value={notes} // ...force the input's value to match the state variable...
                                   onChange={e => setNotes(e.target.value)}  rows="10" cols="50"></textarea>

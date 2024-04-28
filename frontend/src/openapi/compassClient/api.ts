@@ -271,6 +271,8 @@ export interface WorkHourDto {
      * @memberof WorkHourDto
      */
     'participant'?: ParticipantDto;
+
+    notes: string
 }
 /**
  *

@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import Title2 from "./title2";
 
-import { Dismiss24Regular } from '@fluentui/react-icons';
-
+//import { Dismiss24Regular } from '@fluentui/react-icons';
+import Dismiss24Regular from "@fluentui/svg-icons/icons/dual_screen_dismiss_24_filled.svg";
+ 
 export default function Modal({ children, close, title, footerActions }: Readonly<{
   children?: React.ReactNode;
   close: () => void;

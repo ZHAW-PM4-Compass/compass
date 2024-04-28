@@ -1,5 +1,5 @@
 import { getSession } from '@auth0/nextjs-auth0';
-import { Configuration, DaySheetControllerApi, UserControllerApi } from './compassClient';
+import { Configuration, DaySheetControllerApi, UserControllerApi, TimestampControllerApi} from './compassClient';
 
 async function getApiConfiguration() {
   const session = await getSession();
@@ -22,4 +22,9 @@ export async function getDaySheetControllerApi() {
 export async function getUserControllerApi() {
   const config = await getApiConfiguration();
   return new UserControllerApi(config);
+}
+
+export async function getTimestampControllerApi() {
+  const config = await getApiConfiguration();
+  return new TimestampControllerApi(config);
 }

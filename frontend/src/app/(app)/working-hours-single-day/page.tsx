@@ -171,6 +171,7 @@ const DaySheetViewSingleDay: React.FC = () => {
                         icon: Delete24Regular,
                         label: "Löschen",
                         onClick: (id) => {
+                            alert("There is no method for this, unless we want to misuse the update function")
                         }
                     },
                     {

@@ -50,8 +50,6 @@ public class TimestampService {
 
     public TimestampDto updateTimestampById(TimestampDto updateTimestampDto, String userId) {
         Optional<Timestamp> response = timestampRepository.findByIdAndUserId(updateTimestampDto.getId(), userId);
-        if (response.isEmpty())
-            return null;
         if (response.isPresent()) {
             Timestamp timestamp = response.get();
             Timestamp newTimestamp = new Timestamp(timestamp.getId(), timestamp.getDaySheet(), updateTimestampDto.getStart_time(), updateTimestampDto.getStart_time());

@@ -1,8 +1,9 @@
 'use client';
 import React, {useEffect, useState} from 'react';
-import {ParticipantDto, UserDto, WorkHourDto} from "@/openapi/compassClient";
+import {ParticipantDto, UpdateDaySheetDto, WorkHourDto} from "@/openapi/compassClient";
 import Table from "@/components/table";
-import {Checkmark24Regular, Delete24Regular, Edit24Regular} from "@fluentui/react-icons";
+import {Checkmark24Regular, Edit24Regular} from "@fluentui/react-icons";
+import {toast} from "react-hot-toast";
 
 const Home: React.FC = () => {
     // Sample data for demonstration
@@ -13,7 +14,8 @@ const Home: React.FC = () => {
         { daySheetId: 3, date: '2024-04-11', confirmed: false, workHours: 1.5, participant: { id: 0, name: "Eve"} as ParticipantDto } as WorkHourDto,
     ];
 
-    const [data, setData] = useState<WorkHourDto[]>([]);
+    const [workHourDtos, setWorkHourDtos] = useState<WorkHourDto[]>([]);
+    const [selectedWorkHourDto, setSelectedWorkHourDto] = useState<WorkHourDto>();
     let initLoad = false;
 
     useEffect(() => {
@@ -21,27 +23,25 @@ const Home: React.FC = () => {
             initLoad = true;
             // Method to call when the component mounts
             getAllDaysheets()
-                .then((result) => {
+                .then((rsult) => {
                     let myList: WorkHourDto[] = []
-                    mockdata.forEach((entry) => {
-                        console.log(entry.confirmed);
+                    rsult.forEach((entry: WorkHourDto) => {
                         if (!entry.confirmed) {
                             myList.push(entry);
                         }
                     });
-                    setData(myList);
-                    alert('Done fetching daysheets');
+                    setWorkHourDtos(myList);
+                    toast.success('Done fetching daysheets');
                 })
                 .catch(() => {
                     let myList: WorkHourDto[] = []
                     mockdata.forEach((entry) => {
-                        console.log(entry.confirmed);
                         if (!entry.confirmed) {
                             myList.push(entry);
                         }
                     });
-                    setData(myList);
-                    alert('Error fetching daysheets, using mocked data');
+                    setWorkHourDtos(myList);
+                    toast.error('Error fetching daysheets, using mocked data');
                 });
         }
     }, []); // Empty dependency array ensures the effect runs only once, similar to componentDidMount
@@ -68,20 +68,37 @@ const Home: React.FC = () => {
         }
     };
 
+    const updateDaySheet = async (updateDay: UpdateDaySheetDto) => {
+        try {
+            // Make a PUT request using the fetch API
+            const response = await fetch(`http://localhost:8080/api/daysheet/`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updateDay)
+            });
 
-    const handleConfirm = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        alert('Confirm button clicked!');
-    };
+            // Check if the response is successful (status code 200)
+            if (!response.ok) {
+                // Handle non-successful response (e.g., throw an error)
+                throw new Error(`Failed to update day sheet`);
+            }
 
-    const handleEdit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        alert('Edit button clicked!');
+            // Parse the response body as JSON
+            // Return the data
+            return await response.json();
+        } catch (error) {
+            // Handle any errors (e.g., log the error)
+            console.error('Error updating day sheet:', error);
+            // rethrow the error to let the caller handle it
+            throw error;
+        }
     };
 
     const getTotalTrackedTime = () => {
         let total = 0;
-        data.forEach((item) => {
+        workHourDtos.forEach((item) => {
             if (item.workHours) {
                 total += item.workHours;
             }
@@ -92,7 +109,7 @@ const Home: React.FC = () => {
     return (
         <div>
             <Table
-                data={data}
+                data={workHourDtos}
                 columns={[
                     {
                         header: "Datum",
@@ -117,6 +134,8 @@ const Home: React.FC = () => {
                     {
                         icon: Edit24Regular,
                         onClick: (id) => {
+                            alert(id);
+                            // setSelectedWorkHourDto(workHourDtos[id]);
                         }
                     }
                 ]}>

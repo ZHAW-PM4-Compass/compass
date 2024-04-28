@@ -1,17 +1,19 @@
 'use client';
-import React, {useEffect} from 'react';
-import {WorkHourDto} from "@/api/compassClient";
+import React, {useEffect, useState} from 'react';
+import {ParticipantDto, UserDto, WorkHourDto} from "@/openapi/compassClient";
+import Table from "@/components/table";
+import {Checkmark24Regular, Delete24Regular, Edit24Regular} from "@fluentui/react-icons";
 
 const Home: React.FC = () => {
     // Sample data for demonstration
     const mockdata: WorkHourDto[] = [
-        { daySheetId: 0, date: '2024-04-14', confirmed: false, workHours: 2.0, participant: { id: 0, name: "Hans"} },
-        { daySheetId: 0, date: '2024-04-13', confirmed: false, workHours: 3.5, participant: { id: 0, name: "Alice"} },
-        { daySheetId: 0, date: '2024-04-12', confirmed: false, workHours: 4.0, participant: { id: 0, name: "Bob"} },
-        { daySheetId: 0, date: '2024-04-11', confirmed: false, workHours: 1.5, participant: { id: 0, name: "Eve"} },
+        { daySheetId: 0, date: '2024-04-14', confirmed: false, workHours: 2.0, participant: { id: 0, name: "Hans"} as ParticipantDto } as WorkHourDto,
+        { daySheetId: 1, date: '2024-04-13', confirmed: false, workHours: 3.5, participant: { id: 0, name: "Alice"} as ParticipantDto } as WorkHourDto,
+        { daySheetId: 2, date: '2024-04-12', confirmed: true, workHours: 4.0, participant: { id: 0, name: "Bob"} as ParticipantDto } as WorkHourDto,
+        { daySheetId: 3, date: '2024-04-11', confirmed: false, workHours: 1.5, participant: { id: 0, name: "Eve"} as ParticipantDto } as WorkHourDto,
     ];
 
-    let data: WorkHourDto[] = [];
+    const [data, setData] = useState<WorkHourDto[]>([]);
     let initLoad = false;
 
     useEffect(() => {
@@ -20,12 +22,26 @@ const Home: React.FC = () => {
             // Method to call when the component mounts
             getAllDaysheets()
                 .then((result) => {
-                    data = result;
+                    let myList: WorkHourDto[] = []
+                    mockdata.forEach((entry) => {
+                        console.log(entry.confirmed);
+                        if (!entry.confirmed) {
+                            myList.push(entry);
+                        }
+                    });
+                    setData(myList);
                     alert('Done fetching daysheets');
                 })
                 .catch(() => {
-                    data = mockdata;
-                    alert('Error fetching daysheets, using mock data');
+                    let myList: WorkHourDto[] = []
+                    mockdata.forEach((entry) => {
+                        console.log(entry.confirmed);
+                        if (!entry.confirmed) {
+                            myList.push(entry);
+                        }
+                    });
+                    setData(myList);
+                    alert('Error fetching daysheets, using mocked data');
                 });
         }
     }, []); // Empty dependency array ensures the effect runs only once, similar to componentDidMount
@@ -74,73 +90,42 @@ const Home: React.FC = () => {
     };
 
     return (
-        <div className="p-5 sm:p-10 bg-slate-100 w-full h-full flex justify-center">
-            <div className="w-2/4">
-                <h1 className="text-xl font-bold mb-5">Home</h1>
-                <div>
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-200">
-                        <tr>
-                            <th
-                                scope="col"
-                                className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider"
-                            >
-                                Datum
-                            </th>
-                            <th
-                                scope="col"
-                                className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider"
-                            >
-                                Teilnehmer
-                            </th>
-                            <th
-                                scope="col"
-                                className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider"
-                            >
-                                Erfasste Arbeitszeit
-                            </th>
-                            <th
-                                scope="col"
-                                className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider"
-                            >
-                                Bestätigen
-                            </th>
-                            <th
-                                scope="col"
-                                className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider"
-                            >
-                                Bearbeiten
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                        {data.map((item, index) => (
-                            <tr key={index}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.date}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.participant?.name}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.workHours} Stunden</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <form onSubmit={handleConfirm}>
-                                        <button type="submit" className="text-blue-600 hover:text-blue-900">
-                                            Bestätigen
-                                        </button>
-                                    </form>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <form onSubmit={handleEdit}>
-                                        <button type="submit" className="text-blue-600 hover:text-blue-900">
-                                            Bearbeiten
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-                <div>
-                    <hr className="border-gray-200 mb-2"/>
-                    <div className="px-6 py-4 bg-white text-sm text-black font-bold">Total: {getTotalTrackedTime()} Stunden</div>
+        <div>
+            <Table
+                data={data}
+                columns={[
+                    {
+                        header: "Datum",
+                        title: "date"
+                    },
+                    {
+                        header: "Teilnehmer",
+                        title: "participant?.name"
+                    },
+                    {
+                        header: "Erfasste Arbeitszeit",
+                        title: "workHours"
+                    }
+                ]}
+                actions={[
+                    {
+                        icon: Checkmark24Regular,
+                        label: "Bestätigen",
+                        onClick: () => {
+                        }
+                    },
+                    {
+                        icon: Edit24Regular,
+                        onClick: (id) => {
+                        }
+                    }
+                ]}>
+
+            </Table>
+            <div>
+                <hr className="border-gray-200 mb-2"/>
+                <div
+                    className="px-6 py-4 bg-white text-sm text-black font-bold">Total: {getTotalTrackedTime()} Stunden
                 </div>
             </div>
         </div>

@@ -18,7 +18,7 @@ const Home: React.FC = () => {
 
 
     const [notes, setNotes] = useState(''); // Declare a state variable
-    const [selectedWorkerId, setSelectedWorkerId] = useState(-1);
+    const [selectedWorkerId, setSelectedWorkerIndex] = useState(-1);
     const [selectedWorkerHourDto, setSelectedWorkerHourDto] = useState({} as WorkHourDto);
 
 
@@ -101,9 +101,9 @@ const Home: React.FC = () => {
         modal.style.display = "none";
     }
 
-    const openNotesModal = async (id: number) => {
-      setSelectedWorkerId(id)
-        setSelectedWorkerHourDto( workHourDtos[id]!)
+    const openNotesModal = async (index: number) => {
+      setSelectedWorkerIndex(index)
+        setSelectedWorkerHourDto( workHourDtos[index]!)
         setNotes(selectedWorkerHourDto.notes)
         // Get the modal
         var modal = document.getElementById("myModal")!;
@@ -235,7 +235,7 @@ const Home: React.FC = () => {
             </div>
             <div id="myModal" className="modal hidden top-0 left-0 w-full h-full z-1 bg-gray-500/80 absolute justify-center items-center ">
                 <div className="modal-content bg-slate-100 flex flex-col justify-center w-4/5 m-auto">
-                    <div className="flex justify-center p-4 mb-4">Notizen erfassen für: ID: {selectedWorkerId}, Name: {selectedWorkerHourDto?.name}</div>
+                    <div className="flex justify-center p-4 mb-4">Notizen erfassen für: ID: {selectedWorkerHourDto?.id}, Name: {selectedWorkerHourDto?.name}</div>
                     <div className="flex justify-center">
                         <textarea value={notes} // ...force the input's value to match the state variable...
                                   onChange={e => setNotes(e.target.value)}  rows="10" cols="50"></textarea>

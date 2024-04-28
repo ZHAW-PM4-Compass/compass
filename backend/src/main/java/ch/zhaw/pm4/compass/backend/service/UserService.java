@@ -1,13 +1,9 @@
 package ch.zhaw.pm4.compass.backend.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Service;
-
+import ch.zhaw.pm4.compass.backend.model.LocalUser;
+import ch.zhaw.pm4.compass.backend.model.dto.AuthZeroUserDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
+import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
@@ -15,22 +11,30 @@ import com.nimbusds.jose.shaded.gson.reflect.TypeToken;
 
 import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
 import jakarta.annotation.PostConstruct;
-import okhttp3.FormBody;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-	@Autowired
-	private Environment env;
-	private String baseUrl;
-	private String clientId;
-	private String clientSecret;
-	private String audience;
-	private OkHttpClient client = new OkHttpClient().newBuilder().build();
+    @Autowired
+    private Environment env;
+    private String baseUrl;
+    private String clientId;
+    private String clientSecret;
+    private String audience;
+
+    @Autowired
+    LocalUserRepository localUserRepository;
+
+    private OkHttpClient client = new OkHttpClient().newBuilder().build();
 
 	@PostConstruct
 	public void init() {
@@ -40,55 +44,111 @@ public class UserService {
 		audience = env.getProperty("auth0.mgmt.audience");
 	}
 
-	public UserDto getUserById(String userID) {
-		UserDto userDto = null;
+    public AuthZeroUserDto getUserById(String userID) {
+        AuthZeroUserDto authZeroUserDto = null;
 
-		try {
-			Request request = new Request.Builder().url(baseUrl + "/api/v2/users/" + userID)
-					.addHeader("Accept", "application/json").addHeader("Authorization", "Bearer " + getToken()).build();
-			Response response = client.newCall(request).execute();
-			userDto = (new Gson()).fromJson(response.body().string(), UserDto.class);
+        try {
+            Request request = new Request.Builder()
+                    .url(baseUrl + "/api/v2/users/" + userID)
+                    .addHeader("Accept", "application/json")
+                    .addHeader("Authorization", "Bearer " + getToken())
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                authZeroUserDto = (new Gson()).fromJson(response.body().string(), AuthZeroUserDto.class);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+        if (authZeroUserDto != null) {
+            //add role to user
+            authZeroUserDto.setRole(getUserRole(authZeroUserDto.getUser_id()));
+        }
 
-		return userDto;
-	}
+        return authZeroUserDto;
+    }
 
-	public List<UserDto> getAllUsers() {
-		List<UserDto> userDtos = new ArrayList<>();
+    public List<AuthZeroUserDto> getAllUsers() {
+        List<AuthZeroUserDto> authZeroUserDtos = new ArrayList<>();
 
-		try {
-			Request request = new Request.Builder().url(baseUrl + "/api/v2/users")
-					.addHeader("Accept", "application/json").addHeader("Authorization", "Bearer " + getToken()).build();
-			Response response = client.newCall(request).execute();
-			userDtos = (new Gson()).fromJson(response.body().string(), new TypeToken<List<UserDto>>() {
-			}.getType());
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+        try {
+            Request request = new Request.Builder()
+                    .url(baseUrl + "/api/v2/users")
+                    .addHeader("Accept", "application/json")
+                    .addHeader("Authorization", "Bearer " + getToken())
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                authZeroUserDtos = (new Gson()).fromJson(response.body().string(), new TypeToken<List<AuthZeroUserDto>>() {
+                }.getType());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-		return userDtos;
-	}
+        Map<String, String> localUserMap = getAllLocalUsers();
+        for (AuthZeroUserDto AuthZeroUserDto : authZeroUserDtos) {
+            AuthZeroUserDto.setRole(localUserMap.get(AuthZeroUserDto.getUser_id()));
+        }
 
-	public UserDto createUser(UserDto user) {
-		UserDto responseUserDto = null;
+        return authZeroUserDtos;
+    }
 
-		try {
-			MediaType mediaType = MediaType.parse("application/json");
-			RequestBody body = RequestBody.create(mediaType, (new Gson()).toJson(user));
-			Request request = new Request.Builder().url(baseUrl + "/api/v2/users")
-					.addHeader("Accept", "application/json").addHeader("Authorization", "Bearer " + getToken())
-					.method("POST", body).build();
-			Response response = client.newCall(request).execute();
-			responseUserDto = (new Gson()).fromJson(response.body().string(), UserDto.class);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+    public List<AuthZeroUserDto> getAllParticipants() {
+        return getAllUsers().stream().filter(authorizesUserDTO -> "Participant".equals(authorizesUserDTO.getRole())).toList();
+    }
+    public AuthZeroUserDto createUser(AuthZeroUserDto createUserDto) {
+        AuthZeroUserDto authZeroUserDto = null;
+        String role = createUserDto.getRole();
+        createUserDto.setRole(null);
 
-		return responseUserDto;
-	}
+        try {
+            MediaType mediaType = MediaType.parse("application/json");
+            RequestBody body = RequestBody.create(mediaType, (new Gson()).toJson(createUserDto, AuthZeroUserDto.class));
+            Request request = new Request.Builder()
+                    .url(baseUrl + "/api/v2/users")
+                    .addHeader("Accept", "application/json")
+                    .addHeader("Authorization", "Bearer " + getToken())
+                    .method("POST", body)
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                authZeroUserDto = (new Gson()).fromJson(response.body().string(), AuthZeroUserDto.class);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (authZeroUserDto != null) {
+            //persist user with role
+            localUserRepository.save(new LocalUser(authZeroUserDto.getUser_id(), role));
+            authZeroUserDto.setRole(role);
+        }
+
+        return authZeroUserDto;
+    }
+
+    private String getUserRole(String id) {
+        LocalUser user = localUserRepository.findById(id).orElse(null);
+        if (user != null) {
+            return user.getRole();
+        }
+        return null;
+    }
+
+    private Map<String, String> getAllLocalUsers() {
+        return localUserRepository.findAll().stream()
+                .map(localUser -> {
+                    if(localUser.getRole() == null ) {
+                        localUser.setRole("Keine Rolle");
+                    }
+                    return  localUser;
+                })
+                .collect(Collectors.toMap(
+                        LocalUser::getId,
+                        LocalUser::getRole));
+    }
 
 	private String getToken() {
 		String token = "";
@@ -101,11 +161,13 @@ public class UserService {
 			Request request = new Request.Builder().url(baseUrl + "/oauth/token")
 					.addHeader("content-type", "application/x-www-form-urlencoded").post(body).build();
 
-			Response response = client.newCall(request).execute();
-			token = response.body().string();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                token = response.body().string();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
 		JsonObject jsonObject = JsonParser.parseString(token).getAsJsonObject();
 		return jsonObject.get("access_token").getAsString();

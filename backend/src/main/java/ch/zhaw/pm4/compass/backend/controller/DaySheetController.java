@@ -2,6 +2,7 @@ package ch.zhaw.pm4.compass.backend.controller;
 
 import java.time.LocalDate;
 
+import ch.zhaw.pm4.compass.backend.model.dto.WorkHourDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

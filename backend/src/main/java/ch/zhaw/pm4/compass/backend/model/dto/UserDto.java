@@ -1,22 +1,21 @@
 package ch.zhaw.pm4.compass.backend.model.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import ch.zhaw.pm4.compass.backend.UserRole;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NonNull;
 
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
 public class UserDto {
-    private String email;
-    private String given_name;
-    private String family_name;
-    private String role;
-    private String user_id;
+	@NonNull
+	private String email;
+	@NonNull
+	private String given_name;
+	@NonNull
+	private String family_name;
+	@NonNull
+	private String user_id;
 
-    public UserDto(String email, String given_name, String family_name, String role, String user_id) {
-        this.email = email;
-        this.given_name = given_name;
-        this.family_name = family_name;
-        this.role = role;
-        this.user_id = user_id;
-    }
+	private UserRole role;
 }

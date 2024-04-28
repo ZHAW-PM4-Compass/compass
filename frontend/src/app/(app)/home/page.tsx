@@ -2,7 +2,7 @@
 import React, {useEffect, useState} from 'react';
 import {ParticipantDto, UpdateDaySheetDto, WorkHourDto} from "@/openapi/compassClient";
 import Table from "@/components/table";
-import {Checkmark24Regular, Edit24Regular} from "@fluentui/react-icons";
+import {Checkmark24Regular, Edit24Regular, NoteAddRegular} from "@fluentui/react-icons";
 import {toast} from "react-hot-toast";
 import {useRouter} from "next/navigation";
 import Title1 from "@/components/title1";
@@ -10,11 +10,17 @@ import Title1 from "@/components/title1";
 const Home: React.FC = () => {
     // Sample data for demonstration
     const mockdata: WorkHourDto[] = [
-        { daySheetId: 0, date: '2024-04-14', confirmed: false, workHours: 2.0, participant: { id: 0, name: "Hans"} as ParticipantDto } as WorkHourDto,
-        { daySheetId: 1, date: '2024-04-13', confirmed: false, workHours: 3.5, participant: { id: 0, name: "Alice"} as ParticipantDto } as WorkHourDto,
-        { daySheetId: 2, date: '2024-04-12', confirmed: true, workHours: 4.0, participant: { id: 0, name: "Bob"} as ParticipantDto } as WorkHourDto,
-        { daySheetId: 3, date: '2024-04-11', confirmed: false, workHours: 1.5, participant: { id: 0, name: "Eve"} as ParticipantDto } as WorkHourDto,
+        { daySheetId: 0, date: '2024-04-14', confirmed: false, workHours: 2.0, id: 1, name: "Hans", notes:"foo" } as WorkHourDto,
+        { daySheetId: 1, date: '2024-04-13', confirmed: false, workHours: 3.5,  id:2,  name:  "Alice", notes:""} as WorkHourDto,
+        { daySheetId: 2, date: '2024-04-12', confirmed: true, workHours: 4.0,  id:3, name: "Bob", notes:"bar"} as WorkHourDto,
+        { daySheetId: 3, date: '2024-04-11', confirmed: false, workHours: 1.5, id: 4, name: "Eve" , notes:""} as WorkHourDto,
     ];
+
+
+    const [notes, setNotes] = useState(''); // Declare a state variable
+    const [selectedWorkerId, setSelectedWorkerId] = useState(-1);
+    const [selectedWorkerHourDto, setSelectedWorkerHourDto] = useState({} as WorkHourDto);
+
 
     const [workHourDtos, setWorkHourDtos] = useState<WorkHourDto[]>([]);
     const [selectedWorkHourDto, setSelectedWorkHourDto] = useState<WorkHourDto>();
@@ -70,6 +76,46 @@ const Home: React.FC = () => {
             throw error;
         }
     };
+
+    const saveNotesModal = async () => {
+
+       try {
+           const response = ( await axios.put("http://localhost:8080/api/",{notes: notes, workerId: selectedWorkerId})).data;
+           setNotes('')
+           closeNotesModal()
+           toast.success('DayNotes saved');
+       }
+       catch (error){
+           console.log(error)
+           toast.error('Error Occurred: Could not save DayNotes');
+       }
+    }
+
+    const cancelNotesModal = async () => {
+        setNotes('')
+        closeNotesModal()
+    }
+
+    const closeNotesModal = async () => {
+        var modal = document.getElementById("myModal")!;
+        modal.style.display = "none";
+    }
+
+    const openNotesModal = async (id: number) => {
+      setSelectedWorkerId(id)
+        setSelectedWorkerHourDto( workHourDtos[id]!)
+        setNotes(selectedWorkerHourDto.notes)
+        // Get the modal
+        var modal = document.getElementById("myModal")!;
+        modal.style.display = "flex";
+
+// When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                cancelNotesModal();
+            }
+        }
+    }
 
     const updateDaySheet = async (updateDay: UpdateDaySheetDto) => {
         try {
@@ -152,7 +198,7 @@ const Home: React.FC = () => {
                     {
                         header: "Erfasste Arbeitszeit",
                         title: "workHours"
-                    }
+                    },
                 ]}
                 actions={[
                     {
@@ -170,6 +216,13 @@ const Home: React.FC = () => {
                             setSelectedWorkHourDto(workHourDtos[id]);
                             navigateToSingleDay();
                         }
+                    },
+                    {
+                        icon: NoteAddRegular,
+                        label: "Notizen öffnen",
+                        onClick: (id) => {
+                          openNotesModal(id)
+                        },
                     }
                 ]}>
 
@@ -178,6 +231,21 @@ const Home: React.FC = () => {
                 <hr className="border-gray-200 mb-2"/>
                 <div
                     className="px-6 py-4 bg-white text-sm text-black font-bold">Total: {getTotalTrackedTime()} Stunden
+                </div>
+            </div>
+            <div id="myModal" className="modal hidden top-0 left-0 w-full h-full z-1 bg-gray-500/80 absolute justify-center items-center ">
+                <div className="modal-content bg-slate-100 flex flex-col justify-center w-4/5 m-auto">
+                    <div className="flex justify-center p-4 mb-4">Notizen erfassen für: ID: {selectedWorkerId}, Name: {selectedWorkerHourDto?.name}</div>
+                    <div className="flex justify-center">
+                        <textarea value={notes} // ...force the input's value to match the state variable...
+                                  onChange={e => setNotes(e.target.value)}  rows="10" cols="50"></textarea>
+                    </div>
+                    <div className="flex justify-center my-4">
+                        <button onClick={() => saveNotesModal()} className="bg-green-400 p-3 rounded text-white ">Speichern
+                        </button>
+                        <button onClick={() => cancelNotesModal()} className="bg-red-400 p-3 rounded text-white ml-2 ">Cancel
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

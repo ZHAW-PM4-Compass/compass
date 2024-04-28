@@ -96,6 +96,16 @@ const Home: React.FC = () => {
         }
     };
 
+    const mapWorkHourDtoToUpdate = (workHourDto: WorkHourDto | undefined) => {
+        if (workHourDto != undefined) {
+            let updateDaySheetDto: UpdateDaySheetDto = {};
+            updateDaySheetDto.id = workHourDto.daySheetId;
+            updateDaySheetDto.date = workHourDto.date;
+            return updateDaySheetDto;
+        }
+        return {};
+    }
+
     const getTotalTrackedTime = () => {
         let total = 0;
         workHourDtos.forEach((item) => {
@@ -128,14 +138,16 @@ const Home: React.FC = () => {
                     {
                         icon: Checkmark24Regular,
                         label: "Bestätigen",
-                        onClick: () => {
+                        onClick: (id) => {
+                            if (workHourDtos[id] !== undefined) {
+                                updateDaySheet(mapWorkHourDtoToUpdate(workHourDtos[id]));
+                            }
                         }
                     },
                     {
                         icon: Edit24Regular,
                         onClick: (id) => {
-                            alert(id);
-                            // setSelectedWorkHourDto(workHourDtos[id]);
+                            setSelectedWorkHourDto(workHourDtos[id]);
                         }
                     }
                 ]}>

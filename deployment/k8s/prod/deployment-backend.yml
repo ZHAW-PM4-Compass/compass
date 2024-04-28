@@ -38,6 +38,11 @@ spec:
                 configMapKeyRef:
                   name: compass-configmap
                   key: DDL_AUTO
+            - name: SECURITY_LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: compass-configmap
+                  key: SECURITY_LOG_LEVEL
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:

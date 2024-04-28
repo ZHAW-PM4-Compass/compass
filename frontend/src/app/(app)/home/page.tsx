@@ -126,6 +126,15 @@ const Home: React.FC = () => {
         }
     };
 
+    const participantName = (workHourDto: WorkHourDto): string => {
+        if (workHourDto !== undefined) {
+            if (workHourDto.participant !== undefined) {
+                if (workHourDto.participant.name != undefined) return workHourDto.participant.name;
+            }
+        }
+        return '';
+    }
+
     return (
         <div>
             <Title1>Kontrolle Arbeitszeit</Title1>
@@ -138,7 +147,7 @@ const Home: React.FC = () => {
                     },
                     {
                         header: "Teilnehmer",
-                        title: "participant?.name"
+                        titleFunction: participantName
                     },
                     {
                         header: "Erfasste Arbeitszeit",

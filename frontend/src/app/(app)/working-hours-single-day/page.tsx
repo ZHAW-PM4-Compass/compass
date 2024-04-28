@@ -101,6 +101,39 @@ const DaySheetViewSingleDay: React.FC = () => {
         }
     };
 
+    // Function to calculate the difference between start and end times
+    function calculateTimeDifference(start_time: string, end_time: string): string {
+        if (!start_time || !end_time) {
+            return ''; // Handle case where either start or end time is not provided
+        }
+
+        // Parse hours and minutes from time strings
+        const [startHours, startMinutes] = start_time.split(':').map(Number);
+        const [endHours, endMinutes] = end_time.split(':').map(Number);
+
+        // Calculate the difference in minutes
+        if (startHours != undefined && startMinutes != undefined && endHours != undefined && endMinutes != undefined ) {
+            const startTimeInMinutes = startHours * 60 + startMinutes;
+            const endTimeInMinutes = endHours * 60 + endMinutes;
+            const differenceInMinutes = endTimeInMinutes - startTimeInMinutes;
+
+            // Convert difference in minutes back to hours and minutes format
+            const hours = Math.floor(differenceInMinutes / 60);
+            const minutes = differenceInMinutes % 60;
+
+            // Return the difference in hh:mm format
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        }
+        return '';
+    }
+
+    const calculateDuration = (ts: GetTimestampDto): string => {
+        if (ts != undefined) {
+            if (ts.end_time != undefined && ts.start_time) return calculateTimeDifference(ts.start_time, ts.end_time) + " Stunden:Minuten";
+        }
+        return '';
+    }
+
     return (
         <div>
             {showUpdateModal && (
@@ -130,7 +163,7 @@ const DaySheetViewSingleDay: React.FC = () => {
                     },
                     {
                         header: "Dauer",
-                        title: "start_time - end_time"
+                        titleFunction: calculateDuration
                     }
                 ]}
                 actions={[

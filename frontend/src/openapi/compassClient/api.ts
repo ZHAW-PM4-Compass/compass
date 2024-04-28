@@ -142,20 +142,20 @@ export interface GetTimestampDto {
  */
 export interface ParticipantDto {
     /**
-     * 
+     *
      * @type {number}
      * @memberof ParticipantDto
      */
     'id'?: number;
     /**
-     * 
+     *
      * @type {string}
      * @memberof ParticipantDto
      */
     'name'?: string;
 }
 /**
- * 
+ *
  * @export
  * @interface Timestamp
  */
@@ -236,41 +236,90 @@ export interface UpdateTimestampDto {
     'end_time'?: string;
 }
 /**
- * 
+ *
  * @export
  * @interface WorkHourDto
  */
 export interface WorkHourDto {
     /**
-     * 
+     *
      * @type {number}
      * @memberof WorkHourDto
      */
     'daySheetId'?: number;
     /**
-     * 
+     *
      * @type {string}
      * @memberof WorkHourDto
      */
     'date'?: string;
     /**
-     * 
+     *
      * @type {boolean}
      * @memberof WorkHourDto
      */
     'confirmed'?: boolean;
     /**
-     * 
+     *
      * @type {number}
      * @memberof WorkHourDto
      */
     'workHours'?: number;
     /**
-     * 
+     *
      * @type {ParticipantDto}
      * @memberof WorkHourDto
      */
     'participant'?: ParticipantDto;
+}
+/**
+ *
+ * @export
+ * @interface UserDto
+ */
+export interface UserDto {
+    /**
+     *
+     * @type {string}
+     * @memberof UserDto
+     */
+    'email'?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof UserDto
+     */
+    'given_name'?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof UserDto
+     */
+    'family_name'?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof UserDto
+     */
+    'role'?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof UserDto
+     */
+    'password'?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof UserDto
+     */
+    'connection'?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof UserDto
+     */
+    'user_id'?: string;
 }
 
 /**
@@ -385,7 +434,7 @@ export const DaySheetControllerApiAxiosParamCreator = function (configuration?: 
         createDaySheet: async (createDaySheetDto: CreateDaySheetDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'createDaySheetDto' is not null or undefined
             assertParamExists('createDaySheet', 'createDaySheetDto', createDaySheetDto)
-            const localVarPath = `/api/daysheet`;
+            const localVarPath = `/daysheet`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -412,7 +461,7 @@ export const DaySheetControllerApiAxiosParamCreator = function (configuration?: 
             };
         },
         /**
-         * 
+         *
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -430,7 +479,7 @@ export const DaySheetControllerApiAxiosParamCreator = function (configuration?: 
             const localVarQueryParameter = {} as any;
 
 
-    
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -442,15 +491,15 @@ export const DaySheetControllerApiAxiosParamCreator = function (configuration?: 
         },
         /**
          * 
-         * @param {number} id 
+         * @param {string} date
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getDaySheetById: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'id' is not null or undefined
-            assertParamExists('getDaySheetById', 'id', id)
-            const localVarPath = `/api/daysheet/getById/{id}`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+        getDaySheetByDate: async (date: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'date' is not null or undefined
+            assertParamExists('getDaySheetByDate', 'date', date)
+            const localVarPath = `/daysheet/getByDate/{date}`
+                .replace(`{${"date"}}`, encodeURIComponent(String(date)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -475,15 +524,15 @@ export const DaySheetControllerApiAxiosParamCreator = function (configuration?: 
         },
         /**
          * 
-         * @param {string} date 
+         * @param {number} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getDaySheetById1: async (date: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'date' is not null or undefined
-            assertParamExists('getDaySheetById1', 'date', date)
-            const localVarPath = `/api/daysheet/getByDate/{date}`
-                .replace(`{${"date"}}`, encodeURIComponent(String(date)));
+        getDaySheetById: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getDaySheetById', 'id', id)
+            const localVarPath = `/daysheet/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -515,7 +564,7 @@ export const DaySheetControllerApiAxiosParamCreator = function (configuration?: 
         updateDay: async (updateDaySheetDto: UpdateDaySheetDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'updateDaySheetDto' is not null or undefined
             assertParamExists('updateDay', 'updateDaySheetDto', updateDaySheetDto)
-            const localVarPath = `/api/daysheet`;
+            const localVarPath = `/daysheet`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -564,6 +613,18 @@ export const DaySheetControllerApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         *
+         * @param {string} date
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getDaySheetByDate(date: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetDaySheetDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getDaySheetByDate(date, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DaySheetControllerApi.getDaySheetByDate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -575,8 +636,8 @@ export const DaySheetControllerApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @param {number} id 
+         *
+         * @param {number} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -587,19 +648,7 @@ export const DaySheetControllerApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @param {string} date 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getDaySheetById1(date: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetDaySheetDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getDaySheetById1(date, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DaySheetControllerApi.getDaySheetById1']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
+         *
          * @param {UpdateDaySheetDto} updateDaySheetDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -631,15 +680,16 @@ export const DaySheetControllerApiFactory = function (configuration?: Configurat
         },
         /**
          * 
+         * @param {string} date
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllDaySheet(options?: any): AxiosPromise<Array<WorkHourDto>> {
-            return localVarFp.getAllDaySheet(options).then((request) => request(axios, basePath));
+        getDaySheetByDate(date: string, options?: any): AxiosPromise<GetDaySheetDto> {
+            return localVarFp.getDaySheetByDate(date, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @param {number} id 
+         *
+         * @param {number} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -647,16 +697,7 @@ export const DaySheetControllerApiFactory = function (configuration?: Configurat
             return localVarFp.getDaySheetById(id, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @param {string} date 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getDaySheetById1(date: string, options?: any): AxiosPromise<GetDaySheetDto> {
-            return localVarFp.getDaySheetById1(date, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
+         *
          * @param {UpdateDaySheetDto} updateDaySheetDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -686,7 +727,7 @@ export class DaySheetControllerApi extends BaseAPI {
     }
 
     /**
-     * 
+     *
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DaySheetControllerApi
@@ -697,24 +738,24 @@ export class DaySheetControllerApi extends BaseAPI {
 
     /**
      * 
-     * @param {number} id 
+     * @param {string} date
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DaySheetControllerApi
+     */
+    public getDaySheetByDate(date: string, options?: RawAxiosRequestConfig) {
+        return DaySheetControllerApiFp(this.configuration).getDaySheetByDate(date, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DaySheetControllerApi
      */
     public getDaySheetById(id: number, options?: RawAxiosRequestConfig) {
         return DaySheetControllerApiFp(this.configuration).getDaySheetById(id, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @param {string} date 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DaySheetControllerApi
-     */
-    public getDaySheetById1(date: string, options?: RawAxiosRequestConfig) {
-        return DaySheetControllerApiFp(this.configuration).getDaySheetById1(date, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -746,7 +787,7 @@ export const TimestampControllerApiAxiosParamCreator = function (configuration?:
         createTimestamp: async (createTimestampDto: CreateTimestampDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'createTimestampDto' is not null or undefined
             assertParamExists('createTimestamp', 'createTimestampDto', createTimestampDto)
-            const localVarPath = `/api/timestamp`;
+            const localVarPath = `/timestamp`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -781,7 +822,7 @@ export const TimestampControllerApiAxiosParamCreator = function (configuration?:
         deleteTimestamp: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('deleteTimestamp', 'id', id)
-            const localVarPath = `/api/timestamp/{id}`
+            const localVarPath = `/timestamp/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -814,7 +855,7 @@ export const TimestampControllerApiAxiosParamCreator = function (configuration?:
         getTimestampById: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('getTimestampById', 'id', id)
-            const localVarPath = `/api/timestamp/{id}`
+            const localVarPath = `/timestamp/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -847,7 +888,7 @@ export const TimestampControllerApiAxiosParamCreator = function (configuration?:
         putTimestamp: async (updateTimestampDto: UpdateTimestampDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'updateTimestampDto' is not null or undefined
             assertParamExists('putTimestamp', 'updateTimestampDto', updateTimestampDto)
-            const localVarPath = `/api/timestamp`;
+            const localVarPath = `/timestamp`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1029,6 +1070,235 @@ export class TimestampControllerApi extends BaseAPI {
      */
     public putTimestamp(updateTimestampDto: UpdateTimestampDto, options?: RawAxiosRequestConfig) {
         return TimestampControllerApiFp(this.configuration).putTimestamp(updateTimestampDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * UserControllerApi - axios parameter creator
+ * @export
+ */
+export const UserControllerApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {UserDto} userDto
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createUser: async (userDto: UserDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userDto' is not null or undefined
+            assertParamExists('createUser', 'userDto', userDto)
+            const localVarPath = `/user`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(userDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAll: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/user/getAll`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {string} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserById: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getUserById', 'id', id)
+            const localVarPath = `/user/getById/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * UserControllerApi - functional programming interface
+ * @export
+ */
+export const UserControllerApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = UserControllerApiAxiosParamCreator(configuration)
+    return {
+        /**
+         *
+         * @param {UserDto} userDto
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createUser(userDto: UserDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createUser(userDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserControllerApi.createUser']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAll(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<UserDto>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAll(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserControllerApi.getAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         *
+         * @param {string} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUserById(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserById(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserControllerApi.getUserById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * UserControllerApi - factory interface
+ * @export
+ */
+export const UserControllerApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = UserControllerApiFp(configuration)
+    return {
+        /**
+         *
+         * @param {UserDto} userDto
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createUser(userDto: UserDto, options?: any): AxiosPromise<UserDto> {
+            return localVarFp.createUser(userDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAll(options?: any): AxiosPromise<Array<UserDto>> {
+            return localVarFp.getAll(options).then((request) => request(axios, basePath));
+        },
+        /**
+         *
+         * @param {string} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserById(id: string, options?: any): AxiosPromise<UserDto> {
+            return localVarFp.getUserById(id, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * UserControllerApi - object-oriented interface
+ * @export
+ * @class UserControllerApi
+ * @extends {BaseAPI}
+ */
+export class UserControllerApi extends BaseAPI {
+    /**
+     *
+     * @param {UserDto} userDto
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApi
+     */
+    public createUser(userDto: UserDto, options?: RawAxiosRequestConfig) {
+        return UserControllerApiFp(this.configuration).createUser(userDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApi
+     */
+    public getAll(options?: RawAxiosRequestConfig) {
+        return UserControllerApiFp(this.configuration).getAll(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     *
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserControllerApi
+     */
+    public getUserById(id: string, options?: RawAxiosRequestConfig) {
+        return UserControllerApiFp(this.configuration).getUserById(id, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

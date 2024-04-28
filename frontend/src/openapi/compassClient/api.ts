@@ -138,6 +138,25 @@ export interface GetTimestampDto {
 /**
  * 
  * @export
+ * @interface ParticipantDto
+ */
+export interface ParticipantDto {
+    /**
+     *
+     * @type {number}
+     * @memberof ParticipantDto
+     */
+    'id'?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof ParticipantDto
+     */
+    'name'?: string;
+}
+/**
+ *
+ * @export
  * @interface Timestamp
  */
 export interface Timestamp {
@@ -217,49 +236,86 @@ export interface UpdateTimestampDto {
     'end_time'?: string;
 }
 /**
- * 
+ *
+ * @export
+ * @interface WorkHourDto
+ */
+export interface WorkHourDto {
+    /**
+     *
+     * @type {number}
+     * @memberof WorkHourDto
+     */
+    'daySheetId'?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof WorkHourDto
+     */
+    'date'?: string;
+    /**
+     *
+     * @type {boolean}
+     * @memberof WorkHourDto
+     */
+    'confirmed'?: boolean;
+    /**
+     *
+     * @type {number}
+     * @memberof WorkHourDto
+     */
+    'workHours'?: number;
+    /**
+     *
+     * @type {ParticipantDto}
+     * @memberof WorkHourDto
+     */
+    'participant'?: ParticipantDto;
+}
+/**
+ *
  * @export
  * @interface UserDto
  */
 export interface UserDto {
     /**
-     * 
+     *
      * @type {string}
      * @memberof UserDto
      */
     'email'?: string;
     /**
-     * 
+     *
      * @type {string}
      * @memberof UserDto
      */
     'given_name'?: string;
     /**
-     * 
+     *
      * @type {string}
      * @memberof UserDto
      */
     'family_name'?: string;
     /**
-     * 
+     *
      * @type {string}
      * @memberof UserDto
      */
     'role'?: string;
     /**
-     * 
+     *
      * @type {string}
      * @memberof UserDto
      */
     'password'?: string;
     /**
-     * 
+     *
      * @type {string}
      * @memberof UserDto
      */
     'connection'?: string;
     /**
-     * 
+     *
      * @type {string}
      * @memberof UserDto
      */
@@ -405,8 +461,37 @@ export const DaySheetControllerApiAxiosParamCreator = function (configuration?: 
             };
         },
         /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAllDaySheet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/daysheet/getAll/`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
-         * @param {string} date 
+         * @param {string} date
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -439,7 +524,7 @@ export const DaySheetControllerApiAxiosParamCreator = function (configuration?: 
         },
         /**
          * 
-         * @param {number} id 
+         * @param {number} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -528,8 +613,8 @@ export const DaySheetControllerApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @param {string} date 
+         *
+         * @param {string} date
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -541,7 +626,18 @@ export const DaySheetControllerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAllDaySheet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<WorkHourDto>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllDaySheet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DaySheetControllerApi.getAllDaySheet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         *
+         * @param {number} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -552,7 +648,7 @@ export const DaySheetControllerApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
+         *
          * @param {UpdateDaySheetDto} updateDaySheetDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -584,7 +680,7 @@ export const DaySheetControllerApiFactory = function (configuration?: Configurat
         },
         /**
          * 
-         * @param {string} date 
+         * @param {string} date
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -592,8 +688,8 @@ export const DaySheetControllerApiFactory = function (configuration?: Configurat
             return localVarFp.getDaySheetByDate(date, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @param {number} id 
+         *
+         * @param {number} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -601,7 +697,7 @@ export const DaySheetControllerApiFactory = function (configuration?: Configurat
             return localVarFp.getDaySheetById(id, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
+         *
          * @param {UpdateDaySheetDto} updateDaySheetDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -631,8 +727,18 @@ export class DaySheetControllerApi extends BaseAPI {
     }
 
     /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DaySheetControllerApi
+     */
+    public getAllDaySheet(options?: RawAxiosRequestConfig) {
+        return DaySheetControllerApiFp(this.configuration).getAllDaySheet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 
-     * @param {string} date 
+     * @param {string} date
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DaySheetControllerApi
@@ -643,7 +749,7 @@ export class DaySheetControllerApi extends BaseAPI {
 
     /**
      * 
-     * @param {number} id 
+     * @param {number} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DaySheetControllerApi
@@ -976,8 +1082,8 @@ export class TimestampControllerApi extends BaseAPI {
 export const UserControllerApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
-         * @param {UserDto} userDto 
+         *
+         * @param {UserDto} userDto
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -997,7 +1103,7 @@ export const UserControllerApiAxiosParamCreator = function (configuration?: Conf
             const localVarQueryParameter = {} as any;
 
 
-    
+
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -1011,7 +1117,7 @@ export const UserControllerApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * 
+         *
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1029,7 +1135,7 @@ export const UserControllerApiAxiosParamCreator = function (configuration?: Conf
             const localVarQueryParameter = {} as any;
 
 
-    
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -1040,8 +1146,8 @@ export const UserControllerApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * 
-         * @param {string} id 
+         *
+         * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1062,7 +1168,7 @@ export const UserControllerApiAxiosParamCreator = function (configuration?: Conf
             const localVarQueryParameter = {} as any;
 
 
-    
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -1083,8 +1189,8 @@ export const UserControllerApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = UserControllerApiAxiosParamCreator(configuration)
     return {
         /**
-         * 
-         * @param {UserDto} userDto 
+         *
+         * @param {UserDto} userDto
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1095,7 +1201,7 @@ export const UserControllerApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
+         *
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1106,8 +1212,8 @@ export const UserControllerApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @param {string} id 
+         *
+         * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1128,8 +1234,8 @@ export const UserControllerApiFactory = function (configuration?: Configuration,
     const localVarFp = UserControllerApiFp(configuration)
     return {
         /**
-         * 
-         * @param {UserDto} userDto 
+         *
+         * @param {UserDto} userDto
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1137,7 +1243,7 @@ export const UserControllerApiFactory = function (configuration?: Configuration,
             return localVarFp.createUser(userDto, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
+         *
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1145,8 +1251,8 @@ export const UserControllerApiFactory = function (configuration?: Configuration,
             return localVarFp.getAll(options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @param {string} id 
+         *
+         * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1164,8 +1270,8 @@ export const UserControllerApiFactory = function (configuration?: Configuration,
  */
 export class UserControllerApi extends BaseAPI {
     /**
-     * 
-     * @param {UserDto} userDto 
+     *
+     * @param {UserDto} userDto
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserControllerApi
@@ -1175,7 +1281,7 @@ export class UserControllerApi extends BaseAPI {
     }
 
     /**
-     * 
+     *
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserControllerApi
@@ -1185,8 +1291,8 @@ export class UserControllerApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @param {string} id 
+     *
+     * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserControllerApi

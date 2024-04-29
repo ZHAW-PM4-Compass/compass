@@ -1,6 +1,9 @@
 package ch.zhaw.pm4.compass.backend.model.dto;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -35,5 +38,13 @@ public class CategoryDto {
 		this.minimumValue = minimumValue;
 		this.maximumValue = maximumValue;
 		this.categoryOwners = categoryOwners;
+	}
+
+	public CategoryDto(@JsonProperty("name") String name, @JsonProperty("minimumValue") Integer minimumValue,
+			@JsonProperty("maximumValue") Integer maximumValue) {
+		this.name = name;
+		this.minimumValue = minimumValue;
+		this.maximumValue = maximumValue;
+		this.categoryOwners = new ArrayList<>();
 	}
 }

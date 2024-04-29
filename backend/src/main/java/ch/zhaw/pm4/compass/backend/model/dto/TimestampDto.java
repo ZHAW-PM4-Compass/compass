@@ -7,7 +7,7 @@ import java.sql.Time;
 
 @Getter
 @Setter
-public class GetTimestampDto {
+public class TimestampDto {
 
     private Long id;
     private Long day_sheet_id;
@@ -17,10 +17,10 @@ public class GetTimestampDto {
     private Time end_time;
 
 
-    public GetTimestampDto() {
+    public TimestampDto() {
     }
 
-    public GetTimestampDto(Long id, Long day_sheet_id, Time start_time, Time end_time) {
+    public TimestampDto(Long id, Long day_sheet_id, Time start_time, Time end_time) {
         this.id = id;
         this.day_sheet_id = day_sheet_id;
         this.start_time = start_time;

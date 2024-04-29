@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 
-export default function Select({ className, placeholder, data, required }: Readonly<{
+export default function Select({ className, placeholder, name, data, required }: Readonly<{
   className?: string;
   placeholder?: string;
+  name?: string
   data: Array<{ id: string, label: string}>;
   required?: boolean;
   value?: string;
@@ -52,6 +53,7 @@ export default function Select({ className, placeholder, data, required }: Reado
         value={search}
         onChange={onChange}
         onFocus={onFocus} />
+      <input type="hidden" name={name} value={selected.id} required={required} />
       {showDropdown && (
         <div id="dropdown" className="dropdown absolute w-auto bg-white rounded-md max-h-24 overflow-y-scroll drop-shadow border-[1px] border-slate-100">
           {dropdownItems ? dropdownItems.map((item, index) => {

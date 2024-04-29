@@ -1,6 +1,6 @@
 "use client"
 
-import { UserDto } from "@/openapi/compassClient";
+import { UserDto, type CreateUserRequest } from "@/openapi/compassClient";
 import { getUserControllerApi } from "@/openapi/connector";
 import Button from "@/components/button";
 import Input from "@/components/input";
@@ -13,49 +13,52 @@ import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular } fro
 import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
 import toastMessages from "@/constants/toastMessages";
+import RoleTitles from "@/constants/roleTitles";
 
 const roles = [
   {
     id: Roles.PARTICIPANT,
-    label: "Teilnehmer"
+    label: RoleTitles[Roles.PARTICIPANT]
   },
   {
     id: Roles.SOCIAL_WORKER,
-    label: "Sozialarbeiter"
+    label: RoleTitles[Roles.SOCIAL_WORKER]
   },
   {
     id: Roles.ADMIN,
-    label: "Admin"
+    label: RoleTitles[Roles.ADMIN]
   }
 ]
+
+enum formFields {
+  GIVEN_NAME = "givenName",
+  FAMILY_NAME = "familyName",
+  ROLE = "role",
+  EMAIL = "email",
+  PASSWORD = "password"
+}
 
 function UserCreateModal({ close, onSave }: Readonly<{
     close: () => void;
 		onSave: () => void;
   }>) {
   const onSubmit = (formData: FormData) => {
-		const createUserDto: UserDto = {
-				email: formData.get("email") as string,
-				given_name: formData.get("given_name") as string,
-				family_name: formData.get("family_name") as string,
-				password: formData.get("password") as string,
-				role: formData.get("role") as string,
-				connection: "Username-Password-Authentication",
-		};
-
-		getUserControllerApi().createUser(createUserDto).then(response => {
-			close();
-			setTimeout(() => onSave(), 1000);
-
-      if (response.status === 200) {
-        toast.success(toastMessages.USER_CREATED);
-      } else {
-        toast.error(toastMessages.USER_NOT_CREATED);
+    const createUserDto: CreateUserRequest = {
+      authZeroUserDto: {
+        email: formData.get(formFields.EMAIL) as string,
+        givenName: formData.get(formFields.GIVEN_NAME) as string,
+        familyName: formData.get(formFields.FAMILY_NAME) as string,
+        role: formData.get(formFields.ROLE) as string
       }
-		}).catch(() => {
+    };
+  
+    getUserControllerApi().createUser(createUserDto).then(() => {
+      close();
+      setTimeout(() => onSave(), 1000);
+    }).catch(() => {
       toast.error(toastMessages.USER_NOT_CREATED);
-		})
-	}
+    })
+  }
 
   return (
     <Modal
@@ -66,15 +69,16 @@ function UserCreateModal({ close, onSave }: Readonly<{
       close={close}
 			onSubmit={onSubmit}
     >
-      <Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" name="given_name" required={true} />
-      <Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" name="family_name" required={true} />
+      <Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" name={formFields.GIVEN_NAME} required={true} />
+      <Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" name={formFields.FAMILY_NAME} required={true} />
       <Select
         className="mb-4 mr-4 w-32 block"
         placeholder="Rolle wählen"
+        name={formFields.ROLE}
         data={roles}
 				required={true} />
-      <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name="email" required={true} />
-      <Input type="password" placeholder="Initiales Passwort" className="mb-4 mr-4 w-48 block" name="password" required={true} />
+      <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name={formFields.EMAIL} required={true} />
+      <Input type="password" placeholder="Initiales Passwort" className="mb-4 mr-4 w-48 block" name={formFields.PASSWORD} required={true} />
     </Modal>
   );
 }
@@ -85,24 +89,20 @@ function UserUpdateModal({ close, onSave, user }: Readonly<{
 	user: UserDto | undefined;
 }>) {
 const onSubmit = (formData: FormData) => {
-	const createUserDto: UserDto = {
-			email: formData.get("email") as string,
-			given_name: formData.get("given_name") as string,
-			family_name: formData.get("family_name") as string,
-			password: formData.get("password") as string,
-			role: formData.get("role") as string,
-			connection: "Username-Password-Authentication",
+	const createUserDto: CreateUserRequest = {
+		authZeroUserDto: {
+      email: formData.get("email") as string,
+      givenName: formData.get("given_name") as string,
+		  familyName: formData.get("family_name") as string,
+		  role: formData.get("role") as string
+    }
 	};
 
-	getUserControllerApi().createUser(createUserDto).then(response => {
+	getUserControllerApi().createUser(createUserDto).then(() => {
 		close();
-		setTimeout(() => onSave(), 1000); 
-    if (response.status === 200) {
-      toast.success(toastMessages.USER_UPDATED);
-    } else {
-      toast.error(toastMessages.USER_NOT_UPDATED);
-    }
+		setTimeout(() => onSave(), 1000);
 	}).catch(() => {
+    console.log("error occurred")
 		toast.error(toastMessages.USER_NOT_UPDATED);
 	})
 }
@@ -116,15 +116,16 @@ return (
 		close={close}
 		onSubmit={onSubmit}
 	>
-		<Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" name="given_name" required={true} value={user?.given_name} />
-		<Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" name="family_name" required={true} value={user?.family_name} />
+		<Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" name={formFields.GIVEN_NAME} required={true} value={user?.givenName} />
+		<Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" name={formFields.FAMILY_NAME} required={true} value={user?.familyName} />
 		<Select
 			className="mb-4 mr-4 w-32 block"
 			placeholder="Rolle wählen"
+      name={formFields.ROLE}
 			data={roles}
 			required={true}
 			value={user?.role} />
-		<Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name="email" disabled={true} value={user?.email} />
+		<Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name={formFields.EMAIL} disabled={true} value={user?.email} />
 	</Modal>
 );
 }
@@ -136,9 +137,12 @@ export default function UsersPage() {
 	const [selectedUser, setSelectedUser] = useState<UserDto>();
 
 	const loadUsers = () => {
-		getUserControllerApi().getAll().then(response => {
-			const users = response?.data;
-			users.sort((a, b) => (a?.given_name || '').localeCompare(b?.given_name || ''));
+		getUserControllerApi().getAllUsers().then(users => {
+			users.sort((a, b) => (a?.givenName || '').localeCompare(b?.givenName || ''));
+      users.forEach(user => {
+        user.role = user.role ?? Roles.PARTICIPANT;
+        user.role = RoleTitles[user.role as Roles];
+      })
 			setUsers(users);
 		}).catch(() => {
 			toast.error(toastMessages.DATA_NOT_LOADED);
@@ -172,11 +176,11 @@ export default function UsersPage() {
         columns={[
           {
             header: "Vorname",
-            title: "given_name"
+            title: "givenName"
           },
           {
             header: "Nachname",
-            title: "family_name"
+            title: "familyName"
           },
           {
             header: "Email",

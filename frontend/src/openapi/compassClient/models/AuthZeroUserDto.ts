@@ -49,6 +49,18 @@ export interface AuthZeroUserDto {
      * @memberof AuthZeroUserDto
      */
     userId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthZeroUserDto
+     */
+    password?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthZeroUserDto
+     */
+    connection?: string;
 }
 
 /**
@@ -73,6 +85,8 @@ export function AuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
         'familyName': json['family_name'] == null ? undefined : json['family_name'],
         'role': json['role'] == null ? undefined : json['role'],
         'userId': json['user_id'] == null ? undefined : json['user_id'],
+        'password': json['password'] == null ? undefined : json['password'],
+        'connection': json['connection'] == null ? undefined : json['connection'],
     };
 }
 
@@ -87,6 +101,8 @@ export function AuthZeroUserDtoToJSON(value?: AuthZeroUserDto | null): any {
         'family_name': value['familyName'],
         'role': value['role'],
         'user_id': value['userId'],
+        'password': value['password'],
+        'connection': value['connection'],
     };
 }
 

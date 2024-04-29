@@ -1,6 +1,5 @@
 "use client"
 
-import { UserDto, type CreateUserRequest } from "@/openapi/compassClient";
 import { getUserControllerApi } from "@/openapi/connector";
 import Button from "@/components/button";
 import Input from "@/components/input";
@@ -14,6 +13,7 @@ import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
 import toastMessages from "@/constants/toastMessages";
 import RoleTitles from "@/constants/roleTitles";
+import type { AuthZeroUserDto, CreateUserRequest, UserDto } from "@/openapi/compassClient";
 
 const roles = [
   {
@@ -48,7 +48,8 @@ function UserCreateModal({ close, onSave }: Readonly<{
         email: formData.get(formFields.EMAIL) as string,
         givenName: formData.get(formFields.GIVEN_NAME) as string,
         familyName: formData.get(formFields.FAMILY_NAME) as string,
-        role: formData.get(formFields.ROLE) as string
+        role: formData.get(formFields.ROLE) as string,
+        password: formData.get(formFields.PASSWORD) as string
       }
     };
   
@@ -89,14 +90,15 @@ function UserUpdateModal({ close, onSave, user }: Readonly<{
 	user: UserDto | undefined;
 }>) {
 const onSubmit = (formData: FormData) => {
-	const createUserDto: CreateUserRequest = {
-		authZeroUserDto: {
-      email: formData.get("email") as string,
-      givenName: formData.get("given_name") as string,
-		  familyName: formData.get("family_name") as string,
-		  role: formData.get("role") as string
+  const createUserDto: CreateUserRequest = {
+    authZeroUserDto: {
+      email: formData.get(formFields.EMAIL) as string,
+      givenName: formData.get(formFields.GIVEN_NAME) as string,
+      familyName: formData.get(formFields.FAMILY_NAME) as string,
+      role: formData.get(formFields.ROLE) as string,
+      password: formData.get(formFields.PASSWORD) as string
     }
-	};
+  };
 
 	getUserControllerApi().createUser(createUserDto).then(() => {
 		close();
@@ -137,12 +139,13 @@ export default function UsersPage() {
 	const [selectedUser, setSelectedUser] = useState<UserDto>();
 
 	const loadUsers = () => {
-		getUserControllerApi().getAllUsers().then(users => {
-			users.sort((a, b) => (a?.givenName || '').localeCompare(b?.givenName || ''));
-      users.forEach(user => {
+		getUserControllerApi().getAllUsers().then(userDtos => {
+      const users = userDtos.map(user => {
         user.role = user.role ?? Roles.PARTICIPANT;
-        user.role = RoleTitles[user.role as Roles];
+        const roleTitle = RoleTitles[user.role as Roles];
+        return { ...user, roleTitle }
       })
+			users.sort((a, b) => (a?.givenName || '').localeCompare(b?.givenName || ''));
 			setUsers(users);
 		}).catch(() => {
 			toast.error(toastMessages.DATA_NOT_LOADED);
@@ -188,7 +191,7 @@ export default function UsersPage() {
           },
           {
             header: "Rolle",
-            title: "role"
+            title: "roleTitle"
           }
         ]}
         actions={[

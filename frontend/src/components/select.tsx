@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function Select({ className, placeholder, name, data, required }: Readonly<{
+export default function Select({ className, placeholder, name, data, required, value }: Readonly<{
   className?: string;
   placeholder?: string;
   name?: string
@@ -34,6 +34,12 @@ export default function Select({ className, placeholder, name, data, required }:
   }
 
   useEffect(() => {
+    if (value) {
+      setSelected(data.find(item => item.id === value) || { id: "", label: "" });
+    }
+  }, [])
+
+  useEffect(() => {
     if (focused) {
       setShowDropdown(true);
       setPlaceholderText("");
@@ -43,7 +49,7 @@ export default function Select({ className, placeholder, name, data, required }:
       setShowDropdown(false);
       setPlaceholderText(selected?.label || placeholder);
     }
-  }, [focused]);
+  }, [focused, selected]);
 
   return (
     <>

@@ -31,6 +31,8 @@ import CollapseMenuIcon from "@fluentui/svg-icons/icons/chevron_left_24_regular.
 import MenuIcon from "@fluentui/svg-icons/icons/list_24_regular.svg";
 import MenuCloseIcon from "@fluentui/svg-icons/icons/dismiss_24_regular.svg";
 import Roles from "@/constants/roles";
+import { getUserControllerApi } from "@/openapi/connector";
+import type { UserDto } from "@/openapi/compassClient";
 
 const SubTitle: React.FC<{ collapsed: boolean, label: string, withLine?: boolean }> = ({ collapsed, label, withLine }) => {
   return (
@@ -116,10 +118,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const { user } = useUser();
+  const [backendUser, setBackendUser] = useState<UserDto>();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const handleMobileClick = () => window.innerWidth < 640 && toggleMenu();
+
+  useEffect(() => {
+    user?.sub && getUserControllerApi().getUserById({ id: user.sub }).then(userDto => {
+      setBackendUser(userDto)
+    })
+  }, [user])
 
   return (
     <>
@@ -143,7 +152,7 @@ export default function RootLayout({
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
 
-            { user && ((user["compass/roles"] as Array<string>).includes(Roles.SOCIAL_WORKER) || (user["compass/roles"] as Array<string>).includes(Roles.ADMIN)) && (
+            {backendUser && (backendUser.role === Roles.SOCIAL_WORKER || backendUser.role === Roles.ADMIN) && (
               <>
                 <SubTitle collapsed={!menuOpen} label="Sozialarbeiter" withLine={true} />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Arbeitszeit" route="/working-hours-check" />
@@ -151,7 +160,7 @@ export default function RootLayout({
               </>
             )}
 
-            { user && (user["compass/roles"] as Array<string>).includes(Roles.ADMIN) && (
+            {backendUser && backendUser.role === Roles.ADMIN && (
               <>
                 <SubTitle collapsed={!menuOpen} label="Admin" withLine={true} />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={UserIcon} iconActive={UserIconFilled} label="Benutzer" route="/users" />

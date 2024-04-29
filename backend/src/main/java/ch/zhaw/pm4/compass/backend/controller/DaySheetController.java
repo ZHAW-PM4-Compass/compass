@@ -1,6 +1,24 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
+import ch.zhaw.pm4.compass.backend.model.dto.WorkHourDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import ch.zhaw.pm4.compass.backend.exception.TimestampFormatException;
+import ch.zhaw.pm4.compass.backend.model.dto.CreateDaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.GetDaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDto;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
 import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +32,9 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/daysheet")
 public class DaySheetController {
-
     @Autowired
     private DaySheetService daySheetService;
+
 
     @PostMapping(produces = "application/json")
     public ResponseEntity<DaySheetDto> createDaySheet(@RequestBody DaySheetDto daySheet, Authentication authentication) {
@@ -52,6 +70,11 @@ public class DaySheetController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/getAll/", produces = "application/json")
+    public List<WorkHourDto> getAllDaySheet() {
+        return daySheetService.getAllDaySheet();
+    }
+
     @PutMapping(produces = "application/json")
     public ResponseEntity<DaySheetDto> updateDay(@RequestBody DaySheetDto updateDay, Authentication authentication) {
         if (authentication == null)
@@ -61,6 +84,4 @@ public class DaySheetController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         return ResponseEntity.ok(response);
     }
-
-
 }

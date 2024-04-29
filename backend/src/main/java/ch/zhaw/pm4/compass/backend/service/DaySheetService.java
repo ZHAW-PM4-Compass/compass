@@ -1,5 +1,7 @@
 package ch.zhaw.pm4.compass.backend.service;
 
+import ch.zhaw.pm4.compass.backend.exception.DayAlreadyExistsException;
+import ch.zhaw.pm4.compass.backend.exception.DayNotFoundException;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
@@ -46,6 +48,11 @@ public class DaySheetService {
         return null;
     }
 
+    public List<WorkHourDto> getAllDaySheet() throws DayNotFoundException {
+        List<DaySheet> daySheetList = daySheetRepository.findAll();
+        return daySheetList.stream().map(daySheet -> convertDayToWorkHourDto(daySheet)).toList();
+    }
+
     public DaySheetDto updateDay(DaySheetDto updateDay, String user_id) {
         Optional<DaySheet> optional = daySheetRepository.findByIdAndUserId(updateDay.getId(), user_id);
         if (optional.isEmpty())
@@ -64,5 +71,15 @@ public class DaySheetService {
         for (Timestamp timestamp : daySheet.getTimestamps())
             timestampDtos.add(timestampService.convertTimestampToTimestampDto(timestamp));
         return new DaySheetDto(daySheet.getId(), daySheet.getDayReport(), daySheet.getDate(), daySheet.getConfirmed(), timestampDtos);
+    }
+
+    private WorkHourDto convertDayToWorkHourDto(DaySheet daySheet)
+    {
+        long timeSum = 0L;
+        for(Timestamp timestamp : daySheet.getTimestamps()) {
+            timeSum += timestamp.getEndTime().getTime() - timestamp.getStartTime().getTime();
+        }
+
+        return new WorkHourDto(daySheet.getId(), daySheet.getDate(), daySheet.getConfirmed(), timeSum, new ParticipantDto(1L, "Hansi"));
     }
 }

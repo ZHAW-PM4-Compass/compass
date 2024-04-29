@@ -1,12 +1,9 @@
 package ch.zhaw.pm4.compass.backend.model.dto;
 
-import ch.zhaw.pm4.compass.backend.model.Timestamp;
-import jakarta.servlet.http.Part;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -14,7 +11,7 @@ public class WorkHourDto {
 
     private Long daySheetId;
 
-    private Date date;
+    private LocalDate date;
 
     private Boolean confirmed = false;
 
@@ -26,7 +23,7 @@ public class WorkHourDto {
 
     }
 
-    public WorkHourDto(Long daySheetId, Date date, Boolean confirmed, Long workHours, ParticipantDto participant) {
+    public WorkHourDto(Long daySheetId, LocalDate date, Boolean confirmed, Long workHours, ParticipantDto participant) {
         this.daySheetId = daySheetId;
         this.date = date;
         this.confirmed = confirmed;

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ch.zhaw.pm4.compass.backend.exception.CategoryAlreadyExistsException;
+import ch.zhaw.pm4.compass.backend.exception.GlobalCategoryException;
 import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
 import ch.zhaw.pm4.compass.backend.model.Category;
 import ch.zhaw.pm4.compass.backend.model.LocalUser;
@@ -36,6 +37,22 @@ public class CategoryService {
 
 	public CategoryDto getCategoryByName(String name, Boolean withRatings) throws NoSuchElementException {
 		return convertEntityToDto(categoryRepository.findByName(name).orElseThrow(), withRatings);
+	}
+
+	public CategoryDto linkUsersToExistingCategory(CategoryDto linkCategory)
+			throws NotValidCategoryOwnerException, GlobalCategoryException {
+		Category newCategoryConfig = convertDtoToEntity(linkCategory);
+		Category savedCategory = categoryRepository.findById(linkCategory.getId()).orElseThrow();
+		if (savedCategory.getCategoryOwners().isEmpty()) {
+			throw new GlobalCategoryException();
+		}
+		for (LocalUser i : newCategoryConfig.getCategoryOwners()) {
+			if (!savedCategory.getCategoryOwners().contains(i)) {
+				savedCategory.getCategoryOwners().add(i);
+			}
+		}
+
+		return convertEntityToDto(categoryRepository.save(savedCategory), false);
 	}
 
 	public Category convertDtoToEntity(CategoryDto dto) throws NotValidCategoryOwnerException {

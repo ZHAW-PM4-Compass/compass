@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.zhaw.pm4.compass.backend.exception.CategoryAlreadyExistsException;
+import ch.zhaw.pm4.compass.backend.exception.GlobalCategoryException;
 import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
 import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
 import ch.zhaw.pm4.compass.backend.service.CategoryService;
@@ -50,5 +51,15 @@ public class CategoryController {
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+	}
+
+	@PostMapping(path = "/linkUsersToExistingCategory", produces = "application/json")
+	public ResponseEntity<CategoryDto> linkUsersToExistingCategory(@RequestBody CategoryDto category) {
+		try {
+			return ResponseEntity.ok(categoryService.linkUsersToExistingCategory(category));
+		} catch (NotValidCategoryOwnerException | NoSuchElementException | GlobalCategoryException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+
 	}
 }

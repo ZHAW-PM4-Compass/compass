@@ -29,13 +29,13 @@ runs:
           -e DB_USERNAME='postgres' \
           -e DB_PASSWORD='test_password' \
           -e DDL_AUTO='create' \
-          -e AUTH0_ISSUER_BASE_URL='' \
-          -e AUTH0_AUDIENCE='' \
-          -e AUTH0_MGMT_BASE_URL='' \
+          -e AUTH0_ISSUER_BASE_URL='https://test.local' \
+          -e AUTH0_AUDIENCE='test' \
+          -e AUTH0_MGMT_BASE_URL='https://test.local' \
           -e AUTH0_MGMT_CLIENT_ID='' \
           -e AUTH0_MGMT_CLIENT_SECRET='' \
-          -e AUTH0_MGMT_AUDIENCE='' \
-          -e APP_URL='' \
+          -e AUTH0_MGMT_AUDIENCE='https://test.local' \
+          -e APP_URL='test.local' \
           --name test-container \
           -v $(pwd)/reports:/app/build/reports \
           backend-tests \

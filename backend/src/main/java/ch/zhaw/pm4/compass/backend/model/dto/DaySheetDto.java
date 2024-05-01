@@ -19,14 +19,6 @@ public class DaySheetDto {
     private List<TimestampDto> timestamps;
     private long timeSum;
 
-    private long getworkDuration() {
-        long timeSum = 0L;
-        for (TimestampDto timestamp : this.getTimestamps()) {
-            timeSum += timestamp.getEnd_time().getTime() - timestamp.getStart_time().getTime();
-        }
-        return timeSum;
-    }
-
     public DaySheetDto() {
 
     }
@@ -37,6 +29,7 @@ public class DaySheetDto {
         this.day_notes = day_notes;
         this.confirmed = confirmed;
         this.timestamps = timestamps;
+        setTimeSum();
     }
 
     public DaySheetDto(Long id, String day_notes, LocalDate date, Boolean confirmed) {
@@ -50,5 +43,11 @@ public class DaySheetDto {
         this.date = date;
         this.day_notes = day_notes;
         this.confirmed = confirmed;
+    }
+
+    private void setTimeSum() {
+        for (TimestampDto timestamp : this.getTimestamps()) {
+            timeSum += timestamp.getEnd_time().getTime() - timestamp.getStart_time().getTime();
+        }
     }
 }

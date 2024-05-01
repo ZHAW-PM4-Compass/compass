@@ -1,7 +1,6 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.WorkHourDto;
 import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,15 +53,30 @@ public class DaySheetController {
     }
 
     @GetMapping(path = "/getAll/", produces = "application/json")
-    public List<WorkHourDto> getAllDaySheet() {
+    public List<DaySheetDto> getAllDaySheet() {
         return daySheetService.getAllDaySheet();
     }
 
-    @PutMapping(produces = "application/json")
-    public ResponseEntity<DaySheetDto> updateDay(@RequestBody DaySheetDto updateDay, Authentication authentication) {
+    @GetMapping(path = "/getAllByParticipant/", produces = "application/json")
+    public List<DaySheetDto> getAllDaySheetByParticipant(@RequestBody String userId) {
+        return daySheetService.getAllDaySheetByUser(userId);
+    }
+
+    @PutMapping(path = "/updateDayNotes",produces = "application/json")
+    public ResponseEntity<DaySheetDto> updateDayNotes(@RequestBody DaySheetDto updateDay, Authentication authentication) {
         if (authentication == null)
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        DaySheetDto response = daySheetService.updateDay(updateDay, authentication.getName());
+        DaySheetDto response = daySheetService.updateDayNotes(updateDay, authentication.getName());
+        if (response == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping(path = "/updateConfirmed",produces = "application/json")
+    public ResponseEntity<DaySheetDto> updateConfirmed(@RequestBody DaySheetDto updateDay, Authentication authentication) {
+        if (authentication == null)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        DaySheetDto response = daySheetService.updateConfirmed(updateDay, authentication.getName());
         if (response == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         return ResponseEntity.ok(response);

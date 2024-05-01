@@ -3,9 +3,7 @@ package ch.zhaw.pm4.compass.backend.service;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.ParticipantDto;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
-import ch.zhaw.pm4.compass.backend.model.dto.WorkHourDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,38 +46,42 @@ public class DaySheetService {
         return null;
     }
 
-    public List<WorkHourDto> getAllDaySheet() {
+    public List<DaySheetDto> getAllDaySheet() {
         List<DaySheet> daySheetList = daySheetRepository.findAll();
-        return daySheetList.stream().map(daySheet -> convertDayToWorkHourDto(daySheet)).toList();
+        return daySheetList.stream().map(daySheet -> convertDaySheetToDaySheetDto(daySheet)).toList();
     }
 
-    public DaySheetDto updateDay(DaySheetDto updateDay, String user_id) {
+    public List<DaySheetDto> getAllDaySheetByUser(String userId) {
+        Optional<List<DaySheet>> response = daySheetRepository.findAllByUserId(userId);
+        return response.map(daySheets -> daySheets.stream().map(this::convertDaySheetToDaySheetDto).toList()).orElse(null);
+    }
+
+    public DaySheetDto updateDayNotes(DaySheetDto updateDay, String user_id) {
         Optional<DaySheet> optional = daySheetRepository.findByIdAndUserId(updateDay.getId(), user_id);
         if (optional.isEmpty())
             return null;
         DaySheet daySheet = optional.get();
-        daySheet.setDayReport(updateDay.getDay_report());
+        daySheet.setDayNotes(updateDay.getDay_notes());
+        return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
+    }
+
+    public DaySheetDto updateConfirmed(DaySheetDto updateDay, String user_id) {
+        Optional<DaySheet> optional = daySheetRepository.findByIdAndUserId(updateDay.getId(), user_id);
+        if (optional.isEmpty())
+            return null;
+        DaySheet daySheet = optional.get();
+        daySheet.setConfirmed(updateDay.getConfirmed());
         return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
     }
 
     public DaySheet convertDaySheetDtoToDaySheet(DaySheetDto dayDto) {
-        return new DaySheet(dayDto.getId(), dayDto.getDay_report(), dayDto.getDate());
+        return new DaySheet(dayDto.getId(), dayDto.getDay_notes(), dayDto.getDate());
     }
 
     public DaySheetDto convertDaySheetToDaySheetDto(DaySheet daySheet) {
         List<TimestampDto> timestampDtos = new ArrayList<>();
         for (Timestamp timestamp : daySheet.getTimestamps())
             timestampDtos.add(timestampService.convertTimestampToTimestampDto(timestamp));
-        return new DaySheetDto(daySheet.getId(), daySheet.getDayReport(), daySheet.getDate(), daySheet.getConfirmed(), timestampDtos);
-    }
-
-    private WorkHourDto convertDayToWorkHourDto(DaySheet daySheet)
-    {
-        long timeSum = 0L;
-        for(Timestamp timestamp : daySheet.getTimestamps()) {
-            timeSum += timestamp.getEndTime().getTime() - timestamp.getStartTime().getTime();
-        }
-
-        return new WorkHourDto(daySheet.getId(), daySheet.getDate(), daySheet.getConfirmed(), timeSum, new ParticipantDto(1L, "Hansi"));
+        return new DaySheetDto(daySheet.getId(), daySheet.getDayNotes(), daySheet.getDate(), daySheet.getConfirmed(), timestampDtos);
     }
 }

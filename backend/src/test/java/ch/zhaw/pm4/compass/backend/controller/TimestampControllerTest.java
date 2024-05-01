@@ -3,9 +3,6 @@ package ch.zhaw.pm4.compass.backend.controller;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
-import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
-import ch.zhaw.pm4.compass.backend.repository.TimestampRepository;
-import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 import ch.zhaw.pm4.compass.backend.service.TimestampService;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
@@ -48,13 +45,7 @@ public class TimestampControllerTest {
     private WebApplicationContext controller;
     @MockBean
     private TimestampService timestampService;
-    @MockBean
-    private TimestampRepository timestampRepository;
-    @MockBean
-    private DaySheetService daySheetService;
-
-    @MockBean
-    private DaySheetRepository daySheetRepository;
+    
     @MockBean
     @SuppressWarnings("unused")
     private JwtDecoder jwtDecoder;

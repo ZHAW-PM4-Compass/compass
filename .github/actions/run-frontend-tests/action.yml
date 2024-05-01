@@ -1,10 +1,13 @@
-name: "Run E2E Tests"
-description: "Installs dependencies and runs end-to-end tests in a Node.js project"
+name: "Run Frontend Tests"
+description: "Installs dependencies and runs tests in a Node.js project"
 inputs:
   working-directory:
     description: "The working directory where your frontend project is located"
     required: true
     default: "./frontend"
+  codecov-token:
+    description: "Codecov token for uploading coverage"
+    required: true
 
 runs:
   using: "composite"
@@ -15,7 +18,7 @@ runs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: "14"
+        node-version: "20"
 
     - name: Install Dependencies
       run: |
@@ -23,15 +26,17 @@ runs:
         npm install
       shell: bash
 
-    - name: Run E2E Tests
+    - name: Run Tests
       run: |
         cd ${{ inputs.working-directory }}
-        npm run test:e2e
+        npm run test
       shell: bash
 
-    - name: Upload Test Results
-      if: always()
-      uses: actions/upload-artifact@v2
+    - name: Upload Coverage to Codecov
+      uses: codecov/codecov-action@v2
       with:
-        name: e2e-test-results
-        path: ${{ inputs.working-directory }}/e2e-results/**/*
+        token: ${{ inputs.codecov-token }}
+        directory: ${{ inputs.working-directory }}/coverage
+        flags: frontend
+        fail_ci_if_error: true
+        verbose: true

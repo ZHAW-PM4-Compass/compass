@@ -76,3 +76,15 @@ test {
     finalizedBy 'jacocoTestReport'
     ignoreFailures = true
 }
+
+
+task printEnv {
+    doLast {
+        println 'Environment variables:'
+        System.env.each { envVar ->
+            println "${envVar.key}: ${envVar.value}"
+        }
+    }
+}
+
+test.dependsOn printEnv

@@ -527,7 +527,7 @@ export const DaySheetControllerApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAllDaySheet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<WorkHourDto>>> {
+        async getAllDaySheet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DaySheetDto>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getAllDaySheet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DaySheetControllerApi.getAllDaySheet']?.[localVarOperationServerIndex]?.url;
@@ -605,7 +605,7 @@ export const DaySheetControllerApiFactory = function (configuration?: Configurat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllDaySheet(options?: any): AxiosPromise<Array<WorkHourDto>> {
+        getAllDaySheet(options?: any): AxiosPromise<Array<DaySheetDto>> {
             return localVarFp.getAllDaySheet(options).then((request) => request(axios, basePath));
         },
         /**

@@ -6,14 +6,40 @@ import {Checkmark24Regular, Edit24Regular} from "@fluentui/react-icons";
 import {toast} from "react-hot-toast";
 import {useRouter} from "next/navigation";
 import Title1 from "@/components/title1";
+import {getDaySheetControllerApi} from "@/openapi/connector";
+import toastMessages from "@/constants/toastMessages";
 
 const Home: React.FC = () => {
     // Sample data for demonstration
     const mockdata: DaySheetDto[] = [
-        { daySheetId: 0, date: '2024-04-14', confirmed: false, workHours: 2.0, participant: { id: 0, name: "Hans"} as ParticipantDto } as DaySheetDto,
-        { daySheetId: 1, date: '2024-04-13', confirmed: false, workHours: 3.5, participant: { id: 0, name: "Alice"} as ParticipantDto } as DaySheetDto,
-        { daySheetId: 2, date: '2024-04-12', confirmed: true, workHours: 4.0, participant: { id: 0, name: "Bob"} as ParticipantDto } as DaySheetDto,
-        { daySheetId: 3, date: '2024-04-11', confirmed: false, workHours: 1.5, participant: { id: 0, name: "Eve"} as ParticipantDto } as DaySheetDto,
+        {
+            daySheetId: 0,
+            date: '2024-04-14',
+            confirmed: false,
+            workHours: 2.0,
+            participant: {id: 0, name: "Hans"} as ParticipantDto
+        } as DaySheetDto,
+        {
+            daySheetId: 1,
+            date: '2024-04-13',
+            confirmed: false,
+            workHours: 3.5,
+            participant: {id: 0, name: "Alice"} as ParticipantDto
+        } as DaySheetDto,
+        {
+            daySheetId: 2,
+            date: '2024-04-12',
+            confirmed: true,
+            workHours: 4.0,
+            participant: {id: 0, name: "Bob"} as ParticipantDto
+        } as DaySheetDto,
+        {
+            daySheetId: 3,
+            date: '2024-04-11',
+            confirmed: false,
+            workHours: 1.5,
+            participant: {id: 0, name: "Eve"} as ParticipantDto
+        } as DaySheetDto,
     ];
 
     const [daySheetDtos, setDaySheetDtos] = useState<DaySheetDto[]>([]);
@@ -24,19 +50,20 @@ const Home: React.FC = () => {
     useEffect(() => {
         if (!initLoad) {
             initLoad = true;
-            // Method to call when the component mounts
-            getAllDaysheets()
-                .then((rsult) => {
+
+            getDaySheetControllerApi().getAllDaySheet().then(response => {
+                close();
+
+                if (response.status === 200) {
                     let myList: DaySheetDto[] = []
-                    rsult.forEach((entry: DaySheetDto) => {
+                    response.data.forEach((entry: DaySheetDto) => {
                         if (!entry.confirmed) {
                             myList.push(entry);
                         }
                     });
                     setDaySheetDtos(myList);
-                    toast.success('Done fetching daysheets');
-                })
-                .catch(() => {
+                    toast.success(toastMessages.DAYSHEETS_LOADED);
+                } else {
                     let myList: DaySheetDto[] = []
                     mockdata.forEach((entry) => {
                         if (!entry.confirmed) {
@@ -44,59 +71,33 @@ const Home: React.FC = () => {
                         }
                     });
                     setDaySheetDtos(myList);
-                    toast.error('Error fetching daysheets, using mocked data');
+                    toast.error(toastMessages.DATA_NOT_LOADED);
+                }
+            }).catch(() => {
+                let myList: DaySheetDto[] = []
+                mockdata.forEach((entry) => {
+                    if (!entry.confirmed) {
+                        myList.push(entry);
+                    }
                 });
+                setDaySheetDtos(myList);
+                toast.error(toastMessages.DATA_NOT_LOADED);
+            });
         }
     }, []); // Empty dependency array ensures the effect runs only once, similar to componentDidMount
 
-    const getAllDaysheets = async () => {
-        try {
-            // Make a GET request using the fetch API
-            const response = await fetch(`http://localhost:8080/api/daysheet/getAll/`);
-
-            // Check if the response is successful (status code 200)
-            if (!response.ok) {
-                // Handle non-successful response (e.g., throw an error)
-                throw new Error(`Failed to fetch data`);
-            }
-
-            // Parse the response body as JSON
-            // Return the data
-            return await response.json();
-        } catch (error) {
-            // Handle any errors (e.g., log the error)
-            console.error('Error fetching data:', error);
-            // rethrow the error to let the caller handle it
-            throw error;
-        }
-    };
-
     const confirmDaySheet = async (updateDay: DaySheetDto) => {
-        try {
-            // Make a PUT request using the fetch API
-            const response = await fetch(`http://localhost:8080/api/daysheet/updateConfirmed`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updateDay)
-            });
+        getDaySheetControllerApi().updateConfirmed(updateDay).then((response) => {
+            close();
 
-            // Check if the response is successful (status code 200)
-            if (!response.ok) {
-                // Handle non-successful response (e.g., throw an error)
-                throw new Error(`Failed to update day sheet`);
+            if (response.status === 200) {
+                toast.success(toastMessages.DAYSHEET_CONFIRMED);
+            } else {
+                toast.error(toastMessages.DAYSHEET_CONFIRMED_ERROR);
             }
-
-            // Parse the response body as JSON
-            // Return the data
-            return await response.json();
-        } catch (error) {
-            // Handle any errors (e.g., log the error)
-            console.error('Error updating day sheet:', error);
-            // rethrow the error to let the caller handle it
-            throw error;
-        }
+        }).catch(() => {
+            toast.error(toastMessages.DAYSHEET_CONFIRMED_ERROR);
+        });
     };
 
     const navigateToSingleDay = () => {

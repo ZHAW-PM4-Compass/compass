@@ -1,6 +1,7 @@
 "use client"
 
-import { createUser } from "@/actions/users";
+import { UserDto } from "@/openapi/compassClient";
+import { getUserControllerApi } from "@/openapi/connector";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import Modal from "@/components/modal";
@@ -10,72 +11,154 @@ import Title1 from "@/components/title1";
 import Roles from "@/constants/roles";
 import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
+import { toast } from 'react-hot-toast';
+import toastMessages from "@/constants/toastMessages";
+
+const roles = [
+  {
+    id: Roles.PARTICIPANT,
+    label: "Teilnehmer"
+  },
+  {
+    id: Roles.SOCIAL_WORKER,
+    label: "Sozialarbeiter"
+  },
+  {
+    id: Roles.ADMIN,
+    label: "Admin"
+  }
+]
+
+function UserCreateModal({ close, onSave }: Readonly<{
+    close: () => void;
+		onSave: () => void;
+  }>) {
+  const onSubmit = (formData: FormData) => {
+		const createUserDto: UserDto = {
+				email: formData.get("email") as string,
+				given_name: formData.get("given_name") as string,
+				family_name: formData.get("family_name") as string,
+				password: formData.get("password") as string,
+				role: formData.get("role") as string,
+				connection: "Username-Password-Authentication",
+		};
+
+		getUserControllerApi().createUser(createUserDto).then(response => {
+			close();
+			setTimeout(() => onSave(), 1000);
+
+      if (response.status === 200) {
+        toast.success(toastMessages.USER_CREATED);
+      } else {
+        toast.error(toastMessages.USER_NOT_CREATED);
+      }
+		}).catch(() => {
+      toast.error(toastMessages.USER_NOT_CREATED);
+		})
+	}
+
+  return (
+    <Modal
+      title="Benutzer erstellen"
+      footerActions={
+        <Button Icon={Save24Regular} type="submit">Speichern</Button>
+      }
+      close={close}
+			onSubmit={onSubmit}
+    >
+      <Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" name="given_name" required={true} />
+      <Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" name="family_name" required={true} />
+      <Select
+        className="mb-4 mr-4 w-32 block"
+        placeholder="Rolle wählen"
+        data={roles}
+				required={true} />
+      <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name="email" required={true} />
+      <Input type="password" placeholder="Initiales Passwort" className="mb-4 mr-4 w-48 block" name="password" required={true} />
+    </Modal>
+  );
+}
+
+function UserUpdateModal({ close, onSave, user }: Readonly<{
+	close: () => void;
+	onSave: () => void;
+	user: UserDto | undefined;
+}>) {
+const onSubmit = (formData: FormData) => {
+	const createUserDto: UserDto = {
+			email: formData.get("email") as string,
+			given_name: formData.get("given_name") as string,
+			family_name: formData.get("family_name") as string,
+			password: formData.get("password") as string,
+			role: formData.get("role") as string,
+			connection: "Username-Password-Authentication",
+	};
+
+	getUserControllerApi().createUser(createUserDto).then(response => {
+		close();
+		setTimeout(() => onSave(), 1000); 
+    if (response.status === 200) {
+      toast.success(toastMessages.USER_UPDATED);
+    } else {
+      toast.error(toastMessages.USER_NOT_UPDATED);
+    }
+	}).catch(() => {
+		toast.error(toastMessages.USER_NOT_UPDATED);
+	})
+}
+
+return (
+	<Modal
+		title="Benutzer bearbeiten"
+		footerActions={
+			<Button Icon={Save24Regular} type="submit">Speichern</Button>
+		}
+		close={close}
+		onSubmit={onSubmit}
+	>
+		<Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" name="given_name" required={true} value={user?.given_name} />
+		<Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" name="family_name" required={true} value={user?.family_name} />
+		<Select
+			className="mb-4 mr-4 w-32 block"
+			placeholder="Rolle wählen"
+			data={roles}
+			required={true}
+			value={user?.role} />
+		<Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name="email" disabled={true} value={user?.email} />
+	</Modal>
+);
+}
 
 export default function UsersPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<UserDto[]>([]);
+	const [selectedUser, setSelectedUser] = useState<UserDto>();
 
-  const roles = [
-    {
-      id: Roles.PARTICIPANT,
-      label: "Teilnehmer"
-    },
-    {
-      id: Roles.SOCIAL_WORKER,
-      label: "Sozialarbeiter"
-    },
-    {
-      id: Roles.ADMIN,
-      label: "Admin"
-    }
-  ]
+	const loadUsers = () => {
+		getUserControllerApi().getAll().then(response => {
+			const users = response?.data;
+			users.sort((a, b) => (a?.given_name || '').localeCompare(b?.given_name || ''));
+			setUsers(users);
+		}).catch(() => {
+			toast.error(toastMessages.DATA_NOT_LOADED);
+		})
+	}
 
-  useEffect(() => {
-    fetch("/proxy/users")
-      .then(res => res.json())
-      .then(data => setUsers(data));
-  }, []);
+  useEffect(() => loadUsers(), []);
 
   return (
     <>
       {showCreateModal && (
-
-        <form action={createUser}>
-          <Modal
-            title="Benutzer erstellen"
-            close={() => setShowCreateModal(false)}
-            footerActions={
-              <Button Icon={Save24Regular} type="submit">Speichern</Button>
-            }
-          >
-            <Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" name="given_name" />
-            <Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" name="family_name" />
-            <Select
-              className="mb-4 mr-4 w-32 block"
-              placeholder="Rolle wählen"
-              data={roles} />
-            <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name="email" />
-            <Input type="password" placeholder="Initiales Passwort" className="mb-4 mr-4 w-48 block" name="password" />
-          </Modal>
-        </form>
+        <UserCreateModal 
+					close={() => setShowCreateModal(false)}
+					onSave={loadUsers} />
       )}
       {showUpdateModal && (
-        <Modal
-          title="Benutzer bearbeiten"
-          close={() => setShowUpdateModal(false)}
-          footerActions={
-            <Button Icon={Save24Regular}>Speichern</Button>
-          }
-        >
-          <Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" />
-          <Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" />
-          <Select
-            className="mb-4 mr-4 w-32 block"
-            placeholder="Rolle wählen"
-            data={roles} />
-          <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" disabled={true} />
-        </Modal>
+        <UserUpdateModal
+					close={() => setShowUpdateModal(false)}
+					onSave={loadUsers}
+					user={selectedUser} />
       )}
       <div className="flex flex-col sm:flex-row justify-between">
         <Title1>Benutzerverwaltung</Title1>
@@ -108,13 +191,16 @@ export default function UsersPage() {
           {
             icon: Delete24Regular,
             label: "Löschen",
-            onClick: () => {}
+            onClick: (id) => {}
           },
           {
             icon: Edit24Regular,
-            onClick: () => setShowUpdateModal(true)
+            onClick: (id) => {
+							setSelectedUser(users[id]);
+							setShowUpdateModal(true);
+						}
           }
-        ]}/>
+        ]} />
     </>
   );
 }

@@ -19,7 +19,7 @@ public class TimestampController {
     @PostMapping(produces = "application/json")
     public ResponseEntity<TimestampDto> createTimestamp(@RequestBody TimestampDto timestamp, Authentication authentication) {
         TimestampDto response = timestampService.createTimestamp(timestamp, authentication.getName());
-        if(response == null)
+        if (response == null)
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         return ResponseEntity.ok(response);
     }
@@ -27,21 +27,23 @@ public class TimestampController {
     @GetMapping(path = "/getById/{id}", produces = "application/json")
     public ResponseEntity<TimestampDto> getTimestampById(@PathVariable Long id, Authentication authentication) {
         TimestampDto response = timestampService.getTimestampById(id, authentication.getName());
-        if(response == null)
+        if (response == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         return ResponseEntity.ok(response);
     }
+
     @GetMapping(path = "/allbydaysheetid/{id}", produces = "application/json")
     public ResponseEntity<ArrayList<TimestampDto>> getAllTimestampByDaySheetId(@PathVariable Long id, Authentication authentication) {
         ArrayList<TimestampDto> list = timestampService.getAllTimestampsByDaySheetId(id, authentication.getName());
-        if(list.size() == 0)
+        if (list.size() == 0)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         return ResponseEntity.ok(list);
     }
+
     @PutMapping(produces = "application/json")
     public ResponseEntity<TimestampDto> putTimestamp(@RequestBody TimestampDto timestamp, Authentication authentication) {
         TimestampDto response = timestampService.updateTimestampById(timestamp, authentication.getName());
-        if(response == null)
+        if (response == null)
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         return ResponseEntity.ok(response);
     }

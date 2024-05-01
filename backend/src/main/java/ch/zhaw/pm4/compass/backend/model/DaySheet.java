@@ -19,7 +19,7 @@ public class DaySheet {
     //@Temporal(TemporalType.DATE)
     private LocalDate date;
 
-    private String dayReport;
+    private String dayNotes;
 
     private Boolean confirmed = false;
 
@@ -31,39 +31,44 @@ public class DaySheet {
 
     }
 
-    public DaySheet(String dayReport, LocalDate date) {
+    public DaySheet(String dayNotes, LocalDate date) {
         this.date = date;
-        this.dayReport = dayReport;
+        this.dayNotes = dayNotes;
         this.timestamps = new ArrayList<>();
     }
-    public DaySheet(Long id, String dayReport, LocalDate date) {
+
+    public DaySheet(Long id, String dayNotes, LocalDate date) {
         this.id = id;
         this.date = date;
-        this.dayReport = dayReport;
+        this.dayNotes = dayNotes;
         this.timestamps = new ArrayList<>();
     }
-    public DaySheet(Long id, String dayReport, LocalDate date, Boolean confirmed) {
+
+    public DaySheet(Long id, String dayNotes, LocalDate date, Boolean confirmed) {
         this.id = id;
         this.date = date;
-        this.dayReport = dayReport;
+        this.dayNotes = dayNotes;
         this.confirmed = confirmed;
         this.timestamps = new ArrayList<>();
     }
-    public DaySheet(Long id, String dayReport, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
+
+    public DaySheet(Long id, String dayNotes, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
         this.id = id;
         this.date = date;
-        this.dayReport = dayReport;
+        this.dayNotes = dayNotes;
         this.confirmed = confirmed;
         this.timestamps = timestamps;
     }
-    public DaySheet(Long id, String userId, String dayReport, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
+
+    public DaySheet(Long id, String userId, String dayNotes, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
         this.id = id;
         this.date = date;
-        this.dayReport = dayReport;
+        this.dayNotes = dayNotes;
         this.confirmed = confirmed;
         this.timestamps = timestamps;
         this.userId = userId;
     }
+
     public DaySheet(LocalDate date) {
         this.date = date;
     }

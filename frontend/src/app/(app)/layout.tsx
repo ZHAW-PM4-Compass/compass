@@ -123,8 +123,8 @@ export default function RootLayout({
 
   return (
     <>
-      <div className="sm:flex sm:flex-row h-screen w-screen absolute">
-        <div className={`${menuOpen ? "w-full sm:w-64" : "hidden sm:block sm:w-16"} absolute sm:relative border-r-[1px] border-slate-300 z-20 h-full bg-white overflow-y-auto`}>
+      <div className="md:flex md:flex-row h-screen w-screen absolute">
+        <div className={`${menuOpen ? "w-full md:w-64 md:min-w-64" : "hidden md:block md:w-16 md:min-w-16"} absolute sm:relative border-r-[1px] border-slate-300 z-20 h-full bg-white overflow-y-auto`}>
           <div className={`${menuOpen ? "p-5 w-full" : "p-4"}  flex flex-col h-full`}>
             <div className="flex">
               {menuOpen ? (
@@ -132,7 +132,7 @@ export default function RootLayout({
               ) : (
                 <h1 className="text-lg px-1.5 py-1.5">🧭</h1>
               )}
-              <button className="p-2 bg-white hover:bg-slate-100 duration-150 rounded-md sm:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+              <button className="p-2 bg-white hover:bg-slate-100 duration-150 rounded-md md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
                 <img src={MenuCloseIcon.src} className="w-5 h-5" />
               </button>
             </div>
@@ -168,7 +168,7 @@ export default function RootLayout({
         </div>
         <div className="sm:relative grow z-10 pt-20 md:pt-0 bg-slate-100 h-full">
           <div className="w-full h-full md:container md:mx-auto px-5 md:px-24 lg:px-48 md:pt-24 pb-16">
-            <div className="h-full w-full overflow-y-auto">
+            <div className="h-full w-full">
             {children}
             {
               user && (

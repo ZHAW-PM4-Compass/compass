@@ -57,6 +57,11 @@ public class DaySheetController {
         return daySheetService.getAllDaySheet();
     }
 
+    @GetMapping(path = "/getAll/", produces = "application/json")
+    public List<DaySheetDto> getAllDaySheetByParticipant(@RequestBody String userId) {
+        return daySheetService.getAllDaySheetByUser(userId);
+    }
+
     @PutMapping(path = "/updateDayNotes",produces = "application/json")
     public ResponseEntity<DaySheetDto> updateDayNotes(@RequestBody DaySheetDto updateDay, Authentication authentication) {
         if (authentication == null)

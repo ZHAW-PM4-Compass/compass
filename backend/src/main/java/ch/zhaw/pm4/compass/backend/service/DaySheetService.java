@@ -51,6 +51,11 @@ public class DaySheetService {
         return daySheetList.stream().map(daySheet -> convertDaySheetToDaySheetDto(daySheet)).toList();
     }
 
+    public List<DaySheetDto> getAllDaySheetByUser(String userId) {
+        Optional<List<DaySheet>> response = daySheetRepository.findAllByUserId(userId);
+        return response.map(daySheets -> daySheets.stream().map(this::convertDaySheetToDaySheetDto).toList()).orElse(null);
+    }
+
     public DaySheetDto updateDayNotes(DaySheetDto updateDay, String user_id) {
         Optional<DaySheet> optional = daySheetRepository.findByIdAndUserId(updateDay.getId(), user_id);
         if (optional.isEmpty())

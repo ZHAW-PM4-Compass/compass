@@ -8,3 +8,8 @@ DB_USERNAME=compass_admin
 
 DDL_AUTO=update
 DOCKER_ON=true or false
+
+auth0.mgmt.baseurl=${AUTH0_ISSUER_BASE_URL}
+auth0.mgmt.clientId=${AUTH0_CLIENT_ID}
+auth0.mgmt.clientSecret=${AUTH0_CLIENT_SECRET}
+auth0.mgmt.audience=${AUTH0_MGMT_AUDIENCE}

@@ -4,7 +4,7 @@ Das Backend von Compass ist als eine "Spring Boot mit Java SE" Applikation umges
 
 # Requirements
 - JDK 21
-- Gradle 8.1.1+
+- Gradle 8.6
 
 # Docker commands
 

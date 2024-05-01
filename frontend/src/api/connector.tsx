@@ -1,4 +1,4 @@
-import {Configuration, DaySheetControllerApi, TimestampControllerApi, UserControllerApi} from './compassClient';
+import { Configuration, DaySheetControllerApi, UserControllerApi, TimestampControllerApi} from './compassClient';
 
 function getApiConfiguration() {
   const config = new Configuration({

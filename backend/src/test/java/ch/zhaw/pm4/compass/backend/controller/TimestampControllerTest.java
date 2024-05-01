@@ -1,21 +1,10 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.sql.Time;
-import java.time.LocalDate;
-import java.util.ArrayList;
-
-import org.aspectj.lang.annotation.Before;
+import ch.zhaw.pm4.compass.backend.model.DaySheet;
+import ch.zhaw.pm4.compass.backend.model.Timestamp;
+import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
+import ch.zhaw.pm4.compass.backend.service.TimestampService;
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -44,26 +33,19 @@ import ch.zhaw.pm4.compass.backend.service.TimestampService;
 @ContextConfiguration
 public class TimestampControllerTest {
 
-	@Autowired
-	private MockMvc mockMvc;
-	@Autowired
-	private WebApplicationContext controller;
-	@MockBean
-	private TimestampService timestampService;
-	@MockBean
-	private TimestampRepository timestampRepository;
-	@MockBean
-	private DaySheetService daySheetService;
-
-	@MockBean
-	private DaySheetRepository daySheetRepository;
-	@MockBean
-	@SuppressWarnings("unused")
-	private JwtDecoder jwtDecoder;
-	static String token = "";
-	@SuppressWarnings("unused")
-	private LocalDate dateNow = LocalDate.now();
-	private String reportText = "Testdate";
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private WebApplicationContext controller;
+    @MockBean
+    private TimestampService timestampService;
+    
+    @MockBean
+    @SuppressWarnings("unused")
+    private JwtDecoder jwtDecoder;
+    static String token = "";
+    private LocalDate dateNow = LocalDate.now();
+    private String reportText = "Testdate";
 
 	DaySheet getDaySheet() {
 		return new DaySheet(1l, reportText, LocalDate.now(), false);

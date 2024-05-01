@@ -18,23 +18,31 @@ public class DaySheetDto {
 
 	private LocalDate date;
 
-	private String day_report;
+	private String day_notes;
 
 	private Boolean confirmed = false;
 
 	@Schema(accessMode = Schema.AccessMode.READ_ONLY)
 	private List<TimestampDto> timestamps;
+  
+  private long timeSum;
 
-	public DaySheetDto(Long id, String day_report, LocalDate date, Boolean confirmed) {
+	public DaySheetDto(Long id, String day_notes, LocalDate date, Boolean confirmed) {
 		this.id = id;
 		this.date = date;
-		this.day_report = day_report;
+		this.day_notes = day_notes;
 		this.confirmed = confirmed;
 	}
 
-	public DaySheetDto(String day_report, LocalDate date, Boolean confirmed) {
+	public DaySheetDto(String day_notes, LocalDate date, Boolean confirmed) {
 		this.date = date;
-		this.day_report = day_report;
+		this.day_notes = day_notes;
 		this.confirmed = confirmed;
 	}
+
+    private void setTimeSum() {
+        for (TimestampDto timestamp : this.getTimestamps()) {
+            timeSum += timestamp.getEnd_time().getTime() - timestamp.getStart_time().getTime();
+        }
+    }
 }

@@ -21,6 +21,23 @@ jobs:
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
   backend-tests:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_HOST: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: compass
+        options: >-
+          --network postgres
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -29,23 +46,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: "21"
-          distribution: "temurin" # Temurin is the successor to AdoptOpenJDK
-      - name: Setup Network
-        run: docker network create postgres_network
-        shell: bash
-      - name: Start PostgreSQL Container
-        run: |
-          docker run -d --name postgres \
-            --network postgres_network \
-            -e POSTGRES_USER=postgres \
-            -e POSTGRES_PASSWORD=test_password \
-            -e POSTGRES_DB=compass \
-            --health-cmd pg_isready \
-            --health-interval 10s \
-            --health-timeout 5s \
-            --health-retries 5 \
-            -p 5432:5432 \
-            postgres
+          distribution: "temurin"
       - name: Run Backend Tests and Upload Coverage
         uses: ./.github/actions/run-backend-tests
         with:

@@ -22,7 +22,7 @@ runs:
     - name: Run Tests in Docker Container
       shell: bash
       run: |
-        docker run -e DOCKER_ON='false' \
+        docker run -e DOCKER_ON='true' \
           -e PORT='8080' \
           -e DB_HOST='host.docker.internal:5432/compass' \
           -e DB_USERNAME='postgres' \
@@ -35,7 +35,6 @@ runs:
           -e AUTH0_MGMT_CLIENT_SECRET='' \
           -e AUTH0_MGMT_AUDIENCE='https://test.local' \
           -e APP_URL='test.local' \
-          --network postgres_network \
           --name test-container \
           -v $(pwd)/reports:/app/build/reports \
           backend-tests \

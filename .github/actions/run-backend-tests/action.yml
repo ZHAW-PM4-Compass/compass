@@ -21,11 +21,10 @@ runs:
 
     - name: Run Tests in Docker Container
       shell: bash
-      continue-on-error: true
       run: |
         docker run -e DOCKER_ON='false' \
           -e PORT='8080' \
-          -e DB_HOST='postgres:5432/compass' \
+          -e DB_HOST='localhost:5432/compass' \
           -e DB_USERNAME='postgres' \
           -e DB_PASSWORD='test_password' \
           -e DDL_AUTO='create' \
@@ -36,7 +35,7 @@ runs:
           -e AUTH0_MGMT_CLIENT_SECRET='' \
           -e AUTH0_MGMT_AUDIENCE='https://test.local' \
           -e APP_URL='test.local' \
-          --network postgres \
+          --network postgres_network \
           --name test-container \
           -v $(pwd)/reports:/app/build/reports \
           backend-tests \

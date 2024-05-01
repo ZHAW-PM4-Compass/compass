@@ -39,7 +39,7 @@ runs:
           --name test-container \
           -v $(pwd)/reports:/app/build/reports \
           backend-tests \
-          /bin/sh -c "gradle test"
+          /bin/sh -c "gradle test -info"
 
     - name: Debug Report dir
       shell: bash

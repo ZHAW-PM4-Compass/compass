@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./backend/build.gradle .
 COPY ./backend/settings.gradle .
 COPY ./backend/src src
-RUN gradle build --no-daemon
+RUN gradle assemble --no-daemon
 
 # Final Image Preparation
 FROM openjdk:21

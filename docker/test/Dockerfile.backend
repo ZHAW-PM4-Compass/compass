@@ -5,4 +5,4 @@ COPY ./backend/build.gradle .
 COPY ./backend/settings.gradle .
 COPY ./backend/src src
 RUN gradle assemble --no-daemon
-CMD ["gradle", "test"]                   
+CMD ["gradle", "test -info"]                   

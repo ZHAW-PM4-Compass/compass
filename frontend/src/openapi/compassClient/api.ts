@@ -59,25 +59,12 @@ export interface DaySheetDto {
      * @memberof DaySheetDto
      */
     'timestamps'?: Array<TimestampDto>;
-}
-/**
- * 
- * @export
- * @interface ParticipantDto
- */
-export interface ParticipantDto {
     /**
      * 
      * @type {number}
-     * @memberof ParticipantDto
+     * @memberof DaySheetDto
      */
-    'id'?: number;
-    /**
-     * 
-     * @type {string}
-     * @memberof ParticipantDto
-     */
-    'name'?: string;
+    'timeSum'?: number;
 }
 /**
  * 
@@ -158,43 +145,6 @@ export interface UserDto {
      * @memberof UserDto
      */
     'user_id'?: string;
-}
-/**
- * 
- * @export
- * @interface WorkHourDto
- */
-export interface WorkHourDto {
-    /**
-     * 
-     * @type {number}
-     * @memberof WorkHourDto
-     */
-    'daySheetId'?: number;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkHourDto
-     */
-    'date'?: string;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof WorkHourDto
-     */
-    'confirmed'?: boolean;
-    /**
-     * 
-     * @type {number}
-     * @memberof WorkHourDto
-     */
-    'workHours'?: number;
-    /**
-     * 
-     * @type {ParticipantDto}
-     * @memberof WorkHourDto
-     */
-    'participant'?: ParticipantDto;
 }
 
 /**
@@ -352,6 +302,42 @@ export const DaySheetControllerApiAxiosParamCreator = function (configuration?: 
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAllDaySheetByParticipant: async (userId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('getAllDaySheetByParticipant', 'userId', userId)
+            const localVarPath = `/daysheet/getAllByParticipant/`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
 
 
     
@@ -535,6 +521,18 @@ export const DaySheetControllerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAllDaySheetByParticipant(userId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DaySheetDto>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllDaySheetByParticipant(userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DaySheetControllerApi.getAllDaySheetByParticipant']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -610,6 +608,15 @@ export const DaySheetControllerApiFactory = function (configuration?: Configurat
         },
         /**
          * 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAllDaySheetByParticipant(userId: string, options?: any): AxiosPromise<Array<DaySheetDto>> {
+            return localVarFp.getAllDaySheetByParticipant(userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -673,6 +680,17 @@ export class DaySheetControllerApi extends BaseAPI {
      */
     public getAllDaySheet(options?: RawAxiosRequestConfig) {
         return DaySheetControllerApiFp(this.configuration).getAllDaySheet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} userId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DaySheetControllerApi
+     */
+    public getAllDaySheetByParticipant(userId: string, options?: RawAxiosRequestConfig) {
+        return DaySheetControllerApiFp(this.configuration).getAllDaySheetByParticipant(userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

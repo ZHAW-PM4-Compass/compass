@@ -37,7 +37,7 @@ export default function Modal({ children, title, footerActions, close, onSubmit 
                   <Dismiss24Regular className="color-black w-5 h-5 -mt-1" />
               </button>
             </div>
-            <div className="mt-1 min-h-36 max-h-[50vh] -m-4 p-4 overflow-y-scroll">
+            <div className="mt-1 min-h-36 max-h-[50vh] -m-4 p-4 overflow-y-auto">
                 {children}
             </div>
             <div className="flex justify-end pt-8">

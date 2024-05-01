@@ -5,14 +5,13 @@ import Table from "@/components/table";
 import Input from "@/components/input";
 import ArrowLeftIcon from "@fluentui/svg-icons/icons/arrow_left_24_filled.svg";
 import ArrowRightIcon from "@fluentui/svg-icons/icons/arrow_right_24_filled.svg";
-import DeleteIcon from "@fluentui/svg-icons/icons/delete_24_filled.svg";
-import EditIcon from "@fluentui/svg-icons/icons/edit_24_filled.svg";
 import SaveIcon from "@fluentui/svg-icons/icons/save_24_filled.svg";
 import { useEffect, useState } from "react";
-import { getDaySheetControllerApi, getTimestampControllerApi} from "@/api/connector";
+import { getDaySheetControllerApi, getTimestampControllerApi} from "@/openapi/connector";
 import Button from "@/components/button";
 import Modal from "@/components/modal";
-import type { DaySheetDto, TimestampDto } from "@/api/compassClient";
+import type { DaySheetDto, TimestampDto } from "@/openapi/compassClient";
+import toast from "react-hot-toast";
 
 export default function WorkingHoursPage() {
   const [daySheet, setDaySheet] = useState<{ id: number; date: string; day_report: string; timestamps: Timestamp[];}>({ id: 0, date: '', day_report: '', timestamps: []});
@@ -29,8 +28,8 @@ export default function WorkingHoursPage() {
   }
 
   const calculateDuration = (start: string, end: string) => {
-    const startTime = new Date(`2000-01-01 ${start}`);
-    const endTime = new Date(`2000-01-01 ${end}`);
+    const startTime = new Date(`2000-01-01 ${start}`).getTime();
+    const endTime = new Date(`2000-01-01 ${end}`).getTime();
     const durationMs = endTime - startTime;
     const hours = Math.floor(durationMs / (1000 * 60 * 60));
     const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
@@ -40,8 +39,8 @@ export default function WorkingHoursPage() {
   function calculateTotalDuration(timestamps: Array<Timestamp>) {
     
     const calculateDuration = (start: string, end: string) => {
-      const startTime = new Date(`2000-01-01 ${start}`);
-      const endTime = new Date(`2000-01-01 ${end}`);
+      const startTime = new Date(`2000-01-01 ${start}`).getTime();
+      const endTime = new Date(`2000-01-01 ${end}`).getTime();
       const durationMs = endTime - startTime;
       return durationMs / (1000 * 60); // Return duration in minutes
     };
@@ -87,7 +86,7 @@ export default function WorkingHoursPage() {
     e.preventDefault();
 
     // check if daysheet already exists
-    getDaySheetControllerApi().getDaySheetByDate(selectedDate).then(response => {
+    getDaySheetControllerApi().getDaySheetById1(selectedDate).then(response => {
       var loadedDaySheet = null;
 
       if (response.status == 200) {
@@ -98,7 +97,7 @@ export default function WorkingHoursPage() {
         // Daysheet does not exist yet -> create new daysheet
         const newDaySheet: DaySheetDto = {
           date: selectedDate,
-          day_report: '',
+          day_notes: '',
           timestamps: []
         };
 
@@ -169,7 +168,7 @@ export default function WorkingHoursPage() {
 
 
   const deleteTimestamp = (timestamp: Timestamp) => {
-    getTimestampControllerApi().deleteTimestamp(timestamp.id).then(response => {
+    timestamp.id && getTimestampControllerApi().deleteTimestamp(timestamp.id).then(response => {
       if (response.status === 200) {
         toast.success("Zeiteintrag gelöscht");
         setDaySheet({...daySheet, timestamps: daySheet.timestamps.filter(timestampItem => timestampItem.id !== timestamp.id)});
@@ -201,9 +200,15 @@ export default function WorkingHoursPage() {
           toast.success("Zeiteintrag bearbeitet");
           
           let editedDaySheet = {...daySheet};
-          editedDaySheet.timestamps.find(timestampItem => timestampItem.id === editedTimestamp.id).start_time = editedTimestamp.start_time;
-          editedDaySheet.timestamps.find(timestampItem => timestampItem.id === editedTimestamp.id).end_time = editedTimestamp.end_time;
-          editedDaySheet.timestamps.find(timestampItem => timestampItem.id === editedTimestamp.id).duration = calculateDuration(editedTimestamp.start_time, editedTimestamp.end_time);
+          const editedStartTime = editedTimestamp.start_time || ''; // Provide a default value if start_time is undefined
+          const editedEndTime = editedTimestamp.end_time || ''; // Provide a default value if end_time is undefined
+          const editedTimestampInList = editedDaySheet.timestamps.find(timestampItem => timestampItem.id === editedTimestamp.id);
+
+          if (editedTimestampInList){
+            editedTimestampInList.start_time = editedStartTime;
+            editedTimestampInList.end_time = editedEndTime;
+            editedTimestampInList.duration = calculateDuration(editedStartTime, editedEndTime);
+          }
           setDaySheet(editedDaySheet);
           
         } else {

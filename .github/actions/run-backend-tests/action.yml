@@ -22,7 +22,8 @@ runs:
     - name: Run Tests in Docker Container
       shell: bash
       run: |
-        docker run -e DOCKER_ON='false' \
+        docker run \
+          -e DOCKER_ON='false' \
           -e PORT='8080' \
           -e DB_HOST='host.docker.internal:5432/compass' \
           -e DB_USERNAME='postgres' \
@@ -35,9 +36,9 @@ runs:
           -e AUTH0_MGMT_CLIENT_SECRET='' \
           -e AUTH0_MGMT_AUDIENCE='https://test.local' \
           -e APP_URL='test.local' \
-          --name test-container \ 
           --add-host host.docker.internal:host-gateway \
           -v $(pwd)/reports:/app/build/reports \
+          --name test-container \
           backend-tests \
           /bin/sh -c "gradle test -info && printenv"
 

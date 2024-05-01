@@ -1,4 +1,6 @@
-export default function Input({ className, type, placeholder, name, value, disabled, required }: Readonly<{
+import type { ChangeEvent } from "react";
+
+export default function Input({ className, type, placeholder, name, value, disabled, required, onChange }: Readonly<{
   className?: string;
   type?: string;
   placeholder?: string;
@@ -6,6 +8,7 @@ export default function Input({ className, type, placeholder, name, value, disab
   value?: string;
   disabled?: boolean;
   required?: boolean;
+  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
 }>) {
   return (
     <input 
@@ -15,6 +18,7 @@ export default function Input({ className, type, placeholder, name, value, disab
       name={name}
       value={value}
       disabled={disabled} 
-      required={required} />
+      required={required}
+      onChange={onChange} />
   );
 }

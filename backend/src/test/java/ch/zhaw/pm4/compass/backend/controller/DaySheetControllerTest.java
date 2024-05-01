@@ -25,13 +25,14 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
@@ -63,7 +64,7 @@ public class DaySheetControllerTest {
     }
 
     private DaySheet getDaySheet() {
-        return new DaySheet(1l, reportText, dateNow, false, new ArrayList<Timestamp>());
+        return new DaySheet(1l,"asdfasdf", reportText, dateNow, false, new ArrayList<Timestamp>());
     }
 
 
@@ -218,5 +219,25 @@ public class DaySheetControllerTest {
                 .andExpect(jsonPath("$.date").value(getDay.getDate().toString()));
 
         verify(daySheetService, times(1)).getDaySheetById(any(Long.class), any(String.class));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser", roles = {})
+    void testGerAllByParticipant() throws Exception {
+        List<DaySheetDto> daySheets = new ArrayList<>();
+        DaySheetDto day1 = getDaySheetDto();
+        DaySheetDto day2 = getDaySheetDto();
+        day2.setId(2l);
+        day2.setDate(dateNow.plusDays(1));
+        daySheets.add(day1);
+        daySheets.add(day2);
+        when(daySheetService.getAllDaySheetByUser(any(String.class))).thenReturn(daySheets);
+        String res = mockMvc.perform(get("/daysheet/getAllByParticipant/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"user_id\":\""+ getDaySheet().getUserId()+"\"}")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertEquals("[{\"id\":1,\"date\":\"2024-05-02\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"timeSum\":0},{\"id\":2,\"date\":\"2024-05-03\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"timeSum\":0}]",res);
     }
 }

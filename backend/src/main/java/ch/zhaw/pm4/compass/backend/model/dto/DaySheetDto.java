@@ -11,15 +11,19 @@ import java.util.List;
 public class DaySheetDto {
 
     private Long id;
-
-
     private LocalDate date;
-
     private String day_report;
-
     private Boolean confirmed = false;
-
     private List<TimestampDto> timestamps;
+    private long timeSum;
+
+    private long getworkDuration() {
+        long timeSum = 0L;
+        for (TimestampDto timestamp : this.getTimestamps()) {
+            timeSum += timestamp.getEnd_time().getTime() - timestamp.getStart_time().getTime();
+        }
+        return timeSum;
+    }
 
     public DaySheetDto() {
 

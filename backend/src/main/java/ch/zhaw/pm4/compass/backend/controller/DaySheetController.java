@@ -1,7 +1,6 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.WorkHourDto;
 import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,7 +53,7 @@ public class DaySheetController {
     }
 
     @GetMapping(path = "/getAll/", produces = "application/json")
-    public List<WorkHourDto> getAllDaySheet() {
+    public List<DaySheetDto> getAllDaySheet() {
         return daySheetService.getAllDaySheet();
     }
 

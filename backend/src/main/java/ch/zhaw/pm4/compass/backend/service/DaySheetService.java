@@ -3,9 +3,7 @@ package ch.zhaw.pm4.compass.backend.service;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.ParticipantDto;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
-import ch.zhaw.pm4.compass.backend.model.dto.WorkHourDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,9 +46,9 @@ public class DaySheetService {
         return null;
     }
 
-    public List<WorkHourDto> getAllDaySheet() {
+    public List<DaySheetDto> getAllDaySheet() {
         List<DaySheet> daySheetList = daySheetRepository.findAll();
-        return daySheetList.stream().map(daySheet -> convertDayToWorkHourDto(daySheet)).toList();
+        return daySheetList.stream().map(daySheet -> convertDaySheetToDaySheetDto(daySheet)).toList();
     }
 
     public DaySheetDto updateDay(DaySheetDto updateDay, String user_id) {
@@ -71,15 +69,5 @@ public class DaySheetService {
         for (Timestamp timestamp : daySheet.getTimestamps())
             timestampDtos.add(timestampService.convertTimestampToTimestampDto(timestamp));
         return new DaySheetDto(daySheet.getId(), daySheet.getDayReport(), daySheet.getDate(), daySheet.getConfirmed(), timestampDtos);
-    }
-
-    private WorkHourDto convertDayToWorkHourDto(DaySheet daySheet)
-    {
-        long timeSum = 0L;
-        for(Timestamp timestamp : daySheet.getTimestamps()) {
-            timeSum += timestamp.getEndTime().getTime() - timestamp.getStartTime().getTime();
-        }
-
-        return new WorkHourDto(daySheet.getId(), daySheet.getDate(), daySheet.getConfirmed(), timeSum, new ParticipantDto(1L, "Hansi"));
     }
 }

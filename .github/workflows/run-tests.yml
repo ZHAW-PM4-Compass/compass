@@ -30,7 +30,6 @@ jobs:
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: compass
         options: >-
-          --network postgres
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s

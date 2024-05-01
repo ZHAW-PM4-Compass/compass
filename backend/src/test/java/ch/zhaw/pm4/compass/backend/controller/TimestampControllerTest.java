@@ -1,9 +1,20 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
-import ch.zhaw.pm4.compass.backend.model.DaySheet;
-import ch.zhaw.pm4.compass.backend.model.Timestamp;
-import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
-import ch.zhaw.pm4.compass.backend.service.TimestampService;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.sql.Time;
+import java.time.LocalDate;
+import java.util.ArrayList;
+
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +34,6 @@ import org.springframework.web.context.WebApplicationContext;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
-import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
-import ch.zhaw.pm4.compass.backend.repository.TimestampRepository;
-import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 import ch.zhaw.pm4.compass.backend.service.TimestampService;
 
 @SpringBootTest
@@ -33,19 +41,19 @@ import ch.zhaw.pm4.compass.backend.service.TimestampService;
 @ContextConfiguration
 public class TimestampControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private WebApplicationContext controller;
-    @MockBean
-    private TimestampService timestampService;
-    
-    @MockBean
-    @SuppressWarnings("unused")
-    private JwtDecoder jwtDecoder;
-    static String token = "";
-    private LocalDate dateNow = LocalDate.now();
-    private String reportText = "Testdate";
+	@Autowired
+	private MockMvc mockMvc;
+	@Autowired
+	private WebApplicationContext controller;
+	@MockBean
+	private TimestampService timestampService;
+
+	@MockBean
+	@SuppressWarnings("unused")
+	private JwtDecoder jwtDecoder;
+	static String token = "";
+	private LocalDate dateNow = LocalDate.now();
+	private String reportText = "Testdate";
 
 	DaySheet getDaySheet() {
 		return new DaySheet(1l, reportText, LocalDate.now(), false);
@@ -64,7 +72,7 @@ public class TimestampControllerTest {
 		return new Timestamp(1l, getDaySheet(), Time.valueOf("13:00:00"), Time.valueOf("14:00:00"));
 	}
 
-	@Before(value = "")
+	@Before()
 	public void setup() {
 		mockMvc = MockMvcBuilders.webAppContextSetup(controller).apply(SecurityMockMvcConfigurers.springSecurity())
 				.build();

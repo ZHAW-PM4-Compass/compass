@@ -62,12 +62,17 @@ tasks.register("local") {
     doFirst {
         tasks.bootRun.systemProperties['spring.profiles.active'] = 'local'
     }
-    finalizedBy("bootRun")
+    finalizedBy "bootRun"
 }
 
-tasks.named('test') {
-	systemProperties['spring.profiles.active'] = 'local'
-    useJUnitPlatform()
+tasks.register("localTest") {
+	group = "verification"
+	description = "Runs tests with the local profile"
+	
+    doFirst {
+        tasks.test.systemProperties['spring.profiles.active'] = 'local'
+    }
+    finalizedBy "test"
 }
 
 
@@ -88,6 +93,7 @@ jacocoTestReport {
 }
 
 test {
+    useJUnitPlatform()
     // Use finalizedBy to ensure jacocoTestReport runs after tests
     finalizedBy 'jacocoTestReport'
 }
@@ -101,5 +107,3 @@ task printEnv {
         }
     }
 }
-
-test.dependsOn printEnv

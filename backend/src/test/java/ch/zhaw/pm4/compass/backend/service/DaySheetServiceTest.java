@@ -4,6 +4,7 @@ package ch.zhaw.pm4.compass.backend.service;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,9 +39,11 @@ class DaySheetServiceTest {
     private String reportText = "Testdate";
     private String user_id = "löasdjflkajsdf983475908347";
 
-    private DaySheetDto getUpdateDaySheet() {
-        return new DaySheetDto(1l, reportText + "1", dateNow.plusDays(1), true);
+    private UpdateDaySheetDayNotesDto getUpdateDaySheetDayNotesDto() {
+        return new UpdateDaySheetDayNotesDto(1l, reportText + "1");
     }
+
+
 
     private DaySheetDto getDaySheetDto() {
         return new DaySheetDto(1l, reportText, dateNow, false, new ArrayList<TimestampDto>());
@@ -92,7 +95,7 @@ class DaySheetServiceTest {
 
     @Test
     void testUpdateDaySheetNotes() {
-        DaySheetDto updateDay = getUpdateDaySheet();
+        UpdateDaySheetDayNotesDto updateDay = getUpdateDaySheetDayNotesDto();
         DaySheet daySheet = getDaySheet();
         daySheet.setDayNotes(updateDay.getDay_notes());
         when(daySheetRepository.findByIdAndUserId(any(Long.class), any(String.class))).thenReturn(Optional.of(daySheet));
@@ -105,13 +108,12 @@ class DaySheetServiceTest {
 
     @Test
     void testUpdateDaySheetConfirmed() {
-        DaySheetDto updateDay = getUpdateDaySheet();
+
         DaySheet daySheet = getDaySheet();
-        //daySheet.setDayNotes(updateDay.getDay_notes());
-        daySheet.setConfirmed(updateDay.getConfirmed());
+        daySheet.setConfirmed(true);
         when(daySheetRepository.findByIdAndUserId(any(Long.class), any(String.class))).thenReturn(Optional.of(daySheet));
         when(daySheetRepository.save(any(DaySheet.class))).thenReturn(daySheet);
-        DaySheetDto getDay = daySheetService.updateDayNotes(updateDay, user_id);
+        DaySheetDto getDay = daySheetService.updateConfirmed(1l, user_id);
         assertEquals(daySheet.getId(), getDay.getId());
         assertEquals(daySheet.getDate(), getDay.getDate());
         assertEquals(daySheet.getDayNotes(), getDay.getDay_notes());
@@ -120,7 +122,7 @@ class DaySheetServiceTest {
 
     @Test
     void testUpdateNotExistingDaySheet() {
-        DaySheetDto updateDay = getUpdateDaySheet();
+        UpdateDaySheetDayNotesDto updateDay = getUpdateDaySheetDayNotesDto();
         DaySheet daySheet = getDaySheet();
         daySheet.setDayNotes(updateDay.getDay_notes());
         when(daySheetRepository.save(any(DaySheet.class))).thenReturn(daySheet);

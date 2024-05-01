@@ -3,6 +3,7 @@ package ch.zhaw.pm4.compass.backend.controller;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
 import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
@@ -147,7 +148,7 @@ public class DaySheetControllerTest {
 
         DaySheetDto updateDay = getUpdateDaySheet();
         updateDay.setConfirmed(false);
-        when(daySheetService.updateDayNotes(any(DaySheetDto.class), any(String.class))).thenReturn(updateDay);
+        when(daySheetService.updateDayNotes(any(UpdateDaySheetDayNotesDto.class), any(String.class))).thenReturn(updateDay);
 
 
         //Act
@@ -161,7 +162,7 @@ public class DaySheetControllerTest {
                 .andExpect(jsonPath("$.date").value(updateDay.getDate().toString()))
                 .andExpect(jsonPath("$.confirmed").value(updateDay.getConfirmed().toString()));
 
-        verify(daySheetService, times(1)).updateDayNotes(any(DaySheetDto.class), any(String.class));
+        verify(daySheetService, times(1)).updateDayNotes(any(UpdateDaySheetDayNotesDto.class), any(String.class));
     }
 
     @Test
@@ -170,22 +171,19 @@ public class DaySheetControllerTest {
         // Arrange
 
         DaySheetDto updateDay = getUpdateDaySheet();
-
-        when(daySheetService.updateDayNotes(any(DaySheetDto.class), any(String.class))).thenReturn(updateDay);
+        updateDay.setConfirmed(true);
+        when(daySheetService.updateConfirmed(any(Long.class), any(String.class))).thenReturn(updateDay);
 
 
         //Act
-        mockMvc.perform(put("/daysheet/updateDayNotes")
+        mockMvc.perform(put("/daysheet/confirm/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"id\": 1,\"day_notes\": \"" + reportText + "1" + "\", \"date\": \"" + dateNow.toString() + "\", \"confirmed\": \"true\" }")
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1l))
-                .andExpect(jsonPath("$.day_notes").value(updateDay.getDay_notes()))
-                .andExpect(jsonPath("$.date").value(updateDay.getDate().toString()))
                 .andExpect(jsonPath("$.confirmed").value(updateDay.getConfirmed().toString()));
 
-        verify(daySheetService, times(1)).updateDayNotes(any(DaySheetDto.class), any(String.class));
+        verify(daySheetService, times(1)).updateConfirmed(any(Long.class), any(String.class));
     }
 
     @Test

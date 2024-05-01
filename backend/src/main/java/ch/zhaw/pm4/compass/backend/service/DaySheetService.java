@@ -4,6 +4,7 @@ import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,7 @@ public class DaySheetService {
         return response.map(daySheets -> daySheets.stream().map(this::convertDaySheetToDaySheetDto).toList()).orElse(null);
     }
 
-    public DaySheetDto updateDayNotes(DaySheetDto updateDay, String user_id) {
+    public DaySheetDto updateDayNotes(UpdateDaySheetDayNotesDto updateDay, String user_id) {
         Optional<DaySheet> optional = daySheetRepository.findByIdAndUserId(updateDay.getId(), user_id);
         if (optional.isEmpty())
             return null;
@@ -65,12 +66,12 @@ public class DaySheetService {
         return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
     }
 
-    public DaySheetDto updateConfirmed(DaySheetDto updateDay, String user_id) {
-        Optional<DaySheet> optional = daySheetRepository.findByIdAndUserId(updateDay.getId(), user_id);
+    public DaySheetDto updateConfirmed(Long day_id, String user_id) {
+        Optional<DaySheet> optional = daySheetRepository.findByIdAndUserId(day_id, user_id);
         if (optional.isEmpty())
             return null;
         DaySheet daySheet = optional.get();
-        daySheet.setConfirmed(updateDay.getConfirmed());
+        daySheet.setConfirmed(true);
         return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
     }
 

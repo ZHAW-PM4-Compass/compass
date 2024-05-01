@@ -84,7 +84,6 @@ jacocoTestReport {
 test {
     // Use finalizedBy to ensure jacocoTestReport runs after tests
     finalizedBy 'jacocoTestReport'
-    ignoreFailures = true
 }
 
 

@@ -3,10 +3,7 @@ package ch.zhaw.pm4.compass.backend.controller;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
-import ch.zhaw.pm4.compass.backend.repository.TimestampRepository;
 import ch.zhaw.pm4.compass.backend.service.DaySheetService;
-import ch.zhaw.pm4.compass.backend.service.TimestampService;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +24,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -49,12 +45,7 @@ public class DaySheetControllerTest {
     @MockBean
     private DaySheetService daySheetService;
 
-    @MockBean
-    private DaySheetRepository daySheetRepository;
-    @MockBean
-    private TimestampService timestampService;
-    @MockBean
-    private TimestampRepository timestampRepository;
+
     @MockBean
     @SuppressWarnings("unused")
     private JwtDecoder jwtDecoder;
@@ -133,8 +124,7 @@ public class DaySheetControllerTest {
 
 
         DaySheet daySheet = getDaySheet();
-        when(daySheetRepository.findByDateAndUserId(any(LocalDate.class), any(String.class))).thenReturn(Optional.of(daySheet));
-        when(daySheetRepository.save(any(DaySheet.class))).thenReturn(daySheet);
+        when(daySheetService.createDay(any(DaySheetDto.class), any(String.class))).thenReturn(null);
 
         mockMvc.perform(post("/daysheet")
                         .contentType(MediaType.APPLICATION_JSON)

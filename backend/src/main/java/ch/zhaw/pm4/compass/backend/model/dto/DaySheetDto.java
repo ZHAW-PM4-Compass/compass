@@ -12,7 +12,9 @@ public class DaySheetDto {
 
     private Long id;
     private LocalDate date;
-    private String day_report;
+
+    private String day_notes;
+
     private Boolean confirmed = false;
     private List<TimestampDto> timestamps;
     private long timeSum;
@@ -29,24 +31,24 @@ public class DaySheetDto {
 
     }
 
-    public DaySheetDto(Long id, String day_report, LocalDate date, Boolean confirmed, List<TimestampDto> timestamps) {
+    public DaySheetDto(Long id, String day_notes, LocalDate date, Boolean confirmed, List<TimestampDto> timestamps) {
         this.id = id;
         this.date = date;
-        this.day_report = day_report;
+        this.day_notes = day_notes;
         this.confirmed = confirmed;
         this.timestamps = timestamps;
     }
 
-    public DaySheetDto(Long id, String day_report, LocalDate date, Boolean confirmed) {
+    public DaySheetDto(Long id, String day_notes, LocalDate date, Boolean confirmed) {
         this.id = id;
         this.date = date;
-        this.day_report = day_report;
+        this.day_notes = day_notes;
         this.confirmed = confirmed;
     }
 
-    public DaySheetDto(String day_report, LocalDate date, Boolean confirmed) {
+    public DaySheetDto(String day_notes, LocalDate date, Boolean confirmed) {
         this.date = date;
-        this.day_report = day_report;
+        this.day_notes = day_notes;
         this.confirmed = confirmed;
     }
 }

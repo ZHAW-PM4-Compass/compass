@@ -57,11 +57,21 @@ public class DaySheetController {
         return daySheetService.getAllDaySheet();
     }
 
-    @PutMapping(produces = "application/json")
-    public ResponseEntity<DaySheetDto> updateDay(@RequestBody DaySheetDto updateDay, Authentication authentication) {
+    @PutMapping(path = "/updateDayNotes",produces = "application/json")
+    public ResponseEntity<DaySheetDto> updateDayNotes(@RequestBody DaySheetDto updateDay, Authentication authentication) {
         if (authentication == null)
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        DaySheetDto response = daySheetService.updateDay(updateDay, authentication.getName());
+        DaySheetDto response = daySheetService.updateDayNotes(updateDay, authentication.getName());
+        if (response == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping(path = "/updateConfirmed",produces = "application/json")
+    public ResponseEntity<DaySheetDto> updateConfirmed(@RequestBody DaySheetDto updateDay, Authentication authentication) {
+        if (authentication == null)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        DaySheetDto response = daySheetService.updateConfirmed(updateDay, authentication.getName());
         if (response == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         return ResponseEntity.ok(response);

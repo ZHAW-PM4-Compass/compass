@@ -51,23 +51,32 @@ public class DaySheetService {
         return daySheetList.stream().map(daySheet -> convertDaySheetToDaySheetDto(daySheet)).toList();
     }
 
-    public DaySheetDto updateDay(DaySheetDto updateDay, String user_id) {
+    public DaySheetDto updateDayNotes(DaySheetDto updateDay, String user_id) {
         Optional<DaySheet> optional = daySheetRepository.findByIdAndUserId(updateDay.getId(), user_id);
         if (optional.isEmpty())
             return null;
         DaySheet daySheet = optional.get();
-        daySheet.setDayReport(updateDay.getDay_report());
+        daySheet.setDayNotes(updateDay.getDay_notes());
+        return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
+    }
+
+    public DaySheetDto updateConfirmed(DaySheetDto updateDay, String user_id) {
+        Optional<DaySheet> optional = daySheetRepository.findByIdAndUserId(updateDay.getId(), user_id);
+        if (optional.isEmpty())
+            return null;
+        DaySheet daySheet = optional.get();
+        daySheet.setConfirmed(updateDay.getConfirmed());
         return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
     }
 
     public DaySheet convertDaySheetDtoToDaySheet(DaySheetDto dayDto) {
-        return new DaySheet(dayDto.getId(), dayDto.getDay_report(), dayDto.getDate());
+        return new DaySheet(dayDto.getId(), dayDto.getDay_notes(), dayDto.getDate());
     }
 
     public DaySheetDto convertDaySheetToDaySheetDto(DaySheet daySheet) {
         List<TimestampDto> timestampDtos = new ArrayList<>();
         for (Timestamp timestamp : daySheet.getTimestamps())
             timestampDtos.add(timestampService.convertTimestampToTimestampDto(timestamp));
-        return new DaySheetDto(daySheet.getId(), daySheet.getDayReport(), daySheet.getDate(), daySheet.getConfirmed(), timestampDtos);
+        return new DaySheetDto(daySheet.getId(), daySheet.getDayNotes(), daySheet.getDate(), daySheet.getConfirmed(), timestampDtos);
     }
 }

@@ -30,13 +30,14 @@ jobs:
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: compass
         options: >-
-          --network-alias postgres
+          --network postgres
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
           - 5432:5432
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -46,6 +47,9 @@ jobs:
         with:
           java-version: "21"
           distribution: "temurin" # Temurin is the successor to AdoptOpenJDK
+      - name: Setup Network
+        run: docker network create postgres
+        shell: bash
 
       - name: Run Backend Tests and Upload Coverage
         uses: ./.github/actions/run-backend-tests

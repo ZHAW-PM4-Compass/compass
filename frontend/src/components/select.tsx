@@ -53,7 +53,7 @@ export default function Select({ className, placeholder, data, required }: Reado
         onChange={onChange}
         onFocus={onFocus} />
       {showDropdown && (
-        <div id="dropdown" className="dropdown absolute w-auto bg-white rounded-md max-h-24 overflow-y-scroll drop-shadow border-[1px] border-slate-100">
+        <div id="dropdown" className="dropdown absolute w-auto bg-white rounded-md max-h-24 overflow-y-auto drop-shadow border-[1px] border-slate-100">
           {dropdownItems ? dropdownItems.map((item, index) => {
             return (
               <div 

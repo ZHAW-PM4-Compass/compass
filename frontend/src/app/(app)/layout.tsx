@@ -93,8 +93,8 @@ const Profile: React.FC<{user: any}> = ({ user }) => {
         onClick={() => setShowMenu(!showMenu)}
       >
         <span className="leading-10 ml-4 mr-3 text-sm">{user.given_name ? user.given_name : user.nickname}</span>
-        <div className="h-10 w-10 relative">
-          <Image fill={true} src={user.picture} alt="" className="border-2 border-slate-400 bg-slate-400 rounded-full" />
+        <div className="relative">
+          <img src={user.picture} alt="" className="h-10 w-10 border-2 border-slate-400 bg-slate-400 rounded-full" />
         </div>
       </button>
       {showMenu && (
@@ -124,7 +124,7 @@ export default function RootLayout({
   return (
     <>
       <div className="sm:flex sm:flex-row h-screen w-screen absolute">
-        <div className={`${menuOpen ? "w-full sm:w-64" : "hidden sm:block sm:w-16"} absolute sm:relative border-r-[1px] border-slate-300 z-20 h-full bg-white overflow-y-scroll`}>
+        <div className={`${menuOpen ? "w-full sm:w-64" : "hidden sm:block sm:w-16"} absolute sm:relative border-r-[1px] border-slate-300 z-20 h-full bg-white overflow-y-auto`}>
           <div className={`${menuOpen ? "p-5 w-full" : "p-4"}  flex flex-col h-full`}>
             <div className="flex">
               {menuOpen ? (
@@ -168,7 +168,7 @@ export default function RootLayout({
         </div>
         <div className="sm:relative grow z-10 pt-20 md:pt-0 bg-slate-100 h-full">
           <div className="w-full h-full md:container md:mx-auto px-5 md:px-24 lg:px-48 md:pt-24 pb-16">
-            <div className="h-full w-full overflow-y-scroll">
+            <div className="h-full w-full overflow-y-auto">
             {children}
             {
               user && (

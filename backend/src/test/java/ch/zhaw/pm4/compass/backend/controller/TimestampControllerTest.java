@@ -45,7 +45,7 @@ public class TimestampControllerTest {
     private WebApplicationContext controller;
     @MockBean
     private TimestampService timestampService;
-
+    
     @MockBean
     @SuppressWarnings("unused")
     private JwtDecoder jwtDecoder;

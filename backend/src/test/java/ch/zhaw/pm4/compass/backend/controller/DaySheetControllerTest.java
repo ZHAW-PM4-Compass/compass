@@ -35,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 @ContextConfiguration
+
 public class DaySheetControllerTest {
 
     @Autowired
@@ -44,7 +45,6 @@ public class DaySheetControllerTest {
 
     @MockBean
     private DaySheetService daySheetService;
-
 
     @MockBean
     @SuppressWarnings("unused")
@@ -124,7 +124,8 @@ public class DaySheetControllerTest {
 
 
         DaySheet daySheet = getDaySheet();
-        when(daySheetService.createDay(any(DaySheetDto.class), any(String.class))).thenReturn(null);
+        when(daySheetService.createDay(any(DaySheetDto.class),any(String.class))).thenReturn(null);
+
 
         mockMvc.perform(post("/daysheet")
                         .contentType(MediaType.APPLICATION_JSON)

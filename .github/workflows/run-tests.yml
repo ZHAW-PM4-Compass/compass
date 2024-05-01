@@ -37,7 +37,6 @@ jobs:
         run: |
           docker run -d --name postgres \
             --network postgres_network \
-            -e POSTGRES_HOST=localhost \
             -e POSTGRES_USER=postgres \
             -e POSTGRES_PASSWORD=test_password \
             -e POSTGRES_DB=compass \

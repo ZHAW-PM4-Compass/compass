@@ -1,6 +1,6 @@
 'use client';
 import React, {useEffect, useState} from 'react';
-import {DaySheetDto, ParticipantDto,} from "@/openapi/compassClient";
+import {DaySheetDto, UserDto} from "@/openapi/compassClient";
 import Table from "@/components/table";
 import {Checkmark24Regular, Edit24Regular} from "@fluentui/react-icons";
 import {toast} from "react-hot-toast";
@@ -17,28 +17,28 @@ const Home: React.FC = () => {
             date: '2024-04-14',
             confirmed: false,
             workHours: 2.0,
-            participant: {id: 0, name: "Hans"} as ParticipantDto
+            participant: {id: 0, name: "Hans"} as UserDto
         } as DaySheetDto,
         {
             daySheetId: 1,
             date: '2024-04-13',
             confirmed: false,
             workHours: 3.5,
-            participant: {id: 0, name: "Alice"} as ParticipantDto
+            participant: {id: 0, name: "Alice"} as UserDto
         } as DaySheetDto,
         {
             daySheetId: 2,
             date: '2024-04-12',
             confirmed: true,
             workHours: 4.0,
-            participant: {id: 0, name: "Bob"} as ParticipantDto
+            participant: {id: 0, name: "Bob"} as UserDto
         } as DaySheetDto,
         {
             daySheetId: 3,
             date: '2024-04-11',
             confirmed: false,
             workHours: 1.5,
-            participant: {id: 0, name: "Eve"} as ParticipantDto
+            participant: {id: 0, name: "Eve"} as UserDto
         } as DaySheetDto,
     ];
 

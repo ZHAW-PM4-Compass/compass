@@ -57,7 +57,7 @@ public class DaySheetController {
         return daySheetService.getAllDaySheet();
     }
 
-    @GetMapping(path = "/getAll/", produces = "application/json")
+    @GetMapping(path = "/getAllByParticipant/", produces = "application/json")
     public List<DaySheetDto> getAllDaySheetByParticipant(@RequestBody String userId) {
         return daySheetService.getAllDaySheetByUser(userId);
     }

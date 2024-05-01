@@ -1,9 +1,6 @@
 name: Front and Backend Tests
 
 on:
-  push:
-    branches:
-      - feat/codecov-tests
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch: # enables manual trigger

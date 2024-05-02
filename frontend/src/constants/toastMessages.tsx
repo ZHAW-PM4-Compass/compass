@@ -3,6 +3,8 @@ enum toastMessages {
   DAYSHEETS_LOADED = "DaySheets wurden geladen",
   DAYSHEET_CONFIRMED = "DaySheet wurde bestätigt",
   DAYSHEET_CONFIRMED_ERROR = "DaySheet konnte nicht bestätigt werden",
+  TIMESTAMP_CREATED = "Timestamp erstellt",
+  TIMESTAMP_NOT_CREATED = "Timestamp konnte nicht erstellt werden",
   TIMESTAMP_UDPATED = "Timestamp wurde aktualisiert",
   TIMESTAMP_NOT_UPDATED = "Timestamp konnte nicth aktualisiert werden",
   TIMESTAMP_DELETED = "Timestamp wurde gelöscht",

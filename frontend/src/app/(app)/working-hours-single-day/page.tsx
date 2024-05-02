@@ -25,10 +25,10 @@ function TimestampUpdateModal({close, onSave, timestamp}: Readonly<{
             close={close}
             onSubmit={onSave}
         >
-            <Input type="text" placeholder="Startuhrzeit" className="mb-4 mr-4 w-48 inline-block" name="given_name"
-                   required={true} value={timestamp?.start_time}/>
+            {/*<Input type="text" placeholder="Startuhrzeit" className="mb-4 mr-4 w-48 inline-block" name="given_name"
+                   required={true} value={timestamp?.startTime}/>
             <Input type="text" placeholder="Enduhrzeit" className="mb-4 mr-4 w-48 inline-block" name="family_name"
-                   required={true} value={timestamp?.end_time}/>
+        required={true} value={timestamp?.endTime}/>*/}
         </Modal>
     );
 }
@@ -112,34 +112,24 @@ const DaySheetViewSingleDay: React.FC = () => {
 
     const calculateDuration = (ts: TimestampDto): string => {
         if (ts != undefined) {
-            if (ts.end_time != undefined && ts.start_time) return calculateTimeDifference(ts.start_time, ts.end_time) + " Stunden:Minuten";
+            //if (ts.end_time != undefined && ts.start_time) return calculateTimeDifference(ts.start_time, ts.end_time) + " Stunden:Minuten";
         }
         return '';
     }
 
     const onDelete = (id: number) => {
-        getTimestampControllerApi().deleteTimestamp(id).then((response) => {
+        getTimestampControllerApi().deleteTimestamp({ id }).then((response) => {
             close();
-
-            if (response.status === 200) {
-                toast.success(toastMessages.TIMESTAMP_DELETED);
-            } else {
-                toast.error(toastMessages.TIMESTAMP_NOT_DELETED);
-            }
+            toast.success(toastMessages.TIMESTAMP_DELETED);
         }).catch(() => {
             toast.error(toastMessages.TIMESTAMP_NOT_DELETED);
         });
     }
 
     const onSave = (timestampDto: TimestampDto) => {
-        getTimestampControllerApi().putTimestamp(timestampDto).then((response) => {
+        getTimestampControllerApi().putTimestamp({ timestampDto }).then((response) => {
             close();
-
-            if (response.status === 200) {
-                toast.success(toastMessages.TIMESTAMP_UDPATED);
-            } else {
-                toast.error(toastMessages.TIMESTAMP_NOT_UPDATED);
-            }
+            toast.success(toastMessages.TIMESTAMP_UDPATED);
         }).catch(() => {
             toast.error(toastMessages.TIMESTAMP_NOT_UPDATED);
         });

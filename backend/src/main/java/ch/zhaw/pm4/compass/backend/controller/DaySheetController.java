@@ -58,9 +58,11 @@ public class DaySheetController {
         return daySheetService.getAllDaySheet();
     }
 
-    @GetMapping(path = "/getAllByParticipant/", produces = "application/json")
-    public List<DaySheetDto> getAllDaySheetByParticipant(@RequestBody String userId) {
-        return daySheetService.getAllDaySheetByUser(userId);
+    @GetMapping(path = "/getAllByParticipant/{userId}", produces = "application/json")
+    public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipant(@PathVariable String userId, Authentication authentication) {
+        if (authentication == null)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        return ResponseEntity.ok(daySheetService.getAllDaySheetByUser(userId));
     }
 
     @PutMapping(path = "/updateDayNotes",produces = "application/json")

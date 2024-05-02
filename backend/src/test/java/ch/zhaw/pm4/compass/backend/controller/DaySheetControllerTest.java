@@ -232,9 +232,8 @@ public class DaySheetControllerTest {
         daySheets.add(day1);
         daySheets.add(day2);
         when(daySheetService.getAllDaySheetByUser(any(String.class))).thenReturn(daySheets);
-        String res = mockMvc.perform(get("/daysheet/getAllByParticipant/")
+        String res = mockMvc.perform(get("/daysheet/getAllByParticipant/"+getDaySheet().getUserId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"user_id\":\""+ getDaySheet().getUserId()+"\"}")
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();

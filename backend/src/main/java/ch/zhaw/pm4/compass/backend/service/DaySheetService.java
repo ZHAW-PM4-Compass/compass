@@ -46,11 +46,7 @@ public class DaySheetService {
             return convertDaySheetToDaySheetDto(optional.get());
         return null;
     }
-
-    public List<DaySheetDto> getAllDaySheet() {
-        List<DaySheet> daySheetList = daySheetRepository.findAll();
-        return daySheetList.stream().map(daySheet -> convertDaySheetToDaySheetDto(daySheet)).toList();
-    }
+    
 
     public List<DaySheetDto> getAllDaySheetByUser(String userId) {
         Optional<List<DaySheet>> response = daySheetRepository.findAllByUserId(userId);

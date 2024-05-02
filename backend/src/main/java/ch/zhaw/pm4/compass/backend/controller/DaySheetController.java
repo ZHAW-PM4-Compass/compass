@@ -53,10 +53,7 @@ public class DaySheetController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(path = "/getAll/", produces = "application/json")
-    public List<DaySheetDto> getAllDaySheet() {
-        return daySheetService.getAllDaySheet();
-    }
+
 
     @GetMapping(path = "/getAllByParticipant/{userId}", produces = "application/json")
     public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipant(@PathVariable String userId, Authentication authentication) {

@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
 import toastMessages from "@/constants/toastMessages";
 import RoleTitles from "@/constants/roleTitles";
-import type { AuthZeroUserDto, CreateUserRequest, UserDto } from "@/openapi/compassClient";
+import type { CreateUserRequest, UserDto } from "@/openapi/compassClient";
 
 const roles = [
   {
@@ -167,47 +167,48 @@ export default function UsersPage() {
 					onSave={loadUsers}
 					user={selectedUser} />
       )}
-      <div className="flex flex-col sm:flex-row justify-between">
-        <Title1>Benutzerverwaltung</Title1>
-        <div className="mt-2 sm:mt-0">
-          <Button Icon={PersonAdd24Regular} onClick={() => setShowCreateModal(true)}>Erstellen</Button>
+      <div className="h-full flex flex-col">
+        <div className="flex flex-col sm:flex-row justify-between mb-5">
+          <Title1>Benutzerverwaltung</Title1>
+          <div className="mt-2 sm:mt-0">
+            <Button Icon={PersonAdd24Regular} onClick={() => setShowCreateModal(true)}>Erstellen</Button>
+          </div>
         </div>
+        <Table
+          data={users}
+          columns={[
+            {
+              header: "Vorname",
+              title: "givenName"
+            },
+            {
+              header: "Nachname",
+              title: "familyName"
+            },
+            {
+              header: "Email",
+              title: "email"
+            },
+            {
+              header: "Rolle",
+              title: "roleTitle"
+            }
+          ]}
+          actions={[
+            {
+              icon: Delete24Regular,
+              label: "Löschen",
+              onClick: (id) => {}
+            },
+            {
+              icon: Edit24Regular,
+              onClick: (id) => {
+			  				setSelectedUser(users[id]);
+			  				setShowUpdateModal(true);
+			  			}
+            }
+          ]} />
       </div>
-      <Table 
-        className="mt-5"
-        data={users}
-        columns={[
-          {
-            header: "Vorname",
-            title: "givenName"
-          },
-          {
-            header: "Nachname",
-            title: "familyName"
-          },
-          {
-            header: "Email",
-            title: "email"
-          },
-          {
-            header: "Rolle",
-            title: "roleTitle"
-          }
-        ]}
-        actions={[
-          {
-            icon: Delete24Regular,
-            label: "Löschen",
-            onClick: (id) => {}
-          },
-          {
-            icon: Edit24Regular,
-            onClick: (id) => {
-							setSelectedUser(users[id]);
-							setShowUpdateModal(true);
-						}
-          }
-        ]} />
     </>
   );
 }

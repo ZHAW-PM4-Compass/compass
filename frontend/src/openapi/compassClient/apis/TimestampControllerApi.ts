@@ -15,24 +15,22 @@
 
 import * as runtime from '../runtime';
 import type {
-  CreateTimestampDto,
-  GetTimestampDto,
-  UpdateTimestampDto,
+  TimestampDto,
 } from '../models/index';
 import {
-    CreateTimestampDtoFromJSON,
-    CreateTimestampDtoToJSON,
-    GetTimestampDtoFromJSON,
-    GetTimestampDtoToJSON,
-    UpdateTimestampDtoFromJSON,
-    UpdateTimestampDtoToJSON,
+    TimestampDtoFromJSON,
+    TimestampDtoToJSON,
 } from '../models/index';
 
 export interface CreateTimestampRequest {
-    createTimestampDto: CreateTimestampDto;
+    timestampDto: TimestampDto;
 }
 
 export interface DeleteTimestampRequest {
+    id: number;
+}
+
+export interface GetAllTimestampByDaySheetIdRequest {
     id: number;
 }
 
@@ -41,7 +39,7 @@ export interface GetTimestampByIdRequest {
 }
 
 export interface PutTimestampRequest {
-    updateTimestampDto: UpdateTimestampDto;
+    timestampDto: TimestampDto;
 }
 
 /**
@@ -51,11 +49,11 @@ export class TimestampControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async createTimestampRaw(requestParameters: CreateTimestampRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetTimestampDto>> {
-        if (requestParameters['createTimestampDto'] == null) {
+    async createTimestampRaw(requestParameters: CreateTimestampRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TimestampDto>> {
+        if (requestParameters['timestampDto'] == null) {
             throw new runtime.RequiredError(
-                'createTimestampDto',
-                'Required parameter "createTimestampDto" was null or undefined when calling createTimestamp().'
+                'timestampDto',
+                'Required parameter "timestampDto" was null or undefined when calling createTimestamp().'
             );
         }
 
@@ -70,15 +68,15 @@ export class TimestampControllerApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CreateTimestampDtoToJSON(requestParameters['createTimestampDto']),
+            body: TimestampDtoToJSON(requestParameters['timestampDto']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => GetTimestampDtoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => TimestampDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createTimestamp(requestParameters: CreateTimestampRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetTimestampDto> {
+    async createTimestamp(requestParameters: CreateTimestampRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TimestampDto> {
         const response = await this.createTimestampRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -115,7 +113,38 @@ export class TimestampControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async getTimestampByIdRaw(requestParameters: GetTimestampByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetTimestampDto>> {
+    async getAllTimestampByDaySheetIdRaw(requestParameters: GetAllTimestampByDaySheetIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<TimestampDto>>> {
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling getAllTimestampByDaySheetId().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/timestamp/allbydaysheetid/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TimestampDtoFromJSON));
+    }
+
+    /**
+     */
+    async getAllTimestampByDaySheetId(requestParameters: GetAllTimestampByDaySheetIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<TimestampDto>> {
+        const response = await this.getAllTimestampByDaySheetIdRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async getTimestampByIdRaw(requestParameters: GetTimestampByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TimestampDto>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
@@ -128,29 +157,29 @@ export class TimestampControllerApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/timestamp/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id']))),
+            path: `/timestamp/getById/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id']))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => GetTimestampDtoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => TimestampDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getTimestampById(requestParameters: GetTimestampByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetTimestampDto> {
+    async getTimestampById(requestParameters: GetTimestampByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TimestampDto> {
         const response = await this.getTimestampByIdRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async putTimestampRaw(requestParameters: PutTimestampRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetTimestampDto>> {
-        if (requestParameters['updateTimestampDto'] == null) {
+    async putTimestampRaw(requestParameters: PutTimestampRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TimestampDto>> {
+        if (requestParameters['timestampDto'] == null) {
             throw new runtime.RequiredError(
-                'updateTimestampDto',
-                'Required parameter "updateTimestampDto" was null or undefined when calling putTimestamp().'
+                'timestampDto',
+                'Required parameter "timestampDto" was null or undefined when calling putTimestamp().'
             );
         }
 
@@ -165,15 +194,15 @@ export class TimestampControllerApi extends runtime.BaseAPI {
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
-            body: UpdateTimestampDtoToJSON(requestParameters['updateTimestampDto']),
+            body: TimestampDtoToJSON(requestParameters['timestampDto']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => GetTimestampDtoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => TimestampDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async putTimestamp(requestParameters: PutTimestampRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetTimestampDto> {
+    async putTimestamp(requestParameters: PutTimestampRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TimestampDto> {
         const response = await this.putTimestampRaw(requestParameters, initOverrides);
         return await response.value();
     }

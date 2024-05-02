@@ -16,47 +16,47 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface GetTimestampDto
+ * @interface TimestampDto
  */
-export interface GetTimestampDto {
+export interface TimestampDto {
     /**
      * 
      * @type {number}
-     * @memberof GetTimestampDto
+     * @memberof TimestampDto
      */
     id?: number;
     /**
      * 
      * @type {number}
-     * @memberof GetTimestampDto
+     * @memberof TimestampDto
      */
     daySheetId?: number;
     /**
      * 
      * @type {Date}
-     * @memberof GetTimestampDto
+     * @memberof TimestampDto
      */
     startTime?: Date;
     /**
      * 
      * @type {Date}
-     * @memberof GetTimestampDto
+     * @memberof TimestampDto
      */
     endTime?: Date;
 }
 
 /**
- * Check if a given object implements the GetTimestampDto interface.
+ * Check if a given object implements the TimestampDto interface.
  */
-export function instanceOfGetTimestampDto(value: object): boolean {
+export function instanceOfTimestampDto(value: object): boolean {
     return true;
 }
 
-export function GetTimestampDtoFromJSON(json: any): GetTimestampDto {
-    return GetTimestampDtoFromJSONTyped(json, false);
+export function TimestampDtoFromJSON(json: any): TimestampDto {
+    return TimestampDtoFromJSONTyped(json, false);
 }
 
-export function GetTimestampDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GetTimestampDto {
+export function TimestampDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): TimestampDto {
     if (json == null) {
         return json;
     }
@@ -69,7 +69,7 @@ export function GetTimestampDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
     };
 }
 
-export function GetTimestampDtoToJSON(value?: GetTimestampDto | null): any {
+export function TimestampDtoToJSON(value?: TimestampDto | null): any {
     if (value == null) {
         return value;
     }

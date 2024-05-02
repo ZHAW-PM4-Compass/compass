@@ -6,15 +6,8 @@ apis/UserControllerApi.ts
 apis/index.ts
 index.ts
 models/AuthZeroUserDto.ts
-models/CreateDaySheetDto.ts
-models/CreateTimestampDto.ts
-models/GetDaySheetDto.ts
-models/GetTimestampDto.ts
-models/ParticipantDto.ts
-models/Timestamp.ts
-models/UpdateDaySheetDto.ts
-models/UpdateTimestampDto.ts
+models/DaySheetDto.ts
+models/TimestampDto.ts
 models/UserDto.ts
-models/WorkHourDto.ts
 models/index.ts
 runtime.ts

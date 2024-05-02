@@ -92,38 +92,38 @@ export default function WorkingHoursPage() {
     };
 
     getDaySheetControllerApi().getDaySheetById1(getDaySheetById1Request).catch((response) => {
-      if (response.status != 404) {
-        return Promise.resolve();
+      if (response.status == 404) {
+        const createDaySheetRequest: CreateDaySheetRequest = {
+          daySheetDto: {
+            date: new Date(selectedDate),
+            dayNotes: '',
+            timestamps: []
+          }
+        };
+  
+        return getDaySheetControllerApi().createDaySheet(createDaySheetRequest);
       }
-
-      const createDaySheetRequest: CreateDaySheetRequest = {
-        daySheetDto: {
-          date: new Date(selectedDate),
-          dayNotes: '',
-          timestamps: []
-        }
-      };
-
-      return getDaySheetControllerApi().createDaySheet(createDaySheetRequest);
+      return;
     }).then(daySheet => {
-      if (!daySheet) {
-        return Promise.resolve();
+      if (daySheet) {
+        const createTimestampRequest: CreateTimestampRequest = {
+          timestampDto: {
+            daySheetId: daySheet.id,
+            startTime: new Date(timestamp.startTime),
+            endTime: new Date(timestamp.endTime)
+          }
+        };
+  
+        return getTimestampControllerApi().createTimestamp(createTimestampRequest);
       }
-
-      const createTimestampRequest: CreateTimestampRequest = {
-        timestampDto: {
-          daySheetId: daySheet.id,
-          startTime: new Date(timestamp.startTime),
-          endTime: new Date(timestamp.endTime)
-        }
-      };
-
-      return getTimestampControllerApi().createTimestamp(createTimestampRequest);
+      return;
     }).then(timestamp => {
-      daySheet.timestamps.push(timestamp as Timestamp);
-      setDaySheet(daySheet);
-      setTimestamp({ startTime: '', endTime: '' });
-      toast.success(toastMessages.TIMESTAMP_CREATED);
+      if (timestamp) {
+        // TODO: daySheet.timestamps.push(timestamp);
+        setDaySheet(daySheet);
+        setTimestamp({ startTime: '', endTime: '' });
+        toast.success(toastMessages.TIMESTAMP_CREATED);
+      }
     }).catch(() => {
       toast.error(toastMessages.TIMESTAMP_NOT_CREATED);
     });

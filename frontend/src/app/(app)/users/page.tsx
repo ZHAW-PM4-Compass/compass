@@ -104,7 +104,6 @@ const onSubmit = (formData: FormData) => {
 		close();
 		setTimeout(() => onSave(), 1000);
 	}).catch(() => {
-    console.log("error occurred")
 		toast.error(toastMessages.USER_NOT_UPDATED);
 	})
 }

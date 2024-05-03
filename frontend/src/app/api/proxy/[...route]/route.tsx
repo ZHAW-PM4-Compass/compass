@@ -12,7 +12,8 @@ async function callBackend(request: NextRequest) {
     "Content-Length": body ? Buffer.byteLength(body) : 0,
   });
   
-  console.log(session?.accessToken)
+  console.log(requestUrl)
+  console.log(session)
 
   return fetch(requestUrl, {
     method: request.method,

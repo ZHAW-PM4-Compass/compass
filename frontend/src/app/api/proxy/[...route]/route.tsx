@@ -6,8 +6,6 @@ async function callBackend(request: NextRequest) {
   const pathname = request.nextUrl.pathname.split("proxy")[1];
   const requestUrl = process.env.APP_URL ? `https://${process.env.APP_URL}/api${pathname}` : `http://localhost:8080/api${pathname}`;
 
-  console.log(`Proxying request to ${requestUrl}`);
-
   const body = await request.text();
   const headers = Object.assign(Object.fromEntries(request.headers.entries()), {
     "Authorization": `Bearer ${session && session.accessToken}`,

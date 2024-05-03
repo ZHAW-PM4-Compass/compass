@@ -11,6 +11,9 @@ async function callBackend(request: NextRequest) {
     "Authorization": `Bearer ${session && session.accessToken}`,
     "Content-Length": body ? Buffer.byteLength(body) : 0,
   });
+  
+  console.log(requestUrl)
+  console.log(session)
 
   return fetch(requestUrl, {
     method: request.method,

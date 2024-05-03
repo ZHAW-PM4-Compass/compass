@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 
 async function callBackend(request: NextRequest) {
   const session = await getSession();
-  const pathname = request.nextUrl.pathname.replace("/api/proxy", "");
+  const pathname = request.nextUrl.pathname.replace("\/proxy", "");
   const requestUrl = `${process.env.API_BASE_PATH}${pathname}`;
 
   const body = await request.text();

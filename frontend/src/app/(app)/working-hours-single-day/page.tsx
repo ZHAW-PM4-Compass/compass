@@ -1,31 +1,21 @@
 'use client';
-import {useRouter} from 'next/navigation';
 import React, {useEffect, useState} from 'react';
 import Table from "@/components/table";
 import {Delete24Regular, Edit24Regular, Save24Regular} from "@fluentui/react-icons";
 import Title1 from "@/components/title1";
 import Button from "@/components/button";
-import {GetTimestampDto} from "@/openapi/compassClient";
 import {toast} from "react-hot-toast";
 import Modal from "@/components/modal";
 import Input from "@/components/input";
+import {TimestampDto} from "@/openapi/compassClient";
+import {getTimestampControllerApi} from "@/openapi/connector";
+import toastMessages from "@/constants/toastMessages";
 
 function TimestampUpdateModal({close, onSave, timestamp}: Readonly<{
     close: () => void;
     onSave: () => void;
-    timestamp: GetTimestampDto | undefined;
+    timestamp: TimestampDto | undefined;
 }>) {
-    const onSubmit = (formData: FormData) => {
-        const getTimestampDto: GetTimestampDto = {
-            id: formData.get("id") as any as number,
-            day_sheet_id: formData.get("day_sheet_id") as any as number,
-            start_time: formData.get("start_time") as string,
-            end_time: formData.get("end_time") as string,
-        };
-
-        toast.success('Updated timestamp');
-    }
-
     return (
         <Modal
             title="Zeit bearbeiten"
@@ -33,28 +23,27 @@ function TimestampUpdateModal({close, onSave, timestamp}: Readonly<{
                 <Button Icon={Save24Regular} type="submit">Speichern</Button>
             }
             close={close}
-            onSubmit={onSubmit}
+            onSubmit={onSave}
         >
-            <Input type="text" placeholder="Startuhrzeit" className="mb-4 mr-4 w-48 inline-block" name="given_name"
-                   required={true} value={timestamp?.start_time}/>
+            {/*<Input type="text" placeholder="Startuhrzeit" className="mb-4 mr-4 w-48 inline-block" name="given_name"
+                   required={true} value={timestamp?.startTime}/>
             <Input type="text" placeholder="Enduhrzeit" className="mb-4 mr-4 w-48 inline-block" name="family_name"
-                   required={true} value={timestamp?.end_time}/>
+        required={true} value={timestamp?.endTime}/>*/}
         </Modal>
     );
 }
 
 const DaySheetViewSingleDay: React.FC = () => {
-    const router = useRouter();
     const [currentDate, setCurrentDate] = useState<Date | undefined>();
-    const [selectedTimestamp, setSelectedTimestamp] = useState<GetTimestampDto>();
-    const [timestamps, setTimestamps] = useState<GetTimestampDto[]>([]);
+    const [selectedTimestamp, setSelectedTimestamp] = useState<TimestampDto>();
+    const [timestamps, setTimestamps] = useState<TimestampDto[]>([]);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
 
-    const mockdata: GetTimestampDto[] = [
-        {id: 0, day_sheet_id: 0, start_time: "08:00", end_time: "17:00"} as GetTimestampDto,
-        {id: 1, day_sheet_id: 1, start_time: "08:15", end_time: "17:55"} as GetTimestampDto,
-        {id: 2, day_sheet_id: 2, start_time: "08:20", end_time: "17:05"} as GetTimestampDto,
-        {id: 3, day_sheet_id: 3, start_time: "08:45", end_time: "17:00"} as GetTimestampDto,
+    const mockdata: TimestampDto[] = [
+        {id: 0, day_sheet_id: 0, start_time: "08:00", end_time: "17:00"} as TimestampDto,
+        {id: 1, day_sheet_id: 1, start_time: "08:15", end_time: "17:55"} as TimestampDto,
+        {id: 2, day_sheet_id: 2, start_time: "08:20", end_time: "17:05"} as TimestampDto,
+        {id: 3, day_sheet_id: 3, start_time: "08:45", end_time: "17:00"} as TimestampDto,
     ];
 
     let initLoad = false;
@@ -68,13 +57,7 @@ const DaySheetViewSingleDay: React.FC = () => {
             if (dateString) {
                 const parsedDate = new Date(dateString);
                 setCurrentDate(parsedDate);
-                getDaysheet(parsedDate).then((result) => {
-                    setTimestamps(result.timestamps);
-                    toast.success('Done fetching timestamps');
-                }).catch(() => {
-                    setTimestamps(mockdata);
-                    toast.error('Error fetching timestamps, using mocked data');
-                });
+                //TODO: tranfer data from previous page or load it from backend
             }
         }
     }, []);
@@ -112,7 +95,7 @@ const DaySheetViewSingleDay: React.FC = () => {
         const [endHours, endMinutes] = end_time.split(':').map(Number);
 
         // Calculate the difference in minutes
-        if (startHours != undefined && startMinutes != undefined && endHours != undefined && endMinutes != undefined ) {
+        if (startHours != undefined && startMinutes != undefined && endHours != undefined && endMinutes != undefined) {
             const startTimeInMinutes = startHours * 60 + startMinutes;
             const endTimeInMinutes = endHours * 60 + endMinutes;
             const differenceInMinutes = endTimeInMinutes - startTimeInMinutes;
@@ -127,11 +110,29 @@ const DaySheetViewSingleDay: React.FC = () => {
         return '';
     }
 
-    const calculateDuration = (ts: GetTimestampDto): string => {
+    const calculateDuration = (ts: TimestampDto): string => {
         if (ts != undefined) {
-            if (ts.end_time != undefined && ts.start_time) return calculateTimeDifference(ts.start_time, ts.end_time) + " Stunden:Minuten";
+            //if (ts.end_time != undefined && ts.start_time) return calculateTimeDifference(ts.start_time, ts.end_time) + " Stunden:Minuten";
         }
         return '';
+    }
+
+    const onDelete = (id: number) => {
+        getTimestampControllerApi().deleteTimestamp({ id }).then((response) => {
+            close();
+            toast.success(toastMessages.TIMESTAMP_DELETED);
+        }).catch(() => {
+            toast.error(toastMessages.TIMESTAMP_NOT_DELETED);
+        });
+    }
+
+    const onSave = (timestampDto: TimestampDto) => {
+        getTimestampControllerApi().putTimestamp({ timestampDto }).then((response) => {
+            close();
+            toast.success(toastMessages.TIMESTAMP_UDPATED);
+        }).catch(() => {
+            toast.error(toastMessages.TIMESTAMP_NOT_UPDATED);
+        });
     }
 
     return (
@@ -140,7 +141,7 @@ const DaySheetViewSingleDay: React.FC = () => {
                 <TimestampUpdateModal
                     close={() => setShowUpdateModal(false)}
                     onSave={() => {
-                        if (currentDate) getDaysheet(currentDate)
+                        if (selectedTimestamp != undefined) onSave(selectedTimestamp);
                     }}
                     timestamp={selectedTimestamp}/>
             )}
@@ -171,7 +172,7 @@ const DaySheetViewSingleDay: React.FC = () => {
                         icon: Delete24Regular,
                         label: "Löschen",
                         onClick: (id) => {
-                            alert("There is no method for this, unless we want to misuse the update function")
+                            onDelete(id)
                         }
                     },
                     {

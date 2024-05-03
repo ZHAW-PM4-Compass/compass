@@ -1,6 +1,9 @@
 package ch.zhaw.pm4.compass.backend.service;
 
+import ch.zhaw.pm4.compass.backend.model.LocalUser;
+import ch.zhaw.pm4.compass.backend.model.dto.AuthZeroUserDto;
 import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
+import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
@@ -14,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -23,6 +28,10 @@ public class UserService {
     private String clientId;
     private String clientSecret;
     private String audience;
+
+    @Autowired
+    LocalUserRepository localUserRepository;
+
     private OkHttpClient client = new OkHttpClient().newBuilder().build();
 
     @PostConstruct
@@ -33,8 +42,8 @@ public class UserService {
         audience = env.getProperty("auth0.mgmt.audience");
     }
 
-    public UserDto getUserById(String userID) {
-        UserDto userDto = null;
+    public AuthZeroUserDto getUserById(String userID) {
+        AuthZeroUserDto authZeroUserDto = null;
 
         try {
             Request request = new Request.Builder()
@@ -43,17 +52,23 @@ public class UserService {
                     .addHeader("Authorization", "Bearer " + getToken())
                     .build();
             Response response = client.newCall(request).execute();
-            userDto = (new Gson()).fromJson(response.body().string(), UserDto.class);
-
+            if (response.isSuccessful()) {
+                authZeroUserDto = (new Gson()).fromJson(response.body().string(), AuthZeroUserDto.class);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return userDto;
+        if (authZeroUserDto != null) {
+            //add role to user
+            authZeroUserDto.setRole(getUserRole(authZeroUserDto.getUser_id()));
+        }
+
+        return authZeroUserDto;
     }
 
-    public List<UserDto> getAllUsers() {
-        List<UserDto> userDtos = new ArrayList<>();
+    public List<AuthZeroUserDto> getAllUsers() {
+        List<AuthZeroUserDto> authZeroUserDtos = new ArrayList<>();
 
         try {
             Request request = new Request.Builder()
@@ -62,21 +77,33 @@ public class UserService {
                     .addHeader("Authorization", "Bearer " + getToken())
                     .build();
             Response response = client.newCall(request).execute();
-            userDtos = (new Gson()).fromJson(response.body().string(), new TypeToken<List<UserDto>>() {
-            }.getType());
+            if (response.isSuccessful()) {
+                authZeroUserDtos = (new Gson()).fromJson(response.body().string(), new TypeToken<List<AuthZeroUserDto>>() {
+                }.getType());
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return userDtos;
+        Map<String, String> localUserMap = getAllLocalUsers();
+        for (AuthZeroUserDto AuthZeroUserDto : authZeroUserDtos) {
+            AuthZeroUserDto.setRole(localUserMap.get(AuthZeroUserDto.getUser_id()));
+        }
+
+        return authZeroUserDtos;
     }
 
-    public UserDto createUser(UserDto user) {
-        UserDto responseUserDto = null;
+    public List<AuthZeroUserDto> getAllParticipants() {
+        return getAllUsers().stream().filter(authorizesUserDTO -> "Participant".equals(authorizesUserDTO.getRole())).toList();
+    }
+    public AuthZeroUserDto createUser(AuthZeroUserDto createUserDto) {
+        AuthZeroUserDto authZeroUserDto = null;
+        String role = createUserDto.getRole();
+        createUserDto.setRole(null);
 
         try {
             MediaType mediaType = MediaType.parse("application/json");
-            RequestBody body = RequestBody.create(mediaType, (new Gson()).toJson(user));
+            RequestBody body = RequestBody.create(mediaType, (new Gson()).toJson(createUserDto, AuthZeroUserDto.class));
             Request request = new Request.Builder()
                     .url(baseUrl + "/api/v2/users")
                     .addHeader("Accept", "application/json")
@@ -84,12 +111,41 @@ public class UserService {
                     .method("POST", body)
                     .build();
             Response response = client.newCall(request).execute();
-            responseUserDto = (new Gson()).fromJson(response.body().string(), UserDto.class);
+            if (response.isSuccessful()) {
+                authZeroUserDto = (new Gson()).fromJson(response.body().string(), AuthZeroUserDto.class);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return responseUserDto;
+        if (authZeroUserDto != null) {
+            //persist user with role
+            localUserRepository.save(new LocalUser(authZeroUserDto.getUser_id(), role));
+            authZeroUserDto.setRole(role);
+        }
+
+        return authZeroUserDto;
+    }
+
+    private String getUserRole(String id) {
+        LocalUser user = localUserRepository.findById(id).orElse(null);
+        if (user != null) {
+            return user.getRole();
+        }
+        return null;
+    }
+
+    private Map<String, String> getAllLocalUsers() {
+        return localUserRepository.findAll().stream()
+                .map(localUser -> {
+                    if(localUser.getRole() == null ) {
+                        localUser.setRole("Keine Rolle");
+                    }
+                    return  localUser;
+                })
+                .collect(Collectors.toMap(
+                        LocalUser::getId,
+                        LocalUser::getRole));
     }
 
     private String getToken() {
@@ -110,7 +166,9 @@ public class UserService {
                     .build();
 
             Response response = client.newCall(request).execute();
-            token = response.body().string();
+            if (response.isSuccessful()) {
+                token = response.body().string();
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

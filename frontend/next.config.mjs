@@ -14,22 +14,6 @@ export default withSentryConfig(
     },
     poweredByHeader: false,
     reactStrictMode: true,
-    images: {
-      remotePatterns: [
-        {
-          protocol: 'https',
-          hostname: 'lh3.googleusercontent.com',
-          port: '',
-          pathname: '/**',
-        },
-        {
-          protocol: 'https',
-          hostname: 's.gravatar.com',
-          port: '',
-          pathname: '/avatar/**',
-        },
-      ],
-    },
     experimental: {
       // Related to Pino error with RSC: https://github.com/orgs/vercel/discussions/3150
       serverComponentsExternalPackages: ['pino'],

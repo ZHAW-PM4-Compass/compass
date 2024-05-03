@@ -31,6 +31,8 @@ import CollapseMenuIcon from "@fluentui/svg-icons/icons/chevron_left_24_regular.
 import MenuIcon from "@fluentui/svg-icons/icons/list_24_regular.svg";
 import MenuCloseIcon from "@fluentui/svg-icons/icons/dismiss_24_regular.svg";
 import Roles from "@/constants/roles";
+import { getUserControllerApi } from "@/openapi/connector";
+import type { UserDto } from "@/openapi/compassClient";
 
 const SubTitle: React.FC<{ collapsed: boolean, label: string, withLine?: boolean }> = ({ collapsed, label, withLine }) => {
   return (
@@ -93,8 +95,8 @@ const Profile: React.FC<{user: any}> = ({ user }) => {
         onClick={() => setShowMenu(!showMenu)}
       >
         <span className="leading-10 ml-4 mr-3 text-sm">{user.given_name ? user.given_name : user.nickname}</span>
-        <div className="h-10 w-10 relative">
-          <Image fill={true} src={user.picture} alt="" className="border-2 border-slate-400 bg-slate-400 rounded-full" />
+        <div className="relative">
+          <img src={user.picture} alt="" className="h-10 w-10 border-2 border-slate-400 bg-slate-400 rounded-full" />
         </div>
       </button>
       {showMenu && (
@@ -116,15 +118,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const { user } = useUser();
+  const [backendUser, setBackendUser] = useState<UserDto>();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const handleMobileClick = () => window.innerWidth < 640 && toggleMenu();
 
+  useEffect(() => {
+    user?.sub && getUserControllerApi().getUserById({ id: user.sub }).then(userDto => {
+      setBackendUser(userDto)
+    })
+  }, [user])
+
   return (
     <>
-      <div className="sm:flex sm:flex-row h-screen w-screen absolute">
-        <div className={`${menuOpen ? "w-full sm:w-64" : "hidden sm:block sm:w-16"} absolute sm:relative border-r-[1px] border-slate-300 z-20 h-full bg-white overflow-y-scroll`}>
+      <div className="md:flex md:flex-row h-screen w-screen absolute">
+        <div className={`${menuOpen ? "w-full md:w-64 md:min-w-64" : "hidden md:block md:w-16 md:min-w-16"} absolute sm:relative border-r-[1px] border-slate-300 z-20 h-full bg-white overflow-y-auto`}>
           <div className={`${menuOpen ? "p-5 w-full" : "p-4"}  flex flex-col h-full`}>
             <div className="flex">
               {menuOpen ? (
@@ -132,7 +141,7 @@ export default function RootLayout({
               ) : (
                 <h1 className="text-lg px-1.5 py-1.5">🧭</h1>
               )}
-              <button className="p-2 bg-white hover:bg-slate-100 duration-150 rounded-md sm:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+              <button className="p-2 bg-white hover:bg-slate-100 duration-150 rounded-md md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
                 <img src={MenuCloseIcon.src} className="w-5 h-5" />
               </button>
             </div>
@@ -143,7 +152,7 @@ export default function RootLayout({
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
 
-            { user && ((user["compass/roles"] as Array<string>).includes(Roles.SOCIAL_WORKER) || (user["compass/roles"] as Array<string>).includes(Roles.ADMIN)) && (
+            {backendUser && (backendUser.role === Roles.SOCIAL_WORKER || backendUser.role === Roles.ADMIN) && (
               <>
                 <SubTitle collapsed={!menuOpen} label="Sozialarbeiter" withLine={true} />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Arbeitszeit" route="/working-hours-check" />
@@ -151,7 +160,7 @@ export default function RootLayout({
               </>
             )}
 
-            { user && (user["compass/roles"] as Array<string>).includes(Roles.ADMIN) && (
+            {backendUser && backendUser.role === Roles.ADMIN && (
               <>
                 <SubTitle collapsed={!menuOpen} label="Admin" withLine={true} />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={UserIcon} iconActive={UserIconFilled} label="Benutzer" route="/users" />
@@ -168,7 +177,7 @@ export default function RootLayout({
         </div>
         <div className="sm:relative grow z-10 pt-20 md:pt-0 bg-slate-100 h-full">
           <div className="w-full h-full md:container md:mx-auto px-5 md:px-24 lg:px-48 md:pt-24 pb-16">
-            <div className="h-full w-full overflow-y-scroll">
+            <div className="h-full w-full">
             {children}
             {
               user && (

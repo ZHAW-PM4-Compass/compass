@@ -3,6 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import Roles from "./constants/roles";
 import { getMiddleWareControllerApi } from "./openapi/connector";
 
+const defaultRole = Roles.ADMIN;
+
 const homeRoute = "/home";
 const participantRoutes = ["/incidents", "/moods", "/working-hours"];
 const socialWorkerRoutes = ["/working-hours-check", "/overview"];
@@ -16,11 +18,11 @@ export default withMiddlewareAuthRequired(async (request: NextRequest) => {
   const isLoggedIn = !!user;
 
   if (isLoggedIn) {
-    let userRole = Roles.PARTICIPANT;
+    let userRole = defaultRole;
     try {
       const userControllerApi = getMiddleWareControllerApi();
       const backendUser = user?.sub && await userControllerApi.getUserById({ id: user.sub });
-      userRole = backendUser?.role || Roles.PARTICIPANT;
+      userRole = backendUser?.role ?? userRole;
     } catch(error) {
       // do nothing
     }

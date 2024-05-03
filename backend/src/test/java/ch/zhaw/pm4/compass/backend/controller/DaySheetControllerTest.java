@@ -223,9 +223,10 @@ public class DaySheetControllerTest {
 
     @Test
     @WithMockUser(username = "testuser", roles = {})
-    void testGerAllByParticipant() throws Exception {
+    void testGetAllByParticipant() throws Exception {
         List<DaySheetDto> daySheets = new ArrayList<>();
         DaySheetDto day1 = getDaySheetDto();
+
         DaySheetDto day2 = getDaySheetDto();
         day2.setId(2l);
         day2.setDate(dateNow.plusDays(1));
@@ -237,6 +238,6 @@ public class DaySheetControllerTest {
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
-        assertEquals("[{\"id\":1,\"date\":\"2024-05-02\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"timeSum\":0},{\"id\":2,\"date\":\"2024-05-03\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"timeSum\":0}]",res);
+        assertEquals("[{\"id\":1,\"date\":\""+ dateNow.toString()+"\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"timeSum\":0},{\"id\":2,\"date\":\""+ dateNow.plusDays(1).toString()+"\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"timeSum\":0}]",res);
     }
 }

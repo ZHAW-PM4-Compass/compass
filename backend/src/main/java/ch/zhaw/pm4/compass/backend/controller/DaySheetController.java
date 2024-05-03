@@ -42,7 +42,7 @@ public class DaySheetController {
     }
 
     @GetMapping(path = "/getByDate/{date}", produces = "application/json")
-    public ResponseEntity<DaySheetDto> getDaySheetById(@PathVariable String date, Authentication authentication) {
+    public ResponseEntity<DaySheetDto> getDaySheetByDate(@PathVariable String date, Authentication authentication) {
         //String pattern = "yyyy-MM-dd";
         //DateFormat dateFormat = new SimpleDateFormat(pattern);
         if (authentication == null)

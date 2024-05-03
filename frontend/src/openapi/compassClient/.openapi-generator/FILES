@@ -7,6 +7,7 @@ index.ts
 models/AuthZeroUserDto.ts
 models/DaySheetDto.ts
 models/TimestampDto.ts
+models/UpdateDaySheetDayNotesDto.ts
 models/UserDto.ts
 models/index.ts
 runtime.ts

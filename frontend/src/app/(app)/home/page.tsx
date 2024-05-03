@@ -12,10 +12,11 @@ import toastMessages from "@/constants/toastMessages";
 export default function HomePage() {
     const [daySheetDtos, setDaySheetDtos] = useState<DaySheetDto[]>([]);
     const [selectedDaySheetDto, setSelectedDaySheetDto] = useState<DaySheetDto>();
+    const userId = ""; //TODO daysheet: Somehow select user in frontend, maybe a dropdown?
     const router = useRouter();
 
     useEffect(() => {
-      getDaySheetControllerApi().getAllDaySheet().then(daySheetDtos => {
+      getDaySheetControllerApi().getAllDaySheetByParticipant({userId: userId}).then(daySheetDtos => {
         close();
         toast.success(toastMessages.DAYSHEETS_LOADED);
 
@@ -26,9 +27,9 @@ export default function HomePage() {
       });
     }, []);
 
-    const confirmDaySheet = async (updateDay: DaySheetDto) => {
+    const confirmDaySheet = async (id: number) => {
         const updateDayRequest: UpdateConfirmedRequest = {
-          daySheetDto: updateDay
+          id: id
         };
 
         getDaySheetControllerApi().updateConfirmed(updateDayRequest).then(() => {
@@ -71,8 +72,8 @@ export default function HomePage() {
                         label: "Bestätigen",
                         onClick: (id) => {
                             let daySheetDto = daySheetDtos[id];
-                            if (daySheetDto !== undefined) {
-                                confirmDaySheet(daySheetDto);
+                            if (daySheetDto !== undefined && daySheetDto.id != undefined) {
+                                confirmDaySheet(daySheetDto.id);
                             }
                         }
                     },

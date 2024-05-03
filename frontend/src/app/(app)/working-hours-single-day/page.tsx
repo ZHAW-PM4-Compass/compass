@@ -57,7 +57,7 @@ const DaySheetViewSingleDay: React.FC = () => {
             if (dateString) {
                 const parsedDate = new Date(dateString);
                 setCurrentDate(parsedDate);
-                //TODO: tranfer data from previous page or load it from backend
+                //TODO daysheet: tranfer data of selected date from previous page or load it from backend, i did it over the url, maybe it works as well
             }
         }
     }, []);

@@ -129,7 +129,7 @@ const DaySheetViewSingleDay: React.FC = () => {
     const onSave = (timestampDto: TimestampDto) => {
         getTimestampControllerApi().putTimestamp({ timestampDto }).then((response) => {
             close();
-            toast.success(toastMessages.TIMESTAMP_UDPATED);
+            toast.success(toastMessages.TIMESTAMP_UPDATED);
         }).catch(() => {
             toast.error(toastMessages.TIMESTAMP_NOT_UPDATED);
         });

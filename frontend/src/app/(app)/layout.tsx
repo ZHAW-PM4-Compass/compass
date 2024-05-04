@@ -101,9 +101,7 @@ const Profile: React.FC<{user: any}> = ({ user }) => {
       </button>
       {showMenu && (
         <div id="profile-menu" className="left-5 sm:left-auto absolute top-20 right-5 px-8 py-7 bg-white rounded-3xl flex flex-col drop-shadow-sm">
-          {
-            user.name !== user.email ? ( <span className="font-bold text-sm">{user.name}</span> ) : null
-          }
+          {user.given_name && user.family_name ? ( <span className="font-bold text-sm">{user.given_name} {user.family_name}</span> ) : null}
           <span className="mb-4 text-sm">{user.email}</span>
           <a href="/api/auth/logout" className="pt-4 border-t-[1px] border-slate-200 text-sm hover:text-slate-600 duration-150">Logout</a>
         </div>

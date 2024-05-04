@@ -3,8 +3,8 @@ import { NextRequest } from "next/server";
 
 async function callBackend(request: NextRequest) {
   const session = await getSession();
-  const pathname = request.nextUrl.pathname.replace("\/proxy", "");
-  const requestUrl = `${process.env.API_BASE_PATH}${pathname}`;
+  const pathname = request.nextUrl.pathname.split("proxy")[1];
+  const requestUrl = process.env.APP_URL ? `https://${process.env.APP_URL}/api${pathname}` : `http://localhost:8080/api${pathname}`;
 
   const body = await request.text();
   const headers = Object.assign(Object.fromEntries(request.headers.entries()), {

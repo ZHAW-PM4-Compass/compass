@@ -56,6 +56,7 @@ function UserCreateModal({ close, onSave }: Readonly<{
     getUserControllerApi().createUser(createUserDto).then(() => {
       close();
       setTimeout(() => onSave(), 1000);
+      toast.success(toastMessages.USER_CREATED);
     }).catch(() => {
       toast.error(toastMessages.USER_NOT_CREATED);
     })
@@ -103,8 +104,8 @@ const onSubmit = (formData: FormData) => {
 	getUserControllerApi().createUser(createUserDto).then(() => {
 		close();
 		setTimeout(() => onSave(), 1000);
+    toast.success(toastMessages.USER_UPDATED);
 	}).catch(() => {
-    console.log("error occurred")
 		toast.error(toastMessages.USER_NOT_UPDATED);
 	})
 }

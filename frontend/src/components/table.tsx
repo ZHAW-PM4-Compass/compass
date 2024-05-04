@@ -53,7 +53,7 @@ export default function Table({ className, data, columns, actions }: Readonly<{
   actions?: Array<{ icon: any, label?: string, onClick: (id: number) => void }>
 }>) {
   return (
-    <div className="overflow-scroll">
+    <div className="overflow-auto">
       <table className={`table-auto w-full rounded-lg overflow-hidden ${className}`}>
         <Header columns={columns}></Header>
         <tbody>

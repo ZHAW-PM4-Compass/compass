@@ -1,7 +1,11 @@
 package ch.zhaw.pm4.compass.backend.model.dto;
 
 import ch.zhaw.pm4.compass.backend.UserRole;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class AuthZeroUserDto extends UserDto {
 
 	private String password;

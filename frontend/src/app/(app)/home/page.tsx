@@ -1,6 +1,6 @@
 'use client';
 import React, {useEffect, useState} from 'react';
-import {DaySheetDto, ParticipantDto,} from "@/openapi/compassClient";
+import {DaySheetDto, type UpdateConfirmedRequest} from "@/openapi/compassClient";
 import Table from "@/components/table";
 import {Checkmark24Regular, Edit24Regular} from "@fluentui/react-icons";
 import {toast} from "react-hot-toast";
@@ -9,92 +9,31 @@ import Title1 from "@/components/title1";
 import {getDaySheetControllerApi} from "@/openapi/connector";
 import toastMessages from "@/constants/toastMessages";
 
-const Home: React.FC = () => {
-    // Sample data for demonstration
-    const mockdata: DaySheetDto[] = [
-        {
-            daySheetId: 0,
-            date: '2024-04-14',
-            confirmed: false,
-            workHours: 2.0,
-            participant: {id: 0, name: "Hans"} as ParticipantDto
-        } as DaySheetDto,
-        {
-            daySheetId: 1,
-            date: '2024-04-13',
-            confirmed: false,
-            workHours: 3.5,
-            participant: {id: 0, name: "Alice"} as ParticipantDto
-        } as DaySheetDto,
-        {
-            daySheetId: 2,
-            date: '2024-04-12',
-            confirmed: true,
-            workHours: 4.0,
-            participant: {id: 0, name: "Bob"} as ParticipantDto
-        } as DaySheetDto,
-        {
-            daySheetId: 3,
-            date: '2024-04-11',
-            confirmed: false,
-            workHours: 1.5,
-            participant: {id: 0, name: "Eve"} as ParticipantDto
-        } as DaySheetDto,
-    ];
-
+export default function HomePage() {
     const [daySheetDtos, setDaySheetDtos] = useState<DaySheetDto[]>([]);
     const [selectedDaySheetDto, setSelectedDaySheetDto] = useState<DaySheetDto>();
     const router = useRouter();
 
-    let initLoad = false;
     useEffect(() => {
-        if (!initLoad) {
-            initLoad = true;
+      getDaySheetControllerApi().getAllDaySheet().then(daySheetDtos => {
+        close();
+        toast.success(toastMessages.DAYSHEETS_LOADED);
 
-            getDaySheetControllerApi().getAllDaySheet().then(response => {
-                close();
-
-                if (response.status === 200) {
-                    let myList: DaySheetDto[] = []
-                    response.data.forEach((entry: DaySheetDto) => {
-                        if (!entry.confirmed) {
-                            myList.push(entry);
-                        }
-                    });
-                    setDaySheetDtos(myList);
-                    toast.success(toastMessages.DAYSHEETS_LOADED);
-                } else {
-                    let myList: DaySheetDto[] = []
-                    mockdata.forEach((entry) => {
-                        if (!entry.confirmed) {
-                            myList.push(entry);
-                        }
-                    });
-                    setDaySheetDtos(myList);
-                    toast.error(toastMessages.DATA_NOT_LOADED);
-                }
-            }).catch(() => {
-                let myList: DaySheetDto[] = []
-                mockdata.forEach((entry) => {
-                    if (!entry.confirmed) {
-                        myList.push(entry);
-                    }
-                });
-                setDaySheetDtos(myList);
-                toast.error(toastMessages.DATA_NOT_LOADED);
-            });
-        }
-    }, []); // Empty dependency array ensures the effect runs only once, similar to componentDidMount
+        const notConfirmedDaySheetDtos = daySheetDtos.filter(daySheetDto => !daySheetDto.confirmed);
+        setDaySheetDtos(notConfirmedDaySheetDtos);
+      }).catch(() => {
+          toast.error(toastMessages.DATA_NOT_LOADED);
+      });
+    }, []);
 
     const confirmDaySheet = async (updateDay: DaySheetDto) => {
-        getDaySheetControllerApi().updateConfirmed(updateDay).then((response) => {
-            close();
+        const updateDayRequest: UpdateConfirmedRequest = {
+          daySheetDto: updateDay
+        };
 
-            if (response.status === 200) {
-                toast.success(toastMessages.DAYSHEET_CONFIRMED);
-            } else {
-                toast.error(toastMessages.DAYSHEET_CONFIRMED_ERROR);
-            }
+        getDaySheetControllerApi().updateConfirmed(updateDayRequest).then(() => {
+            close();
+            toast.success(toastMessages.DAYSHEET_CONFIRMED);
         }).catch(() => {
             toast.error(toastMessages.DAYSHEET_CONFIRMED_ERROR);
         });
@@ -150,5 +89,3 @@ const Home: React.FC = () => {
         </div>
     );
 };
-
-export default Home;

@@ -12,11 +12,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class DaySheetDto {
-	private Long id;
 
-	private String day_notes;
-
-	private LocalDate date;
+    private Long id;
+    private LocalDate date;
+    private String day_notes;
 
 	private Boolean confirmed = false;
 

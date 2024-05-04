@@ -1,6 +1,7 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
-import ch.zhaw.pm4.compass.backend.model.dto.AuthZeroUserDto;
+import ch.zhaw.pm4.compass.backend.model.dto.CreateAuthZeroUserDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UpdateAuthZeroUserDto;
 import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
 import ch.zhaw.pm4.compass.backend.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,13 +20,33 @@ public class UserController {
     private UserService userService;
 
     @PostMapping(produces = "application/json")
-    public ResponseEntity<UserDto> createUser(@RequestBody AuthZeroUserDto userDto) {
+    public ResponseEntity<UserDto> createUser(@RequestBody CreateAuthZeroUserDto userDto) {
         UserDto queryUser = userService.createUser(userDto);
         if (queryUser != null) {
             return ResponseEntity.ok(queryUser);
         }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
+
+    @PutMapping(path = "/update/{id}", produces = "application/json")
+    public ResponseEntity<UpdateAuthZeroUserDto> updateUser(@PathVariable String id, @RequestBody UpdateAuthZeroUserDto userDto) {
+        UpdateAuthZeroUserDto queryUser = userService.updateUser(id, userDto);
+        if (queryUser != null) {
+            return ResponseEntity.ok(queryUser);
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
+
+    @DeleteMapping(path = "/update/{id}", produces = "application/json")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+        boolean deleted = userService.deleteUser(id);
+        if (deleted) {
+            return ResponseEntity.ok().build(); // return 200 OK if the user was successfully deleted
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // return 400 BAD REQUEST if the user was not deleted
+        }
     }
 
     @GetMapping(path = "getById/{id}", produces = "application/json")

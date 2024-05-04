@@ -16,65 +16,47 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface AuthZeroUserDto
+ * @interface UpdateAuthZeroUserDto
  */
-export interface AuthZeroUserDto {
+export interface UpdateAuthZeroUserDto {
     /**
      * 
      * @type {string}
-     * @memberof AuthZeroUserDto
+     * @memberof UpdateAuthZeroUserDto
      */
     email?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuthZeroUserDto
+     * @memberof UpdateAuthZeroUserDto
      */
     givenName?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuthZeroUserDto
+     * @memberof UpdateAuthZeroUserDto
      */
     familyName?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuthZeroUserDto
+     * @memberof UpdateAuthZeroUserDto
      */
     role?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthZeroUserDto
-     */
-    userId?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthZeroUserDto
-     */
-    password?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthZeroUserDto
-     */
-    connection?: string;
 }
 
 /**
- * Check if a given object implements the AuthZeroUserDto interface.
+ * Check if a given object implements the UpdateAuthZeroUserDto interface.
  */
-export function instanceOfAuthZeroUserDto(value: object): boolean {
+export function instanceOfUpdateAuthZeroUserDto(value: object): boolean {
     return true;
 }
 
-export function AuthZeroUserDtoFromJSON(json: any): AuthZeroUserDto {
-    return AuthZeroUserDtoFromJSONTyped(json, false);
+export function UpdateAuthZeroUserDtoFromJSON(json: any): UpdateAuthZeroUserDto {
+    return UpdateAuthZeroUserDtoFromJSONTyped(json, false);
 }
 
-export function AuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): AuthZeroUserDto {
+export function UpdateAuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): UpdateAuthZeroUserDto {
     if (json == null) {
         return json;
     }
@@ -84,13 +66,10 @@ export function AuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
         'givenName': json['given_name'] == null ? undefined : json['given_name'],
         'familyName': json['family_name'] == null ? undefined : json['family_name'],
         'role': json['role'] == null ? undefined : json['role'],
-        'userId': json['user_id'] == null ? undefined : json['user_id'],
-        'password': json['password'] == null ? undefined : json['password'],
-        'connection': json['connection'] == null ? undefined : json['connection'],
     };
 }
 
-export function AuthZeroUserDtoToJSON(value?: AuthZeroUserDto | null): any {
+export function UpdateAuthZeroUserDtoToJSON(value?: UpdateAuthZeroUserDto | null): any {
     if (value == null) {
         return value;
     }
@@ -100,9 +79,6 @@ export function AuthZeroUserDtoToJSON(value?: AuthZeroUserDto | null): any {
         'given_name': value['givenName'],
         'family_name': value['familyName'],
         'role': value['role'],
-        'user_id': value['userId'],
-        'password': value['password'],
-        'connection': value['connection'],
     };
 }
 

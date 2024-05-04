@@ -24,4 +24,7 @@ public class LocalUser {
         this.role = role;
     }
 
+    public boolean isEmpty() {
+        return this.id.isEmpty() && this.role.isEmpty();
+    }
 }

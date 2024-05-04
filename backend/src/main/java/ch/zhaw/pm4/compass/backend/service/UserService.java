@@ -1,8 +1,8 @@
 package ch.zhaw.pm4.compass.backend.service;
 
 import ch.zhaw.pm4.compass.backend.model.LocalUser;
-import ch.zhaw.pm4.compass.backend.model.dto.AuthZeroUserDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
+import ch.zhaw.pm4.compass.backend.model.dto.CreateAuthZeroUserDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UpdateAuthZeroUserDto;
 import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.JsonObject;
@@ -15,6 +15,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,8 +44,8 @@ public class UserService {
         audience = env.getProperty("auth0.mgmt.audience");
     }
 
-    public AuthZeroUserDto getUserById(String userID) {
-        AuthZeroUserDto authZeroUserDto = null;
+    public CreateAuthZeroUserDto getUserById(String userID) {
+        CreateAuthZeroUserDto createAuthZeroUserDto = null;
 
         try {
             Request request = new Request.Builder()
@@ -53,22 +55,22 @@ public class UserService {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
-                authZeroUserDto = (new Gson()).fromJson(response.body().string(), AuthZeroUserDto.class);
+                createAuthZeroUserDto = (new Gson()).fromJson(response.body().string(), CreateAuthZeroUserDto.class);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        if (authZeroUserDto != null) {
+        if (createAuthZeroUserDto != null) {
             //add role to user
-            authZeroUserDto.setRole(getUserRole(authZeroUserDto.getUser_id()));
+            createAuthZeroUserDto.setRole(getUserRole(createAuthZeroUserDto.getUser_id()));
         }
 
-        return authZeroUserDto;
+        return createAuthZeroUserDto;
     }
 
-    public List<AuthZeroUserDto> getAllUsers() {
-        List<AuthZeroUserDto> authZeroUserDtos = new ArrayList<>();
+    public List<CreateAuthZeroUserDto> getAllUsers() {
+        List<CreateAuthZeroUserDto> createAuthZeroUserDtos = new ArrayList<>();
 
         try {
             Request request = new Request.Builder()
@@ -78,7 +80,7 @@ public class UserService {
                     .build();
             Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
-                authZeroUserDtos = (new Gson()).fromJson(response.body().string(), new TypeToken<List<AuthZeroUserDto>>() {
+                createAuthZeroUserDtos = (new Gson()).fromJson(response.body().string(), new TypeToken<List<CreateAuthZeroUserDto>>() {
                 }.getType());
             }
         } catch (IOException e) {
@@ -86,45 +88,47 @@ public class UserService {
         }
 
         Map<String, String> localUserMap = getAllLocalUsers();
-        for (AuthZeroUserDto AuthZeroUserDto : authZeroUserDtos) {
-            AuthZeroUserDto.setRole(localUserMap.get(AuthZeroUserDto.getUser_id()));
+        for (CreateAuthZeroUserDto CreateAuthZeroUserDto : createAuthZeroUserDtos) {
+            CreateAuthZeroUserDto.setRole(localUserMap.get(CreateAuthZeroUserDto.getUser_id()));
         }
 
-        return authZeroUserDtos;
+        return createAuthZeroUserDtos;
     }
 
-    public List<AuthZeroUserDto> getAllParticipants() {
+    public List<CreateAuthZeroUserDto> getAllParticipants() {
         return getAllUsers().stream().filter(authorizesUserDTO -> "Participant".equals(authorizesUserDTO.getRole())).toList();
     }
-    public AuthZeroUserDto createUser(AuthZeroUserDto createUserDto) {
-        AuthZeroUserDto authZeroUserDto = null;
+
+    public CreateAuthZeroUserDto createUser(CreateAuthZeroUserDto createUserDto) {
+        CreateAuthZeroUserDto createAuthZeroUserDto = null;
         String role = createUserDto.getRole();
         createUserDto.setRole(null);
 
         try {
             MediaType mediaType = MediaType.parse("application/json");
-            RequestBody body = RequestBody.create(mediaType, (new Gson()).toJson(createUserDto, AuthZeroUserDto.class));
+            RequestBody body = RequestBody.create(mediaType, (new Gson()).toJson(createUserDto, CreateAuthZeroUserDto.class));
             Request request = new Request.Builder()
                     .url(baseUrl + "/api/v2/users")
                     .addHeader("Accept", "application/json")
                     .addHeader("Authorization", "Bearer " + getToken())
-                    .method("POST", body)
+                    .addHeader("Content-Type", "application/json")
+                    .post(body)
                     .build();
             Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
-                authZeroUserDto = (new Gson()).fromJson(response.body().string(), AuthZeroUserDto.class);
+                createAuthZeroUserDto = (new Gson()).fromJson(response.body().string(), CreateAuthZeroUserDto.class);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        if (authZeroUserDto != null) {
+        if (createAuthZeroUserDto != null) {
             //persist user with role
-            localUserRepository.save(new LocalUser(authZeroUserDto.getUser_id(), role));
-            authZeroUserDto.setRole(role);
+            localUserRepository.save(new LocalUser(createAuthZeroUserDto.getUser_id(), role));
+            createAuthZeroUserDto.setRole(role);
         }
 
-        return authZeroUserDto;
+        return createAuthZeroUserDto;
     }
 
     private String getUserRole(String id) {
@@ -133,6 +137,66 @@ public class UserService {
             return user.getRole();
         }
         return null;
+    }
+
+    public UpdateAuthZeroUserDto updateUser(String userId, UpdateAuthZeroUserDto updateUserDto) {
+        UpdateAuthZeroUserDto updateAuthZeroUserDto = null;
+        String role = updateUserDto.getRole();
+        updateUserDto.setRole(null);
+
+        try {
+            MediaType mediaType = MediaType.parse("application/json");
+            RequestBody body = RequestBody.create(mediaType, (new Gson()).toJson(updateUserDto, UpdateAuthZeroUserDto.class));
+            Request request = new Request.Builder()
+                    .url(baseUrl + "/api/v2/users/" + userId)
+                    .addHeader("Accept", "application/json")
+                    .addHeader("Authorization", "Bearer " + getToken())
+                    .addHeader("Content-Type", "application/json")
+                    .method("PATCH", body)
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                updateAuthZeroUserDto = (new Gson()).fromJson(response.body().string(), UpdateAuthZeroUserDto.class);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (updateAuthZeroUserDto != null) {
+            //persist user with role
+            localUserRepository.save(new LocalUser(userId, role));
+            updateAuthZeroUserDto.setRole(role);
+        }
+
+        return updateAuthZeroUserDto;
+    }
+
+
+
+    public boolean deleteUser(String userId) {
+        boolean successful = false;
+        try {
+            MediaType mediaType = MediaType.parse("application/json");
+            Request request = new Request.Builder()
+                    .url(baseUrl + "/api/v2/users/" + userId)
+                    .addHeader("Accept", "application/json")
+                    .addHeader("Authorization", "Bearer " + getToken())
+                    .addHeader("Content-Type", "application/json")
+                    .delete()
+                    .build();
+            Response response = client.newCall(request).execute();
+            successful = response.isSuccessful();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (successful) {
+            //persist user with role
+            LocalUser localUser = localUserRepository.findById(userId).orElse(null);
+            if (localUser != null && !localUser.isEmpty()) localUserRepository.delete(localUser);
+        }
+
+        return successful;
     }
 
     private Map<String, String> getAllLocalUsers() {

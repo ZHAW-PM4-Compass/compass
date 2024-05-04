@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 
-export default function Select({ className, placeholder, data, required }: Readonly<{
+export default function Select({ className, placeholder, name, data, required, value }: Readonly<{
   className?: string;
   placeholder?: string;
+  name?: string
   data: Array<{ id: string, label: string}>;
   required?: boolean;
   value?: string;
@@ -33,6 +34,12 @@ export default function Select({ className, placeholder, data, required }: Reado
   }
 
   useEffect(() => {
+    if (value) {
+      setSelected(data.find(item => item.id === value) || { id: "", label: "" });
+    }
+  }, [])
+
+  useEffect(() => {
     if (focused) {
       setShowDropdown(true);
       setPlaceholderText("");
@@ -42,7 +49,7 @@ export default function Select({ className, placeholder, data, required }: Reado
       setShowDropdown(false);
       setPlaceholderText(selected?.label || placeholder);
     }
-  }, [focused]);
+  }, [focused, selected]);
 
   return (
     <>
@@ -52,6 +59,7 @@ export default function Select({ className, placeholder, data, required }: Reado
         value={search}
         onChange={onChange}
         onFocus={onFocus} />
+      <input type="hidden" name={name} value={selected.id} required={required} />
       {showDropdown && (
         <div id="dropdown" className="dropdown absolute w-auto bg-white rounded-md max-h-24 overflow-y-auto drop-shadow border-[1px] border-slate-100">
           {dropdownItems ? dropdownItems.map((item, index) => {

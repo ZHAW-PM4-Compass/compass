@@ -31,6 +31,8 @@ import CollapseMenuIcon from "@fluentui/svg-icons/icons/chevron_left_24_regular.
 import MenuIcon from "@fluentui/svg-icons/icons/list_24_regular.svg";
 import MenuCloseIcon from "@fluentui/svg-icons/icons/dismiss_24_regular.svg";
 import Roles from "@/constants/roles";
+import { getUserControllerApi } from "@/openapi/connector";
+import type { UserDto } from "@/openapi/compassClient";
 
 const SubTitle: React.FC<{ collapsed: boolean, label: string, withLine?: boolean }> = ({ collapsed, label, withLine }) => {
   return (
@@ -99,9 +101,7 @@ const Profile: React.FC<{user: any}> = ({ user }) => {
       </button>
       {showMenu && (
         <div id="profile-menu" className="left-5 sm:left-auto absolute top-20 right-5 px-8 py-7 bg-white rounded-3xl flex flex-col drop-shadow-sm">
-          {
-            user.name !== user.email ? ( <span className="font-bold text-sm">{user.name}</span> ) : null
-          }
+          {user.given_name && user.family_name ? ( <span className="font-bold text-sm">{user.given_name} {user.family_name}</span> ) : null}
           <span className="mb-4 text-sm">{user.email}</span>
           <a href="/api/auth/logout" className="pt-4 border-t-[1px] border-slate-200 text-sm hover:text-slate-600 duration-150">Logout</a>
         </div>
@@ -116,10 +116,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const { user } = useUser();
+  const [backendUser, setBackendUser] = useState<UserDto>();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const handleMobileClick = () => window.innerWidth < 640 && toggleMenu();
+
+  useEffect(() => {
+    user?.sub && getUserControllerApi().getUserById({ id: user.sub }).then(userDto => {
+      setBackendUser(userDto)
+    })
+  }, [user])
 
   return (
     <>
@@ -143,7 +150,7 @@ export default function RootLayout({
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
 
-            { user && ((user["compass/roles"] as Array<string>).includes(Roles.SOCIAL_WORKER) || (user["compass/roles"] as Array<string>).includes(Roles.ADMIN)) && (
+            {backendUser && (backendUser.role === Roles.SOCIAL_WORKER || backendUser.role === Roles.ADMIN) && (
               <>
                 <SubTitle collapsed={!menuOpen} label="Sozialarbeiter" withLine={true} />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Arbeitszeit" route="/working-hours-check" />
@@ -151,7 +158,7 @@ export default function RootLayout({
               </>
             )}
 
-            { user && (user["compass/roles"] as Array<string>).includes(Roles.ADMIN) && (
+            {backendUser && backendUser.role === Roles.ADMIN && (
               <>
                 <SubTitle collapsed={!menuOpen} label="Admin" withLine={true} />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={UserIcon} iconActive={UserIconFilled} label="Benutzer" route="/users" />

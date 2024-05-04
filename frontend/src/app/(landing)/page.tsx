@@ -11,6 +11,8 @@ export default function LandingPage() {
 
   const login = () => router.push('/api/auth/login?returnTo=/home');
 
+  if (user) router.push('/home');
+
   return (
     isLoading || user ? <Loading /> :
     <div className="w-full h-screen bg-slate-100 backdrop-blur-lg bg-no-repeat bg-center bg-cover flex items-center justify-center">

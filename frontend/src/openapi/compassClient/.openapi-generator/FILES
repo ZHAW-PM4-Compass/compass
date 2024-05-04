@@ -1,3 +1,4 @@
+.openapi-generator-ignore
 apis/BaseControllerApi.ts
 apis/DaySheetControllerApi.ts
 apis/TimestampControllerApi.ts

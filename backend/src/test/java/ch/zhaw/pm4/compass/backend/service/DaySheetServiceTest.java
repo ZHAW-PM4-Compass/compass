@@ -66,7 +66,7 @@ class DaySheetServiceTest {
 		DaySheet daySheet = getDaySheet();
 		when(daySheetRepository.findByIdAndUserId(any(Long.class), any(String.class)))
 				.thenReturn(Optional.of(daySheet));
-		DaySheetDto foundDay = daySheetService.getDaySheetById(daySheet.getId(), user_id);
+		DaySheetDto foundDay = daySheetService.getDaySheetByIdAndUserId(daySheet.getId(), user_id);
 
 		assertEquals(daySheet.getId(), foundDay.getId());
 		assertEquals(daySheet.getDate(), foundDay.getDate());
@@ -137,7 +137,7 @@ class DaySheetServiceTest {
 		DaySheet daySheet = getDaySheet();
 		when(daySheetRepository.findByIdAndUserId(any(Long.class), any(String.class)))
 				.thenReturn(Optional.of(daySheet));
-		DaySheetDto getDay = daySheetService.getDaySheetById(daySheet.getId(), user_id);
+		DaySheetDto getDay = daySheetService.getDaySheetByIdAndUserId(daySheet.getId(), user_id);
 		assertEquals(daySheet.getId(), getDay.getId());
 		assertEquals(daySheet.getDate(), getDay.getDate());
 		assertEquals(daySheet.getDayNotes(), getDay.getDay_notes());
@@ -147,7 +147,7 @@ class DaySheetServiceTest {
 	void testGetNotExistingDaySheetById() {
 		DaySheet daySheet = getDaySheet();
 		when(daySheetRepository.findByIdAndUserId(any(Long.class), any(String.class))).thenReturn(Optional.empty());
-		assertNull(daySheetService.getDaySheetById(daySheet.getId(), user_id));
+		assertNull(daySheetService.getDaySheetByIdAndUserId(daySheet.getId(), user_id));
 	}
 
 	@Test

@@ -2,13 +2,17 @@ package ch.zhaw.pm4.compass.backend.service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ch.zhaw.pm4.compass.backend.UserRole;
 import ch.zhaw.pm4.compass.backend.exception.CategoryAlreadyExistsException;
 import ch.zhaw.pm4.compass.backend.exception.GlobalCategoryException;
 import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
+import ch.zhaw.pm4.compass.backend.exception.UserIsNotParticipantException;
 import ch.zhaw.pm4.compass.backend.model.Category;
 import ch.zhaw.pm4.compass.backend.model.LocalUser;
 import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
@@ -53,6 +57,23 @@ public class CategoryService {
 		}
 
 		return convertEntityToDto(categoryRepository.save(savedCategory), false);
+	}
+
+	public List<CategoryDto> getCategoryListByUserId(String userId) throws UserIsNotParticipantException {
+		LocalUser user = userService.getLocalUser(userId);
+		if (user.getRole() != UserRole.PARTICIPANT) {
+			throw new UserIsNotParticipantException();
+		}
+
+		Iterable<Category> globalCategories = categoryRepository.findGlobalCategories();
+		Iterable<Category> userCategories = categoryRepository.findAllByCategoryOwners(user);
+
+		return Stream.concat(StreamSupport.stream(globalCategories.spliterator(), false),
+				StreamSupport.stream(userCategories.spliterator(), false)).map(i -> {
+					CategoryDto categoryDto = convertEntityToDto(i, false);
+					categoryDto.setCategoryOwners(null);
+					return categoryDto;
+				}).toList();
 	}
 
 	public Category convertDtoToEntity(CategoryDto dto) throws NotValidCategoryOwnerException {

@@ -33,7 +33,7 @@ public class DaySheetService {
 		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
 	}
 
-	public DaySheetDto getDaySheetById(Long id, String user_id) {
+	public DaySheetDto getDaySheetByIdAndUserId(Long id, String user_id) {
 		Optional<DaySheet> optional = daySheetRepository.findByIdAndUserId(id, user_id);
 		if (optional.isPresent())
 			return convertDaySheetToDaySheetDto(optional.get());

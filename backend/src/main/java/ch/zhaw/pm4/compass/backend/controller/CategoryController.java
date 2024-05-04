@@ -1,5 +1,6 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.zhaw.pm4.compass.backend.exception.CategoryAlreadyExistsException;
 import ch.zhaw.pm4.compass.backend.exception.GlobalCategoryException;
 import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
+import ch.zhaw.pm4.compass.backend.exception.UserIsNotParticipantException;
 import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
 import ch.zhaw.pm4.compass.backend.service.CategoryService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -61,5 +63,14 @@ public class CategoryController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 
+	}
+
+	@GetMapping(path = "/getCategoryListByUserId/{userId}", produces = "application/json")
+	public ResponseEntity<List<CategoryDto>> getCategoryListByUserId(@PathVariable String userId) {
+		try {
+			return ResponseEntity.ok(categoryService.getCategoryListByUserId(userId));
+		} catch (UserIsNotParticipantException | NoSuchElementException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
 	}
 }

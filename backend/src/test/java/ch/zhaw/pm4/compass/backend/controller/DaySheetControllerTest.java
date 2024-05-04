@@ -183,14 +183,14 @@ public class DaySheetControllerTest {
 	void testGetDayById() throws Exception {
 		// Arrange
 		DaySheetDto getDay = getDaySheetDto();
-		when(daySheetService.getDaySheetById(any(Long.class), any(String.class))).thenReturn(getDay);
+		when(daySheetService.getDaySheetByIdAndUserId(any(Long.class), any(String.class))).thenReturn(getDay);
 
 		mockMvc.perform(get("/daysheet/getById/" + getDay.getId()).with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.id").value(1l))
 				.andExpect(jsonPath("$.day_notes").value(getDay.getDay_notes()))
 				.andExpect(jsonPath("$.date").value(getDay.getDate().toString()));
 
-        verify(daySheetService, times(1)).getDaySheetById(any(Long.class), any(String.class));
+        verify(daySheetService, times(1)).getDaySheetByIdAndUserId(any(Long.class), any(String.class));
     }
 
     @Test

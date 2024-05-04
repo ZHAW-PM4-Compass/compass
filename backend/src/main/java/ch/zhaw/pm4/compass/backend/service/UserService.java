@@ -128,6 +128,10 @@ public class UserService {
 		return authZeroUserDto;
 	}
 
+	public LocalUser getLocalUser(String id) {
+		return localUserRepository.findById(id).orElseThrow();
+	}
+
 	private UserRole getUserRole(String id) {
 		LocalUser user = localUserRepository.findById(id).orElse(null);
 		if (user != null) {

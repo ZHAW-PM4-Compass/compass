@@ -52,9 +52,7 @@ public class DaySheetController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         return ResponseEntity.ok(response);
     }
-
-
-
+    
     @GetMapping(path = "/getAllByParticipant/{userId}", produces = "application/json")
     public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipant(@PathVariable String userId, Authentication authentication) {
         if (authentication == null)

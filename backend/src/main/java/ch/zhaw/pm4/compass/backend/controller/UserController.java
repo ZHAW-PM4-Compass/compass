@@ -1,7 +1,7 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
+import ch.zhaw.pm4.compass.backend.model.dto.AuthZeroUserDto;
 import ch.zhaw.pm4.compass.backend.model.dto.CreateAuthZeroUserDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UpdateAuthZeroUserDto;
 import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
 import ch.zhaw.pm4.compass.backend.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,9 +29,9 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
-    @PutMapping(path = "/update/{id}", produces = "application/json")
-    public ResponseEntity<UpdateAuthZeroUserDto> updateUser(@PathVariable String id, @RequestBody UpdateAuthZeroUserDto userDto) {
-        UpdateAuthZeroUserDto queryUser = userService.updateUser(id, userDto);
+    @DeleteMapping(path = "/{id}", produces = "application/json")
+    public ResponseEntity<UserDto> deleteUser(@PathVariable String id) {
+        UserDto queryUser = userService.deleteUser(id);
         if (queryUser != null) {
             return ResponseEntity.ok(queryUser);
         }
@@ -39,14 +39,24 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
-    @DeleteMapping(path = "/update/{id}", produces = "application/json")
-    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
-        boolean deleted = userService.deleteUser(id);
-        if (deleted) {
-            return ResponseEntity.ok().build(); // return 200 OK if the user was successfully deleted
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // return 400 BAD REQUEST if the user was not deleted
+    @PutMapping(path = "update/{id}", produces = "application/json")
+    public ResponseEntity<UserDto> updateUser(@PathVariable String id, @RequestBody AuthZeroUserDto userDto) {
+        UserDto queryUser = userService.updateUser(id, userDto);
+        if (queryUser != null) {
+            return ResponseEntity.ok(queryUser);
         }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
+
+    @PutMapping(path = "restore/{id}", produces = "application/json")
+    public ResponseEntity<UserDto> restoreUser(@PathVariable String id) {
+        UserDto queryUser = userService.restoreUser(id);
+        if (queryUser != null) {
+            return ResponseEntity.ok(queryUser);
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
     @GetMapping(path = "getById/{id}", produces = "application/json")
@@ -61,7 +71,7 @@ public class UserController {
 
     @GetMapping(path = "getAllUsers", produces = "application/json")
     public ResponseEntity<List<UserDto>> getAllUsers() {
-        List<UserDto> queryUsers = (List<UserDto>)(List<?>) userService.getAllUsers();
+        List<UserDto> queryUsers = userService.getAllUsers();
         if (queryUsers != null) {
             return ResponseEntity.ok(queryUsers);
         }
@@ -71,7 +81,7 @@ public class UserController {
 
     @GetMapping(path = "getAllParticipants", produces = "application/json")
     public ResponseEntity<List<UserDto>> getAllParticipants() {
-        List<UserDto> queryUsers = (List<UserDto>)(List<?>) userService.getAllParticipants();
+        List<UserDto> queryUsers = userService.getAllParticipants();
         if (queryUsers != null) {
             return ResponseEntity.ok(queryUsers);
         }

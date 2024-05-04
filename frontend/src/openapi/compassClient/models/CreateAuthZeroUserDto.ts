@@ -45,6 +45,12 @@ export interface CreateAuthZeroUserDto {
     role?: string;
     /**
      * 
+     * @type {boolean}
+     * @memberof CreateAuthZeroUserDto
+     */
+    blocked?: boolean;
+    /**
+     * 
      * @type {string}
      * @memberof CreateAuthZeroUserDto
      */
@@ -84,6 +90,7 @@ export function CreateAuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminato
         'givenName': json['given_name'] == null ? undefined : json['given_name'],
         'familyName': json['family_name'] == null ? undefined : json['family_name'],
         'role': json['role'] == null ? undefined : json['role'],
+        'blocked': json['blocked'] == null ? undefined : json['blocked'],
         'userId': json['user_id'] == null ? undefined : json['user_id'],
         'password': json['password'] == null ? undefined : json['password'],
         'connection': json['connection'] == null ? undefined : json['connection'],
@@ -100,6 +107,7 @@ export function CreateAuthZeroUserDtoToJSON(value?: CreateAuthZeroUserDto | null
         'given_name': value['givenName'],
         'family_name': value['familyName'],
         'role': value['role'],
+        'blocked': value['blocked'],
         'user_id': value['userId'],
         'password': value['password'],
         'connection': value['connection'],

@@ -15,15 +15,15 @@
 
 import * as runtime from '../runtime';
 import type {
+  AuthZeroUserDto,
   CreateAuthZeroUserDto,
-  UpdateAuthZeroUserDto,
   UserDto,
 } from '../models/index';
 import {
+    AuthZeroUserDtoFromJSON,
+    AuthZeroUserDtoToJSON,
     CreateAuthZeroUserDtoFromJSON,
     CreateAuthZeroUserDtoToJSON,
-    UpdateAuthZeroUserDtoFromJSON,
-    UpdateAuthZeroUserDtoToJSON,
     UserDtoFromJSON,
     UserDtoToJSON,
 } from '../models/index';
@@ -40,9 +40,13 @@ export interface GetUserByIdRequest {
     id: string;
 }
 
+export interface RestoreUserRequest {
+    id: string;
+}
+
 export interface UpdateUserRequest {
     id: string;
-    updateAuthZeroUserDto: UpdateAuthZeroUserDto;
+    authZeroUserDto: AuthZeroUserDto;
 }
 
 /**
@@ -86,7 +90,7 @@ export class UserControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async deleteUserRaw(requestParameters: DeleteUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async deleteUserRaw(requestParameters: DeleteUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserDto>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
@@ -99,19 +103,20 @@ export class UserControllerApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/user/update/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id']))),
+            path: `/user/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id']))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async deleteUser(requestParameters: DeleteUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.deleteUserRaw(requestParameters, initOverrides);
+    async deleteUser(requestParameters: DeleteUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserDto> {
+        const response = await this.deleteUserRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
@@ -195,7 +200,38 @@ export class UserControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async updateUserRaw(requestParameters: UpdateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateAuthZeroUserDto>> {
+    async restoreUserRaw(requestParameters: RestoreUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserDto>> {
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling restoreUser().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/user/restore/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id']))),
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async restoreUser(requestParameters: RestoreUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserDto> {
+        const response = await this.restoreUserRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async updateUserRaw(requestParameters: UpdateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserDto>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
@@ -203,10 +239,10 @@ export class UserControllerApi extends runtime.BaseAPI {
             );
         }
 
-        if (requestParameters['updateAuthZeroUserDto'] == null) {
+        if (requestParameters['authZeroUserDto'] == null) {
             throw new runtime.RequiredError(
-                'updateAuthZeroUserDto',
-                'Required parameter "updateAuthZeroUserDto" was null or undefined when calling updateUser().'
+                'authZeroUserDto',
+                'Required parameter "authZeroUserDto" was null or undefined when calling updateUser().'
             );
         }
 
@@ -221,15 +257,15 @@ export class UserControllerApi extends runtime.BaseAPI {
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
-            body: UpdateAuthZeroUserDtoToJSON(requestParameters['updateAuthZeroUserDto']),
+            body: AuthZeroUserDtoToJSON(requestParameters['authZeroUserDto']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UpdateAuthZeroUserDtoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async updateUser(requestParameters: UpdateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateAuthZeroUserDto> {
+    async updateUser(requestParameters: UpdateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserDto> {
         const response = await this.updateUserRaw(requestParameters, initOverrides);
         return await response.value();
     }

@@ -8,7 +8,7 @@ import Select from "@/components/select";
 import Table from "@/components/table";
 import Title1 from "@/components/title1";
 import Roles from "@/constants/roles";
-import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular } from "@fluentui/react-icons";
+import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular, ArrowHookUpLeft24Regular } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
 import toastMessages from "@/constants/toastMessages";
@@ -96,7 +96,7 @@ function UserUpdateModal({ close, onSave, user }: Readonly<{
   const onSubmit = (formData: FormData) => {
     const updateUserRequest: UpdateUserRequest = {
       id: user?.userId as string,
-      updateAuthZeroUserDto: {
+      authZeroUserDto: {
         email: formData.get(formFields.EMAIL) as string,
         givenName: formData.get(formFields.GIVEN_NAME) as string,
         familyName: formData.get(formFields.FAMILY_NAME) as string,
@@ -159,10 +159,20 @@ export default function UsersPage() {
   const deleteUser = (id: string) => {
     getUserControllerApi().deleteUser({ id }).then(() => {
       loadUsers();
-      setTimeout(() => loadUsers(), 1000);
       toast.success(toastMessages.USER_DELETED);
+      setTimeout(() => loadUsers(), 1000);
     }).catch(() => {
       toast.error(toastMessages.USER_NOT_DELETED);
+    })
+  }
+
+  const restoreUser = (id: string) => {
+    getUserControllerApi().restoreUser({ id }).then(() => {
+      loadUsers();
+      toast.success(toastMessages.USER_RESTORED);
+      setTimeout(() => loadUsers(), 1000);
+    }).catch(() => {
+      toast.error(toastMessages.USER_NOT_RESTORED);
     })
   }
 
@@ -210,11 +220,27 @@ export default function UsersPage() {
           ]}
           actions={[
             {
+              icon: ArrowHookUpLeft24Regular,
+              label: "Restore",
+              onClick: (id) => {
+                const user = users[id];
+                user?.userId && restoreUser(user.userId)
+              },
+              hide: (id) => {
+                const user = users[id] as UserDto;
+                return !user.deleted ?? true;
+              }
+            },
+            {
               icon: Delete24Regular,
               label: "Löschen",
               onClick: (id) => {
                 const user = users[id];
                 user?.userId && deleteUser(user.userId)
+              },
+              hide: (id) => {
+                const user = users[id] as UserDto;
+                return user.deleted ?? false;
               }
             },
             {

@@ -16,47 +16,53 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface UpdateAuthZeroUserDto
+ * @interface AuthZeroUserDto
  */
-export interface UpdateAuthZeroUserDto {
+export interface AuthZeroUserDto {
     /**
      * 
      * @type {string}
-     * @memberof UpdateAuthZeroUserDto
+     * @memberof AuthZeroUserDto
      */
     email?: string;
     /**
      * 
      * @type {string}
-     * @memberof UpdateAuthZeroUserDto
+     * @memberof AuthZeroUserDto
      */
     givenName?: string;
     /**
      * 
      * @type {string}
-     * @memberof UpdateAuthZeroUserDto
+     * @memberof AuthZeroUserDto
      */
     familyName?: string;
     /**
      * 
      * @type {string}
-     * @memberof UpdateAuthZeroUserDto
+     * @memberof AuthZeroUserDto
      */
     role?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof AuthZeroUserDto
+     */
+    blocked?: boolean;
 }
 
 /**
- * Check if a given object implements the UpdateAuthZeroUserDto interface.
+ * Check if a given object implements the AuthZeroUserDto interface.
  */
-export function instanceOfUpdateAuthZeroUserDto(value: object): boolean {
+export function instanceOfAuthZeroUserDto(value: object): boolean {
     return true;
 }
 
-export function UpdateAuthZeroUserDtoFromJSON(json: any): UpdateAuthZeroUserDto {
-    return UpdateAuthZeroUserDtoFromJSONTyped(json, false);
+export function AuthZeroUserDtoFromJSON(json: any): AuthZeroUserDto {
+    return AuthZeroUserDtoFromJSONTyped(json, false);
 }
 
-export function UpdateAuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): UpdateAuthZeroUserDto {
+export function AuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): AuthZeroUserDto {
     if (json == null) {
         return json;
     }
@@ -66,10 +72,11 @@ export function UpdateAuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminato
         'givenName': json['given_name'] == null ? undefined : json['given_name'],
         'familyName': json['family_name'] == null ? undefined : json['family_name'],
         'role': json['role'] == null ? undefined : json['role'],
+        'blocked': json['blocked'] == null ? undefined : json['blocked'],
     };
 }
 
-export function UpdateAuthZeroUserDtoToJSON(value?: UpdateAuthZeroUserDto | null): any {
+export function AuthZeroUserDtoToJSON(value?: AuthZeroUserDto | null): any {
     if (value == null) {
         return value;
     }
@@ -79,6 +86,7 @@ export function UpdateAuthZeroUserDtoToJSON(value?: UpdateAuthZeroUserDto | null
         'given_name': value['givenName'],
         'family_name': value['familyName'],
         'role': value['role'],
+        'blocked': value['blocked'],
     };
 }
 

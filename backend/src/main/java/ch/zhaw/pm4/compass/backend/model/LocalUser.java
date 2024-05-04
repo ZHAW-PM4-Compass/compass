@@ -5,14 +5,12 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Getter
 @Setter
 @Entity
 public class LocalUser {
     @Id
     private String id;
-
     private String role;
 
     public LocalUser() {

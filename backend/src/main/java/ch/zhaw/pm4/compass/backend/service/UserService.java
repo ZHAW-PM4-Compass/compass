@@ -20,16 +20,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     @Autowired
     private Environment env;
-    private String baseUrl;
-    private String clientId;
-    private String clientSecret;
-    private String audience;
+    public String baseUrl;
+    public String clientId;
+    public String clientSecret;
+    public String audience;
 
     @Autowired
     LocalUserRepository localUserRepository;
@@ -88,7 +89,6 @@ public class UserService {
             throw new RuntimeException(e);
         }
 
-        Map<String, String> localUserMap = getAllLocalUsers();
         for (CreateAuthZeroUserDto CreateAuthZeroUserDto : authZeroUserDtos) {
             LocalUser localUser = localUserRepository.findById(CreateAuthZeroUserDto.getUser_id()).orElse(null);
             if (localUser != null && !localUser.isEmpty()) {
@@ -136,10 +136,10 @@ public class UserService {
         return null;
     }
 
-    private String getUserRole(String id) {
-        LocalUser user = localUserRepository.findById(id).orElse(null);
-        if (user != null) {
-            return user.getRole();
+    public String getUserRole(String id) {
+        Optional<LocalUser> user = localUserRepository.findById(id);
+        if (user.isPresent()) {
+            return user.get().getRole();
         }
         return null;
     }
@@ -206,7 +206,7 @@ public class UserService {
         return updateUser(userId, updateUserDto);
     }
 
-    private Map<String, String> getAllLocalUsers() {
+    public Map<String, String> getAllLocalUsers() {
         return localUserRepository.findAll().stream()
                 .map(localUser -> {
                     if(localUser.getRole() == null ) {
@@ -219,7 +219,7 @@ public class UserService {
                         LocalUser::getRole));
     }
 
-    private String getToken() {
+    public String getToken() {
         String token = "";
 
         try {
@@ -248,7 +248,7 @@ public class UserService {
         return jsonObject.get("access_token").getAsString();
     }
 
-    private UserDto mapAuthZeroUserToUserDto(String userId, AuthZeroUserDto authZeroUserDto) {
+    public UserDto mapAuthZeroUserToUserDto(String userId, AuthZeroUserDto authZeroUserDto) {
         if (authZeroUserDto == null) return null;
         return new UserDto(
                 userId,

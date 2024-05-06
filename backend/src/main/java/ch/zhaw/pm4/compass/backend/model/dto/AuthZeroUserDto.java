@@ -31,4 +31,5 @@ public class AuthZeroUserDto {
         this.role = role;
         this.blocked = blocked;
     }
+
 }

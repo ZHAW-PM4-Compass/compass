@@ -32,16 +32,4 @@ public class UserDto {
         this.role = role;
         this.deleted = !isNull(deleted) && deleted;
     }
-
-    @Override
-    public String toString() {
-        return "UserDto{" +
-                "email='" + email + '\'' +
-                ", given_name='" + given_name + '\'' +
-                ", family_name='" + family_name + '\'' +
-                ", role='" + role + '\'' +
-                ", user_id='" + user_id + '\'' +
-                ", deleted=" + deleted +
-                '}';
-    }
 }

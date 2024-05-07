@@ -9,8 +9,29 @@ import Title1 from "@/components/title1";
 import {getDaySheetControllerApi} from "@/openapi/connector";
 import toastMessages from "@/constants/toastMessages";
 
+const mockDaySheetData = [
+    {
+        id: 1,
+        date: "2024-05-01",
+        participant: "Max Mustermann",
+        workHours: 8,
+        confirmed: false,
+        dayNotes: "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+    },
+    {
+        id: 2,
+        date: "2024-05-02",
+        participant: "Anna Beispiel",
+        workHours: 7.5,
+        confirmed: false,
+        dayNotes: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    },
+    // Weitere Dummy-Daten hier hinzufügen...
+];
+
 export default function HomePage() {
-    const [daySheetDtos, setDaySheetDtos] = useState<DaySheetDto[]>([]);
+    //const [daySheetDtos, setDaySheetDtos] = useState<DaySheetDto[]>([]);
+    const [daySheetDtos, setDaySheetDtos] = useState(mockDaySheetData);
     const [selectedDaySheetDto, setSelectedDaySheetDto] = useState<DaySheetDto>();
     const userId = ""; //TODO daysheet: Somehow select user in frontend, maybe a dropdown?
     const router = useRouter();
@@ -153,7 +174,7 @@ export default function HomePage() {
                     <div className="flex justify-center p-4 mb-4">Notizen erfassen für:  Daysheet ID: {selectedDaySheetDto?.id}</div>
                     <div className="flex justify-center">
                         <textarea value={notesInput} // ...force the input's value to match the state variable...
-                                  onChange={e => setNotesInput(e.target.value)}  rows="10" cols="50"></textarea>
+                                  onChange={e => setNotesInput(e.target.value)}  rows={10} cols={50}></textarea>
                     </div>
                     <div className="flex justify-center my-4">
                         <button onClick={() => saveNotesModal()} className="bg-green-400 p-3 rounded text-white ">Speichern

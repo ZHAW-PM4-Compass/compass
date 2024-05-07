@@ -8,12 +8,12 @@ import Select from "@/components/select";
 import Table from "@/components/table";
 import Title1 from "@/components/title1";
 import Roles from "@/constants/roles";
-import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular } from "@fluentui/react-icons";
+import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular, ArrowHookUpLeft24Regular } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
 import toastMessages from "@/constants/toastMessages";
 import RoleTitles from "@/constants/roleTitles";
-import type { CreateUserRequest, UserDto } from "@/openapi/compassClient";
+import type { CreateUserRequest, UpdateUserRequest, UserDto } from "@/openapi/compassClient";
 
 const roles = [
   {
@@ -44,7 +44,7 @@ function UserCreateModal({ close, onSave }: Readonly<{
   }>) {
   const onSubmit = (formData: FormData) => {
     const createUserDto: CreateUserRequest = {
-      authZeroUserDto: {
+      createAuthZeroUserDto: {
         email: formData.get(formFields.EMAIL) as string,
         givenName: formData.get(formFields.GIVEN_NAME) as string,
         familyName: formData.get(formFields.FAMILY_NAME) as string,
@@ -90,47 +90,50 @@ function UserUpdateModal({ close, onSave, user }: Readonly<{
 	onSave: () => void;
 	user: UserDto | undefined;
 }>) {
-const onSubmit = (formData: FormData) => {
-  const createUserDto: CreateUserRequest = {
-    authZeroUserDto: {
-      email: formData.get(formFields.EMAIL) as string,
-      givenName: formData.get(formFields.GIVEN_NAME) as string,
-      familyName: formData.get(formFields.FAMILY_NAME) as string,
-      role: formData.get(formFields.ROLE) as string,
-      password: formData.get(formFields.PASSWORD) as string
-    }
-  };
+  const [givenName, setGivenName] = useState(user?.givenName);
+  const [familyName, setFamilyName] = useState(user?.familyName);
 
-	getUserControllerApi().createUser(createUserDto).then(() => {
-		close();
-		setTimeout(() => onSave(), 1000);
-    toast.success(toastMessages.USER_UPDATED);
-	}).catch(() => {
-		toast.error(toastMessages.USER_NOT_UPDATED);
-	})
-}
+  const onSubmit = (formData: FormData) => {
+    const updateUserRequest: UpdateUserRequest = {
+      id: user?.userId as string,
+      authZeroUserDto: {
+        email: formData.get(formFields.EMAIL) as string,
+        givenName: formData.get(formFields.GIVEN_NAME) as string,
+        familyName: formData.get(formFields.FAMILY_NAME) as string,
+        role: formData.get(formFields.ROLE) as string
+      }
+    };
 
-return (
-	<Modal
-		title="Benutzer bearbeiten"
-		footerActions={
-			<Button Icon={Save24Regular} type="submit">Speichern</Button>
-		}
-		close={close}
-		onSubmit={onSubmit}
-	>
-		<Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" name={formFields.GIVEN_NAME} required={true} value={user?.givenName} />
-		<Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" name={formFields.FAMILY_NAME} required={true} value={user?.familyName} />
-		<Select
-			className="mb-4 mr-4 w-32 block"
-			placeholder="Rolle wählen"
-      name={formFields.ROLE}
-			data={roles}
-			required={true}
-			value={user?.role} />
-		<Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name={formFields.EMAIL} disabled={true} value={user?.email} />
-	</Modal>
-);
+  	getUserControllerApi().updateUser(updateUserRequest).then(() => {
+  		close();
+  		setTimeout(() => onSave(), 1000);
+      toast.success(toastMessages.USER_UPDATED);
+  	}).catch(() => {
+  		toast.error(toastMessages.USER_NOT_UPDATED);
+  	})
+  }
+
+  return (
+    <Modal
+      title="Benutzer bearbeiten"
+      footerActions={
+        <Button Icon={Save24Regular} type="submit">Speichern</Button>
+      }
+      close={close}
+      onSubmit={onSubmit}
+    >
+      <Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" name={formFields.GIVEN_NAME} required={true} value={givenName} onChange={(e) => setGivenName(e.target.value)} />
+      <Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" name={formFields.FAMILY_NAME} required={true} value={familyName} onChange={(e) => setFamilyName(e.target.value)} />
+      <Select
+        className="mb-4 mr-4 w-32 block"
+        placeholder="Rolle wählen"
+        name={formFields.ROLE}
+        data={roles}
+        required={true}
+        value={user?.role} />
+      <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name={formFields.EMAIL} disabled={true} value={user?.email} />
+    </Modal>
+  );
 }
 
 export default function UsersPage() {
@@ -152,6 +155,26 @@ export default function UsersPage() {
 			toast.error(toastMessages.DATA_NOT_LOADED);
 		})
 	}
+
+  const deleteUser = (id: string) => {
+    getUserControllerApi().deleteUser({ id }).then(() => {
+      loadUsers();
+      toast.success(toastMessages.USER_DELETED);
+      setTimeout(() => loadUsers(), 1000);
+    }).catch(() => {
+      toast.error(toastMessages.USER_NOT_DELETED);
+    })
+  }
+
+  const restoreUser = (id: string) => {
+    getUserControllerApi().restoreUser({ id }).then(() => {
+      loadUsers();
+      toast.success(toastMessages.USER_RESTORED);
+      setTimeout(() => loadUsers(), 1000);
+    }).catch(() => {
+      toast.error(toastMessages.USER_NOT_RESTORED);
+    })
+  }
 
   useEffect(() => loadUsers(), []);
 
@@ -197,9 +220,28 @@ export default function UsersPage() {
           ]}
           actions={[
             {
+              icon: ArrowHookUpLeft24Regular,
+              label: "Restore",
+              onClick: (id) => {
+                const user = users[id];
+                user?.userId && restoreUser(user.userId)
+              },
+              hide: (id) => {
+                const user = users[id] as UserDto;
+                return !user.deleted ?? true;
+              }
+            },
+            {
               icon: Delete24Regular,
               label: "Löschen",
-              onClick: (id) => {}
+              onClick: (id) => {
+                const user = users[id];
+                user?.userId && deleteUser(user.userId)
+              },
+              hide: (id) => {
+                const user = users[id] as UserDto;
+                return user.deleted ?? false;
+              }
             },
             {
               icon: Edit24Regular,

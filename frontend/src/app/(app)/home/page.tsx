@@ -8,22 +8,26 @@ import {useRouter} from "next/navigation";
 import Title1 from "@/components/title1";
 import {getDaySheetControllerApi} from "@/openapi/connector";
 import toastMessages from "@/constants/toastMessages";
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 export default function HomePage() {
     const [daySheetDtos, setDaySheetDtos] = useState<DaySheetDto[]>([]);
     const [selectedDaySheetDto, setSelectedDaySheetDto] = useState<DaySheetDto>();
     const router = useRouter();
+    const {user} = useUser();
 
     useEffect(() => {
-      getDaySheetControllerApi().getAllDaySheet().then(daySheetDtos => {
-        close();
-        toast.success(toastMessages.DAYSHEETS_LOADED);
+      if (user?.sub) {
+        getDaySheetControllerApi().getAllDaySheetByParticipant({ userId: user?.sub }).then(daySheetDtos => {
+          close();
+          toast.success(toastMessages.DAYSHEETS_LOADED);
 
-        const notConfirmedDaySheetDtos = daySheetDtos.filter(daySheetDto => !daySheetDto.confirmed);
-        setDaySheetDtos(notConfirmedDaySheetDtos);
-      }).catch(() => {
-          toast.error(toastMessages.DATA_NOT_LOADED);
-      });
+          const notConfirmedDaySheetDtos = daySheetDtos.filter(daySheetDto => !daySheetDto.confirmed);
+          setDaySheetDtos(notConfirmedDaySheetDtos);
+        }).catch(() => {
+            toast.error(toastMessages.DATA_NOT_LOADED);
+        });
+      }
     }, []);
 
     const confirmDaySheet = async (updateDay: DaySheetDto) => {

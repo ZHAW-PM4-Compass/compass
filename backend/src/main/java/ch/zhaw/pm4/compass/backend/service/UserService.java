@@ -11,7 +11,6 @@ import com.nimbusds.jose.shaded.gson.JsonParser;
 import com.nimbusds.jose.shaded.gson.reflect.TypeToken;
 import jakarta.annotation.PostConstruct;
 import okhttp3.*;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -27,10 +26,10 @@ import java.util.stream.Collectors;
 public class UserService {
     @Autowired
     private Environment env;
-    public String baseUrl;
-    public String clientId;
-    public String clientSecret;
-    public String audience;
+    private String baseUrl;
+    private String clientId;
+    private String clientSecret;
+    private String audience;
 
     @Autowired
     LocalUserRepository localUserRepository;
@@ -39,10 +38,14 @@ public class UserService {
 
     @PostConstruct
     public void init() {
-        baseUrl = env.getProperty("auth0.mgmt.baseurl");
-        clientId = env.getProperty("auth0.mgmt.clientId");
-        clientSecret = env.getProperty("auth0.mgmt.clientSecret");
-        audience = env.getProperty("auth0.mgmt.audience");
+        setEnv(env.getProperty("auth0.mgmt.baseurl"), env.getProperty("auth0.mgmt.clientId"), env.getProperty("auth0.mgmt.clientSecret"), env.getProperty("auth0.mgmt.audience"));
+    }
+
+    public void setEnv(String baseUrl, String clientId, String clientSecret, String audience) {
+        this.baseUrl = baseUrl;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.audience = audience;
     }
 
     public UserDto getUserById(String userID) {
@@ -209,10 +212,10 @@ public class UserService {
     public Map<String, String> getAllLocalUsers() {
         return localUserRepository.findAll().stream()
                 .map(localUser -> {
-                    if(localUser.getRole() == null ) {
+                    if (localUser.getRole() == null) {
                         localUser.setRole("Keine Rolle");
                     }
-                    return  localUser;
+                    return localUser;
                 })
                 .collect(Collectors.toMap(
                         LocalUser::getId,

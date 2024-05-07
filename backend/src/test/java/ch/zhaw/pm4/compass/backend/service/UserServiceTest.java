@@ -14,6 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,7 +29,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
+@ContextConfiguration
 class UserServiceTest {
+    @Autowired
+    Environment env;
     @InjectMocks
     private UserService userService = spy(new UserService());
 
@@ -50,11 +58,7 @@ class UserServiceTest {
         MockitoAnnotations.openMocks(localUserRepository);
         userDto = getUserDto();
 
-        // User env variables here
-        userService.baseUrl = "https://stadtmuur-compass-dev.eu.auth0.com";
-        userService.clientId = "statdtmuur";
-        userService.clientSecret = "secret";
-        userService.audience = "backend";
+        userService.setEnv(env.getProperty("auth0.mgmt.baseurl"), env.getProperty("auth0.mgmt.clientId"), env.getProperty("auth0.mgmt.clientSecret"), env.getProperty("auth0.mgmt.audience"));
     }
 
     private LocalUser getLocalUser() {

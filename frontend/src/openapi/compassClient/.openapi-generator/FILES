@@ -1,3 +1,4 @@
+.openapi-generator-ignore
 apis/BaseControllerApi.ts
 apis/DaySheetControllerApi.ts
 apis/TimestampControllerApi.ts
@@ -5,8 +6,10 @@ apis/UserControllerApi.ts
 apis/index.ts
 index.ts
 models/AuthZeroUserDto.ts
+models/CreateAuthZeroUserDto.ts
 models/DaySheetDto.ts
 models/TimestampDto.ts
+models/UpdateDaySheetDayNotesDto.ts
 models/UserDto.ts
 models/index.ts
 runtime.ts

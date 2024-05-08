@@ -6,7 +6,7 @@ export const GET = handleAuth({
     try {
       return await handleCallback(request, response)
     } catch (error: any) {
-      //response.redirect('/');
+      return response.redirect('/');
     }
   }
 });

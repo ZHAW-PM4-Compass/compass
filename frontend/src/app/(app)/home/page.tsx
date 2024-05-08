@@ -31,8 +31,9 @@ export default function HomePage() {
     }, []);
 
     const confirmDaySheet = async (updateDay: DaySheetDto) => {
+      if (updateDay.id) {
         const updateDayRequest: UpdateConfirmedRequest = {
-          daySheetDto: updateDay
+          id: updateDay.id
         };
 
         getDaySheetControllerApi().updateConfirmed(updateDayRequest).then(() => {
@@ -41,6 +42,7 @@ export default function HomePage() {
         }).catch(() => {
             toast.error(toastMessages.DAYSHEET_CONFIRMED_ERROR);
         });
+      }
     };
 
     const navigateToSingleDay = () => {

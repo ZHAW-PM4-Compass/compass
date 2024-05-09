@@ -42,7 +42,7 @@ export interface CreateAuthZeroUserDto {
      * @type {string}
      * @memberof CreateAuthZeroUserDto
      */
-    role?: string;
+    role?: CreateAuthZeroUserDtoRoleEnum;
     /**
      * 
      * @type {boolean}
@@ -68,6 +68,19 @@ export interface CreateAuthZeroUserDto {
      */
     connection?: string;
 }
+
+
+/**
+ * @export
+ */
+export const CreateAuthZeroUserDtoRoleEnum = {
+    SocialWorker: 'SOCIAL_WORKER',
+    Participant: 'PARTICIPANT',
+    Admin: 'ADMIN',
+    NoRole: 'NO_ROLE'
+} as const;
+export type CreateAuthZeroUserDtoRoleEnum = typeof CreateAuthZeroUserDtoRoleEnum[keyof typeof CreateAuthZeroUserDtoRoleEnum];
+
 
 /**
  * Check if a given object implements the CreateAuthZeroUserDto interface.

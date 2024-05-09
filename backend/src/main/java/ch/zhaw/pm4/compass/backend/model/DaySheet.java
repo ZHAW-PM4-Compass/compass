@@ -30,8 +30,9 @@ public class DaySheet {
 
 	private Boolean confirmed = false;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "user_id", referencedColumnName = "user_id", table = "local_user", nullable = false)
+	// @ManyToOne(fetch = FetchType.LAZY)
+	// @JoinColumn(name = "user_id", referencedColumnName = "user_id", table =
+	// "local_user", nullable = false)
 	private String userId;
 
 	@OneToMany(mappedBy = "daySheet", cascade = CascadeType.ALL)
@@ -48,6 +49,7 @@ public class DaySheet {
 		this.date = date;
 		this.dayNotes = dayNotes;
 		this.timestamps = new ArrayList<>();
+		this.moodRatings = new ArrayList<>();
 	}
 
 	public DaySheet(Long id, String dayNotes, LocalDate date) {
@@ -55,6 +57,7 @@ public class DaySheet {
 		this.date = date;
 		this.dayNotes = dayNotes;
 		this.timestamps = new ArrayList<>();
+		this.moodRatings = new ArrayList<>();
 	}
 
 	public DaySheet(Long id, String dayNotes, LocalDate date, Boolean confirmed) {
@@ -63,6 +66,7 @@ public class DaySheet {
 		this.dayNotes = dayNotes;
 		this.confirmed = confirmed;
 		this.timestamps = new ArrayList<>();
+		this.moodRatings = new ArrayList<>();
 	}
 
 	public DaySheet(Long id, String dayNotes, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
@@ -71,6 +75,7 @@ public class DaySheet {
 		this.dayNotes = dayNotes;
 		this.confirmed = confirmed;
 		this.timestamps = timestamps;
+		this.moodRatings = new ArrayList<>();
 	}
 
 	public DaySheet(Long id, String userId, String dayNotes, LocalDate date, Boolean confirmed,
@@ -81,9 +86,33 @@ public class DaySheet {
 		this.confirmed = confirmed;
 		this.timestamps = timestamps;
 		this.userId = userId;
+		this.moodRatings = new ArrayList<>();
+	}
+
+	public DaySheet(Long id, String dayNotes, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps,
+			ArrayList<Rating> moodRatings) {
+		this.id = id;
+		this.date = date;
+		this.dayNotes = dayNotes;
+		this.confirmed = confirmed;
+		this.timestamps = timestamps;
+		this.moodRatings = moodRatings;
+	}
+
+	public DaySheet(Long id, String userId, String dayNotes, LocalDate date, Boolean confirmed,
+			ArrayList<Timestamp> timestamps, ArrayList<Rating> moodRatings) {
+		this.id = id;
+		this.date = date;
+		this.dayNotes = dayNotes;
+		this.confirmed = confirmed;
+		this.timestamps = timestamps;
+		this.userId = userId;
+		this.moodRatings = moodRatings;
 	}
 
 	public DaySheet(LocalDate date) {
 		this.date = date;
+		this.timestamps = new ArrayList<>();
+		this.moodRatings = new ArrayList<>();
 	}
 }

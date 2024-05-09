@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +27,6 @@ public class CategoryDto {
 
 	private List<ParticipantDto> categoryOwners;
 
-	@Schema(accessMode = Schema.AccessMode.READ_ONLY)
 	private List<RatingDto> moodRatings;
 
 	public CategoryDto(Long id, String name, Integer minimumValue, Integer maximumValue,
@@ -40,8 +38,9 @@ public class CategoryDto {
 		this.categoryOwners = categoryOwners;
 	}
 
-	public CategoryDto(@JsonProperty("name") String name, @JsonProperty("minimumValue") Integer minimumValue,
-			@JsonProperty("maximumValue") Integer maximumValue) {
+	public CategoryDto(@JsonProperty("id") Long id, @JsonProperty("name") String name,
+			@JsonProperty("minimumValue") Integer minimumValue, @JsonProperty("maximumValue") Integer maximumValue) {
+		this.id = id;
 		this.name = name;
 		this.minimumValue = minimumValue;
 		this.maximumValue = maximumValue;

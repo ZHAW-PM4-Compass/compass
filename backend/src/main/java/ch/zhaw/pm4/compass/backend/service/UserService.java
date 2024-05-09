@@ -108,7 +108,7 @@ public class UserService {
 	}
 
 	public List<UserDto> getAllParticipants() {
-		return getAllUsers().stream().filter(authorizesUserDTO -> "Participant".equals(authorizesUserDTO.getRole()))
+		return getAllUsers().stream().filter(authorizesUserDTO -> authorizesUserDTO.getRole() == UserRole.PARTICIPANT)
 				.toList();
 	}
 

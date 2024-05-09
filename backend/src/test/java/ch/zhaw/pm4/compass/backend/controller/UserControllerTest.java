@@ -90,7 +90,7 @@ public class UserControllerTest {
 				.andExpect(jsonPath("$.email").value(getCreateAuthZeroUserDto().getEmail()))
 				.andExpect(jsonPath("$.given_name").value(getCreateAuthZeroUserDto().getGiven_name()))
 				.andExpect(jsonPath("$.family_name").value(getCreateAuthZeroUserDto().getFamily_name()))
-				.andExpect(jsonPath("$.role").value(getCreateAuthZeroUserDto().getRole()))
+				.andExpect(jsonPath("$.role").value(getCreateAuthZeroUserDto().getRole().toString()))
 				.andExpect(jsonPath("$.deleted").value(getCreateAuthZeroUserDto().getBlocked()));
 
 		verify(userService, times(1)).createUser(any(CreateAuthZeroUserDto.class));
@@ -125,7 +125,7 @@ public class UserControllerTest {
 				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value(getAuthZeroUserDto().getEmail()))
 				.andExpect(jsonPath("$.given_name").value(getAuthZeroUserDto().getGiven_name()))
 				.andExpect(jsonPath("$.family_name").value(getAuthZeroUserDto().getFamily_name()))
-				.andExpect(jsonPath("$.role").value(getAuthZeroUserDto().getRole()))
+				.andExpect(jsonPath("$.role").value(getAuthZeroUserDto().getRole().toString()))
 				.andExpect(jsonPath("$.deleted").value(getAuthZeroUserDto().getBlocked()));
 
 		verify(userService, times(1)).updateUser(anyString(), any(AuthZeroUserDto.class));
@@ -157,7 +157,7 @@ public class UserControllerTest {
 				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value(getAuthZeroUserDto().getEmail()))
 				.andExpect(jsonPath("$.given_name").value(getAuthZeroUserDto().getGiven_name()))
 				.andExpect(jsonPath("$.family_name").value(getAuthZeroUserDto().getFamily_name()))
-				.andExpect(jsonPath("$.role").value(getAuthZeroUserDto().getRole()))
+				.andExpect(jsonPath("$.role").value(getAuthZeroUserDto().getRole().toString()))
 				.andExpect(jsonPath("$.deleted").value(getAuthZeroUserDto().getBlocked()));
 
 		verify(userService, times(1)).getUserById(anyString());

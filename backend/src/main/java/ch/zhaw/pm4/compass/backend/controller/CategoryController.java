@@ -37,6 +37,11 @@ public class CategoryController {
 		}
 	}
 
+	@GetMapping(produces = "application/json")
+	public ResponseEntity<List<CategoryDto>> getAllCategories() {
+		return ResponseEntity.ok(categoryService.getAllCategories());
+	}
+
 	@GetMapping(path = "/getByName/{name}", produces = "application/json")
 	public ResponseEntity<CategoryDto> getCategoryByName(@PathVariable String name) {
 		try {

@@ -43,6 +43,10 @@ public class CategoryService {
 		return convertEntityToDto(categoryRepository.findByName(name).orElseThrow(), withRatings);
 	}
 
+	public List<CategoryDto> getAllCategories() {
+		return categoryRepository.findAll().stream().map(i -> convertEntityToDto(i, false)).toList();
+	}
+
 	public CategoryDto linkUsersToExistingCategory(CategoryDto linkCategory)
 			throws NotValidCategoryOwnerException, GlobalCategoryException {
 		Category newCategoryConfig = convertDtoToEntity(linkCategory);

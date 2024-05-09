@@ -83,6 +83,30 @@ export class CategoryControllerApi extends runtime.BaseAPI {
 
     /**
      */
+    async getAllCategoriesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CategoryDto>>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/category`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(CategoryDtoFromJSON));
+    }
+
+    /**
+     */
+    async getAllCategories(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CategoryDto>> {
+        const response = await this.getAllCategoriesRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
     async getCategoryByNameRaw(requestParameters: GetCategoryByNameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CategoryDto>> {
         if (requestParameters['name'] == null) {
             throw new runtime.RequiredError(

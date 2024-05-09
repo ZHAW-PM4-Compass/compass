@@ -21,6 +21,8 @@ import WorkingHoursCheckIcon from "@fluentui/svg-icons/icons/shifts_checkmark_24
 import WorkingHoursCheckIconFilled from "@fluentui/svg-icons/icons/shifts_checkmark_24_filled.svg";
 import OverviewIcon from "@fluentui/svg-icons/icons/arrow_trending_lines_24_regular.svg";
 import OverviewIconFilled from "@fluentui/svg-icons/icons/arrow_trending_lines_24_filled.svg";
+import CategoryIcon from "@fluentui/svg-icons/icons/apps_list_detail_24_regular.svg";
+import CategoryIconFilled from "@fluentui/svg-icons/icons/apps_list_detail_24_filled.svg";
 
 // admin
 import UserIcon from "@fluentui/svg-icons/icons/people_24_regular.svg";
@@ -148,6 +150,7 @@ export default function RootLayout({
             <SubTitle collapsed={!menuOpen} label="Teilnehmer" withLine={true} />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursIcon} iconActive={WorkingHoursIconFilled} label="Arbeitszeit" route="/working-hours" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
+            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={CategoryIcon} iconActive={CategoryIconFilled} label="Stimmung" route="/categories" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
 
             {backendUser && (backendUser.role === Roles.SOCIAL_WORKER || backendUser.role === Roles.ADMIN) && (

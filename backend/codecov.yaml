@@ -7,5 +7,6 @@ coverage:
 ignore:
   - "src/test/**/*"
   - "src/main/resources/**/*"
-  - "src/main/java/model/dto/**/*"
-  - "src/main/java/repository/**/*"
+  - "src/main/java/ch/zhaw/pm4/compass/backend/model/dto/**/*"
+  - "src/main/java/ch/zhaw/pm4/compass/backend/repository/**/*"
+  - "src/main/java/ch/zhaw/pm4/compass/backend/exception/**/*"

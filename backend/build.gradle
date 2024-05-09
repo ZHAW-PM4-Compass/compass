@@ -93,7 +93,7 @@ jacocoTestReport {
 }
 
 test {
-    useJUnitPlatform()
+    //useJUnitPlatform()
     //doFirst {
     //    tasks.test.systemProperties['spring.profiles.active'] = 'local'
     //}
@@ -110,3 +110,5 @@ task printEnv {
         }
     }
 }
+
+test.dependsOn printEnv

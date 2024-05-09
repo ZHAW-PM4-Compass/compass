@@ -55,7 +55,7 @@ export interface DaySheetDto {
      * @type {Array<TimestampDto>}
      * @memberof DaySheetDto
      */
-    timestamps?: Array<TimestampDto>;
+    readonly timestamps?: Array<TimestampDto>;
     /**
      * 
      * @type {number}
@@ -100,7 +100,6 @@ export function DaySheetDtoToJSON(value?: DaySheetDto | null): any {
         'date': value['date'] == null ? undefined : ((value['date']).toISOString().substring(0,10)),
         'day_notes': value['dayNotes'],
         'confirmed': value['confirmed'],
-        'timestamps': value['timestamps'] == null ? undefined : ((value['timestamps'] as Array<any>).map(TimestampDtoToJSON)),
         'timeSum': value['timeSum'],
     };
 }

@@ -94,6 +94,9 @@ jacocoTestReport {
 
 test {
     useJUnitPlatform()
+    //doFirst {
+    //    tasks.test.systemProperties['spring.profiles.active'] = 'local'
+    //}
     // Use finalizedBy to ensure jacocoTestReport runs after tests
     finalizedBy 'jacocoTestReport'
 }

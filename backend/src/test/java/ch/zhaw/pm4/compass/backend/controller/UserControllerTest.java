@@ -1,11 +1,21 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
-import ch.zhaw.pm4.compass.backend.model.dto.AuthZeroUserDto;
-import ch.zhaw.pm4.compass.backend.model.dto.CreateAuthZeroUserDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
-import ch.zhaw.pm4.compass.backend.service.UserService;
-import com.nimbusds.jose.shaded.gson.Gson;
-import com.nimbusds.jose.shaded.gson.reflect.TypeToken;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -23,15 +33,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.nimbusds.jose.shaded.gson.Gson;
+import com.nimbusds.jose.shaded.gson.reflect.TypeToken;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import ch.zhaw.pm4.compass.backend.UserRole;
+import ch.zhaw.pm4.compass.backend.model.dto.AuthZeroUserDto;
+import ch.zhaw.pm4.compass.backend.model.dto.CreateAuthZeroUserDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
+import ch.zhaw.pm4.compass.backend.service.UserService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -39,159 +48,150 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration
 public class UserControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private WebApplicationContext controller;
-    @MockBean
-    private UserService userService;
+	@Autowired
+	private MockMvc mockMvc;
+	@Autowired
+	private WebApplicationContext controller;
+	@MockBean
+	private UserService userService;
 
-    private UserDto getUserDto() {
-        return new UserDto("auth0|23sdfyl22ffowqpmclblrtkwerwsdff", "Test", "User", "test.user@stadtmuur.ch", "Participant", false);
-    }
+	private UserDto getUserDto() {
+		return new UserDto("auth0|23sdfyl22ffowqpmclblrtkwerwsdff", "Test", "User", "test.user@stadtmuur.ch",
+				UserRole.PARTICIPANT, false);
+	}
 
-    private CreateAuthZeroUserDto getCreateAuthZeroUserDto() {
-        return new CreateAuthZeroUserDto(getUserDto().getUser_id(), getUserDto().getEmail(), getUserDto().getGiven_name(), getUserDto().getFamily_name(), getUserDto().getRole(), "Swordfish");
-    }
+	private CreateAuthZeroUserDto getCreateAuthZeroUserDto() {
+		return new CreateAuthZeroUserDto(getUserDto().getUser_id(), getUserDto().getEmail(),
+				getUserDto().getGiven_name(), getUserDto().getFamily_name(), getUserDto().getRole(), "Swordfish");
+	}
 
-    private AuthZeroUserDto getAuthZeroUserDto() {
-        return getCreateAuthZeroUserDto();
-    }
+	private AuthZeroUserDto getAuthZeroUserDto() {
+		return getCreateAuthZeroUserDto();
+	}
 
-    @Before
-    public void setup() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(controller)
-                .apply(SecurityMockMvcConfigurers.springSecurity())
-                .build();
+	@Before
+	public void setup() {
+		mockMvc = MockMvcBuilders.webAppContextSetup(controller).apply(SecurityMockMvcConfigurers.springSecurity())
+				.build();
 
-    }
+	}
 
-    @Test
-    @WithMockUser(username = "testuser", roles = {})
-    void testCreateUser() throws Exception {
-        // Arrange
-        when(userService.createUser(any(CreateAuthZeroUserDto.class))).thenReturn(getUserDto());
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testCreateUser() throws Exception {
+		// Arrange
+		when(userService.createUser(any(CreateAuthZeroUserDto.class))).thenReturn(getUserDto());
 
-        // Act
-        mockMvc.perform(post("/user")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content((new Gson()).toJson(getCreateAuthZeroUserDto(), CreateAuthZeroUserDto.class))
-                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.user_id").value(getCreateAuthZeroUserDto().getUser_id()))
-                .andExpect(jsonPath("$.email").value(getCreateAuthZeroUserDto().getEmail()))
-                .andExpect(jsonPath("$.given_name").value(getCreateAuthZeroUserDto().getGiven_name()))
-                .andExpect(jsonPath("$.family_name").value(getCreateAuthZeroUserDto().getFamily_name()))
-                .andExpect(jsonPath("$.role").value(getCreateAuthZeroUserDto().getRole()))
-                .andExpect(jsonPath("$.deleted").value(getCreateAuthZeroUserDto().getBlocked()));
+		// Act
+		mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON)
+				.content((new Gson()).toJson(getCreateAuthZeroUserDto(), CreateAuthZeroUserDto.class))
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
+				.andExpect(jsonPath("$.user_id").value(getCreateAuthZeroUserDto().getUser_id()))
+				.andExpect(jsonPath("$.email").value(getCreateAuthZeroUserDto().getEmail()))
+				.andExpect(jsonPath("$.given_name").value(getCreateAuthZeroUserDto().getGiven_name()))
+				.andExpect(jsonPath("$.family_name").value(getCreateAuthZeroUserDto().getFamily_name()))
+				.andExpect(jsonPath("$.role").value(getCreateAuthZeroUserDto().getRole()))
+				.andExpect(jsonPath("$.deleted").value(getCreateAuthZeroUserDto().getBlocked()));
 
-        verify(userService, times(1)).createUser(any(CreateAuthZeroUserDto.class));
-    }
+		verify(userService, times(1)).createUser(any(CreateAuthZeroUserDto.class));
+	}
 
-    @Test
-    @WithMockUser(username = "testuser", roles = {})
-    void testDeleteUser() throws Exception {
-        when(userService.deleteUser(anyString())).thenReturn(getUserDto());
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testDeleteUser() throws Exception {
+		when(userService.deleteUser(anyString())).thenReturn(getUserDto());
 
-        // Act
-        mockMvc.perform(delete("/user/" + getCreateAuthZeroUserDto().getUser_id())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content((new Gson()).toJson(getCreateAuthZeroUserDto(), CreateAuthZeroUserDto.class))
-                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isOk());
+		// Act
+		mockMvc.perform(
+				delete("/user/" + getCreateAuthZeroUserDto().getUser_id()).contentType(MediaType.APPLICATION_JSON)
+						.content((new Gson()).toJson(getCreateAuthZeroUserDto(), CreateAuthZeroUserDto.class))
+						.with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isOk());
 
-        verify(userService, times(1)).deleteUser(anyString());
-    }
+		verify(userService, times(1)).deleteUser(anyString());
+	}
 
-    @Test
-    @WithMockUser(username = "testuser", roles = {})
-    void testUpdateUser() throws Exception {
-        // Arrange
-        when(userService.updateUser(anyString(), any(AuthZeroUserDto.class))).thenReturn(getUserDto());
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testUpdateUser() throws Exception {
+		// Arrange
+		when(userService.updateUser(anyString(), any(AuthZeroUserDto.class))).thenReturn(getUserDto());
 
-        // Act
-        mockMvc.perform(put("/user/update/" + getCreateAuthZeroUserDto().getUser_id())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content((new Gson()).toJson(getAuthZeroUserDto(), AuthZeroUserDto.class))
-                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value(getAuthZeroUserDto().getEmail()))
-                .andExpect(jsonPath("$.given_name").value(getAuthZeroUserDto().getGiven_name()))
-                .andExpect(jsonPath("$.family_name").value(getAuthZeroUserDto().getFamily_name()))
-                .andExpect(jsonPath("$.role").value(getAuthZeroUserDto().getRole()))
-                .andExpect(jsonPath("$.deleted").value(getAuthZeroUserDto().getBlocked()));
+		// Act
+		mockMvc.perform(
+				put("/user/update/" + getCreateAuthZeroUserDto().getUser_id()).contentType(MediaType.APPLICATION_JSON)
+						.content((new Gson()).toJson(getAuthZeroUserDto(), AuthZeroUserDto.class))
+						.with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value(getAuthZeroUserDto().getEmail()))
+				.andExpect(jsonPath("$.given_name").value(getAuthZeroUserDto().getGiven_name()))
+				.andExpect(jsonPath("$.family_name").value(getAuthZeroUserDto().getFamily_name()))
+				.andExpect(jsonPath("$.role").value(getAuthZeroUserDto().getRole()))
+				.andExpect(jsonPath("$.deleted").value(getAuthZeroUserDto().getBlocked()));
 
-        verify(userService, times(1)).updateUser(anyString(), any(AuthZeroUserDto.class));
-    }
+		verify(userService, times(1)).updateUser(anyString(), any(AuthZeroUserDto.class));
+	}
 
-    @Test
-    @WithMockUser(username = "testuser", roles = {})
-    void testRestoreUser() throws Exception {
-        // Arrange
-        when(userService.restoreUser(anyString())).thenReturn(getUserDto());
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testRestoreUser() throws Exception {
+		// Arrange
+		when(userService.restoreUser(anyString())).thenReturn(getUserDto());
 
-        // Act
-        mockMvc.perform(put("/user/restore/" + getUserDto().getUser_id())
-                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.deleted").value(getAuthZeroUserDto().getBlocked()));
+		// Act
+		mockMvc.perform(
+				put("/user/restore/" + getUserDto().getUser_id()).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.deleted").value(getAuthZeroUserDto().getBlocked()));
 
-        verify(userService, times(1)).restoreUser(anyString());
-    }
+		verify(userService, times(1)).restoreUser(anyString());
+	}
 
-    @Test
-    @WithMockUser(username = "testuser", roles = {})
-    void testGetById() throws Exception {
-        // Arrange
-        when(userService.getUserById(anyString())).thenReturn(getUserDto());
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testGetById() throws Exception {
+		// Arrange
+		when(userService.getUserById(anyString())).thenReturn(getUserDto());
 
-        // Act
-        mockMvc.perform(get("/user/getById/" + getUserDto().getUser_id())
-                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value(getAuthZeroUserDto().getEmail()))
-                .andExpect(jsonPath("$.given_name").value(getAuthZeroUserDto().getGiven_name()))
-                .andExpect(jsonPath("$.family_name").value(getAuthZeroUserDto().getFamily_name()))
-                .andExpect(jsonPath("$.role").value(getAuthZeroUserDto().getRole()))
-                .andExpect(jsonPath("$.deleted").value(getAuthZeroUserDto().getBlocked()));
+		// Act
+		mockMvc.perform(
+				get("/user/getById/" + getUserDto().getUser_id()).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value(getAuthZeroUserDto().getEmail()))
+				.andExpect(jsonPath("$.given_name").value(getAuthZeroUserDto().getGiven_name()))
+				.andExpect(jsonPath("$.family_name").value(getAuthZeroUserDto().getFamily_name()))
+				.andExpect(jsonPath("$.role").value(getAuthZeroUserDto().getRole()))
+				.andExpect(jsonPath("$.deleted").value(getAuthZeroUserDto().getBlocked()));
 
-        verify(userService, times(1)).getUserById(anyString());
-    }
+		verify(userService, times(1)).getUserById(anyString());
+	}
 
-    @Test
-    @WithMockUser(username = "testuser", roles = {})
-    void testGetAllUsers() throws Exception {
-        List<UserDto> userDtoList = new ArrayList<>();
-        userDtoList.add(getUserDto());
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testGetAllUsers() throws Exception {
+		List<UserDto> userDtoList = new ArrayList<>();
+		userDtoList.add(getUserDto());
 
-        when(userService.getAllUsers()).thenReturn(userDtoList);
+		when(userService.getAllUsers()).thenReturn(userDtoList);
 
-        String res = mockMvc.perform(get("/user/getAllUsers")
-                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        assertEquals((new Gson()).toJson(userDtoList, new TypeToken<List<UserDto>>() {
-        }.getType()), res);
+		String res = mockMvc.perform(get("/user/getAllUsers").with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+		assertEquals((new Gson()).toJson(userDtoList, new TypeToken<List<UserDto>>() {
+		}.getType()), res);
 
-        verify(userService, times(1)).getAllUsers();
-    }
+		verify(userService, times(1)).getAllUsers();
+	}
 
-    @Test
-    @WithMockUser(username = "testuser", roles = {})
-    void testAllParticipants() throws Exception {
-        List<UserDto> userDtoList = new ArrayList<>();
-        userDtoList.add(getUserDto());
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testAllParticipants() throws Exception {
+		List<UserDto> userDtoList = new ArrayList<>();
+		userDtoList.add(getUserDto());
 
-        when(userService.getAllParticipants()).thenReturn(userDtoList);
+		when(userService.getAllParticipants()).thenReturn(userDtoList);
 
-        String res = mockMvc.perform(get("/user/getAllParticipants")
-                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        assertEquals((new Gson()).toJson(userDtoList, new TypeToken<List<UserDto>>() {
-        }.getType()), res);
+		String res = mockMvc.perform(get("/user/getAllParticipants").with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+		assertEquals((new Gson()).toJson(userDtoList, new TypeToken<List<UserDto>>() {
+		}.getType()), res);
 
-        verify(userService, times(1)).getAllParticipants();
-    }
+		verify(userService, times(1)).getAllParticipants();
+	}
 }

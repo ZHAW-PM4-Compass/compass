@@ -96,11 +96,11 @@ public class UserService {
 			throw new RuntimeException(e);
 		}
 
-		for (CreateAuthZeroUserDto CreateAuthZeroUserDto : authZeroUserDtos) {
-			LocalUser localUser = localUserRepository.findById(CreateAuthZeroUserDto.getUser_id()).orElse(null);
+		for (CreateAuthZeroUserDto createAuthZeroUserDto : authZeroUserDtos) {
+			LocalUser localUser = localUserRepository.findById(createAuthZeroUserDto.getUser_id()).orElse(null);
 			if (localUser != null && !localUser.isEmpty()) {
-				CreateAuthZeroUserDto.setRole(localUser.getRole());
-				userDtos.add(mapAuthZeroUserToUserDto(CreateAuthZeroUserDto.getUser_id(), CreateAuthZeroUserDto));
+				createAuthZeroUserDto.setRole(localUser.getRole());
+				userDtos.add(mapAuthZeroUserToUserDto(createAuthZeroUserDto.getUser_id(), createAuthZeroUserDto));
 			}
 		}
 

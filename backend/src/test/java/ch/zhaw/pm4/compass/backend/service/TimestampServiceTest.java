@@ -45,14 +45,13 @@ class TimestampServiceTest {
         daySheet = getDaySheet();
     }
 
-	@SuppressWarnings("unused")
-	private LocalDate dateNow = LocalDate.now();
-	private String reportText = "Testdate";
+    private String reportText = "Testdate";
 
     private String user_id = "k234öljk43öj4öj";
     private Timestamp timestamp;
     private TimestampDto timestampDto;
     private DaySheet daySheet;
+
     DaySheet getDaySheet() {
         return new DaySheet(1l, user_id, reportText, LocalDate.now(), false, new ArrayList<>());
     }

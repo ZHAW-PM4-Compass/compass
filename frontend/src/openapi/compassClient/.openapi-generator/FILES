@@ -1,3 +1,4 @@
+.openapi-generator-ignore
 apis/BaseControllerApi.ts
 apis/CategoryControllerApi.ts
 apis/DaySheetControllerApi.ts
@@ -7,6 +8,7 @@ apis/UserControllerApi.ts
 apis/index.ts
 index.ts
 models/AuthZeroUserDto.ts
+models/CreateAuthZeroUserDto.ts
 models/CategoryDto.ts
 models/DaySheetDto.ts
 models/ParticipantDto.ts

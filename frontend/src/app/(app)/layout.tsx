@@ -1,7 +1,6 @@
 "use client";
 
 import { useUser } from "@auth0/nextjs-auth0/client";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -177,7 +176,7 @@ export default function RootLayout({
           </div>
         </div>
         <div className="sm:relative grow z-10 pt-20 md:pt-0 bg-slate-100 h-full">
-          <div className="w-full h-full md:container md:mx-auto px-5 md:px-24 lg:px-48 md:pt-24 pb-16">
+          <div className="w-full h-full md:container md:mx-auto px-5 md:px-24 lg:px-40 md:pt-24 pb-16">
             <div className="h-full w-full">
             {children}
             {

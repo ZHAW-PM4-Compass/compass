@@ -16,72 +16,71 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface AuthZeroUserDto
+ * @interface CreateAuthZeroUserDto
  */
-export interface AuthZeroUserDto {
+export interface CreateAuthZeroUserDto {
     /**
      * 
      * @type {string}
-     * @memberof AuthZeroUserDto
+     * @memberof CreateAuthZeroUserDto
      */
     email?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuthZeroUserDto
+     * @memberof CreateAuthZeroUserDto
      */
     givenName?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuthZeroUserDto
+     * @memberof CreateAuthZeroUserDto
      */
     familyName?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuthZeroUserDto
+     * @memberof CreateAuthZeroUserDto
+     */
+    role?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateAuthZeroUserDto
+     */
+    blocked?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateAuthZeroUserDto
      */
     userId?: string;
     /**
      * 
-     * @type {boolean}
-     * @memberof AuthZeroUserDto
+     * @type {string}
+     * @memberof CreateAuthZeroUserDto
      */
-    role?: AuthZeroUserDtoRoleEnum;
+    password?: string;
     /**
      * 
-     * @type {boolean}
-     * @memberof AuthZeroUserDto
+     * @type {string}
+     * @memberof CreateAuthZeroUserDto
      */
-    blocked?: boolean;
+    connection?: string;
 }
 
-
 /**
- * @export
+ * Check if a given object implements the CreateAuthZeroUserDto interface.
  */
-export const AuthZeroUserDtoRoleEnum = {
-    SocialWorker: 'SOCIAL_WORKER',
-    Participant: 'PARTICIPANT',
-    Admin: 'ADMIN',
-    NoRole: 'NO_ROLE'
-} as const;
-export type AuthZeroUserDtoRoleEnum = typeof AuthZeroUserDtoRoleEnum[keyof typeof AuthZeroUserDtoRoleEnum];
-
-
-/**
- * Check if a given object implements the AuthZeroUserDto interface.
- */
-export function instanceOfAuthZeroUserDto(value: object): boolean {
+export function instanceOfCreateAuthZeroUserDto(value: object): boolean {
     return true;
 }
 
-export function AuthZeroUserDtoFromJSON(json: any): AuthZeroUserDto {
-    return AuthZeroUserDtoFromJSONTyped(json, false);
+export function CreateAuthZeroUserDtoFromJSON(json: any): CreateAuthZeroUserDto {
+    return CreateAuthZeroUserDtoFromJSONTyped(json, false);
 }
 
-export function AuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): AuthZeroUserDto {
+export function CreateAuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateAuthZeroUserDto {
     if (json == null) {
         return json;
     }
@@ -90,13 +89,15 @@ export function AuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
         'email': json['email'] == null ? undefined : json['email'],
         'givenName': json['given_name'] == null ? undefined : json['given_name'],
         'familyName': json['family_name'] == null ? undefined : json['family_name'],
-        'userId': json['user_id'] == null ? undefined : json['user_id'],
         'role': json['role'] == null ? undefined : json['role'],
         'blocked': json['blocked'] == null ? undefined : json['blocked'],
+        'userId': json['user_id'] == null ? undefined : json['user_id'],
+        'password': json['password'] == null ? undefined : json['password'],
+        'connection': json['connection'] == null ? undefined : json['connection'],
     };
 }
 
-export function AuthZeroUserDtoToJSON(value?: AuthZeroUserDto | null): any {
+export function CreateAuthZeroUserDtoToJSON(value?: CreateAuthZeroUserDto | null): any {
     if (value == null) {
         return value;
     }
@@ -105,9 +106,11 @@ export function AuthZeroUserDtoToJSON(value?: AuthZeroUserDto | null): any {
         'email': value['email'],
         'given_name': value['givenName'],
         'family_name': value['familyName'],
-        'user_id': value['userId'],
         'role': value['role'],
         'blocked': value['blocked'],
+        'user_id': value['userId'],
+        'password': value['password'],
+        'connection': value['connection'],
     };
 }
 

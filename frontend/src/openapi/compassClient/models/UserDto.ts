@@ -49,6 +49,12 @@ export interface UserDto {
      * @memberof UserDto
      */
     role?: UserDtoRoleEnum;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UserDto
+     */
+    deleted?: boolean;
 }
 
 
@@ -86,6 +92,7 @@ export function UserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): U
         'familyName': json['family_name'] == null ? undefined : json['family_name'],
         'userId': json['user_id'] == null ? undefined : json['user_id'],
         'role': json['role'] == null ? undefined : json['role'],
+        'deleted': json['deleted'] == null ? undefined : json['deleted'],
     };
 }
 
@@ -100,6 +107,7 @@ export function UserDtoToJSON(value?: UserDto | null): any {
         'family_name': value['familyName'],
         'user_id': value['userId'],
         'role': value['role'],
+        'deleted': value['deleted'],
     };
 }
 

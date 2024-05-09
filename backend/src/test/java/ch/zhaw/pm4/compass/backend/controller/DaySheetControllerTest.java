@@ -31,10 +31,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @ContextConfiguration
-
 public class DaySheetControllerTest {
 
 	@Autowired
@@ -61,7 +61,7 @@ public class DaySheetControllerTest {
 	}
 
     private DaySheet getDaySheet() {
-        return new DaySheet(1l,"asdfasdf", reportText, dateNow, false, new ArrayList<Timestamp>());
+        return new DaySheet(1l, "auth0|2svwqwqwvp2qadcjl3409wdsu340fds3eu", reportText, dateNow, false, new ArrayList<Timestamp>());
     }
 
 	@Before()
@@ -205,11 +205,11 @@ public class DaySheetControllerTest {
         daySheets.add(day1);
         daySheets.add(day2);
         when(daySheetService.getAllDaySheetByUser(any(String.class))).thenReturn(daySheets);
-        String res = mockMvc.perform(get("/daysheet/getAllByParticipant/"+getDaySheet().getUserId())
+        String res = mockMvc.perform(get("/daysheet/getAllByParticipant/" + getDaySheet().getUserId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
-        assertEquals("[{\"id\":1,\"date\":\""+ dateNow.toString()+"\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"timeSum\":0},{\"id\":2,\"date\":\""+ dateNow.plusDays(1).toString()+"\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"timeSum\":0}]",res);
+        assertEquals("[{\"id\":1,\"date\":\"" + dateNow.toString() + "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"timeSum\":0},{\"id\":2,\"date\":\"" + dateNow.plusDays(1).toString() + "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"timeSum\":0}]", res);
     }
 }

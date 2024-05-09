@@ -6,7 +6,7 @@ const Header = ({ columns }: Readonly<{
       <tr>
         {columns && columns.map((column, index) => {
           return (
-            <th key={index} className="py-2 px-6 text-left text-md">{column.header}</th>
+            <th key={index} className="py-2 px-6 text-left text-sm">{column.header}</th>
           )
         })}
         <th></th>
@@ -18,14 +18,14 @@ const Header = ({ columns }: Readonly<{
 const Item = ({ itemIndex, item, columns, actions }: Readonly<{
   itemIndex: number,
   item: any,
-  columns: Array<{ header: string, title?: string, titleFunction?: ((value: any) => string) | undefined }>
-  actions?: Array<{ icon: any, label?: string, onClick: (id: number) => void }>
+  columns: Array<{ header: string, title?: string, titleFunction?: ((value: any) => React.ReactNode) | undefined }>
+  actions?: Array<{ icon: any, label?: string, onClick: (id: number) => void, hide?: (id: number) => boolean}>
 }>) => {
   return (
     <tr className="bg-white border-t-4 border-slate-100">
       {columns && columns.map((column, index) => {
         return (
-            <td key={index} className="py-4 px-6 text-left text-md">
+            <td key={index} className="py-4 px-6 text-left text-sm">
                 {column.title !== undefined
                     ? item[column.title]
                     : column.titleFunction ? column.titleFunction(item) : ''}
@@ -35,7 +35,7 @@ const Item = ({ itemIndex, item, columns, actions }: Readonly<{
         <td className="text-right text-md pr-2 min-w-48">
             {actions && actions.map((action, index) => {
                 return (
-                    <button key={index} onClick={() => action.onClick(itemIndex)} className={`rounded-md hover:bg-slate-100 text-sm mr-2 px-2 py-1.5 focus:outline-2 focus:outline-black duration-200 ${!action.label && "w-9"}`}>
+                    <button key={index} onClick={() => action.onClick(itemIndex)} className={`rounded-md hover:bg-slate-100 text-sm mr-2 px-2 py-1.5 focus:outline-2 focus:outline-black duration-200 ${!action.label && "w-9"}`} hidden={action.hide ? action.hide(itemIndex) : false}>
               {action.icon && <action.icon className="w-5 h-5 mr-2" />}
               {action.label}
             </button>
@@ -49,8 +49,8 @@ const Item = ({ itemIndex, item, columns, actions }: Readonly<{
 export default function Table({ className, data, columns, actions }: Readonly<{
   className?: string,
   data: Array<any>,
-  columns: Array<{ header: string, title?: string, titleFunction?: ((value: any) => string) | undefined}>
-  actions?: Array<{ icon: any, label?: string, onClick: (id: number) => void }>
+  columns: Array<{ header: string, title?: string, titleFunction?: ((value: any) => React.ReactNode) | undefined}>
+  actions?: Array<{ icon: any, label?: string, onClick: (id: number) => void, hide?: (id: number) => boolean }>
 }>) {
   return (
     <div className="overflow-auto">

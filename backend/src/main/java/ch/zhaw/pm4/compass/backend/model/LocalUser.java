@@ -30,4 +30,7 @@ public class LocalUser {
 		this.id = id;
 		this.role = role;
 	}
+    public boolean isEmpty() {
+        return this.id.isEmpty();
+    }
 }

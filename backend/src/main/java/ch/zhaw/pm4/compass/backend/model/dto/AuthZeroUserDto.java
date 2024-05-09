@@ -6,15 +6,31 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AuthZeroUserDto extends UserDto {
+public class AuthZeroUserDto {
+    private String email;
+    private String given_name;
+    private String family_name;
+    private UserRole role;
+    private Boolean blocked;
 
-	private String password;
-	private String connection;
+    public AuthZeroUserDto() {
 
-	public AuthZeroUserDto(String email, String given_name, String family_name, UserRole role, String password,
-			String user_id) {
-		super(email, given_name, family_name, user_id, role);
-		this.password = password;
-		this.connection = "Username-Password-Authentication";
-	}
+    }
+
+    public AuthZeroUserDto(String email, String given_name, String family_name, UserRole role) {
+        this.email = email;
+        this.given_name = given_name;
+        this.family_name = family_name;
+        this.role = role;
+        this.blocked = false;
+    }
+
+    public AuthZeroUserDto(String email, String given_name, String family_name, UserRole role, Boolean blocked) {
+        this.email = email;
+        this.given_name = given_name;
+        this.family_name = family_name;
+        this.role = role;
+        this.blocked = blocked;
+    }
+
 }

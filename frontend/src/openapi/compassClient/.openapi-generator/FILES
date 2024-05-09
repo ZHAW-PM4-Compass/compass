@@ -8,6 +8,7 @@ apis/index.ts
 index.ts
 models/AuthZeroUserDto.ts
 models/CategoryDto.ts
+models/CreateAuthZeroUserDto.ts
 models/DaySheetDto.ts
 models/ParticipantDto.ts
 models/RatingDto.ts

@@ -16,66 +16,84 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface AuthZeroUserDto
+ * @interface CreateAuthZeroUserDto
  */
-export interface AuthZeroUserDto {
+export interface CreateAuthZeroUserDto {
     /**
      * 
      * @type {string}
-     * @memberof AuthZeroUserDto
+     * @memberof CreateAuthZeroUserDto
      */
     email?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuthZeroUserDto
+     * @memberof CreateAuthZeroUserDto
      */
     givenName?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuthZeroUserDto
+     * @memberof CreateAuthZeroUserDto
      */
     familyName?: string;
     /**
      * 
      * @type {string}
-     * @memberof AuthZeroUserDto
+     * @memberof CreateAuthZeroUserDto
      */
-    role?: AuthZeroUserDtoRoleEnum;
+    role?: CreateAuthZeroUserDtoRoleEnum;
     /**
      * 
      * @type {boolean}
-     * @memberof AuthZeroUserDto
+     * @memberof CreateAuthZeroUserDto
      */
     blocked?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateAuthZeroUserDto
+     */
+    userId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateAuthZeroUserDto
+     */
+    password?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateAuthZeroUserDto
+     */
+    connection?: string;
 }
 
 
 /**
  * @export
  */
-export const AuthZeroUserDtoRoleEnum = {
+export const CreateAuthZeroUserDtoRoleEnum = {
     SocialWorker: 'SOCIAL_WORKER',
     Participant: 'PARTICIPANT',
     Admin: 'ADMIN',
     NoRole: 'NO_ROLE'
 } as const;
-export type AuthZeroUserDtoRoleEnum = typeof AuthZeroUserDtoRoleEnum[keyof typeof AuthZeroUserDtoRoleEnum];
+export type CreateAuthZeroUserDtoRoleEnum = typeof CreateAuthZeroUserDtoRoleEnum[keyof typeof CreateAuthZeroUserDtoRoleEnum];
 
 
 /**
- * Check if a given object implements the AuthZeroUserDto interface.
+ * Check if a given object implements the CreateAuthZeroUserDto interface.
  */
-export function instanceOfAuthZeroUserDto(value: object): boolean {
+export function instanceOfCreateAuthZeroUserDto(value: object): boolean {
     return true;
 }
 
-export function AuthZeroUserDtoFromJSON(json: any): AuthZeroUserDto {
-    return AuthZeroUserDtoFromJSONTyped(json, false);
+export function CreateAuthZeroUserDtoFromJSON(json: any): CreateAuthZeroUserDto {
+    return CreateAuthZeroUserDtoFromJSONTyped(json, false);
 }
 
-export function AuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): AuthZeroUserDto {
+export function CreateAuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateAuthZeroUserDto {
     if (json == null) {
         return json;
     }
@@ -86,10 +104,13 @@ export function AuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
         'familyName': json['family_name'] == null ? undefined : json['family_name'],
         'role': json['role'] == null ? undefined : json['role'],
         'blocked': json['blocked'] == null ? undefined : json['blocked'],
+        'userId': json['user_id'] == null ? undefined : json['user_id'],
+        'password': json['password'] == null ? undefined : json['password'],
+        'connection': json['connection'] == null ? undefined : json['connection'],
     };
 }
 
-export function AuthZeroUserDtoToJSON(value?: AuthZeroUserDto | null): any {
+export function CreateAuthZeroUserDtoToJSON(value?: CreateAuthZeroUserDto | null): any {
     if (value == null) {
         return value;
     }
@@ -100,6 +121,9 @@ export function AuthZeroUserDtoToJSON(value?: AuthZeroUserDto | null): any {
         'family_name': value['familyName'],
         'role': value['role'],
         'blocked': value['blocked'],
+        'user_id': value['userId'],
+        'password': value['password'],
+        'connection': value['connection'],
     };
 }
 

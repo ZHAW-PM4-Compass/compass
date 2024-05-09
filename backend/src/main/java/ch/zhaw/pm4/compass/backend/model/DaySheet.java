@@ -30,6 +30,8 @@ public class DaySheet {
 
 	private Boolean confirmed = false;
 
+    //@ManyToOne(fetch = FetchType.LAZY)
+    //@JoinColumn(name = "user_id", referencedColumnName = "user_id", table = "local_user", nullable = false)
 	private String userId;
 
 	@OneToMany(mappedBy = "daySheet", cascade = CascadeType.ALL)

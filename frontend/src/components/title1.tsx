@@ -10,7 +10,7 @@ export default function Title1({ children, className }: Readonly<{
   className?: string;
 }>) {
   return (
-    <h1 className={`text-2xl font-bold block ${poppins.className} ${className}`}>
+    <h1 className={`text-xl leading-9 font-bold block ${poppins.className} ${className}`}>
       {children}
     </h1>
   );

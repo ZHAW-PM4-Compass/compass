@@ -110,3 +110,5 @@ task printEnv {
         }
     }
 }
+
+test.dependsOn printEnv

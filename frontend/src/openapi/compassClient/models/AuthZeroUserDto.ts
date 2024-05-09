@@ -42,13 +42,13 @@ export interface AuthZeroUserDto {
      * @type {string}
      * @memberof AuthZeroUserDto
      */
-    role?: string;
+    userId?: string;
     /**
      * 
      * @type {string}
      * @memberof AuthZeroUserDto
      */
-    userId?: string;
+    role?: AuthZeroUserDtoRoleEnum;
     /**
      * 
      * @type {string}
@@ -62,6 +62,19 @@ export interface AuthZeroUserDto {
      */
     connection?: string;
 }
+
+
+/**
+ * @export
+ */
+export const AuthZeroUserDtoRoleEnum = {
+    SocialWorker: 'SOCIAL_WORKER',
+    Participant: 'PARTICIPANT',
+    Admin: 'ADMIN',
+    NoRole: 'NO_ROLE'
+} as const;
+export type AuthZeroUserDtoRoleEnum = typeof AuthZeroUserDtoRoleEnum[keyof typeof AuthZeroUserDtoRoleEnum];
+
 
 /**
  * Check if a given object implements the AuthZeroUserDto interface.
@@ -83,8 +96,8 @@ export function AuthZeroUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
         'email': json['email'] == null ? undefined : json['email'],
         'givenName': json['given_name'] == null ? undefined : json['given_name'],
         'familyName': json['family_name'] == null ? undefined : json['family_name'],
-        'role': json['role'] == null ? undefined : json['role'],
         'userId': json['user_id'] == null ? undefined : json['user_id'],
+        'role': json['role'] == null ? undefined : json['role'],
         'password': json['password'] == null ? undefined : json['password'],
         'connection': json['connection'] == null ? undefined : json['connection'],
     };
@@ -99,8 +112,8 @@ export function AuthZeroUserDtoToJSON(value?: AuthZeroUserDto | null): any {
         'email': value['email'],
         'given_name': value['givenName'],
         'family_name': value['familyName'],
-        'role': value['role'],
         'user_id': value['userId'],
+        'role': value['role'],
         'password': value['password'],
         'connection': value['connection'],
     };

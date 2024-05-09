@@ -42,14 +42,27 @@ export interface UserDto {
      * @type {string}
      * @memberof UserDto
      */
-    role?: string;
+    userId?: string;
     /**
      * 
      * @type {string}
      * @memberof UserDto
      */
-    userId?: string;
+    role?: UserDtoRoleEnum;
 }
+
+
+/**
+ * @export
+ */
+export const UserDtoRoleEnum = {
+    SocialWorker: 'SOCIAL_WORKER',
+    Participant: 'PARTICIPANT',
+    Admin: 'ADMIN',
+    NoRole: 'NO_ROLE'
+} as const;
+export type UserDtoRoleEnum = typeof UserDtoRoleEnum[keyof typeof UserDtoRoleEnum];
+
 
 /**
  * Check if a given object implements the UserDto interface.
@@ -71,8 +84,8 @@ export function UserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): U
         'email': json['email'] == null ? undefined : json['email'],
         'givenName': json['given_name'] == null ? undefined : json['given_name'],
         'familyName': json['family_name'] == null ? undefined : json['family_name'],
-        'role': json['role'] == null ? undefined : json['role'],
         'userId': json['user_id'] == null ? undefined : json['user_id'],
+        'role': json['role'] == null ? undefined : json['role'],
     };
 }
 
@@ -85,8 +98,8 @@ export function UserDtoToJSON(value?: UserDto | null): any {
         'email': value['email'],
         'given_name': value['givenName'],
         'family_name': value['familyName'],
-        'role': value['role'],
         'user_id': value['userId'],
+        'role': value['role'],
     };
 }
 

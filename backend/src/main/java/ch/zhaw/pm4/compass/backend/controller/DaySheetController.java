@@ -38,15 +38,19 @@ public class DaySheetController {
     }
 
     @GetMapping(path = "/getByDate/{date}", produces = "application/json")
-    public ResponseEntity<DaySheetDto> getDaySheetById(@PathVariable String date, Authentication authentication) {
+
+    public ResponseEntity<DaySheetDto> getDaySheetByDate(@PathVariable String date, Authentication authentication) {
+        //String pattern = "yyyy-MM-dd";
+        //DateFormat dateFormat = new SimpleDateFormat(pattern);
+        if (authentication == null)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
         DaySheetDto response = daySheetService.getDaySheetByDate(LocalDate.parse(date), authentication.getName());
         if (response == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         return ResponseEntity.ok(response);
     }
-
-
-
+    
     @GetMapping(path = "/getAllByParticipant/{userId}", produces = "application/json")
     public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipant(@PathVariable String userId, Authentication authentication) {
         return ResponseEntity.ok(daySheetService.getAllDaySheetByUser(userId));

@@ -17,6 +17,14 @@ spec:
                   number: 3000
             path: /api/auth/
             pathType: Prefix
+          # OAuth Proxy
+          - backend:
+              service:
+                name: compass-frontend-service
+                port:
+                  number: 3000
+            path: /api/proxy/
+            pathType: Prefix
           # API
           - backend:
               service:
@@ -33,6 +41,7 @@ spec:
                   number: 3000
             path: /
             pathType: Prefix
+status:
   loadBalancer:
     ingress:
       - ip: 192.168.0.131

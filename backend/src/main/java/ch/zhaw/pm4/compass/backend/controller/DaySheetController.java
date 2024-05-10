@@ -21,8 +21,6 @@ public class DaySheetController {
 
     @PostMapping(produces = "application/json")
     public ResponseEntity<DaySheetDto> createDaySheet(@RequestBody DaySheetDto daySheet, Authentication authentication) {
-        if (authentication == null)
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         if (daySheet.getDate() == null)
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         DaySheetDto response = daySheetService.createDay(daySheet, authentication.getName());
@@ -33,8 +31,6 @@ public class DaySheetController {
 
     @GetMapping(path = "/getById/{id}", produces = "application/json")
     public ResponseEntity<DaySheetDto> getDaySheetById(@PathVariable Long id, Authentication authentication) {
-        if (authentication == null)
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         DaySheetDto response = daySheetService.getDaySheetById(id, authentication.getName());
         if (response == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -42,11 +38,13 @@ public class DaySheetController {
     }
 
     @GetMapping(path = "/getByDate/{date}", produces = "application/json")
+
     public ResponseEntity<DaySheetDto> getDaySheetByDate(@PathVariable String date, Authentication authentication) {
         //String pattern = "yyyy-MM-dd";
         //DateFormat dateFormat = new SimpleDateFormat(pattern);
         if (authentication == null)
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
         DaySheetDto response = daySheetService.getDaySheetByDate(LocalDate.parse(date), authentication.getName());
         if (response == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -55,15 +53,11 @@ public class DaySheetController {
     
     @GetMapping(path = "/getAllByParticipant/{userId}", produces = "application/json")
     public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipant(@PathVariable String userId, Authentication authentication) {
-        if (authentication == null)
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         return ResponseEntity.ok(daySheetService.getAllDaySheetByUser(userId));
     }
 
     @PutMapping(path = "/updateDayNotes",produces = "application/json")
     public ResponseEntity<DaySheetDto> updateDayNotes(@RequestBody UpdateDaySheetDayNotesDto updateDay, Authentication authentication) {
-        if (authentication == null)
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         DaySheetDto response = daySheetService.updateDayNotes(updateDay, authentication.getName());
         if (response == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -72,8 +66,6 @@ public class DaySheetController {
 
     @PutMapping(path = "/confirm/{id}",produces = "application/json")
     public ResponseEntity<DaySheetDto> updateConfirmed(@PathVariable Long id, Authentication authentication) {
-        if (authentication == null)
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         DaySheetDto response = daySheetService.updateConfirmed(id, authentication.getName());
         if (response == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

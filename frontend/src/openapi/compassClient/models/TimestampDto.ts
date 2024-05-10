@@ -33,16 +33,16 @@ export interface TimestampDto {
     daySheetId?: number;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof TimestampDto
      */
-    startTime?: Date;
+    startTime?: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof TimestampDto
      */
-    endTime?: Date;
+    endTime?: string;
 }
 
 /**
@@ -64,8 +64,8 @@ export function TimestampDtoFromJSONTyped(json: any, ignoreDiscriminator: boolea
         
         'id': json['id'] == null ? undefined : json['id'],
         'daySheetId': json['day_sheet_id'] == null ? undefined : json['day_sheet_id'],
-        'startTime': json['start_time'] == null ? undefined : (new Date(json['start_time'])),
-        'endTime': json['end_time'] == null ? undefined : (new Date(json['end_time'])),
+        'startTime': json['start_time'] == null ? undefined : (json['start_time']),
+        'endTime': json['end_time'] == null ? undefined : (json['end_time']),
     };
 }
 
@@ -77,8 +77,8 @@ export function TimestampDtoToJSON(value?: TimestampDto | null): any {
         
         'id': value['id'],
         'day_sheet_id': value['daySheetId'],
-        'start_time': value['startTime'] == null ? undefined : ((value['startTime']).toISOString()),
-        'end_time': value['endTime'] == null ? undefined : ((value['endTime']).toISOString()),
+        'start_time': value['startTime'] == null ? undefined : (value['startTime']),
+        'end_time': value['endTime'] == null ? undefined : (value['endTime']),
     };
 }
 

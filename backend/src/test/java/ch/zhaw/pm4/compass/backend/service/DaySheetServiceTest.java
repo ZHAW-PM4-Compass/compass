@@ -23,11 +23,14 @@ import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
 import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
+import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
 
 class DaySheetServiceTest {
 
 	@Mock
 	private DaySheetRepository daySheetRepository;
+	@Mock
+	private LocalUserRepository localUserRepository;
 
 	@InjectMocks
 	private DaySheetService daySheetService;
@@ -61,6 +64,8 @@ class DaySheetServiceTest {
 	public void testCreateDaySheet() {
 		DaySheet daySheet = getDaySheet();
 		DaySheetDto createDay = getDaySheetDto();
+		LocalUser localUser = getLocalUser();
+		when(localUserRepository.findById(any(String.class))).thenReturn(Optional.of(localUser));
 		when(daySheetRepository.save(any(DaySheet.class))).thenReturn(daySheet);
 		DaySheetDto resultDay = daySheetService.createDay(createDay, user_id);
 		assertEquals(createDay.getDay_notes(), resultDay.getDay_notes());
@@ -95,6 +100,8 @@ class DaySheetServiceTest {
 	void testCreateExistingDaySheet() {
 		DaySheet daySheet = getDaySheet();
 		DaySheetDto createDay = getDaySheetDto();
+		LocalUser localUser = getLocalUser();
+		when(localUserRepository.findById(any(String.class))).thenReturn(Optional.of(localUser));
 		when(daySheetRepository.findByDateAndOwnerId(any(LocalDate.class), any(String.class)))
 				.thenReturn(Optional.of(daySheet));
 		assertNull(daySheetService.createDay(createDay, user_id));

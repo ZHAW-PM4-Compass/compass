@@ -61,7 +61,7 @@ public class RatingService {
 		boolean foundMoreThanOneRating = categoryDtoList.stream().anyMatch(i -> i.getMoodRatings().size() > 1);
 		if (foundMoreThanOneRating) {
 			throw new TooManyRatingsPerCategoryException();
-		} else if (!daySheet.getUserId().equals(userId)) {
+		} else if (!daySheet.getOwner().getId().equals(userId)) {
 			throw new UserNotOwnerOfDaySheetException();
 		}
 

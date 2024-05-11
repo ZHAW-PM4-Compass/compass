@@ -17,6 +17,8 @@ public class IncidentService {
 	private IncidentRepository incidentRepository;
 	@Autowired
 	private DaySheetRepository daySheetRepository;
+	@Autowired
+	private UserService userService;
 
 	public IncidentDto createIncident(IncidentDto createIncident) throws DaySheetNotFoundException {
 		long daySheetId = createIncident.getDaySheet().getId();

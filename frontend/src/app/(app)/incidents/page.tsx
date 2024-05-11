@@ -1,6 +1,6 @@
 "use client"
 
-import { getUserControllerApi } from "@/openapi/connector";
+import { getIncidentControllerApi, getUserControllerApi } from "@/openapi/connector";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import Modal from "@/components/modal";
@@ -12,24 +12,9 @@ import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular } fro
 import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
 import toastMessages from "@/constants/toastMessages";
-import RoleTitles from "@/constants/roleTitles";
-import type { CreateUserRequest, UpdateUserRequest, UserDto } from "@/openapi/compassClient";
+import type { CreateUserRequest, IncidentDto, UpdateUserRequest, UserDto } from "@/openapi/compassClient";
 import { useUser } from "@auth0/nextjs-auth0/client";
-
-const roles = [
-  {
-    id: Roles.PARTICIPANT,
-    label: RoleTitles[Roles.PARTICIPANT]
-  },
-  {
-    id: Roles.SOCIAL_WORKER,
-    label: RoleTitles[Roles.SOCIAL_WORKER]
-  },
-  {
-    id: Roles.ADMIN,
-    label: RoleTitles[Roles.ADMIN]
-  }
-]
+import roles from "@/constants/roles";
 
 enum formFields {
   GIVEN_NAME = "givenName",
@@ -86,10 +71,10 @@ function UserCreateModal({ close, onSave }: Readonly<{
   );
 }
 
-function UserUpdateModal({ close, onSave, user }: Readonly<{
+function IncidentUpdateModal({ close, onSave, incident }: Readonly<{
 	close: () => void;
 	onSave: () => void;
-	user: UserDto | undefined;
+	incident: IncidentDto | undefined;
 }>) {
   const [givenName, setGivenName] = useState(user?.givenName);
   const [familyName, setFamilyName] = useState(user?.familyName);
@@ -140,19 +125,19 @@ function UserUpdateModal({ close, onSave, user }: Readonly<{
 export default function IncidentsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [incidents, setIncidents] = useState<UserDto[]>([]);
-	const [selectedIncident, setSelectedIncident] = useState<UserDto>();
+  const [incidents, setIncidents] = useState<IncidentDto[]>([]);
+	const [selectedIncident, setSelectedIncident] = useState<IncidentDto>();
   const { user } = useUser();
 
 	const loadIncidents = () => {
     if (user?.sub){
       getUserControllerApi().getUserById({ id: user.sub }).then((userDto) => {
         if (userDto.role === Roles.SOCIAL_WORKER || userDto.role === Roles.ADMIN) {
-          getUserControllerApi().getAllIncidents().then((incidents) => {
-            setIncidents(incidents);
+          getIncidentControllerApi().getAllIncidents().then((incidents) => {
+            setIncidents(incidents)
           });
         } else {
-          getUserControllerApi().getIncidentsByUserId({ userId: user.sub }).then((incidents) => {
+          user.sub && getIncidentControllerApi().getAllIncidentsByParticipant({ userId: user.sub }).then((incidents) => {
             setIncidents(incidents);
           }).catch(() => {
             toast.error(toastMessages.INCIDENTS_NOT_LOADED);
@@ -163,12 +148,16 @@ export default function IncidentsPage() {
     }
 	}
 
-  const deleteIncident = (id: string) => {
-    
+  const deleteIncident = (id: number) => {
+    getIncidentControllerApi().deleteIncident({ id }).then(() => {
+      loadIncidents();
+      toast.success(toastMessages.INCIDENT_DELETED);
+    }).catch(() => {
+      toast.error(toastMessages.INCIDENT_NOT_DELETED);
+    });
   }
 
   useEffect(() => {
-    if (asdf)
     loadIncidents();
   }, []);
 

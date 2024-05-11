@@ -9,6 +9,8 @@ import ch.zhaw.pm4.compass.backend.repository.IncidentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class IncidentService {
 	@Autowired
@@ -39,6 +41,16 @@ public class IncidentService {
 		Incident incident = incidentRepository.findById(id)
 				.orElseThrow(() -> new IncidentNotFoundException(id));
 		incidentRepository.delete(incident);
+	}
+
+	public List<IncidentDto> getAll() {
+		return incidentRepository.findAll()
+				.stream().map(this::convertEntityToDto).toList();
+	}
+
+	public List<IncidentDto> getAllIncidentByUser(String userId) {
+		return incidentRepository.findAllByDaySheetUserId(userId)
+				.stream().map(this::convertEntityToDto).toList();
 	}
 
 	Incident convertDtoToEntity(IncidentDto dto) {

@@ -41,6 +41,9 @@ public class DaySheet {
 	@OneToMany(mappedBy = "daySheet", cascade = CascadeType.ALL)
 	private List<Rating> moodRatings;
 
+	@OneToMany(mappedBy = "daySheet", cascade = CascadeType.ALL)
+	private List<Incident> incidents;
+
 	public DaySheet() {
 
 	}

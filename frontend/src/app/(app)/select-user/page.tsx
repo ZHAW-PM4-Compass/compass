@@ -7,11 +7,14 @@ import { toast } from "react-hot-toast";
 import Roles from "@/constants/roles";
 import RoleTitles from "@/constants/roleTitles";
 import { UserDto } from "@/openapi/compassClient";
-import { getUserControllerApi } from "@/openapi/connector"; // Adjust the import path as needed
+import { getUserControllerApi } from "@/openapi/connector";
+import {useRouter} from "next/navigation";
+import Button from "@/components/button"; // Adjust the import path as needed
 
 const MyPage = () => {
     const [users, setUsers] = useState<UserDto[] | undefined>(undefined); // Adjust the type to handle undefined
     const [selectedUser, setSelectedUser] = useState<UserDto | undefined>(undefined); // Track selected user
+    const router = useRouter();
 
     const loadUsers = () => {
         getUserControllerApi()
@@ -44,13 +47,21 @@ const MyPage = () => {
         setSelectedUser(selectedOption);
     };
 
+    const handleClick = () => {
+        router.push('/working-hours-check');
+    };
+
     return (
-        <div className="container mx-auto">
+        <div>
             <h1 className="text-2xl font-bold mb-4">Dropdown Example</h1>
-            <UserDropdown options={userOptions} onSelect={handleUserSelect} />
-            {selectedUser && (
-                <p className="mt-4">Selected userId: {selectedUser.userId}</p>
-            )}
+            <div className="container mx-auto flex">
+
+                <UserDropdown options={userOptions} onSelect={handleUserSelect}/>
+                {selectedUser && (
+                    <p className="mt-4">Selected userId: {selectedUser.userId}</p>
+                )}
+                <Button onClick={handleClick}>Confirm</Button>
+            </div>
         </div>
     );
 };

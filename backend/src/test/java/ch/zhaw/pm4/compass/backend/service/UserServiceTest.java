@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import ch.zhaw.pm4.compass.backend.GsonExculsionStrategy;
+import com.nimbusds.jose.shaded.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -206,10 +208,15 @@ class UserServiceTest {
 
 	@Test
 	public void prepareCRUDTest() throws IOException {
+		Gson gson = new GsonBuilder()
+				.addSerializationExclusionStrategy(new GsonExculsionStrategy())
+				.addDeserializationExclusionStrategy(new GsonExculsionStrategy())
+				.create();
+
 		// Auth0
 		mockAuthZeroCall();
 		doReturn("").when(userService).getToken();
-		when(response.body().string()).thenReturn((new Gson()).toJson(getUserDto(), UserDto.class));
+		when(response.body().string()).thenReturn(gson.toJson(getUserDto(), UserDto.class));
 
 		// Repository
 		when(localUserRepository.findById(any(String.class))).thenReturn(Optional.of(getLocalUser()));

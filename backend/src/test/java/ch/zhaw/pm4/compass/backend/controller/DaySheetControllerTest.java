@@ -164,27 +164,26 @@ public class DaySheetControllerTest {
         verify(daySheetService, times(1)).updateDayNotes(any(UpdateDaySheetDayNotesDto.class), any(String.class));
     }
 
-    //todo til: fix please
-//    @Test
-//    @WithMockUser(username = "testuser", roles = {})
-//    void testUpdateConfirmed() throws Exception {
-//        // Arrange
-//
-//        DaySheetDto updateDay = getUpdateDaySheet();
-//        updateDay.setConfirmed(true);
-//        when(daySheetService.updateConfirmed(any(Long.class), any(String.class))).thenReturn(updateDay);
-//
-//
-//        //Act
-//        mockMvc.perform(put("/daysheet/confirm/1")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id").value(1l))
-//                .andExpect(jsonPath("$.confirmed").value(updateDay.getConfirmed().toString()));
-//
-//        verify(daySheetService, times(1)).updateConfirmed(any(Long.class), any(String.class));
-//    }
+    @Test
+    @WithMockUser(username = "testuser", roles = {})
+    void testUpdateConfirmed() throws Exception {
+        // Arrange
+
+        DaySheetDto updateDay = getUpdateDaySheet();
+        updateDay.setConfirmed(true);
+        when(daySheetService.updateConfirmed(any(Long.class), any(String.class))).thenReturn(updateDay);
+
+
+        //Act
+        mockMvc.perform(put("/daysheet/confirm/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1l))
+                .andExpect(jsonPath("$.confirmed").value(updateDay.getConfirmed().toString()));
+
+        verify(daySheetService, times(1)).updateConfirmed(any(Long.class), any(String.class));
+    }
 
     @Test
     @WithMockUser(username = "testuser", roles = {})

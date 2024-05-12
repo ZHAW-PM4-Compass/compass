@@ -103,7 +103,6 @@ public class TimestampControllerTest {
 	public void testTimestampAlreadyExists() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
-		System.out.println(getTimestamp.toString());
 		when(timestampService.createTimestamp(any(TimestampDto.class), any(String.class))).thenReturn(null);
 
 		// Act

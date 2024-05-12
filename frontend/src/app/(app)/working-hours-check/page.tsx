@@ -75,6 +75,7 @@ export default function WorkingHoursCheckPage() {
     const loadDaySheets = () => {
       const queryParams = new URLSearchParams(window.location.search);
       const userId = queryParams.get('userId');
+      setUserId(userId);
       if (userId) {
           getDaySheetControllerApi().getAllDaySheetByParticipant({ userId: userId }).then(daySheetDtos => {
               close();

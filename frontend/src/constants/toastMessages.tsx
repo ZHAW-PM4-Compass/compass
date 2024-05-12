@@ -3,10 +3,11 @@ enum toastMessages {
   DAYSHEETS_LOADED = "DaySheets wurden geladen",
   DAYSHEET_CONFIRMED = "DaySheet wurde bestätigt",
   DAYSHEET_CONFIRMED_ERROR = "DaySheet konnte nicht bestätigt werden",
+  TIMESTAMPS_LOADED = "Zeiteinträge geladen",
   TIMESTAMP_CREATED = "Zeiteintrag erstellt",
   TIMESTAMP_NOT_CREATED = "Zeiteintrag konnte nicht erstellt werden",
   TIMESTAMP_UPDATED = "Zeiteintrag wurde aktualisiert",
-  TIMESTAMP_NOT_UPDATED = "Timestamp konnte nicth aktualisiert werden",
+  TIMESTAMP_NOT_UPDATED = "Timestamp konnte nicht aktualisiert werden",
   TIMESTAMP_DELETED = "Timestamp wurde gelöscht",
   TIMESTAMP_NOT_DELETED = "Timestamp konnte nicth gelöscht werden",
   USER_CREATED = "User erstellt",
@@ -30,6 +31,8 @@ enum toastMessages {
   USER_NOT_DELETED = "User konnte nicht gelöscht werden",
   USER_RESTORED = "User wiederhergestellt",
   USER_NOT_RESTORED = "User konnte nicht wiederhergestellt werden",
+
+  STARTTIME_AFTER_ENDTIME = "Startzeit muss vor Endzeit liegen",
 
 }
 

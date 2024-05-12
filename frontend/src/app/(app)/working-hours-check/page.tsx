@@ -66,7 +66,7 @@ export default function WorkingHoursCheckPage() {
     const [showDayNotesModal, setShowDayNotesModal] = useState(false);
     const [daySheetDtos, setDaySheetDtos] = useState<DaySheetDto[]>([]);
     const [selectedDaySheetDto, setSelectedDaySheetDto] = useState<DaySheetDto>();
-    const { user } = useUser();
+    const [userId, setUserId] = useState<String | null>();
     const router = useRouter();
 
     const mockUserId = 'auth0|6640a6df7d1d70fe02cc72c9';
@@ -105,9 +105,8 @@ export default function WorkingHoursCheckPage() {
     };
 
     const navigateToSingleDay = () => {
-        if (selectedDaySheetDto != undefined && selectedDaySheetDto.date != undefined) {
-            const dateString = encodeURIComponent(selectedDaySheetDto.date.toString());
-            router.push(`/working-hours-single-day?date=${dateString}`);
+        if (selectedDaySheetDto != undefined && selectedDaySheetDto.id != undefined) {
+            router.push(`/working-hours-single-day?day-sheet=${selectedDaySheetDto.id}`);
         }
     };
 

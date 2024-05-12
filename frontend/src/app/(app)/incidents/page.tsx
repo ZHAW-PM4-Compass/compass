@@ -4,7 +4,6 @@ import { getIncidentControllerApi, getUserControllerApi } from "@/openapi/connec
 import Button from "@/components/button";
 import Input from "@/components/input";
 import Modal from "@/components/modal";
-import Select from "@/components/select";
 import Table from "@/components/table";
 import Title1 from "@/components/title1";
 import Roles from "@/constants/roles";
@@ -12,114 +11,101 @@ import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular } fro
 import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
 import toastMessages from "@/constants/toastMessages";
-import type { CreateUserRequest, IncidentDto, UpdateUserRequest, UserDto } from "@/openapi/compassClient";
+import type { IncidentDto } from "@/openapi/compassClient";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import roles from "@/constants/roles";
+import type { CreateIncidentRequest } from "@/openapi/compassClient/apis/IncidentControllerApi";
 
 enum formFields {
-  GIVEN_NAME = "givenName",
-  FAMILY_NAME = "familyName",
-  ROLE = "role",
-  EMAIL = "email",
-  PASSWORD = "password"
+  DATE = "date",
+  TITLE = "title",
+  DESCRIPTION = "description",
+  PARTICIPANT = "participant"
 }
 
-function UserCreateModal({ close, onSave }: Readonly<{
+function IncidentCreateModal({ close, onSave }: Readonly<{
     close: () => void;
 		onSave: () => void;
   }>) {
   const onSubmit = (formData: FormData) => {
-    const createUserDto: CreateUserRequest = {
-      createAuthZeroUserDto: {
-        email: formData.get(formFields.EMAIL) as string,
-        givenName: formData.get(formFields.GIVEN_NAME) as string,
-        familyName: formData.get(formFields.FAMILY_NAME) as string,
-        role: formData.get(formFields.ROLE) as string,
-        password: formData.get(formFields.PASSWORD) as string
+    const dateString = formData.get(formFields.DATE) as string;
+    const date = new Date(dateString);
+    
+    const createIncidentRequest: CreateIncidentRequest = {
+      incidentDto: {
+        date: date,
+        title: formData.get(formFields.TITLE) as string,
+        description: formData.get(formFields.DESCRIPTION) as string,
+        userId: "auth0|6601d72a423e9ac1d785e113"
       }
     };
   
-    getUserControllerApi().createUser(createUserDto).then(() => {
+    getIncidentControllerApi().createIncident(createIncidentRequest).then(() => {
       close();
-      setTimeout(() => onSave(), 1000);
-      toast.success(toastMessages.USER_CREATED);
-    }).catch(() => {
-      toast.error(toastMessages.USER_NOT_CREATED);
+      onSave();
+      toast.success(toastMessages.INCIDENT_CREATED);
+    }).catch(error => {
+      console.error(error);
+      toast.error(toastMessages.INCIDENT_NOT_CREATED);
     })
   }
 
   return (
     <Modal
-      title="Benutzer erstellen"
+      title="Vorfall erfassen"
       footerActions={
         <Button Icon={Save24Regular} type="submit">Speichern</Button>
       }
       close={close}
 			onSubmit={onSubmit}
     >
-      <Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" name={formFields.GIVEN_NAME} required={true} />
-      <Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" name={formFields.FAMILY_NAME} required={true} />
-      <Select
-        className="mb-4 mr-4 w-32 block"
-        placeholder="Rolle wählen"
-        name={formFields.ROLE}
-        data={roles}
-				required={true} />
-      <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name={formFields.EMAIL} required={true} />
-      <Input type="password" placeholder="Initiales Passwort" className="mb-4 mr-4 w-48 block" name={formFields.PASSWORD} required={true} />
+      <Input type="date" placeholder="Datum" className="mb-4 mr-4 w-48 inline-block" name={formFields.DATE} required={true} />
+      <Input type="text" placeholder="Titel" className="mb-4 mr-4 w-48 inline-block" name={formFields.TITLE} required={true} />
+      <Input type="text" placeholder="Beschreibung" className="mb-4 mr-4 w-48 inline-block" name={formFields.DESCRIPTION} required={true} />
     </Modal>
   );
 }
 
-function IncidentUpdateModal({ close, onSave, incident }: Readonly<{
-	close: () => void;
-	onSave: () => void;
-	incident: IncidentDto | undefined;
+function IncidentUpdateModal({ close, onSave }: Readonly<{
+  close: () => void;
+  onSave: () => void;
 }>) {
-  const [givenName, setGivenName] = useState(user?.givenName);
-  const [familyName, setFamilyName] = useState(user?.familyName);
+const onSubmit = (formData: FormData) => {
+  const dateString = formData.get(formFields.DATE) as string;
+  const date = new Date(dateString);
 
-  const onSubmit = (formData: FormData) => {
-    const updateUserRequest: UpdateUserRequest = {
-      id: user?.userId as string,
-      authZeroUserDto: {
-        email: formData.get(formFields.EMAIL) as string,
-        givenName: formData.get(formFields.GIVEN_NAME) as string,
-        familyName: formData.get(formFields.FAMILY_NAME) as string,
-        role: formData.get(formFields.ROLE) as string
-      }
-    };
+  const createIncidentRequest: CreateIncidentRequest = {
+    incidentDto: {
+      date: date,
+      title: formData.get(formFields.TITLE) as string,
+      description: formData.get(formFields.DESCRIPTION) as string,
+      userId: "auth0|6601d72a423e9ac1d785e113"
+    }
+  };
 
-  	getUserControllerApi().updateUser(updateUserRequest).then(() => {
-  		close();
-  		setTimeout(() => onSave(), 1000);
-      toast.success(toastMessages.USER_UPDATED);
-  	}).catch(() => {
-  		toast.error(toastMessages.USER_NOT_UPDATED);
-  	})
-  }
+  getIncidentControllerApi().createIncident(createIncidentRequest).then(() => {
+    close();
+    onSave();
+    toast.success(toastMessages.INCIDENT_CREATED);
+  }).catch(error => {
+    console.error(error);
+    toast.error(toastMessages.INCIDENT_NOT_CREATED);
+  })
+}
 
-  return (
-    <Modal
-      title="Benutzer bearbeiten"
-      footerActions={
-        <Button Icon={Save24Regular} type="submit">Speichern</Button>
-      }
-      close={close}
-      onSubmit={onSubmit}
-    >
-      <Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" name={formFields.GIVEN_NAME} required={true} value={givenName} onChange={(e) => setGivenName(e.target.value)} />
-      <Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" name={formFields.FAMILY_NAME} required={true} value={familyName} onChange={(e) => setFamilyName(e.target.value)} />
-      <Select
-        className="mb-4 mr-4 w-32 block"
-        placeholder="Rolle wählen"
-        name={formFields.ROLE}
-        data={roles}
-        required={true}
-        value={user?.role} />
-      <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name={formFields.EMAIL} disabled={true} value={user?.email} />
-    </Modal>
-  );
+return (
+  <Modal
+    title="Vorfall erfassen"
+    footerActions={
+      <Button Icon={Save24Regular} type="submit">Speichern</Button>
+    }
+    close={close}
+    onSubmit={onSubmit}
+  >
+    <Input type="date" placeholder="Datum" className="mb-4 mr-4 w-48 inline-block" name={formFields.DATE} required={true} />
+    <Input type="text" placeholder="Titel" className="mb-4 mr-4 w-48 inline-block" name={formFields.TITLE} required={true} />
+    <Input type="text" placeholder="Beschreibung" className="mb-4 mr-4 w-48 inline-block" name={formFields.DESCRIPTION} required={true} />
+  </Modal>
+);
 }
 
 export default function IncidentsPage() {
@@ -164,15 +150,9 @@ export default function IncidentsPage() {
   return (
     <>
       {showCreateModal && (
-        <UserCreateModal 
+        <IncidentCreateModal 
 					close={() => setShowCreateModal(false)}
 					onSave={loadIncidents} />
-      )}
-      {showUpdateModal && (
-        <UserUpdateModal
-					close={() => setShowUpdateModal(false)}
-					onSave={loadIncidents}
-					user={selectedIncident} />
       )}
       <div className="h-full flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between mb-5">

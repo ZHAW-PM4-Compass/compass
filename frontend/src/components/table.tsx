@@ -1,3 +1,5 @@
+import { getFormattedDate } from "@/utils/date"
+
 const Header = ({ columns }: Readonly<{
   columns: Array<{ header: string, title?: string }>
 }>) => {
@@ -26,8 +28,8 @@ const Item = ({ itemIndex, item, columns, actions }: Readonly<{
       {columns && columns.map((column, index) => {
         return (
             <td key={index} className="py-4 px-6 text-left text-sm">
-                {column.title !== undefined
-                    ? item[column.title]
+                {column.title !== undefined ?
+                    column.title === "date" ? getFormattedDate(item[column.title]) : item[column.title]
                     : column.titleFunction ? column.titleFunction(item) : ''}
             </td>
         )

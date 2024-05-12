@@ -27,6 +27,8 @@ export default withMiddlewareAuthRequired(async (request: NextRequest) => {
       // do nothing
     }
 
+    console.log(user?.sub)
+
     const isSocialWorker = userRole === Roles.SOCIAL_WORKER;
     const isAdmin = userRole === Roles.ADMIN;
 

@@ -1,9 +1,8 @@
 package ch.zhaw.pm4.compass.backend.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -13,12 +12,7 @@ public class IncidentDto {
 	private Long id;
 	private String title;
 	private String description;
-	private Date date;
+	private LocalDate date;
+	private	String userId;
 	private String userEmail;
-	@NonNull
-	@JsonIgnore
-	private DaySheetDto daySheet;
-	@NonNull
-	@JsonIgnore
-	private UserDto user;
 }

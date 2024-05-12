@@ -13,9 +13,10 @@ CURRENT_DIR=$(pwd)
 if curl --output /dev/null --silent --head --fail "$DOCS_URL"; then
   echo "API docs are accessible. Proceeding with client generation."
 
+  # Delete the OUTPUT_DIR directory if it exists
+  rm -rf $OUTPUT_DIR
   # Use openapi-generator-cli to generate the TypeScript client
   npx @openapitools/openapi-generator-cli generate -i $DOCS_URL -g typescript-fetch -o $OUTPUT_DIR
-  # openapi-generator-cli generate -i https://linktomybackendswagger/swagger.json -g typescript-axios -o src/components/api --additional-properties=supportsES6=true
 
   # Check if the TypeScript client was generated successfully
   if [ -d "$OUTPUT_DIR" ] && [ "$(ls -A $OUTPUT_DIR)" ]; then
@@ -27,11 +28,6 @@ if curl --output /dev/null --silent --head --fail "$DOCS_URL"; then
       echo "Package name updated to compass-client."
     else
       echo "No package.json found in $OUTPUT_DIR. Skipping name update."
-      # cd $OUTPUT_DIR
-      # npm init -y
-      # npm pkg set name=compass-client
-      # echo "npm package initialized and name set to compass-client."
-      # cd $CURRENT_DIR
     fi
   else
     echo "Failed to generate TypeScript client, directory $OUTPUT_DIR is empty."

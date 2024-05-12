@@ -48,6 +48,12 @@ export interface IncidentDto {
      * @type {string}
      * @memberof IncidentDto
      */
+    userId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof IncidentDto
+     */
     userEmail?: string;
 }
 
@@ -72,6 +78,7 @@ export function IncidentDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'title': json['title'] == null ? undefined : json['title'],
         'description': json['description'] == null ? undefined : json['description'],
         'date': json['date'] == null ? undefined : (new Date(json['date'])),
+        'userId': json['userId'] == null ? undefined : json['userId'],
         'userEmail': json['userEmail'] == null ? undefined : json['userEmail'],
     };
 }
@@ -85,7 +92,8 @@ export function IncidentDtoToJSON(value?: IncidentDto | null): any {
         'id': value['id'],
         'title': value['title'],
         'description': value['description'],
-        'date': value['date'] == null ? undefined : ((value['date']).toISOString()),
+        'date': value['date'] == null ? undefined : ((value['date']).toISOString().substring(0,10)),
+        'userId': value['userId'],
         'userEmail': value['userEmail'],
     };
 }

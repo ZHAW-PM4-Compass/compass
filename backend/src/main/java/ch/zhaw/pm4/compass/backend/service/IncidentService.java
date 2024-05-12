@@ -3,6 +3,7 @@ package ch.zhaw.pm4.compass.backend.service;
 import ch.zhaw.pm4.compass.backend.exception.*;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Incident;
+import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
 import ch.zhaw.pm4.compass.backend.model.dto.IncidentDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.IncidentRepository;
@@ -18,15 +19,21 @@ public class IncidentService {
 	@Autowired
 	private DaySheetRepository daySheetRepository;
 	@Autowired
+	private DaySheetService daySheetService;
+	@Autowired
 	private UserService userService;
 
 	public IncidentDto createIncident(IncidentDto createIncident) throws DaySheetNotFoundException {
-		long daySheetId = createIncident.getDaySheet().getId();
-		DaySheet daysheet = daySheetRepository.findById(daySheetId)
-				.orElseThrow(() -> new DaySheetNotFoundException(daySheetId));
+		DaySheetDto daySheetDto = daySheetService.getDaySheetByDate(createIncident.getDate(), createIncident.getUserId());
+		if (daySheetDto == null) {
+			DaySheetDto createDaySheetDto = new DaySheetDto("", createIncident.getDate(), false);
+			daySheetDto = daySheetService.createDay(createDaySheetDto, createIncident.getUserId());
+		}
+
+		DaySheet daySheet = daySheetService.convertDaySheetDtoToDaySheet(daySheetDto);
 
 		Incident incident = convertDtoToEntity(createIncident);
-		incident.setDaySheet(daysheet);
+		incident.setDaySheet(daySheet);
 
 		return convertEntityToDto(incidentRepository.save(incident));
 	}
@@ -64,6 +71,7 @@ public class IncidentService {
 				.id(entity.getId())
 				.title(entity.getTitle())
 				.description(entity.getDescription())
+				.date(entity.getDaySheet().getDate())
 				.build();
 	}
 }

@@ -48,7 +48,7 @@ const MyPage = () => {
     };
 
     const handleClick = () => {
-        router.push('/working-hours-check');
+        if (selectedUser) router.push('/working-hours-check?userId=' + selectedUser.userId);
     };
 
     return (

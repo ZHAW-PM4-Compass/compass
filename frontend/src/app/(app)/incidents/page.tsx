@@ -126,7 +126,6 @@ function IncidentUpdateModal({ close, onSave, incidentDto, partSelectActive }: R
       onSave();
       toast.success(toastMessages.INCIDENT_UPDATED);
     }).catch(error => {
-      console.error(error);
       toast.error(toastMessages.INCIDENT_NOT_UPDATED);
     })
   }
@@ -179,7 +178,7 @@ export default function IncidentsPage() {
     getIncidentControllerApi().getAllIncidents().then(incidentDtos => {
       setIncidents(incidentDtos);
     }).catch(() => {
-      toast.success(toastMessages.INCIDENTS_NOT_LOADED)
+      toast.error(toastMessages.INCIDENTS_NOT_LOADED)
     });
 	}
 

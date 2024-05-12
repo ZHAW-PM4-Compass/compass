@@ -1,6 +1,11 @@
 'use client';
 import React, {useEffect, useState} from 'react';
-import {DaySheetDto, type UpdateConfirmedRequest, UpdateDaySheetDayNotesDto} from "@/openapi/compassClient";
+import {
+    DaySheetDto,
+    TimestampDto,
+    type UpdateConfirmedRequest,
+    UpdateDaySheetDayNotesDto
+} from "@/openapi/compassClient";
 import Table from "@/components/table";
 import {Checkmark24Regular, Edit24Regular, NoteAddRegular} from "@fluentui/react-icons";
 import {toast} from "react-hot-toast";
@@ -17,19 +22,30 @@ export default function WorkingHoursCheckPage() {
     const router = useRouter();
     const [notesInput, setNotesInput] = useState(''); // Declare a state variable
 
+    const mockUserId = 'auth0|6640a6df7d1d70fe02cc72c9';
+    const mockData: DaySheetDto[] = [{id: 99, date: Date.prototype, dayNotes: 'undefined', confirmed: false, timestamps:[{id: 98, daySheetId:99, startTime:'start', endTime:'end'} as TimestampDto], timeSum: 90}];
 
+    let initLoad = false;
     useEffect(() => {
-      if (user?.sub) {
-        getDaySheetControllerApi().getAllDaySheetByParticipant({ userId: user.sub }).then(daySheetDtos => {
-          close();
-          toast.success(toastMessages.DAYSHEETS_LOADED);
+        if (!initLoad) {
+            initLoad = true;
+            const queryParams = new URLSearchParams(window.location.search);
+            const userId = queryParams.get('userId');
+            if (userId) {
+                getDaySheetControllerApi().getAllDaySheetByParticipant({ userId: userId }).then(daySheetDtos => {
+                    close();
+                    toast.success(toastMessages.DAYSHEETS_LOADED);
+                    console.log(daySheetDtos);
 
-          const notConfirmedDaySheetDtos = daySheetDtos.filter(daySheetDto => !daySheetDto.confirmed);
-          setDaySheetDtos(notConfirmedDaySheetDtos);
-        }).catch(() => {
-            toast.error(toastMessages.DATA_NOT_LOADED);
-        });
-      }
+                    const notConfirmedDaySheetDtos = daySheetDtos.filter(daySheetDto => !daySheetDto.confirmed);
+                    setDaySheetDtos(notConfirmedDaySheetDtos);
+                }).catch(() => {
+                    toast.error(toastMessages.DATA_NOT_LOADED);
+                });
+            } else {
+                toast.error(toastMessages.USER_NOT_SELECTED);
+            }
+        }
     }, []);
 
     const confirmDaySheet = async (id: number) => {
@@ -99,6 +115,23 @@ export default function WorkingHoursCheckPage() {
         }
     };
 
+    const dateFunction = (daySheetDto: DaySheetDto): string => {
+        if (daySheetDto != undefined) {
+            if (daySheetDto.date) return daySheetDto.date.toLocaleDateString();
+        }
+        return '';
+    }
+
+    const timeSumFunction = (daySheetDto: DaySheetDto): string => {
+        if (daySheetDto && daySheetDto.timeSum !== undefined) {
+            const totalSeconds = Math.floor(daySheetDto.timeSum / 1000); // converting milliseconds to seconds
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            return `${hours} hours and ${minutes} minutes`;
+        }
+        return '';
+    };
+
     return (
         <div>
             <Title1>Kontrolle Arbeitszeit</Title1>
@@ -107,15 +140,15 @@ export default function WorkingHoursCheckPage() {
                 columns={[
                     {
                         header: "Datum",
-                        title: "date"
+                        titleFunction: dateFunction
                     },
                     {
-                        header: "Teilnehmer",
-                        title: "Peter"
+                        header: "Notizen",
+                        title: "dayNotes"
                     },
                     {
                         header: "Erfasste Arbeitszeit",
-                        title: "workHours"
+                        titleFunction: timeSumFunction
                     }
                 ]}
                 actions={[
@@ -123,9 +156,11 @@ export default function WorkingHoursCheckPage() {
                         icon: Checkmark24Regular,
                         label: "Bestätigen",
                         onClick: (id) => {
-                            let daySheetDto = daySheetDtos[id];
-                            if (daySheetDto !== undefined && daySheetDto.id != undefined) {
-                                confirmDaySheet(daySheetDto.id);
+                            let daySheetDto: DaySheetDto | undefined = daySheetDtos[id];
+                            if (daySheetDto !== undefined) {
+                                if (daySheetDto.id != undefined) {
+                                    confirmDaySheet(daySheetDto.id);
+                                }
                             }
                         }
                     },

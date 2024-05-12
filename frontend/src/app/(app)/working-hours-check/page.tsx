@@ -18,7 +18,7 @@ import { useUser } from '@auth0/nextjs-auth0/client';
 export default function WorkingHoursCheckPage() {
     const [daySheetDtos, setDaySheetDtos] = useState<DaySheetDto[]>([]);
     const [selectedDaySheetDto, setSelectedDaySheetDto] = useState<DaySheetDto>();
-    const { user } = useUser();
+    const [userId, setUserId] = useState<String | null>();
     const router = useRouter();
     const [notesInput, setNotesInput] = useState(''); // Declare a state variable
 
@@ -31,11 +31,11 @@ export default function WorkingHoursCheckPage() {
             initLoad = true;
             const queryParams = new URLSearchParams(window.location.search);
             const userId = queryParams.get('userId');
+            setUserId(userId);
             if (userId) {
                 getDaySheetControllerApi().getAllDaySheetByParticipant({ userId: userId }).then(daySheetDtos => {
                     close();
                     toast.success(toastMessages.DAYSHEETS_LOADED);
-                    console.log(daySheetDtos);
 
                     const notConfirmedDaySheetDtos = daySheetDtos.filter(daySheetDto => !daySheetDto.confirmed);
                     setDaySheetDtos(notConfirmedDaySheetDtos);
@@ -109,9 +109,8 @@ export default function WorkingHoursCheckPage() {
     }
 
     const navigateToSingleDay = () => {
-        if (selectedDaySheetDto != undefined && selectedDaySheetDto.date != undefined) {
-            const dateString = encodeURIComponent(selectedDaySheetDto.date.toString());
-            router.push(`/working-hours-single-day?date=${dateString}`);
+        if (selectedDaySheetDto != undefined && selectedDaySheetDto.id != undefined) {
+            router.push(`/working-hours-single-day?day-sheet=${selectedDaySheetDto.id}`);
         }
     };
 

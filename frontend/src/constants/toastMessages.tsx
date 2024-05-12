@@ -23,6 +23,9 @@ enum toastMessages {
   DAYSHEET_NOT_UPDATED = "Arbeitstag konnte nicht aktualisiert werden",
   DAYSHEET_DELETED = "Arbeitstag gelöscht",
   DAYSHEET_NOT_DELETED = "Arbeitstag konnte nicht gelöscht werden",
+  DAYNOTES_UPDATED = "Notizen aktualisiert",
+  DAYNOTES_NOT_UPDATED = "Notizen konnten nicht aktualisiert werden",
+  STARTTIME_AFTER_ENDTIME = "Startzeit muss vor Endzeit liegen",
 
   USER_DELETED = "User gelöscht",
   USER_NOT_DELETED = "User konnte nicht gelöscht werden",

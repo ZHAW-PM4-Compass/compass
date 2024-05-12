@@ -14,6 +14,7 @@ import toastMessages from "@/constants/toastMessages";
 import type { IncidentDto } from "@/openapi/compassClient";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import type { CreateIncidentRequest } from "@/openapi/compassClient/apis/IncidentControllerApi";
+import TextArea from "@/components/textarea";
 
 enum formFields {
   DATE = "date",
@@ -60,7 +61,7 @@ function IncidentCreateModal({ close, onSave }: Readonly<{
     >
       <Input type="date" placeholder="Datum" className="mb-4 mr-4 w-48 inline-block" name={formFields.DATE} required={true} />
       <Input type="text" placeholder="Titel" className="mb-4 mr-4 w-48 inline-block" name={formFields.TITLE} required={true} />
-      <Input type="text" placeholder="Beschreibung" className="mb-4 mr-4 w-48 inline-block" name={formFields.DESCRIPTION} required={true} />
+      <TextArea placeholder="Beschreibung" className="mb-4 mr-4 min-w-72 min-h-24 block" name={formFields.DESCRIPTION} />
     </Modal>
   );
 }
@@ -103,7 +104,7 @@ return (
   >
     <Input type="date" placeholder="Datum" className="mb-4 mr-4 w-48 inline-block" name={formFields.DATE} required={true} />
     <Input type="text" placeholder="Titel" className="mb-4 mr-4 w-48 inline-block" name={formFields.TITLE} required={true} />
-    <Input type="text" placeholder="Beschreibung" className="mb-4 mr-4 w-48 inline-block" name={formFields.DESCRIPTION} required={true} />
+    <TextArea placeholder="Beschreibung" className="mb-4 mr-4 w-48 inline-block" name={formFields.DESCRIPTION} />
   </Modal>
 );
 }

@@ -58,6 +58,9 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
 
   const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
+    if (name === "startTime" && updatedTimestamp.endTime && value >= updatedTimestamp.endTime || name === "endTime" && updatedTimestamp.startTime && value <= updatedTimestamp.startTime) {
+      return toast.error(toastMessages.STARTTIME_AFTER_ENDTIME);
+    }
     setTimestamp(prevState => ({ ...prevState, [name]: value }));
   };
 

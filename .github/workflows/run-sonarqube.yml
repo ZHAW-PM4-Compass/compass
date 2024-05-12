@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - main
-      - feat/sonarqube
   workflow_dispatch: # enables manual trigger
 
 name: SonarQube Scan

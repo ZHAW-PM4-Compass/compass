@@ -45,6 +45,10 @@ runs:
       shell: bash
       run: cd reports && ls -la
 
+    - name: Copy Java Compiled Classes from Docker
+      shell: bash
+      run: docker cp test-container:/app/build/classes ./backend/build/classes
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:

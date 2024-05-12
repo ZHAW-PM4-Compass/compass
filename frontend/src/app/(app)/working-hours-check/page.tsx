@@ -45,7 +45,7 @@ function DayNotesModal({ close, onSave, daySheetDto }: Readonly<{
 
   return (
     <Modal
-      title="Benutzer bearbeiten"
+      title="Notizen bearbeiten"
       footerActions={
         <Button Icon={Save24Regular} type="submit">Speichern</Button>
       }

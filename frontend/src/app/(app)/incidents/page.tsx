@@ -7,7 +7,7 @@ import Modal from "@/components/modal";
 import Table from "@/components/table";
 import Title1 from "@/components/title1";
 import Roles from "@/constants/roles";
-import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular } from "@fluentui/react-icons";
+import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular, ChannelAdd24Regular } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
 import toastMessages from "@/constants/toastMessages";
@@ -29,7 +29,7 @@ function IncidentCreateModal({ close, onSave }: Readonly<{
   const onSubmit = (formData: FormData) => {
     const dateString = formData.get(formFields.DATE) as string;
     const date = new Date(dateString);
-    
+
     const createIncidentRequest: CreateIncidentRequest = {
       incidentDto: {
         date: date,
@@ -158,7 +158,7 @@ export default function IncidentsPage() {
         <div className="flex flex-col sm:flex-row justify-between mb-5">
           <Title1>Vorfälle</Title1>
           <div className="mt-2 sm:mt-0">
-            <Button Icon={PersonAdd24Regular} onClick={() => setShowCreateModal(true)}>Erstellen</Button>
+            <Button Icon={ChannelAdd24Regular} onClick={() => setShowCreateModal(true)}>Erstellen</Button>
           </div>
         </div>
         <Table

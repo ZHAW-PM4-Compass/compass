@@ -31,9 +31,6 @@ enum toastMessages {
   USER_NOT_DELETED = "User konnte nicht gelöscht werden",
   USER_RESTORED = "User wiederhergestellt",
   USER_NOT_RESTORED = "User konnte nicht wiederhergestellt werden",
-
-  STARTTIME_AFTER_ENDTIME = "Startzeit muss vor Endzeit liegen",
-
 }
 
 export default toastMessages;

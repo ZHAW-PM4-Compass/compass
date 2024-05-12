@@ -59,9 +59,11 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
   const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     if (name === "startTime" && updatedTimestamp.endTime && value >= updatedTimestamp.endTime || name === "endTime" && updatedTimestamp.startTime && value <= updatedTimestamp.startTime) {
-      return toast.error(toastMessages.STARTTIME_AFTER_ENDTIME);
+      toast.error(toastMessages.STARTTIME_AFTER_ENDTIME);
+      return;
     }
     setTimestamp(prevState => ({ ...prevState, [name]: value }));
+    return;
   };
 
   useEffect(() => {setTimestamp({startTime: timestamp?.startTime || "00:00", endTime: timestamp?.endTime || "00:00"})}, []);
@@ -215,9 +217,11 @@ export default function WorkingHoursPage() {
   const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     if (name === "startTime" && timestamp.endTime && value >= timestamp.endTime || name === "endTime" && timestamp.startTime && value <= timestamp.startTime) {
-      return toast.error(toastMessages.STARTTIME_AFTER_ENDTIME);
+      toast.error(toastMessages.STARTTIME_AFTER_ENDTIME);
+      return;
     }
     setTimestamp(prevState => ({ ...prevState, [name]: value }));
+    return;
   };
 
   const deleteTimestamp = () => {

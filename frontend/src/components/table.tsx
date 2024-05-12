@@ -51,7 +51,7 @@ const Item = ({ itemIndex, item, columns, actions }: Readonly<{
 export default function Table({ className, data, columns, actions }: Readonly<{
   className?: string,
   data: Array<any>,
-  columns: Array<{ header: string, title?: string, titleFunction?: ((value: any) => React.ReactNode) | undefined}>
+  columns: Array<{ header: string, title?: string, titleFunction?: ((value: any) => React.ReactNode) | undefined }>
   actions?: Array<{ icon: any, label?: string, onClick: (id: number) => void, hide?: (id: number) => boolean }>
 }>) {
   return (

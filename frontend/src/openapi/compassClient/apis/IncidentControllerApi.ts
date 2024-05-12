@@ -30,10 +30,6 @@ export interface DeleteIncidentRequest {
     id: number;
 }
 
-export interface GetAllIncidentsByParticipantRequest {
-    userId: string;
-}
-
 export interface UpdateIncidentRequest {
     incidentDto: IncidentDto;
 }
@@ -129,37 +125,6 @@ export class IncidentControllerApi extends runtime.BaseAPI {
      */
     async getAllIncidents(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<IncidentDto>> {
         const response = await this.getAllIncidentsRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
-     */
-    async getAllIncidentsByParticipantRaw(requestParameters: GetAllIncidentsByParticipantRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<IncidentDto>>> {
-        if (requestParameters['userId'] == null) {
-            throw new runtime.RequiredError(
-                'userId',
-                'Required parameter "userId" was null or undefined when calling getAllIncidentsByParticipant().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/incident/getAllByParticipant/{userId}`.replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters['userId']))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(IncidentDtoFromJSON));
-    }
-
-    /**
-     */
-    async getAllIncidentsByParticipant(requestParameters: GetAllIncidentsByParticipantRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<IncidentDto>> {
-        const response = await this.getAllIncidentsByParticipantRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

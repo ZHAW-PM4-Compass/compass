@@ -46,19 +46,14 @@ public class IncidentController {
 	public ResponseEntity<?> deleteIncident(@PathVariable Long id) {
 		try {
 			incidentService.deleteIncident(id);
-			return new ResponseEntity<>(HttpStatus.OK);
+			return ResponseEntity.ok(id);
 		} catch (IncidentNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
 
 	@GetMapping(path = "/getAll", produces = "application/json")
-	public ResponseEntity<List<IncidentDto>> getAllIncidents() {
-		return ResponseEntity.ok(incidentService.getAll());
-	}
-
-	@GetMapping(path = "/getAllByParticipant/{userId}", produces = "application/json")
-	public ResponseEntity<List<IncidentDto>> getAllIncidentsByParticipant(@PathVariable String userId) {
-		return ResponseEntity.ok(incidentService.getAllIncidentByUser(userId));
+	public ResponseEntity<List<IncidentDto>> getAllIncidents(Authentication authentication) {
+		return ResponseEntity.ok(incidentService.getAll(authentication.getName()));
 	}
 }

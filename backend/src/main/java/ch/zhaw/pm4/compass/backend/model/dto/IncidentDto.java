@@ -13,6 +13,5 @@ public class IncidentDto {
 	private String title;
 	private String description;
 	private LocalDate date;
-	private	String userId;
-	private String userEmail;
+	private	UserDto user;
 }

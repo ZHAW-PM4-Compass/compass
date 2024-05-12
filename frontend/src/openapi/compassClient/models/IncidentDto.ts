@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { UserDto } from './UserDto';
+import {
+    UserDtoFromJSON,
+    UserDtoFromJSONTyped,
+    UserDtoToJSON,
+} from './UserDto';
+
 /**
  * 
  * @export
@@ -45,16 +52,10 @@ export interface IncidentDto {
     date?: Date;
     /**
      * 
-     * @type {string}
+     * @type {UserDto}
      * @memberof IncidentDto
      */
-    userId?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof IncidentDto
-     */
-    userEmail?: string;
+    user?: UserDto;
 }
 
 /**
@@ -78,8 +79,7 @@ export function IncidentDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'title': json['title'] == null ? undefined : json['title'],
         'description': json['description'] == null ? undefined : json['description'],
         'date': json['date'] == null ? undefined : (new Date(json['date'])),
-        'userId': json['userId'] == null ? undefined : json['userId'],
-        'userEmail': json['userEmail'] == null ? undefined : json['userEmail'],
+        'user': json['user'] == null ? undefined : UserDtoFromJSON(json['user']),
     };
 }
 
@@ -93,8 +93,7 @@ export function IncidentDtoToJSON(value?: IncidentDto | null): any {
         'title': value['title'],
         'description': value['description'],
         'date': value['date'] == null ? undefined : ((value['date']).toISOString().substring(0,10)),
-        'userId': value['userId'],
-        'userEmail': value['userEmail'],
+        'user': UserDtoToJSON(value['user']),
     };
 }
 

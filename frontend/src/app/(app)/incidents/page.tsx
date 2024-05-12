@@ -7,14 +7,16 @@ import Modal from "@/components/modal";
 import Table from "@/components/table";
 import Title1 from "@/components/title1";
 import Roles from "@/constants/roles";
-import { PersonAdd24Regular, Delete24Regular, Edit24Regular, Save24Regular, ChannelAdd24Regular } from "@fluentui/react-icons";
+import { Delete24Regular, Edit24Regular, Save24Regular, ChannelAdd24Regular } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
 import toastMessages from "@/constants/toastMessages";
-import type { IncidentDto } from "@/openapi/compassClient";
+import type { IncidentDto, UserDto } from "@/openapi/compassClient";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import type { CreateIncidentRequest } from "@/openapi/compassClient/apis/IncidentControllerApi";
+import type { CreateIncidentRequest, UpdateIncidentRequest } from "@/openapi/compassClient/apis/IncidentControllerApi";
 import TextArea from "@/components/textarea";
+import Select from "@/components/select";
+import React from "react";
 
 enum formFields {
   DATE = "date",
@@ -23,9 +25,12 @@ enum formFields {
   PARTICIPANT = "participant"
 }
 
-function IncidentCreateModal({ close, onSave }: Readonly<{
+function IncidentCreateModal({ close, onSave, userId, partSelectActive, participants }: Readonly<{
     close: () => void;
 		onSave: () => void;
+    userId?: string;
+    partSelectActive?: boolean;
+    participants?: UserDto[];
   }>) {
   const onSubmit = (formData: FormData) => {
     const dateString = formData.get(formFields.DATE) as string;
@@ -36,7 +41,9 @@ function IncidentCreateModal({ close, onSave }: Readonly<{
         date: date,
         title: formData.get(formFields.TITLE) as string,
         description: formData.get(formFields.DESCRIPTION) as string,
-        userId: "auth0|6601d72a423e9ac1d785e113"
+        user: {
+          userId: partSelectActive ? formData.get(formFields.PARTICIPANT) as string : userId
+        }
       }
     };
   
@@ -50,11 +57,27 @@ function IncidentCreateModal({ close, onSave }: Readonly<{
     })
   }
 
+  const participantsData = participants?.map(participant => ({ 
+    id: participant?.userId,
+    label: participant?.email
+  }));
+
   return (
     <Modal
       title="Vorfall erfassen"
       footerActions={
-        <Button Icon={Save24Regular} type="submit">Speichern</Button>
+        partSelectActive ? (
+          <>
+            <Select
+              className="mr-4 w-48 inline-block"
+              name={formFields.PARTICIPANT}
+              required={true}
+              data={participantsData ?? []} />
+            <Button Icon={Save24Regular} type="submit">Speichern</Button>
+          </>
+        ) : (
+          <Button Icon={Save24Regular} type="submit">Speichern</Button>
+        )
       }
       close={close}
 			onSubmit={onSubmit}
@@ -66,73 +89,98 @@ function IncidentCreateModal({ close, onSave }: Readonly<{
   );
 }
 
-function IncidentUpdateModal({ close, onSave }: Readonly<{
+function IncidentUpdateModal({ close, onSave, incidentDto, partSelectActive }: Readonly<{
   close: () => void;
   onSave: () => void;
+  incidentDto: IncidentDto | undefined;
+  partSelectActive?: boolean;
 }>) {
-const onSubmit = (formData: FormData) => {
-  const dateString = formData.get(formFields.DATE) as string;
-  const date = new Date(dateString);
+  const [title, setTitle] = useState(incidentDto?.title);
+  const [description, setDescription] = useState(incidentDto?.description);
 
-  const createIncidentRequest: CreateIncidentRequest = {
-    incidentDto: {
-      date: date,
-      title: formData.get(formFields.TITLE) as string,
-      description: formData.get(formFields.DESCRIPTION) as string,
-      userId: "auth0|6601d72a423e9ac1d785e113"
-    }
-  };
+  const yearString = incidentDto?.date?.getFullYear();
+  const month = incidentDto?.date?.getMonth() && incidentDto?.date?.getMonth() + 1;
+  const monthString = month?.toString().padStart(2, '0');
+  const dayString = incidentDto?.date?.getDate()?.toString().padStart(2, '0');
 
-  getIncidentControllerApi().createIncident(createIncidentRequest).then(() => {
-    close();
-    onSave();
-    toast.success(toastMessages.INCIDENT_CREATED);
-  }).catch(error => {
-    console.error(error);
-    toast.error(toastMessages.INCIDENT_NOT_CREATED);
-  })
-}
+  const dateString = `${yearString}-${monthString}-${dayString}`;
+  
+  const onSubmit = (formData: FormData) => {
+    const dateString = formData.get(formFields.DATE) as string;
+    const date = new Date(dateString);
 
-return (
-  <Modal
-    title="Vorfall erfassen"
-    footerActions={
-      <Button Icon={Save24Regular} type="submit">Speichern</Button>
-    }
-    close={close}
-    onSubmit={onSubmit}
-  >
-    <Input type="date" placeholder="Datum" className="mb-4 mr-4 w-48 inline-block" name={formFields.DATE} required={true} />
-    <Input type="text" placeholder="Titel" className="mb-4 mr-4 w-48 inline-block" name={formFields.TITLE} required={true} />
-    <TextArea placeholder="Beschreibung" className="mb-4 mr-4 w-48 inline-block" name={formFields.DESCRIPTION} />
-  </Modal>
-);
+    const updateIncidentRequest: UpdateIncidentRequest = {
+      incidentDto: {
+        id: incidentDto?.id,
+        date: date,
+        title: title,
+        description: description,
+        user: {
+          userId: incidentDto?.user?.userId
+        }
+      }
+    };
+
+    getIncidentControllerApi().updateIncident(updateIncidentRequest).then(() => {
+      close();
+      onSave();
+      toast.success(toastMessages.INCIDENT_UPDATED);
+    }).catch(error => {
+      console.error(error);
+      toast.error(toastMessages.INCIDENT_NOT_UPDATED);
+    })
+  }
+
+  return (
+    <Modal
+      title="Vorfall bearbeiten"
+      footerActions={
+        partSelectActive ? (
+          <>
+            <Input className="mr-4 w-48 inline-block" name={formFields.PARTICIPANT} disabled={true} value={incidentDto?.user?.email} />
+            <Button Icon={Save24Regular} type="submit">Speichern</Button>
+          </>
+        ) : (
+          <Button Icon={Save24Regular} type="submit">Speichern</Button>
+        )
+      }
+      close={close}
+      onSubmit={onSubmit}
+    >
+      <Input type="date" placeholder="Datum" className="mb-4 mr-4 w-48 inline-block" name={formFields.DATE} disabled={true} value={dateString} />
+      <Input type="text" placeholder="Titel" className="mb-4 mr-4 w-48 inline-block" name={formFields.TITLE} required={true} value={title} onChange={(e) => setTitle(e.target.value)} />
+      <TextArea placeholder="Beschreibung" className="mb-4 mr-4 min-w-72 min-h-24 block" name={formFields.DESCRIPTION} value={description} onChange={(e) => setDescription(e.target.value)} />
+    </Modal>
+  );
 }
 
 export default function IncidentsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [partSelectActive, setPartSelectActive] = useState(true);
   const [incidents, setIncidents] = useState<IncidentDto[]>([]);
 	const [selectedIncident, setSelectedIncident] = useState<IncidentDto>();
+  const [tableColumns, setTableColumns] = useState<{ header?: string, title?: string, titleFunction?: ((value: any) => React.ReactNode) | undefined }[]>([
+      {
+        header: "Datum",
+        title: "date"
+      },
+      {
+        header: "Titel",
+        title: "title"
+      }
+    ]);
+  const [userId, setUserId] = useState("");
+  const [participants, setParticipants] = useState<UserDto[]>([]);
+
   const { user } = useUser();
 
 	const loadIncidents = () => {
-    if (user?.sub){
-      getUserControllerApi().getUserById({ id: user.sub }).then((userDto) => {
-        if (userDto.role === Roles.SOCIAL_WORKER || userDto.role === Roles.ADMIN) {
-          getIncidentControllerApi().getAllIncidents().then((incidents) => {
-            setIncidents(incidents)
-          });
-        } else {
-          user.sub && getIncidentControllerApi().getAllIncidentsByParticipant({ userId: user.sub }).then((incidents) => {
-            setIncidents(incidents);
-          }).catch(() => {
-            toast.error(toastMessages.INCIDENTS_NOT_LOADED);
-          });
-        }
-      });
-
-    }
+    getIncidentControllerApi().getAllIncidents().then(incidentDtos => {
+      setIncidents(incidentDtos);
+    }).catch(() => {
+      toast.success(toastMessages.INCIDENTS_NOT_LOADED)
+    });
 	}
 
   const deleteIncident = (id: number) => {
@@ -145,15 +193,48 @@ export default function IncidentsPage() {
   }
 
   useEffect(() => {
+    setUserId(user?.sub || "");
+    user?.sub && getUserControllerApi().getUserById({ id: user.sub }).then(userDto => {
+      if (userDto.role === Roles.SOCIAL_WORKER || userDto.role === Roles.ADMIN) {
+        setPartSelectActive(true);
+        getUserControllerApi().getAllParticipants().then(participants => {
+          setParticipants(participants);
+        });
+        setTableColumns([
+          {
+            header: "Datum",
+            title: "date"
+          },
+          {
+            header: "Titel",
+            title: "title"
+          },
+          {
+            header: "Teilnehmer",
+            titleFunction: (incident: IncidentDto) => incident.user?.email
+          }
+        ]);
+      }
+    });
     loadIncidents();
-  }, []);
+  }, [user]);
 
   return (
     <>
       {showCreateModal && (
         <IncidentCreateModal 
 					close={() => setShowCreateModal(false)}
-					onSave={loadIncidents} />
+					onSave={loadIncidents}
+          userId={userId}
+          partSelectActive={partSelectActive}
+          participants={participants} />
+      )}
+      {showUpdateModal && (
+        <IncidentUpdateModal  
+					close={() => setShowUpdateModal(false)}
+					onSave={loadIncidents}
+          incidentDto={selectedIncident} 
+          partSelectActive={partSelectActive} />
       )}
       <div className="h-full flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between mb-5">
@@ -164,20 +245,7 @@ export default function IncidentsPage() {
         </div>
         <Table
           data={incidents}
-          columns={[
-            {
-              header: "Datum",
-              title: "date"
-            },
-            {
-              header: "Titel",
-              title: "title"
-            },
-            {
-              header: "Beschreibung",
-              title: "description"
-            }
-          ]}
+          columns={tableColumns}
           actions={[
             {
               icon: Delete24Regular,

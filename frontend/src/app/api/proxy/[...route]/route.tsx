@@ -17,7 +17,6 @@ async function callBackend(request: NextRequest) {
     headers: headers,
     body: body ? body : undefined,
   }).then(response => {
-    console.log(response.status, response.statusText)
     return response
   }).catch(() => {
     return new Response("Internal Server Error", { status: 500 });

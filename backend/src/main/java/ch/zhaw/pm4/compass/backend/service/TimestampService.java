@@ -41,7 +41,7 @@ public class TimestampService {
 
     public ArrayList<TimestampDto> getAllTimestampsByDaySheetId(Long id, String userId) {
         ArrayList<TimestampDto> resultList = new ArrayList<>();
-        Iterable<Timestamp> list = timestampRepository.findAllByDaySheetIdAndUserId(id, userId);
+        Iterable<Timestamp> list = timestampRepository.findAllByDaySheetId(id);
         for (Timestamp timestamp : list)
             resultList.add(convertTimestampToTimestampDto(timestamp));
 
@@ -49,7 +49,7 @@ public class TimestampService {
     }
 
     public TimestampDto updateTimestampById(TimestampDto updateTimestampDto, String userId) {
-        Optional<Timestamp> response = timestampRepository.findByIdAndUserId(updateTimestampDto.getId(), userId);
+        Optional<Timestamp> response = timestampRepository.findById(updateTimestampDto.getId());
         if (response.isPresent()) {
             Timestamp timestamp = response.get();
             Timestamp newTimestamp = new Timestamp(timestamp.getId(), timestamp.getDaySheet(), updateTimestampDto.getStart_time(), updateTimestampDto.getStart_time());
@@ -65,7 +65,7 @@ public class TimestampService {
     }
 
     public void deleteTimestamp(Long id, String userId) {
-        Optional<Timestamp> timestamp = timestampRepository.findByIdAndUserId(id, userId);
+        Optional<Timestamp> timestamp = timestampRepository.findById(id);
         if (timestamp.isPresent())
             timestampRepository.delete(timestamp.get());
     }

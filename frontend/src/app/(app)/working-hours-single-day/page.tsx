@@ -57,7 +57,7 @@ const DaySheetViewSingleDay: React.FC = () => {
             if (dateString) {
                 const parsedDate = new Date(dateString);
                 setCurrentDate(parsedDate);
-                //TODO: tranfer data from previous page or load it from backend
+                //TODO daysheet: tranfer data of selected date from previous page or load it from backend, i did it over the url, maybe it works as well
             }
         }
     }, []);
@@ -129,7 +129,7 @@ const DaySheetViewSingleDay: React.FC = () => {
     const onSave = (timestampDto: TimestampDto) => {
         getTimestampControllerApi().putTimestamp({ timestampDto }).then((response) => {
             close();
-            toast.success(toastMessages.TIMESTAMP_UDPATED);
+            toast.success(toastMessages.TIMESTAMP_UPDATED);
         }).catch(() => {
             toast.error(toastMessages.TIMESTAMP_NOT_UPDATED);
         });

@@ -27,6 +27,7 @@ public class TimestampController {
 	@PostMapping(produces = "application/json")
 	public ResponseEntity<TimestampDto> createTimestamp(@RequestBody TimestampDto timestamp,
 			Authentication authentication) {
+		System.out.println(timestamp.toString());
 		if (!timestamp.verifyTimeStamp()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}

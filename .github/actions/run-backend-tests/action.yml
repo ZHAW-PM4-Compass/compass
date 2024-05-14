@@ -41,9 +41,9 @@ runs:
           backend-tests \
           /bin/sh -c "gradle test -info && printenv"
 
-    - name: Debug Report dir
+    - name: Debug Copied Classes
       shell: bash
-      run: cd reports && ls -la
+      run: ls -la ./${{ inputs.working-directory }}/build/classes
 
     - name: Copy Java Compiled Classes from Docker
       shell: bash

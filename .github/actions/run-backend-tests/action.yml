@@ -41,13 +41,19 @@ runs:
           backend-tests \
           /bin/sh -c "gradle test -info && printenv"
 
-    - name: Debug Copied Classes
-      shell: bash
-      run: ls -la ./${{ inputs.working-directory }}/build/classes
-
     - name: Copy Java Compiled Classes from Docker
       shell: bash
-      run: docker cp test-container:/app/build/classes ./backend/build/classes
+      run: docker cp test-container:/app/build/classes /backend/build
+
+    - name: Debug Copied Classes
+      shell: bash
+      run: ls -la /backend/build
+
+    - name: Upload Backend Test Results
+      uses: actions/upload-artifact@v2
+      with:
+        name: backend-test-results
+        path: ./backend/build
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

@@ -16,6 +16,11 @@ jobs:
         with:
           working-directory: "./frontend"
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload Frontend Build Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: frontend-test-results
+          path: ./frontend/build/reports
   backend-tests:
     runs-on: ubuntu-latest
     services:
@@ -62,6 +67,18 @@ jobs:
         with:
           java-version: 21
           distribution: "temurin"
+
+      - name: Download Frontend Test Results
+        uses: actions/download-artifact@v2
+        with:
+          name: frontend-test-results
+          path: ./frontend/build/reports
+
+      - name: Download Backend Test Results
+        uses: actions/download-artifact@v2
+        with:
+          name: backend-test-results
+          path: ./backend/build
 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master

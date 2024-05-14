@@ -6,6 +6,7 @@ import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.TimestampRepository;
+import org.apache.catalina.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -33,6 +34,9 @@ class TimestampServiceTest {
 
     @Mock
     private DaySheetRepository daySheetRepository;
+
+    @Mock
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
@@ -174,9 +178,9 @@ class TimestampServiceTest {
         ArrayList<TimestampDto> timestampsDto = new ArrayList<TimestampDto>();
         timestampsDto.add(getTimestampDto0);
         timestampsDto.add(getTimestampDto1);
-        when(timestampRepository.findAllByDaySheetIdAndUserId(any(Long.class), any(String.class))).thenReturn(daySheet.getTimestamps());
-        when(daySheetRepository.findByIdAndUserId(any(Long.class), any(String.class))).thenReturn(Optional.of(daySheet));
-
+        when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(daySheet.getTimestamps());
+        //when(daySheetRepository.findByIdAndUserId(any(Long.class), any(String.class))).thenReturn(Optional.of(daySheet));
+        when(daySheetRepository.findById(any(Long.class))).thenReturn(Optional.of(daySheet));
         ArrayList<TimestampDto> res = timestampService.getAllTimestampsByDaySheetId(daySheet.getId(), user_id);
         TimestampDto resTimestampDto0 = res.get(0);
         TimestampDto resTimestampDto1 = res.get(1);
@@ -190,7 +194,7 @@ class TimestampServiceTest {
         assertEquals(getTimestampDto1.getDay_sheet_id(), resTimestampDto1.getDay_sheet_id());
         assertEquals(getTimestampDto1.getStart_time().toString(), resTimestampDto1.getStart_time().toString());
         assertEquals(getTimestampDto1.getEnd_time().toString(), resTimestampDto1.getEnd_time().toString());
-        verify(timestampRepository, times(1)).findAllByDaySheetIdAndUserId(any(Long.class), any(String.class));
+        verify(timestampRepository, times(1)).findAllByDaySheetId(any(Long.class));
     }
 
     @Test
@@ -198,7 +202,7 @@ class TimestampServiceTest {
         timestamp.setUserId(user_id);
         TimestampDto timestampUpdateDto = getUpdateTimestamp();
         when(timestampRepository.save(any(Timestamp.class))).thenReturn(timestamp);
-        when(timestampRepository.findByIdAndUserId(any(Long.class), any(String.class))).thenReturn(Optional.of(timestamp));
+        when(timestampRepository.findById(any(Long.class))).thenReturn(Optional.of(timestamp));
         TimestampDto resultTimestamp = timestampService.updateTimestampById(timestampUpdateDto, user_id);
         assertEquals(timestampUpdateDto.getDay_sheet_id(), resultTimestamp.getDay_sheet_id());
         assertEquals(timestampUpdateDto.getStart_time(), resultTimestamp.getStart_time());

@@ -22,4 +22,11 @@ public class Incident {
 		this.title = title;
 		this.description = description;
 	}
+
+	public Incident(Long id, String title, String description, DaySheet daySheet) {
+		this.id = id;
+		this.title = title;
+		this.description = description;
+		this.daySheet = daySheet;
+	}
 }

@@ -21,6 +21,7 @@ jobs:
         with:
           name: frontend-test-results
           path: ./frontend/build/reports
+
   backend-tests:
     runs-on: ubuntu-latest
     services:
@@ -53,6 +54,12 @@ jobs:
         with:
           working-directory: "./backend"
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload Backend Test Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: backend-test-results
+          path: ./backend/build
+
   sonarqube-analysis:
     needs: [backend-tests, frontend-tests]
     runs-on: ubuntu-latest

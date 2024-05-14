@@ -85,6 +85,7 @@ jobs:
         with:
           name: backend-test-results
           path: ./backend/build
+
       - name: Install SonarQube Scanner
         run: |
           sudo apt-get update
@@ -92,6 +93,7 @@ jobs:
           wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
           unzip sonar-scanner-cli-4.6.2.2472-linux.zip
           echo "$(pwd)/sonar-scanner-4.6.2.2472-linux/bin" >> $GITHUB_PATH
+
       - name: SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -101,9 +103,6 @@ jobs:
           sonar-scanner \
             -Dsonar.projectKey=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR \
             -Dsonar.sources=./backend \
-            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
-            -Dsonar.pullrequest.branch=${{ github.head_ref }} \
-            -Dsonar.pullrequest.base=${{ github.base_ref }} \
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
@@ -113,7 +112,7 @@ jobs:
           project_key="ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR"
           sonar_host="${{ secrets.SONAR_HOST_URL }}"
           sonar_token="${{ secrets.SONAR_TOKEN }}"
-          analysis_result=$(curl -u $sonar_token: "$sonar_host/api/qualitygates/project_status?projectKey=$project_key&pullRequest=${{ github.event.pull_request.number }}")
+          analysis_result=$(curl -u $sonar_token: "$sonar_host/api/qualitygates/project_status?projectKey=$project_key")
           echo "$analysis_result" > analysis_result.json
           quality_gate_status=$(echo "$analysis_result" | jq -r '.projectStatus.status')
           echo "Quality Gate Status: $quality_gate_status"

@@ -66,30 +66,35 @@ export default function WorkingHoursCheckPage() {
     const [showDayNotesModal, setShowDayNotesModal] = useState(false);
     const [daySheetDtos, setDaySheetDtos] = useState<DaySheetDto[]>([]);
     const [selectedDaySheetDto, setSelectedDaySheetDto] = useState<DaySheetDto>();
-    const [userId, setUserId] = useState<String | null>();
+    const [userId, setUserId] = useState<string | null>();
     const router = useRouter();
 
-    const mockUserId = 'auth0|6640a6df7d1d70fe02cc72c9';
-    const mockData: DaySheetDto[] = [{id: 99, date: Date.prototype, dayNotes: 'undefined', confirmed: false, timestamps:[{id: 98, daySheetId:99, startTime:'start', endTime:'end'} as TimestampDto], timeSum: 90}];
+    let initLoad = false;
+    const loadPage = () => {
+        if (!initLoad) {
+            initLoad = true;
+            const queryParams = new URLSearchParams(window.location.search);
+            const userId = queryParams.get('userId');
+            setUserId(userId);
+            if (userId) {
+                loadDaySheets(userId);
+            } else {
+                toast.error(toastMessages.USER_NOT_SELECTED);
+            }
+        }
+    }
 
-    const loadDaySheets = () => {
-      const queryParams = new URLSearchParams(window.location.search);
-      const userId = queryParams.get('userId');
-      setUserId(userId);
-      if (userId) {
-          getDaySheetControllerApi().getAllDaySheetByParticipant({ userId: userId }).then(daySheetDtos => {
-              close();
-              toast.success(toastMessages.DAYSHEETS_LOADED);
-              console.log(daySheetDtos);
+    function loadDaySheets(userId: string) {
+        getDaySheetControllerApi().getAllDaySheetByParticipant({userId: userId}).then(daySheetDtos => {
+            close();
+            toast.success(toastMessages.DAYSHEETS_LOADED);
+            console.log(daySheetDtos);
 
-              const notConfirmedDaySheetDtos = daySheetDtos.filter(daySheetDto => !daySheetDto.confirmed);
-              setDaySheetDtos(notConfirmedDaySheetDtos);
-          }).catch(() => {
-              toast.error(toastMessages.DATA_NOT_LOADED);
-          });
-      } else {
-          toast.error(toastMessages.USER_NOT_SELECTED);
-      }
+            const notConfirmedDaySheetDtos = daySheetDtos.filter(daySheetDto => !daySheetDto.confirmed);
+            setDaySheetDtos(notConfirmedDaySheetDtos);
+        }).catch(() => {
+            toast.error(toastMessages.DATA_NOT_LOADED);
+        });
     }
 
     const confirmDaySheet = async (id: number) => {
@@ -100,6 +105,7 @@ export default function WorkingHoursCheckPage() {
         getDaySheetControllerApi().updateConfirmed(updateDayRequest).then(() => {
             close();
             toast.success(toastMessages.DAYSHEET_CONFIRMED);
+            if (userId) loadDaySheets(userId);
         }).catch(() => {
             toast.error(toastMessages.DAYSHEET_CONFIRMED_ERROR);
         });
@@ -129,7 +135,7 @@ export default function WorkingHoursCheckPage() {
     };
 
     useEffect(() => {
-      loadDaySheets();
+      loadPage();
     }, []);
 
     return (
@@ -137,7 +143,7 @@ export default function WorkingHoursCheckPage() {
         {showDayNotesModal && (
           <DayNotesModal 
 			  		close={() => setShowDayNotesModal(false)}
-            onSave={() => loadDaySheets()}
+            onSave={() => loadPage()}
             daySheetDto={selectedDaySheetDto} />
         )}
         <div>

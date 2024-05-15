@@ -1,6 +1,10 @@
 [![Build, Push and Deploy - Production](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd-prod.yml/badge.svg)](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd-prod.yml) [![Build, Push and Deploy - Staging](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd-staging.yml/badge.svg)](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd-staging.yml)
 
+![Quality Gate](https://sonarqube-compass.pm4.init-lab.ch/api/project_badges/measure?project=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR&metric=alert_status)
+![Bugs](https://sonarqube-compass.pm4.init-lab.ch/api/project_badges/measure?project=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR&metric=bugs)
+![Vulnerabilities](https://sonarqube-compass.pm4.init-lab.ch/api/project_badges/measure?project=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR&metric=vulnerabilities)
 [![codecov](https://codecov.io/gh/ZHAW-PM4-Compass/compass/graph/badge.svg?token=DN7OLQH1TA)](https://codecov.io/gh/ZHAW-PM4-Compass/compass)
+
 # Compass 🧭
 Compass is a web application for the Stadtmuur organization, which allows the participants to record their working hours, track their mood, track exceptional incidents, create daily reports and visualize this information.
 

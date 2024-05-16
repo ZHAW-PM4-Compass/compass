@@ -1,7 +1,6 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -63,7 +62,8 @@ public class DaySheetController {
 	}
 
 	@GetMapping(path = "/getAllByParticipantAndMonth/{userId}/{month}", produces = "application/json")
-	public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipantAndMonth(@PathVariable String userId, @PathVariable YearMonth month, Authentication authentication) {
+	public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipantAndMonth(@PathVariable String userId,
+			@PathVariable YearMonth month, Authentication authentication) {
 		return ResponseEntity.ok(daySheetService.getAllDaySheetByUserAndMonth(userId, month));
 	}
 

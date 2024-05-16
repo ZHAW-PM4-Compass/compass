@@ -7,14 +7,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import ch.zhaw.pm4.compass.backend.model.Incident;
-import ch.zhaw.pm4.compass.backend.model.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
+import ch.zhaw.pm4.compass.backend.model.Incident;
 import ch.zhaw.pm4.compass.backend.model.Rating;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
+import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.IncidentDto;
+import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
+import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 
 @Service
@@ -58,12 +62,9 @@ public class DaySheetService {
 	}
 
 	public List<DaySheetDto> getAllDaySheetByUserAndMonth(String userId, YearMonth month) {
-		Optional<List<DaySheet>> response = daySheetRepository.findAllByUserId(userId);
-		return response.map(daySheets -> daySheets.stream()
-						.filter(daySheet -> YearMonth.from(daySheet.getDate()).equals(month))
-						.map(this::convertDaySheetToDaySheetDto)
-						.collect(Collectors.toList()))
-				.orElse(null);
+		List<DaySheet> response = daySheetRepository.findAllByUserIdAndDateBetween(userId, month.atDay(1),
+				month.atEndOfMonth());
+		return response.stream().map(this::convertDaySheetToDaySheetDto).collect(Collectors.toList());
 	}
 
 	public DaySheetDto updateDayNotes(UpdateDaySheetDayNotesDto updateDay, String user_id) {
@@ -100,12 +101,8 @@ public class DaySheetService {
 		}
 
 		for (Incident incident : daySheet.getIncidents()) {
-			IncidentDto incidentDto = IncidentDto.builder()
-					.id(incident.getId())
-					.title(incident.getTitle())
-					.description(incident.getDescription())
-					.date(incident.getDaySheet().getDate())
-					.build();
+			IncidentDto incidentDto = IncidentDto.builder().id(incident.getId()).title(incident.getTitle())
+					.description(incident.getDescription()).date(incident.getDaySheet().getDate()).build();
 			incidentDtos.add(incidentDto);
 		}
 		return new DaySheetDto(daySheet.getId(), daySheet.getDayNotes(), daySheet.getDate(), daySheet.getConfirmed(),

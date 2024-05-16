@@ -2,6 +2,8 @@ package ch.zhaw.pm4.compass.backend.controller;
 
 import java.util.ArrayList;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,12 +31,22 @@ public class TimestampController {
 	@PostMapping(produces = "application/json")
 	public ResponseEntity<TimestampDto> createTimestamp(@RequestBody TimestampDto timestamp,
 			Authentication authentication) {
+		if (!timestamp.verifyTimeStamp()) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
 		TimestampDto response = timestampService.createTimestamp(timestamp, authentication.getName());
 		if (response == null)
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		return ResponseEntity.ok(response);
 	}
 
+	@GetMapping(path = "/getById/{id}", produces = "application/json")
+	public ResponseEntity<TimestampDto> getTimestampById(@PathVariable Long id, Authentication authentication) {
+		TimestampDto response = timestampService.getTimestampById(id, authentication.getName());
+		if (response == null)
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		return ResponseEntity.ok(response);
+	}
 	@GetMapping(path = "/getById/{id}", produces = "application/json")
 	public ResponseEntity<TimestampDto> getTimestampById(@PathVariable Long id, Authentication authentication) {
 		TimestampDto response = timestampService.getTimestampById(id, authentication.getName());

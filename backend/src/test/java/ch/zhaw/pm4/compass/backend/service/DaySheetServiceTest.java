@@ -30,6 +30,9 @@ class DaySheetServiceTest {
     @Mock
     private LocalUserRepository localUserRepository;
 
+    @Mock
+    private UserService userServiceMock;
+
     @InjectMocks
     private DaySheetService daySheetService;
 
@@ -126,6 +129,7 @@ class DaySheetServiceTest {
         daySheet.setConfirmed(true);
         when(daySheetRepository.findByIdAndOwnerId(any(Long.class), any(String.class)))
                 .thenReturn(Optional.of(daySheet));
+        when(userServiceMock.getUserRole(any(String.class))).thenReturn("SOCIAL_WORKER");
         when(daySheetRepository.save(any(DaySheet.class))).thenReturn(daySheet);
         DaySheetDto getDay = daySheetService.updateConfirmed(1l, user_id);
         assertEquals(daySheet.getId(), getDay.getId());

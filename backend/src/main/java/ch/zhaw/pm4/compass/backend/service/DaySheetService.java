@@ -16,6 +16,7 @@ import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
 import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
 import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
 
@@ -30,6 +31,9 @@ public class DaySheetService {
 	TimestampService timestampService;
 	@Autowired
 	RatingService ratingService;
+
+    @Autowired
+    UserService userService;
 
 	public DaySheetDto createDay(DaySheetDto createDay, String user_id) {
 		DaySheet daySheet = convertDaySheetDtoToDaySheet(createDay);
@@ -73,14 +77,18 @@ public class DaySheetService {
 		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
 	}
 
-	public DaySheetDto updateConfirmed(Long day_id, String user_id) {
-		Optional<DaySheet> optional = daySheetRepository.findByIdAndOwnerId(day_id, user_id);
-		if (optional.isEmpty())
-			return null;
-		DaySheet daySheet = optional.get();
-		daySheet.setConfirmed(true);
-		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
-	}
+    public DaySheetDto updateConfirmed(Long day_id, String user_id) {
+        Optional<DaySheet> optional = daySheetRepository.findById(day_id);
+        if (optional.isEmpty())
+            return null;
+        String userRole = userService.getUserRole(user_id);
+        if (!userRole.equals("SOCIAL_WORKER")) {
+            return null;
+        }
+        DaySheet daySheet = optional.get();
+        daySheet.setConfirmed(true);
+        return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
+    }
 
 	public DaySheet convertDaySheetDtoToDaySheet(DaySheetDto dayDto) {
 		return new DaySheet(dayDto.getId(), dayDto.getDay_notes(), dayDto.getDate());

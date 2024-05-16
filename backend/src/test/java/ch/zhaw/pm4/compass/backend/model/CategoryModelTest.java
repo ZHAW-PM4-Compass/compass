@@ -32,7 +32,7 @@ public class CategoryModelTest {
 		try {
 			this.category = new Category("Test Cat", 1, 10, emptyUserList);
 		} catch (NotValidCategoryOwnerException e) {
-			e.printStackTrace();
+			return;
 		}
 	}
 

@@ -2,7 +2,9 @@ package ch.zhaw.pm4.compass.backend.controller;
 
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
+import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
+import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 import ch.zhaw.pm4.compass.backend.service.TimestampService;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
@@ -45,7 +47,8 @@ public class TimestampControllerTest {
 	private WebApplicationContext controller;
 	@MockBean
 	private TimestampService timestampService;
-
+	@MockBean
+	private DaySheetService daySheetService;
 	@MockBean
 	@SuppressWarnings("unused")
 	private JwtDecoder jwtDecoder;
@@ -55,6 +58,9 @@ public class TimestampControllerTest {
 
 	DaySheet getDaySheet() {
 		return new DaySheet(1l, reportText, LocalDate.now(), false);
+	}
+	DaySheetDto getDaySheetDto() {
+		return new DaySheetDto(1l, reportText, LocalDate.now(), false);
 	}
 
 	private TimestampDto getTimestampDto() {
@@ -82,6 +88,7 @@ public class TimestampControllerTest {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		when(timestampService.createTimestamp(any(TimestampDto.class), any(String.class))).thenReturn(getTimestamp);
+		when(daySheetService.getDaySheetById(any(Long.class), any(String.class))).thenReturn(getDaySheetDto());
 		System.out.println("{\"day_sheet_id\": 1, \"start_time\": \"" + getTimestamp.getStart_time().toString()
 				+ "\", \"start_time\": \"" + getTimestamp.getEnd_time().toString() + "\"}");
 		// Act
@@ -95,14 +102,51 @@ public class TimestampControllerTest {
 
 		verify(timestampService, times(1)).createTimestamp(any(TimestampDto.class), any(String.class));
 	}
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testCreateTimestampOfNotExistingDaySheet() throws Exception {
+		// Arrange
+		TimestampDto getTimestamp = getTimestampDto();
+		when(timestampService.createTimestamp(any(TimestampDto.class), any(String.class))).thenReturn(getTimestamp);
+		when(daySheetService.getDaySheetById(any(Long.class), any(String.class))).thenReturn(null);
+		System.out.println("{\"day_sheet_id\": 1, \"start_time\": \"" + getTimestamp.getStart_time().toString()
+				+ "\", \"start_time\": \"" + getTimestamp.getEnd_time().toString() + "\"}");
+		// Act
+		mockMvc.perform(post("/timestamp").contentType(MediaType.APPLICATION_JSON)
+						.content("{\"day_sheet_id\": 1, \"start_time\": \"" + getTimestamp.getStart_time().toString()
+								+ "\", \"end_time\": \"" + getTimestamp.getEnd_time().toString() + "\"}")
+						.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isBadRequest());
 
+
+		verify(timestampService, times(0)).createTimestamp(any(TimestampDto.class), any(String.class));
+	}
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testCreateTimestampOfConfirmedDaySheet() throws Exception {
+		// Arrange
+		TimestampDto getTimestamp = getTimestampDto();
+		DaySheetDto daySheet = getDaySheetDto();
+		daySheet.setConfirmed(true);
+		when(timestampService.createTimestamp(any(TimestampDto.class), any(String.class))).thenReturn(getTimestamp);
+		when(daySheetService.getDaySheetById(any(Long.class), any(String.class))).thenReturn(daySheet);
+		System.out.println("{\"day_sheet_id\": 1, \"start_time\": \"" + getTimestamp.getStart_time().toString()
+				+ "\", \"start_time\": \"" + getTimestamp.getEnd_time().toString() + "\"}");
+		// Act
+		mockMvc.perform(post("/timestamp").contentType(MediaType.APPLICATION_JSON)
+				.content("{\"day_sheet_id\": 1, \"start_time\": \"" + getTimestamp.getStart_time().toString()
+						+ "\", \"end_time\": \"" + getTimestamp.getEnd_time().toString() + "\"}")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+
+		verify(timestampService, times(0)).createTimestamp(any(TimestampDto.class), any(String.class));
+	}
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
 	public void testTimestampAlreadyExists() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		when(timestampService.createTimestamp(any(TimestampDto.class), any(String.class))).thenReturn(null);
-
+		when(daySheetService.getDaySheetById(any(Long.class), any(String.class))).thenReturn(getDaySheetDto());
 		// Act
 		mockMvc.perform(post("/timestamp").contentType(MediaType.APPLICATION_JSON)
 				.content("{\"day_sheet_id\": 1, \"start_time\": \"" + getTimestamp.getStart_time().toString()
@@ -120,7 +164,7 @@ public class TimestampControllerTest {
         TimestampDto getTimestamp = getUpdateTimestamp();
         TimestampDto updateTimestamp = getUpdateTimestamp();
         when(timestampService.updateTimestampById(any(TimestampDto.class), any(String.class))).thenReturn(updateTimestamp);
-
+		when(daySheetService.getDaySheetById(any(Long.class), any(String.class))).thenReturn(getDaySheetDto());
 
         // Act and Assert
         mockMvc.perform(put("/timestamp")
@@ -136,7 +180,44 @@ public class TimestampControllerTest {
 
         verify(timestampService, times(1)).updateTimestampById(any(TimestampDto.class), any(String.class));
     }
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testUpdateTimestampOfNotExistingDaySheet() throws Exception {
+		// Arrange
+		TimestampDto getTimestamp = getUpdateTimestamp();
+		TimestampDto updateTimestamp = getUpdateTimestamp();
+		when(timestampService.updateTimestampById(any(TimestampDto.class), any(String.class))).thenReturn(updateTimestamp);
+		when(daySheetService.getDaySheetById(any(Long.class), any(String.class))).thenReturn(null);
 
+		// Act and Assert
+		mockMvc.perform(put("/timestamp")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"day_sheet_id\": 1, \"start_time\": \"" + updateTimestamp.getStart_time().toString() + "\", \"end_time\": \"" + updateTimestamp.getEnd_time().toString() + "\"}")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isBadRequest());
+
+
+		verify(timestampService, times(0)).createTimestamp(any(TimestampDto.class), any(String.class));
+	}
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testUpdateTimestampOfConfirmedDaySheet() throws Exception {
+		// Arrange
+		TimestampDto getTimestamp = getTimestampDto();
+		DaySheetDto daySheet = getDaySheetDto();
+		daySheet.setConfirmed(true);
+		TimestampDto updateTimestamp = getUpdateTimestamp();
+		when(timestampService.updateTimestampById(any(TimestampDto.class), any(String.class))).thenReturn(updateTimestamp);
+		when(daySheetService.getDaySheetById(any(Long.class), any(String.class))).thenReturn(daySheet);
+
+		// Act and Assert
+		mockMvc.perform(put("/timestamp")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"day_sheet_id\": 1, \"start_time\": \"" + updateTimestamp.getStart_time().toString() + "\", \"end_time\": \"" + updateTimestamp.getEnd_time().toString() + "\"}")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+
+		verify(timestampService, times(0)).updateTimestampById(any(TimestampDto.class), any(String.class));
+	}
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
 	void testGetTimestampById() throws Exception {
@@ -197,4 +278,52 @@ public class TimestampControllerTest {
                 .andExpect(status().isNotFound());
         verify(timestampService, times(1)).getAllTimestampsByDaySheetId(any(Long.class), any(String.class));
     }
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testDeleteTimestamp() throws Exception {
+		// Arrange
+		TimestampDto timestamp = getTimestampDto();
+		DaySheetDto daySheet = getDaySheetDto();
+		when(timestampService.getTimestampById(any(Long.class), any(String.class))).thenReturn(timestamp);
+		when(daySheetService.getDaySheetById(any(Long.class), any(String.class))).thenReturn(daySheet);
+
+		// Act and Assert//.header("Authorization", "Bearer " + token))
+		mockMvc.perform(delete("/timestamp/" + timestamp.getId())
+						.with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isOk());
+		verify(timestampService, times(1)).deleteTimestamp(any(Long.class), any(String.class));
+	}
+
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testDeleteTimestampOfConfirmedDaySheet() throws Exception {
+		// Arrange
+		TimestampDto timestamp = getTimestampDto();
+		DaySheetDto daySheet = getDaySheetDto();
+		daySheet.setConfirmed(true);
+		when(timestampService.getTimestampById(any(Long.class), any(String.class))).thenReturn(timestamp);
+		when(daySheetService.getDaySheetById(any(Long.class), any(String.class))).thenReturn(daySheet);
+
+		// Act and Assert//.header("Authorization", "Bearer " + token))
+		mockMvc.perform(delete("/timestamp/" + timestamp.getId())
+						.with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isForbidden());
+		verify(timestampService, times(0)).deleteTimestamp(any(Long.class), any(String.class));
+	}
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testDeleteTimestampOfNotExistingDaySheet() throws Exception {
+		// Arrange
+		TimestampDto timestamp = getTimestampDto();
+		DaySheetDto daySheet = getDaySheetDto();
+		daySheet.setConfirmed(true);
+		when(timestampService.getTimestampById(any(Long.class), any(String.class))).thenReturn(timestamp);
+		when(daySheetService.getDaySheetById(any(Long.class), any(String.class))).thenReturn(null);
+
+		// Act and Assert//.header("Authorization", "Bearer " + token))
+		mockMvc.perform(delete("/timestamp/" + timestamp.getId())
+						.with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isBadRequest());
+		verify(timestampService, times(0)).deleteTimestamp(any(Long.class), any(String.class));
+	}
 }

@@ -143,6 +143,7 @@ const DaySheetViewSingleDay: React.FC = () => {
             getTimestampControllerApi().deleteTimestamp({ id }).then((response) => {
                 close();
                 toast.success(toastMessages.TIMESTAMP_DELETED);
+                if (daySheetId) fetchTimestamps(daySheetId);
             }).catch(() => {
                 toast.error(toastMessages.TIMESTAMP_NOT_DELETED);
             });

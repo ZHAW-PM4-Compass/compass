@@ -159,7 +159,7 @@ export default function IncidentsPage() {
   const [partSelectActive, setPartSelectActive] = useState(true);
   const [incidents, setIncidents] = useState<IncidentDto[]>([]);
 	const [selectedIncident, setSelectedIncident] = useState<IncidentDto>();
-  const [tableColumns, setTableColumns] = useState<{ header?: string, title?: string, titleFunction?: ((value: any) => React.ReactNode) | undefined }[]>([
+  const [tableColumns, setTableColumns] = useState<{ header: string, title?: string, titleFunction?: ((value: any) => React.ReactNode) | undefined }[]>([
       {
         header: "Datum",
         title: "date"

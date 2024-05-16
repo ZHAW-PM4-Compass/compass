@@ -1,20 +1,20 @@
 package ch.zhaw.pm4.compass.backend.service;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import ch.zhaw.pm4.compass.backend.model.Incident;
+import ch.zhaw.pm4.compass.backend.model.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Rating;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
-import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
-import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 
 @Service
@@ -57,6 +57,15 @@ public class DaySheetService {
 				.orElse(null);
 	}
 
+	public List<DaySheetDto> getAllDaySheetByUserAndMonth(String userId, YearMonth month) {
+		Optional<List<DaySheet>> response = daySheetRepository.findAllByUserId(userId);
+		return response.map(daySheets -> daySheets.stream()
+						.filter(daySheet -> YearMonth.from(daySheet.getDate()).equals(month))
+						.map(this::convertDaySheetToDaySheetDto)
+						.collect(Collectors.toList()))
+				.orElse(null);
+	}
+
 	public DaySheetDto updateDayNotes(UpdateDaySheetDayNotesDto updateDay, String user_id) {
 		Optional<DaySheet> optional = daySheetRepository.findByIdAndUserId(updateDay.getId(), user_id);
 		if (optional.isEmpty())
@@ -82,13 +91,24 @@ public class DaySheetService {
 	public DaySheetDto convertDaySheetToDaySheetDto(DaySheet daySheet) {
 		List<TimestampDto> timestampDtos = new ArrayList<>();
 		List<RatingDto> moodRatingDtos = new ArrayList<>();
+		List<IncidentDto> incidentDtos = new ArrayList<>();
 		for (Timestamp timestamp : daySheet.getTimestamps()) {
 			timestampDtos.add(timestampService.convertTimestampToTimestampDto(timestamp));
 		}
 		for (Rating rating : daySheet.getMoodRatings()) {
 			moodRatingDtos.add(ratingService.convertEntityToDto(rating));
 		}
+
+		for (Incident incident : daySheet.getIncidents()) {
+			IncidentDto incidentDto = IncidentDto.builder()
+					.id(incident.getId())
+					.title(incident.getTitle())
+					.description(incident.getDescription())
+					.date(incident.getDaySheet().getDate())
+					.build();
+			incidentDtos.add(incidentDto);
+		}
 		return new DaySheetDto(daySheet.getId(), daySheet.getDayNotes(), daySheet.getDate(), daySheet.getConfirmed(),
-				timestampDtos, moodRatingDtos);
+				timestampDtos, moodRatingDtos, incidentDtos);
 	}
 }

@@ -1,6 +1,8 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.YearMonth;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +60,11 @@ public class DaySheetController {
 	public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipant(@PathVariable String userId,
 			Authentication authentication) {
 		return ResponseEntity.ok(daySheetService.getAllDaySheetByUser(userId));
+	}
+
+	@GetMapping(path = "/getAllByParticipantAndMonth/{userId}/{month}", produces = "application/json")
+	public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipantAndMonth(@PathVariable String userId, @PathVariable YearMonth month, Authentication authentication) {
+		return ResponseEntity.ok(daySheetService.getAllDaySheetByUserAndMonth(userId, month));
 	}
 
 	@PutMapping(path = "/updateDayNotes", produces = "application/json")

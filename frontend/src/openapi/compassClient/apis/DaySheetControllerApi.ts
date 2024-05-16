@@ -33,6 +33,11 @@ export interface GetAllDaySheetByParticipantRequest {
     userId: string;
 }
 
+export interface GetAllDaySheetByParticipantAndMonthRequest {
+    userId: string;
+    month: string;
+}
+
 export interface GetDaySheetByIdRequest {
     id: number;
 }
@@ -116,6 +121,44 @@ export class DaysheetControllerApi extends runtime.BaseAPI {
      */
     async getAllDaySheetByParticipant(requestParameters: GetAllDaySheetByParticipantRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<DaySheetDto>> {
         const response = await this.getAllDaySheetByParticipantRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async getAllDaySheetByParticipantAndMonthRaw(requestParameters: GetAllDaySheetByParticipantAndMonthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<DaySheetDto>>> {
+        if (requestParameters['userId'] == null) {
+            throw new runtime.RequiredError(
+                'userId',
+                'Required parameter "userId" was null or undefined when calling getAllDaySheetByParticipantAndMonth().'
+            );
+        }
+
+        if (requestParameters['month'] == null) {
+            throw new runtime.RequiredError(
+                'month',
+                'Required parameter "month" was null or undefined when calling getAllDaySheetByParticipantAndMonth().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/daysheet/getAllByParticipantAndMonth/{userId}/{month}`.replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters['userId']))).replace(`{${"month"}}`, encodeURIComponent(String(requestParameters['month']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(DaySheetDtoFromJSON));
+    }
+
+    /**
+     */
+    async getAllDaySheetByParticipantAndMonth(requestParameters: GetAllDaySheetByParticipantAndMonthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<DaySheetDto>> {
+        const response = await this.getAllDaySheetByParticipantAndMonthRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

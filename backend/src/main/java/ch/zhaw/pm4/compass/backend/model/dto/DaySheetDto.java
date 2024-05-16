@@ -29,16 +29,21 @@ public class DaySheetDto {
 	@JsonIgnoreProperties({ "daysheet", "category.categoryOwners", "category.moodRatings" })
 	private List<RatingDto> moodRatings;
 
+	@Schema(accessMode = Schema.AccessMode.READ_ONLY)
+	@JsonIgnoreProperties({ "date", "user" })
+	private List<IncidentDto> incidents;
+
 	private long timeSum;
 
 	public DaySheetDto(Long id, String day_notes, LocalDate date, Boolean confirmed, List<TimestampDto> timestamps,
-			List<RatingDto> moodRatings) {
+			List<RatingDto> moodRatings, List<IncidentDto> incidents) {
 		this.id = id;
 		this.date = date;
 		this.day_notes = day_notes;
 		this.confirmed = confirmed;
 		this.timestamps = timestamps;
 		this.moodRatings = moodRatings;
+		this.incidents = incidents;
 		setTimeSum();
 	}
 

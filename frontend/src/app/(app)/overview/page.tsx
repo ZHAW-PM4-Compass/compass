@@ -14,7 +14,8 @@ import type { DatasetType } from "node_modules/@mui/x-charts/models/seriesType/c
 import chroma from 'chroma-js';
 import { useEffect, useState } from "react";
 import Select from "@/components/select";
-import { getUserControllerApi } from "@/openapi/connector";
+import { getDaySheetControllerApi, getUserControllerApi } from "@/openapi/connector";
+import { RatingDtoRatingRoleEnum } from "@/openapi/compassClient";
 
 enum categorySelections {
   PARTICIPANT = "PARTICIPANT",
@@ -22,13 +23,13 @@ enum categorySelections {
   ALL = "ALL"
 }
 
-const getNextColor = (level: number) => {
-  return chroma.hex("#5eead5").darken(level * 0.5).hex();
+const getNextColor = (baseColor: string, level: number) => {
+  return chroma.hex(baseColor).darken(level * 0.5).hex();
 }
 
 export default function OverviewPage() {
   const [categorySelection, setCategorySelection] = useState<any>(categorySelections.PARTICIPANT);
-  const [participant, setParticipant] = useState<any>();
+  const [participantId, setParticipantId] = useState<string>();
   const [month, setMonth] = useState<string>(new Date().toLocaleString('en-US', { month: '2-digit' }).padStart(2, '0'));
   const [year, setYear] = useState<string>(new Date().getFullYear().toString());
   
@@ -40,8 +41,23 @@ export default function OverviewPage() {
   const [incidentsSeries, setIncidentsSeries] = useState<BarSeriesType[]>([]);
   const [dataSeries, setDataSeries] = useState<AllSeriesType[]>([]);
 
-  const [incidentsDataSet, setIncidentsDataSet] = useState<DatasetType>([]);
+  const [incidentCountPerDay, setIncidentCountPerDay] = useState<DatasetType>([]);
   const [dataset, setDataset] = useState<DatasetType>([]);
+
+  enum monthLabels {
+    JANUARY = "Januar",
+    FEBRUARY = "Februar",
+    MARCH = "März",
+    APRIL = "April",
+    MAY = "Mai",
+    JUNE = "Juni",
+    JULY = "Juli",
+    AUGUST = "August",
+    SEPTEMBER = "September",
+    OCTOBER = "Oktober",
+    NOVEMBER = "November",
+    DECEMBER = "Dezember"
+  }
 
   useEffect(() => {
     setCategories([
@@ -50,20 +66,14 @@ export default function OverviewPage() {
       { id: categorySelections.ALL, label: 'Alle Kategorien' }
     ])
 
-    setMonths([
-      { id: '01', label: 'Januar' },
-      { id: '02', label: 'Februar' },
-      { id: '03', label: 'März' },
-      { id: '04', label: 'April' },
-      { id: '05', label: 'Mai' },
-      { id: '06', label: 'Juni' },
-      { id: '07', label: 'Juli' },
-      { id: '08', label: 'August' },
-      { id: '09', label: 'September' },
-      { id: '10', label: 'Oktober' },
-      { id: '11', label: 'November' },
-      { id: '12', label: 'Dezember' }
-    ]);
+    setMonths(Object.keys(monthLabels).map((key, index) => {
+      const obj = {
+        id: (index + 1).toString().padStart(2, '0'),
+        label: monthLabels[key as keyof typeof monthLabels]
+      }
+      console.log(obj)
+      return obj;
+    }));
 
     const yearsList = [];
     for (let i = 2024; i <= new Date().getFullYear(); i++) {
@@ -76,49 +86,81 @@ export default function OverviewPage() {
         id: participant.userId ?? "",
         label: participant.email ?? ""
       })) ?? []);
-      participants[0] && setParticipant(participants[0]);
+      participants[0] && setParticipantId(participants[0].userId);
     });
   }, []);
 
   useEffect(() => {
-    if (participant) {
-      setIncidentsSeries([
-        { type: 'bar', dataKey: 'count', color: '#134e4a', label: 'Vorfälle' },
-      ]);
+    console.log(month, year, participantId, categorySelection)
+    setIncidentsSeries([
+      { type: 'bar', dataKey: 'count', color: '#134e4a', label: 'Vorfälle' },
+    ]);
 
-      setDataSeries([
-        { type: 'line', dataKey: 'min', color: '#000', label: "Arbeitszeit" },
-        { type: 'bar', dataKey: 'precip1', color: getNextColor(0), yAxisKey: 'rightAxis', label: "Stimmungskategorie 1" },
-        { type: 'bar', dataKey: 'precip2', color: getNextColor(1), yAxisKey: 'rightAxis', label: "Stimmungskategorie 2" },
-        { type: 'bar', dataKey: 'precip3', color: getNextColor(2), yAxisKey: 'rightAxis', label: "Stimmungskategorie 3" },
-      ]);
+    if (participantId && month && year) {
+      getDaySheetControllerApi().getAllDaySheetByParticipantAndMonth({
+        userId: participantId,
+        month: `${year}-${month}`,
+      }).then(daySheets => {
+        const incidentCountPerDay: { dayLabel: string, count: number }[] = [];
+        const dayCountPerSelectedMonth = new Date(parseInt(year), parseInt(month), 0).getDate();
+        const data: any[] = [];
+        const dataSeriesSet: AllSeriesType[] = [];
 
-      const incidents = [];
-      const data = [];
+        for (let i = 1; i <= dayCountPerSelectedMonth; i++) {
+          const daySheet = daySheets.find(daySheet => {
+            if (daySheet?.date) {
+              const dayOfMonth = new Date(daySheet.date).getDate();
+              return dayOfMonth === i;
+            }
+            return false;
+          });
+          
+          const monthLabelIndex = Object.keys(monthLabels)[parseInt(month) - 1] as keyof typeof monthLabels;
+          const dayLabel = `${i}. ${monthLabels[monthLabelIndex].substring(0, 3)}`;
 
-      for (let i = 0; i < 30; i++) {
-        incidents.push({
-          day: `${(i + 1)}. Mai`,
-          count: Math.round(Math.random() * 4),
-        });
-      }
+          incidentCountPerDay.push({
+            dayLabel,
+            count: daySheet?.incidents?.length ?? 0,
+          });
 
-      for (let i = 0; i < 30; i++) {
-        data.push({
-          day: `${(i + 1)}. Mai`,
-          min: Math.random() * 4 + 4,
-          precip1: Math.random() * 100,
-          precip2: Math.random() * 100,
-          precip3: Math.random() * 100,
-          precip4: Math.random() * 100,
-          precip5: Math.random() * 100,
-        });
-      }
+          const dataItem: any = { 
+            dayLabel,
+            workHours: daySheet?.timeSum ?? 0,
+          }
+          const moodRatings = daySheet?.moodRatings ?? [];
 
-      setIncidentsDataSet(incidents);
-      setDataset(data);
+          moodRatings.forEach(rating => {
+            const categoryKey = `category${rating.category?.id}`
+            if (rating.rating && rating.category?.name && (categorySelection === categorySelections.ALL || (categorySelection === categorySelections.PARTICIPANT && rating.ratingRole === RatingDtoRatingRoleEnum.Participant) || (categorySelection === categorySelections.SOCIAL_WORKER && rating.ratingRole === RatingDtoRatingRoleEnum.SocialWorker))) {
+              const min = rating.category?.minimumValue ?? 0;
+              const max = rating.category?.maximumValue ?? 100;
+
+              dataItem[categoryKey] = (rating.rating - min) / (max - min) * 100;
+
+              if (!dataSeriesSet.find(series => series.id === categoryKey)) {
+                dataSeriesSet.push({
+                  type: 'bar',
+                  dataKey: categoryKey,
+                  yAxisKey: 'rightAxis',
+                  label: rating.category.name,
+                });
+              }
+            }
+          });
+          data.push(dataItem);
+        }
+
+        dataSeriesSet.forEach((series, index) => series.color = getNextColor("#5eead5", index));
+        dataSeriesSet.push({ type: 'line', dataKey: 'workHours', color: '#000', label: "Arbeitszeit", yAxisKey: 'leftAxis' });
+
+        console.log(dataSeriesSet)
+
+        setIncidentCountPerDay(incidentCountPerDay);
+        setDataset(data);
+        setDataSeries(dataSeriesSet);
+      });
     }
-  }, [categorySelection, participant, month, year]);
+  }, [categorySelection, participantId, month, year]);
 
   return (
     <>
@@ -148,8 +190,8 @@ export default function OverviewPage() {
               className="w-40 inline-block mb-4"
               placeholder="Teilnehmer"
               data={participants}
-              value={participant}
-              onChange={(e) => setParticipant(e.target.value)} />
+              value={participantId}
+              onChange={(e) => setParticipantId(e.target.value)} />
           </div>
         </div>
     
@@ -160,13 +202,13 @@ export default function OverviewPage() {
               xAxis={[
                 {
                   scaleType: 'band',
-                  dataKey: 'day',
+                  dataKey: 'dayLabel',
                 },
               ]}
               yAxis={[
                 { id: 'leftAxis' },
               ]}
-              dataset={incidentsDataSet}
+              dataset={incidentCountPerDay}
             >
               <ChartsGrid horizontal />
               <BarPlot />
@@ -183,7 +225,7 @@ export default function OverviewPage() {
               xAxis={[
                 {
                   scaleType: 'band',
-                  dataKey: 'day',
+                  dataKey: 'dayLabel',
                 },
               ]}
               yAxis={[
@@ -197,7 +239,11 @@ export default function OverviewPage() {
               <LinePlot />
               <MarkPlot /> 
               <ChartsXAxis />
-              <ChartsYAxis axisId="leftAxis" label="Arbeitszeit (in h)" />
+              <ChartsYAxis
+                axisId="leftAxis"
+                position="left"
+                label="Arbeitszeit (in h)"
+              />
               <ChartsYAxis
                 axisId="rightAxis"
                 position="right"

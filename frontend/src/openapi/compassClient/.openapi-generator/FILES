@@ -1,6 +1,6 @@
 apis/BaseControllerApi.ts
 apis/CategoryControllerApi.ts
-apis/DaysheetControllerApi.ts
+apis/DaySheetControllerApi.ts
 apis/RatingControllerApi.ts
 apis/TimestampControllerApi.ts
 apis/UserControllerApi.ts

@@ -33,12 +33,12 @@ export interface GetAllDaySheetByParticipantRequest {
     userId: string;
 }
 
-export interface GetDaySheetByDateRequest {
-    date: string;
-}
-
 export interface GetDaySheetByIdRequest {
     id: number;
+}
+
+export interface GetDaySheetDateRequest {
+    date: string;
 }
 
 export interface UpdateConfirmedRequest {
@@ -121,37 +121,6 @@ export class DaySheetControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async getDaySheetByDateRaw(requestParameters: GetDaySheetByDateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DaySheetDto>> {
-        if (requestParameters['date'] == null) {
-            throw new runtime.RequiredError(
-                'date',
-                'Required parameter "date" was null or undefined when calling getDaySheetByDate().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/daysheet/getByDate/{date}`.replace(`{${"date"}}`, encodeURIComponent(String(requestParameters['date']))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-        
-        return new runtime.JSONApiResponse(response, (jsonValue) => DaySheetDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    async getDaySheetByDate(requestParameters: GetDaySheetByDateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DaySheetDto> {
-        const response = await this.getDaySheetByDateRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     */
     async getDaySheetByIdRaw(requestParameters: GetDaySheetByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DaySheetDto>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
@@ -178,6 +147,37 @@ export class DaySheetControllerApi extends runtime.BaseAPI {
      */
     async getDaySheetById(requestParameters: GetDaySheetByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DaySheetDto> {
         const response = await this.getDaySheetByIdRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async getDaySheetDateRaw(requestParameters: GetDaySheetDateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DaySheetDto>> {
+        if (requestParameters['date'] == null) {
+            throw new runtime.RequiredError(
+                'date',
+                'Required parameter "date" was null or undefined when calling getDaySheetDate().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/daysheet/getByDate/{date}`.replace(`{${"date"}}`, encodeURIComponent(String(requestParameters['date']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DaySheetDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async getDaySheetDate(requestParameters: GetDaySheetDateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DaySheetDto> {
+        const response = await this.getDaySheetDateRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

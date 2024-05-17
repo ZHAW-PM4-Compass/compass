@@ -6,7 +6,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -92,6 +94,32 @@ class DaySheetServiceTest {
 		when(daySheetRepository.findByDateAndUserId(any(LocalDate.class), any(String.class)))
 				.thenReturn(Optional.of(daySheet));
 		assertNull(daySheetService.createDay(createDay, user_id));
+	}
+
+	@Test
+	public void testGetAllDaySheetByUserAndMonth() {
+		DaySheet day1 = new DaySheet(1l, user_id, reportText, dateNow, true, new ArrayList<>());
+		DaySheet day2 = new DaySheet(2l, user_id, reportText, dateNow.plusDays(1), true, new ArrayList<>());
+		LocalDate monthFirst = dateNow.withDayOfMonth(1);
+		LocalDate monthLast = dateNow.withDayOfMonth(dateNow.lengthOfMonth());
+
+		List<DaySheet> jpaResponse = Arrays.asList(day1, day2);
+
+		when(daySheetRepository.findAllByUserIdAndDateBetween(user_id, monthFirst, monthLast)).thenReturn(jpaResponse);
+		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetByUserAndMonth(user_id, YearMonth.from(monthFirst));
+
+		assertEquals(jpaResponse.size(), daySheets.size());
+
+		for (int i = 0; i < jpaResponse.size(); i++) {
+			DaySheet daySheetEntity = jpaResponse.get(i);
+			DaySheetDto daySheetDto = daySheets.get(i);
+
+			assertEquals(daySheetEntity.getId(), daySheetDto.getId());
+			assertEquals(daySheetEntity.getDayNotes(), daySheetDto.getDay_notes());
+			assertEquals(daySheetEntity.getDate(), daySheetDto.getDate());
+			assertEquals(daySheetEntity.getConfirmed(), daySheetDto.getConfirmed());
+			assertEquals(daySheetEntity.getTimestamps(), daySheetDto.getTimestamps());
+		}
 	}
 
 	@Test

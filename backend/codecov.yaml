@@ -8,5 +8,7 @@ ignore:
   - "src/test/**/*"
   - "src/main/resources/**/*"
   - "src/main/java/ch/zhaw/pm4/compass/backend/model/dto/**/*"
+  - "backend/src/main/java/ch/zhaw/pm4/compass/backend/model/dto/**/*"
   - "src/main/java/ch/zhaw/pm4/compass/backend/repository/**/*"
   - "src/main/java/ch/zhaw/pm4/compass/backend/exception/**/*"
+  - "backendsrc/main/java/ch/zhaw/pm4/compass/backend/exception/**/*""

@@ -13,6 +13,12 @@
  */
 
 import { mapValues } from '../runtime';
+import type { RatingDto } from './RatingDto';
+import {
+    RatingDtoFromJSON,
+    RatingDtoFromJSONTyped,
+    RatingDtoToJSON,
+} from './RatingDto';
 import type { TimestampDto } from './TimestampDto';
 import {
     TimestampDtoFromJSON,
@@ -58,6 +64,12 @@ export interface DaySheetDto {
     readonly timestamps?: Array<TimestampDto>;
     /**
      * 
+     * @type {Array<RatingDto>}
+     * @memberof DaySheetDto
+     */
+    readonly moodRatings?: Array<RatingDto>;
+    /**
+     * 
      * @type {number}
      * @memberof DaySheetDto
      */
@@ -86,6 +98,7 @@ export function DaySheetDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'dayNotes': json['day_notes'] == null ? undefined : json['day_notes'],
         'confirmed': json['confirmed'] == null ? undefined : json['confirmed'],
         'timestamps': json['timestamps'] == null ? undefined : ((json['timestamps'] as Array<any>).map(TimestampDtoFromJSON)),
+        'moodRatings': json['moodRatings'] == null ? undefined : ((json['moodRatings'] as Array<any>).map(RatingDtoFromJSON)),
         'timeSum': json['timeSum'] == null ? undefined : json['timeSum'],
     };
 }

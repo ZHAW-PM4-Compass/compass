@@ -128,7 +128,7 @@ export default function WorkingHoursPage() {
 
 	const loadDaySheetByDate = (date: string) => {
 
-    getDaySheetControllerApi().getDaySheetByDate({date: date}).then(daySheetDto => {
+    getDaySheetControllerApi().getDaySheetDate({date: date}).then(daySheetDto => {
         const loadedDaySheet: Daysheet = {
           id: daySheetDto.id || 0,
           date: new Date(daySheetDto.date || ''),
@@ -174,7 +174,7 @@ export default function WorkingHoursPage() {
     e.preventDefault();
         
     // check if daysheet already exists
-    getDaySheetControllerApi().getDaySheetByDate({date: selectedDate}).then(daySheetDto => {
+    getDaySheetControllerApi().getDaySheetDate({date: selectedDate}).then(daySheetDto => {
       // add to existing
       if (daySheetDto && daySheetDto.id) {
         createNewTimestamp(daySheetDto.id);

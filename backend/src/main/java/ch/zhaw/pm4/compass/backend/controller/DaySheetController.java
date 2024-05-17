@@ -20,7 +20,7 @@ import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
 import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "Daysheet Controller", description = "Daysheet Endpoint")
+@Tag(name = "DaySheet Controller", description = "DaySheet Endpoint")
 @RestController
 @RequestMapping("/daysheet")
 public class DaySheetController {

@@ -19,12 +19,6 @@ import {
     CategoryDtoFromJSONTyped,
     CategoryDtoToJSON,
 } from './CategoryDto';
-import type { DaySheetDto } from './DaySheetDto';
-import {
-    DaySheetDtoFromJSON,
-    DaySheetDtoFromJSONTyped,
-    DaySheetDtoToJSON,
-} from './DaySheetDto';
 
 /**
  * 
@@ -38,12 +32,6 @@ export interface RatingDto {
      * @memberof RatingDto
      */
     category?: CategoryDto;
-    /**
-     * 
-     * @type {DaySheetDto}
-     * @memberof RatingDto
-     */
-    daySheet?: DaySheetDto;
     /**
      * 
      * @type {number}
@@ -87,7 +75,6 @@ export function RatingDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     return {
         
         'category': json['category'] == null ? undefined : CategoryDtoFromJSON(json['category']),
-        'daySheet': json['daySheet'] == null ? undefined : DaySheetDtoFromJSON(json['daySheet']),
         'rating': json['rating'] == null ? undefined : json['rating'],
         'ratingRole': json['ratingRole'] == null ? undefined : json['ratingRole'],
     };
@@ -100,7 +87,6 @@ export function RatingDtoToJSON(value?: RatingDto | null): any {
     return {
         
         'category': CategoryDtoToJSON(value['category']),
-        'daySheet': DaySheetDtoToJSON(value['daySheet']),
         'rating': value['rating'],
         'ratingRole': value['ratingRole'],
     };

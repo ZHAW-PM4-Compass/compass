@@ -15,15 +15,29 @@
 
 import * as runtime from '../runtime';
 import type {
+  CategoryDto,
   RatingDto,
 } from '../models/index';
 import {
+    CategoryDtoFromJSON,
+    CategoryDtoToJSON,
     RatingDtoFromJSON,
     RatingDtoToJSON,
 } from '../models/index';
 
 export interface CreateRatingRequest {
     ratingDto: RatingDto;
+}
+
+export interface RecordCategoryRatingsByDaySheetAndUserIdRequest {
+    daySheetId: number;
+    categoryDto: Array<CategoryDto>;
+}
+
+export interface RecordCategoryRatingsByDaySheetAndUserId1Request {
+    daySheetId: number;
+    userId: string;
+    categoryDto: Array<CategoryDto>;
 }
 
 /**
@@ -62,6 +76,95 @@ export class RatingControllerApi extends runtime.BaseAPI {
      */
     async createRating(requestParameters: CreateRatingRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RatingDto> {
         const response = await this.createRatingRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async recordCategoryRatingsByDaySheetAndUserIdRaw(requestParameters: RecordCategoryRatingsByDaySheetAndUserIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<RatingDto>>> {
+        if (requestParameters['daySheetId'] == null) {
+            throw new runtime.RequiredError(
+                'daySheetId',
+                'Required parameter "daySheetId" was null or undefined when calling recordCategoryRatingsByDaySheetAndUserId().'
+            );
+        }
+
+        if (requestParameters['categoryDto'] == null) {
+            throw new runtime.RequiredError(
+                'categoryDto',
+                'Required parameter "categoryDto" was null or undefined when calling recordCategoryRatingsByDaySheetAndUserId().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/rating/recordMyMoodRatingsByDaySheetId/{daySheetId}/`.replace(`{${"daySheetId"}}`, encodeURIComponent(String(requestParameters['daySheetId']))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters['categoryDto']!.map(CategoryDtoToJSON),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(RatingDtoFromJSON));
+    }
+
+    /**
+     */
+    async recordCategoryRatingsByDaySheetAndUserId(requestParameters: RecordCategoryRatingsByDaySheetAndUserIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<RatingDto>> {
+        const response = await this.recordCategoryRatingsByDaySheetAndUserIdRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async recordCategoryRatingsByDaySheetAndUserId1Raw(requestParameters: RecordCategoryRatingsByDaySheetAndUserId1Request, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<RatingDto>>> {
+        if (requestParameters['daySheetId'] == null) {
+            throw new runtime.RequiredError(
+                'daySheetId',
+                'Required parameter "daySheetId" was null or undefined when calling recordCategoryRatingsByDaySheetAndUserId1().'
+            );
+        }
+
+        if (requestParameters['userId'] == null) {
+            throw new runtime.RequiredError(
+                'userId',
+                'Required parameter "userId" was null or undefined when calling recordCategoryRatingsByDaySheetAndUserId1().'
+            );
+        }
+
+        if (requestParameters['categoryDto'] == null) {
+            throw new runtime.RequiredError(
+                'categoryDto',
+                'Required parameter "categoryDto" was null or undefined when calling recordCategoryRatingsByDaySheetAndUserId1().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/rating/recordMoodRatingsByDaySheetIdAndUserId/{daySheetId}/{userId}`.replace(`{${"daySheetId"}}`, encodeURIComponent(String(requestParameters['daySheetId']))).replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters['userId']))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters['categoryDto']!.map(CategoryDtoToJSON),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(RatingDtoFromJSON));
+    }
+
+    /**
+     */
+    async recordCategoryRatingsByDaySheetAndUserId1(requestParameters: RecordCategoryRatingsByDaySheetAndUserId1Request, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<RatingDto>> {
+        const response = await this.recordCategoryRatingsByDaySheetAndUserId1Raw(requestParameters, initOverrides);
         return await response.value();
     }
 

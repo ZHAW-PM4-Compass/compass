@@ -13,25 +13,18 @@
  */
 
 import { mapValues } from '../runtime';
-import type { ParticipantDto } from './ParticipantDto';
-import {
-    ParticipantDtoFromJSON,
-    ParticipantDtoFromJSONTyped,
-    ParticipantDtoToJSON,
-} from './ParticipantDto';
-import type { RatingDto } from './RatingDto';
-import {
-    RatingDtoFromJSON,
-    RatingDtoFromJSONTyped,
-    RatingDtoToJSON,
-} from './RatingDto';
-
 /**
  * 
  * @export
  * @interface CategoryDto
  */
 export interface CategoryDto {
+    /**
+     * 
+     * @type {number}
+     * @memberof CategoryDto
+     */
+    id?: number;
     /**
      * 
      * @type {string}
@@ -50,24 +43,6 @@ export interface CategoryDto {
      * @memberof CategoryDto
      */
     maximumValue?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof CategoryDto
-     */
-    id?: number;
-    /**
-     * 
-     * @type {Array<ParticipantDto>}
-     * @memberof CategoryDto
-     */
-    categoryOwners?: Array<ParticipantDto>;
-    /**
-     * 
-     * @type {Array<RatingDto>}
-     * @memberof CategoryDto
-     */
-    readonly moodRatings?: Array<RatingDto>;
 }
 
 /**
@@ -87,12 +62,10 @@ export function CategoryDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
+        'id': json['id'] == null ? undefined : json['id'],
         'name': json['name'] == null ? undefined : json['name'],
         'minimumValue': json['minimumValue'] == null ? undefined : json['minimumValue'],
         'maximumValue': json['maximumValue'] == null ? undefined : json['maximumValue'],
-        'id': json['id'] == null ? undefined : json['id'],
-        'categoryOwners': json['categoryOwners'] == null ? undefined : ((json['categoryOwners'] as Array<any>).map(ParticipantDtoFromJSON)),
-        'moodRatings': json['moodRatings'] == null ? undefined : ((json['moodRatings'] as Array<any>).map(RatingDtoFromJSON)),
     };
 }
 
@@ -102,11 +75,10 @@ export function CategoryDtoToJSON(value?: CategoryDto | null): any {
     }
     return {
         
+        'id': value['id'],
         'name': value['name'],
         'minimumValue': value['minimumValue'],
         'maximumValue': value['maximumValue'],
-        'id': value['id'],
-        'categoryOwners': value['categoryOwners'] == null ? undefined : ((value['categoryOwners'] as Array<any>).map(ParticipantDtoToJSON)),
     };
 }
 

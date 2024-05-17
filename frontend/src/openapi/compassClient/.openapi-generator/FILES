@@ -1,6 +1,6 @@
 apis/BaseControllerApi.ts
 apis/CategoryControllerApi.ts
-apis/DaySheetControllerApi.ts
+apis/DaysheetControllerApi.ts
 apis/RatingControllerApi.ts
 apis/TimestampControllerApi.ts
 apis/UserControllerApi.ts
@@ -10,7 +10,6 @@ models/AuthZeroUserDto.ts
 models/CategoryDto.ts
 models/CreateAuthZeroUserDto.ts
 models/DaySheetDto.ts
-models/ParticipantDto.ts
 models/RatingDto.ts
 models/TimestampDto.ts
 models/UpdateDaySheetDayNotesDto.ts

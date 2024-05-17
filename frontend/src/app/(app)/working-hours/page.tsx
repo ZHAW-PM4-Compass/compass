@@ -22,6 +22,7 @@ import { time } from "console";
   dayNotes: string;
   timestamps: Timestamp[];
   timeSum: number;
+  confirmed: boolean; 
 }
 
 interface Timestamp {
@@ -29,7 +30,7 @@ interface Timestamp {
   daySheetId: number;
   startTime: string;
   endTime: string;
-  duration?: string;
+  duration?: string; 
 }
 
 
@@ -135,7 +136,8 @@ export default function WorkingHoursPage() {
           date: new Date(daySheetDto.date || ''),
           dayNotes:  String(daySheetDto.dayNotes || ''),
           timestamps: [],
-          timeSum: daySheetDto.timeSum || 0
+          timeSum: daySheetDto.timeSum || 0,
+          confirmed: daySheetDto.confirmed || false
         };
 
         daySheetDto.timestamps?.sort((a: TimestampDto, b: TimestampDto) => {
@@ -184,9 +186,10 @@ export default function WorkingHoursPage() {
       // new daysheet
       const creatDaySheetDto: CreateDaySheetRequest = {
         daySheetDto: {
-        date: new Date(selectedDate),
-        dayNotes: '',
-        timestamps: []
+          date: new Date(selectedDate),
+          dayNotes: '',
+          timestamps: [],
+          confirmed: false
         }
       };
       
@@ -297,8 +300,12 @@ export default function WorkingHoursPage() {
           {
             icon: Edit24Regular,
             onClick: (id) => {
-              setSelectedTimestamp(daySheet.timestamps[id]);
-              setShowUpdateModal(true);
+              if (!daySheet.confirmed) {
+                setSelectedTimestamp(daySheet.timestamps[id]);
+                setShowUpdateModal(true);
+              } else {
+                toast.error(toastMessages.DAYSHEET_ALREADY_CONFIRMED);
+              }
             }
           }
         ]}

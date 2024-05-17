@@ -58,12 +58,12 @@ public class IncidentService {
 			return incidentRepository.findAll()
 					.stream().map(incident -> {
 						UserDto user = userDtos.stream()
-								.filter(userFilter -> userFilter.getUser_id().equals(incident.getDaySheet().getUserId()))
+								.filter(userFilter -> userFilter.getUser_id().equals(incident.getDaySheet().getOwner().getId()))
 								.findFirst().orElse(null);
 						return convertEntityToDto(incident, user);
 					}).toList();
 		} else {
-			return incidentRepository.findAllByDaySheetUserId(userId)
+			return incidentRepository.findAllByDaySheet_Owner_Id(userId)
 					.stream().map(incident -> convertEntityToDto(incident, null)).toList();
 		}
 	}

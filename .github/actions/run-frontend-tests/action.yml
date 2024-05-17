@@ -40,3 +40,9 @@ runs:
         flags: frontend
         fail_ci_if_error: true
         verbose: true
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v2
+      with:
+        name: frontend-test-results
+        path: ${{ inputs.working-directory }}/coverage

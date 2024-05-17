@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
+import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 import ch.zhaw.pm4.compass.backend.service.TimestampService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -25,10 +27,21 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class TimestampController {
 	@Autowired
 	private TimestampService timestampService;
+	@Autowired
+	private DaySheetService daySheetService;
 
 	@PostMapping(produces = "application/json")
 	public ResponseEntity<TimestampDto> createTimestamp(@RequestBody TimestampDto timestamp,
 			Authentication authentication) {
+		if (!timestamp.verifyTimeStamp()) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		DaySheetDto daySheet = daySheetService.getDaySheetByIdAndUserId(timestamp.getDay_sheet_id(),
+				authentication.getName());
+		if (daySheet == null)
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		if (daySheet.getConfirmed())
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		TimestampDto response = timestampService.createTimestamp(timestamp, authentication.getName());
 		if (response == null)
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -55,6 +68,12 @@ public class TimestampController {
 	@PutMapping(produces = "application/json")
 	public ResponseEntity<TimestampDto> putTimestamp(@RequestBody TimestampDto timestamp,
 			Authentication authentication) {
+		DaySheetDto daySheet = daySheetService.getDaySheetByIdAndUserId(timestamp.getDay_sheet_id(),
+				authentication.getName());
+		if (daySheet == null)
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		if (daySheet.getConfirmed())
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		TimestampDto response = timestampService.updateTimestampById(timestamp, authentication.getName());
 		if (response == null)
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -62,7 +81,15 @@ public class TimestampController {
 	}
 
 	@DeleteMapping(path = "/{id}")
-	public void deleteTimestamp(@PathVariable Long id, Authentication authentication) {
+	public ResponseEntity deleteTimestamp(@PathVariable Long id, Authentication authentication) {
+		TimestampDto timestamp = timestampService.getTimestampById(id, authentication.getName());
+		DaySheetDto daySheet = daySheetService.getDaySheetByIdAndUserId(timestamp.getDay_sheet_id(),
+				authentication.getName());
+		if (daySheet == null)
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		if (daySheet.getConfirmed())
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		timestampService.deleteTimestamp(id, authentication.getName());
+		return ResponseEntity.ok().build();
 	}
 }

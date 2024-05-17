@@ -37,7 +37,7 @@ export interface GetDaySheetByIdRequest {
     id: number;
 }
 
-export interface GetDaySheetById1Request {
+export interface GetDaySheetDateRequest {
     date: string;
 }
 
@@ -52,7 +52,7 @@ export interface UpdateDayNotesRequest {
 /**
  * 
  */
-export class DaysheetControllerApi extends runtime.BaseAPI {
+export class DaySheetControllerApi extends runtime.BaseAPI {
 
     /**
      */
@@ -152,11 +152,11 @@ export class DaysheetControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async getDaySheetById1Raw(requestParameters: GetDaySheetById1Request, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DaySheetDto>> {
+    async getDaySheetDateRaw(requestParameters: GetDaySheetDateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DaySheetDto>> {
         if (requestParameters['date'] == null) {
             throw new runtime.RequiredError(
                 'date',
-                'Required parameter "date" was null or undefined when calling getDaySheetById1().'
+                'Required parameter "date" was null or undefined when calling getDaySheetDate().'
             );
         }
 
@@ -176,8 +176,8 @@ export class DaysheetControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async getDaySheetById1(requestParameters: GetDaySheetById1Request, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DaySheetDto> {
-        const response = await this.getDaySheetById1Raw(requestParameters, initOverrides);
+    async getDaySheetDate(requestParameters: GetDaySheetDateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DaySheetDto> {
+        const response = await this.getDaySheetDateRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

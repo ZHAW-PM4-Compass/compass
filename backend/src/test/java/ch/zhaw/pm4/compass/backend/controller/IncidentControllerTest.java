@@ -1,18 +1,22 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
-import ch.zhaw.pm4.compass.backend.GsonExclusionStrategy;
-import ch.zhaw.pm4.compass.backend.UserRole;
-import ch.zhaw.pm4.compass.backend.model.DaySheet;
-import ch.zhaw.pm4.compass.backend.model.Incident;
-import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.IncidentDto;
-import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
-import ch.zhaw.pm4.compass.backend.service.DaySheetService;
-import ch.zhaw.pm4.compass.backend.service.IncidentService;
-import com.nimbusds.jose.shaded.gson.Gson;
-import com.nimbusds.jose.shaded.gson.GsonBuilder;
-import com.nimbusds.jose.shaded.gson.reflect.TypeToken;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +24,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
@@ -30,19 +32,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import com.nimbusds.jose.shaded.gson.Gson;
+import com.nimbusds.jose.shaded.gson.GsonBuilder;
+import com.nimbusds.jose.shaded.gson.reflect.TypeToken;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import ch.zhaw.pm4.compass.backend.GsonExclusionStrategy;
+import ch.zhaw.pm4.compass.backend.UserRole;
+import ch.zhaw.pm4.compass.backend.model.dto.IncidentDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
+import ch.zhaw.pm4.compass.backend.service.IncidentService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -80,10 +78,8 @@ public class IncidentControllerTest {
 	void testCreateIncident() throws Exception {
 		// Arrange
 		when(incidentService.createIncident(any(IncidentDto.class))).thenReturn(getIncidentDto());
-		Gson gson = new GsonBuilder()
-				.addSerializationExclusionStrategy(new GsonExclusionStrategy())
-				.addDeserializationExclusionStrategy(new GsonExclusionStrategy())
-				.create();
+		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(new GsonExclusionStrategy())
+				.addDeserializationExclusionStrategy(new GsonExclusionStrategy()).create();
 
 		// Act and Assert//
 		mockMvc.perform(post("/incident").contentType(MediaType.APPLICATION_JSON)
@@ -102,15 +98,13 @@ public class IncidentControllerTest {
 	void testUpdateIncident() throws Exception {
 		// Arrange
 		when(incidentService.updateIncident(any(IncidentDto.class))).thenReturn(getIncidentDto());
-		Gson gson = new GsonBuilder()
-				.addSerializationExclusionStrategy(new GsonExclusionStrategy())
-				.addDeserializationExclusionStrategy(new GsonExclusionStrategy())
-				.create();
+		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(new GsonExclusionStrategy())
+				.addDeserializationExclusionStrategy(new GsonExclusionStrategy()).create();
 
 		// Act and Assert//
 		mockMvc.perform(put("/incident").contentType(MediaType.APPLICATION_JSON)
-						.content(gson.toJson(getIncidentDto(), IncidentDto.class))
-						.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
+				.content(gson.toJson(getIncidentDto(), IncidentDto.class))
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(getIncidentDto().getId()))
 				.andExpect(jsonPath("$.title").value(getIncidentDto().getTitle()))
 				.andExpect(jsonPath("$.description").value(getIncidentDto().getDescription()))
@@ -125,13 +119,11 @@ public class IncidentControllerTest {
 	public void testDeleteIncident() throws Exception {
 		doNothing().when(incidentService).deleteIncident(any(Long.class));
 		// Act and Assert//
-		mockMvc.perform(delete("/incident/1")
-				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk());
+		mockMvc.perform(delete("/incident/1").with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isOk());
 
 		verify(incidentService, times(1)).deleteIncident(any(Long.class));
 	}
-
-
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
@@ -140,20 +132,19 @@ public class IncidentControllerTest {
 		List<IncidentDto> incidentDtoList = new ArrayList<>();
 		incidentDtoList.add(getIncidentDto());
 
-		Gson gson = new GsonBuilder()
-				.addSerializationExclusionStrategy(new GsonExclusionStrategy())
-				.addDeserializationExclusionStrategy(new GsonExclusionStrategy())
-				.create();
+		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(new GsonExclusionStrategy())
+				.addDeserializationExclusionStrategy(new GsonExclusionStrategy()).create();
 
 		when(incidentService.getAll(any(String.class))).thenReturn(incidentDtoList);
 
 		// Act and Assert/
-		String res = mockMvc.perform(get("/incident/getAll")
-						.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
-
+		String res = mockMvc.perform(get("/incident/getAll").with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+		;
+		System.out.println(res);
 		List<IncidentDto> resultIncidentDtoList = gson.fromJson(res, new TypeToken<List<IncidentDto>>() {
 		}.getType());
+		System.out.println(resultIncidentDtoList.toString());
 
 		assertEquals(incidentDtoList.getFirst().getId(), resultIncidentDtoList.getFirst().getId());
 		assertEquals(incidentDtoList.getFirst().getTitle(), resultIncidentDtoList.getFirst().getTitle());

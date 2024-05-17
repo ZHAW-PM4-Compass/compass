@@ -238,7 +238,7 @@ public class UserService {
 	public UserDto mapAuthZeroUserToUserDto(String userId, AuthZeroUserDto authZeroUserDto) {
 		if (authZeroUserDto == null)
 			return null;
-		return UserDto.builder().email(authZeroUserDto.getEmail()).given_name(authZeroUserDto.getGiven_name())
-				.family_name(authZeroUserDto.getFamily_name()).role(authZeroUserDto.getRole()).user_id(userId).build();
+		return new UserDto(userId, authZeroUserDto.getGiven_name(), authZeroUserDto.getFamily_name(),
+				authZeroUserDto.getEmail(), authZeroUserDto.getRole(), authZeroUserDto.getBlocked());
 	}
 }

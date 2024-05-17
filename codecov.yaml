@@ -9,7 +9,7 @@ ignore:
   - "compass/backend/src/main/resources/**/*"
   - "compass/backend/src/main/java/ch/zhaw/pm4/compass/backend/model/dto/**/*"
   - "compass/backend/src/main/java/ch/zhaw/pm4/compass/backend/repository/**/*"
-  - "compass/backend/src/main/java/ch/zhaw/pm4/compass/backend/exception/**/*""
+  - "compass/backend/src/main/java/ch/zhaw/pm4/compass/backend/exception/**/*"
   - "compass/frontend/node_modules/**/*"
   - "compass/frontend/public/**/*"
   - "compass/frontend/migrations/**/*"

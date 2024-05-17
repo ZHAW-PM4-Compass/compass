@@ -42,7 +42,7 @@ export interface AuthZeroUserDto {
      * @type {string}
      * @memberof AuthZeroUserDto
      */
-    role?: string;
+    role?: AuthZeroUserDtoRoleEnum;
     /**
      * 
      * @type {boolean}
@@ -50,6 +50,19 @@ export interface AuthZeroUserDto {
      */
     blocked?: boolean;
 }
+
+
+/**
+ * @export
+ */
+export const AuthZeroUserDtoRoleEnum = {
+    SocialWorker: 'SOCIAL_WORKER',
+    Participant: 'PARTICIPANT',
+    Admin: 'ADMIN',
+    NoRole: 'NO_ROLE'
+} as const;
+export type AuthZeroUserDtoRoleEnum = typeof AuthZeroUserDtoRoleEnum[keyof typeof AuthZeroUserDtoRoleEnum];
+
 
 /**
  * Check if a given object implements the AuthZeroUserDto interface.

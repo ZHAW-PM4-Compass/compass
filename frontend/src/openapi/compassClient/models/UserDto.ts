@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { DaySheetDto } from './DaySheetDto';
+import {
+    DaySheetDtoFromJSON,
+    DaySheetDtoFromJSONTyped,
+    DaySheetDtoToJSON,
+} from './DaySheetDto';
+
 /**
  * 
  * @export
@@ -42,13 +49,19 @@ export interface UserDto {
      * @type {string}
      * @memberof UserDto
      */
-    role?: string;
+    userId?: string;
+    /**
+     * 
+     * @type {Array<DaySheetDto>}
+     * @memberof UserDto
+     */
+    daySheets?: Array<DaySheetDto>;
     /**
      * 
      * @type {string}
      * @memberof UserDto
      */
-    userId?: string;
+    role?: UserDtoRoleEnum;
     /**
      * 
      * @type {boolean}
@@ -56,6 +69,19 @@ export interface UserDto {
      */
     deleted?: boolean;
 }
+
+
+/**
+ * @export
+ */
+export const UserDtoRoleEnum = {
+    SocialWorker: 'SOCIAL_WORKER',
+    Participant: 'PARTICIPANT',
+    Admin: 'ADMIN',
+    NoRole: 'NO_ROLE'
+} as const;
+export type UserDtoRoleEnum = typeof UserDtoRoleEnum[keyof typeof UserDtoRoleEnum];
+
 
 /**
  * Check if a given object implements the UserDto interface.
@@ -77,8 +103,9 @@ export function UserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): U
         'email': json['email'] == null ? undefined : json['email'],
         'givenName': json['given_name'] == null ? undefined : json['given_name'],
         'familyName': json['family_name'] == null ? undefined : json['family_name'],
-        'role': json['role'] == null ? undefined : json['role'],
         'userId': json['user_id'] == null ? undefined : json['user_id'],
+        'daySheets': json['daySheets'] == null ? undefined : ((json['daySheets'] as Array<any>).map(DaySheetDtoFromJSON)),
+        'role': json['role'] == null ? undefined : json['role'],
         'deleted': json['deleted'] == null ? undefined : json['deleted'],
     };
 }
@@ -92,8 +119,9 @@ export function UserDtoToJSON(value?: UserDto | null): any {
         'email': value['email'],
         'given_name': value['givenName'],
         'family_name': value['familyName'],
-        'role': value['role'],
         'user_id': value['userId'],
+        'daySheets': value['daySheets'] == null ? undefined : ((value['daySheets'] as Array<any>).map(DaySheetDtoToJSON)),
+        'role': value['role'],
         'deleted': value['deleted'],
     };
 }

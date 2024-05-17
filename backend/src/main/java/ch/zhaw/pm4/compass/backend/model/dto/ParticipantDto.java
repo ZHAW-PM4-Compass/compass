@@ -1,22 +1,14 @@
 package ch.zhaw.pm4.compass.backend.model.dto;
 
 import lombok.Getter;
-import lombok.Setter;
-
-import java.sql.Time;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@Setter
+@RequiredArgsConstructor
+@NoArgsConstructor
 public class ParticipantDto {
-    private Long id;
-    private String name;
-
-
-    public ParticipantDto() {
-    }
-
-    public ParticipantDto(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
+	@NonNull
+	private String id;
 }

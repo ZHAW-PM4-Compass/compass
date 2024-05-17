@@ -4,7 +4,7 @@ coverage:
       default:
         target: 0%
         threshold: 5%
-gnore:
+ignore:
   - "node_modules/**/*"
   - "public/**/*"
   - "migrations/**/*"

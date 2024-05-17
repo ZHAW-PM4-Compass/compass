@@ -12,6 +12,10 @@ java {
     sourceCompatibility = '21'
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.add("-parameters")
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -43,6 +47,7 @@ dependencies {
     //swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
     implementation 'io.swagger.core.v3:swagger-annotations:2.2.8'
+    implementation 'io.swagger:swagger-annotations:1.6.14'
 	
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -57,11 +62,17 @@ tasks.register("local") {
     doFirst {
         tasks.bootRun.systemProperties['spring.profiles.active'] = 'local'
     }
-    finalizedBy("bootRun")
+    finalizedBy "bootRun"
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
+tasks.register("localTest") {
+	group = "verification"
+	description = "Runs tests with the local profile"
+	
+    doFirst {
+        tasks.test.systemProperties['spring.profiles.active'] = 'local'
+    }
+    finalizedBy "test"
 }
 
 
@@ -82,6 +93,7 @@ jacocoTestReport {
 }
 
 test {
+    useJUnitPlatform()
     // Use finalizedBy to ensure jacocoTestReport runs after tests
     finalizedBy 'jacocoTestReport'
 }
@@ -95,5 +107,3 @@ task printEnv {
         }
     }
 }
-
-test.dependsOn printEnv

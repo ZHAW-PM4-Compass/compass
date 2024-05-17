@@ -19,23 +19,18 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
     const [updatedTimestamp, setTimestamp] = useState<{ startTime: string; endTime: string;}>({ startTime: '', endTime: ''});
 
     const onSubmit = (formData: FormData) => {
+        const startTime = new Date(`1970-01-01T${formData.get("startTime")}:00`);
+        const endTime = new Date(`1970-01-01T${formData.get("endTime")}:00`);
+
         const editedTimestamp: TimestampDto = {
             id: timestamp?.id || 0,
             daySheetId: timestamp?.daySheetId || 0,
-            startTime: formData.get("startTime") as string,
-            endTime: formData.get("endTime") as string
+            startTime: startTime,
+            endTime: endTime
         };
 
-        if (editedTimestamp.startTime?.length == 5) {
-            editedTimestamp.startTime += ":00";
-        }
-
-        if (editedTimestamp.endTime?.length == 5) {
-            editedTimestamp.endTime += ":00";
-        }
-
         getTimestampControllerApi().putTimestamp({timestampDto: editedTimestamp}).then(() => {
-            close();//
+            close();
             setTimeout(() => onSave(), 1000);
             toast.success(toastMessages.TIMESTAMP_UPDATED);
         }).catch(() => {
@@ -48,7 +43,11 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
         setTimestamp(prevState => ({ ...prevState, [name]: value }));
     };
 
-    useEffect(() => {setTimestamp({startTime: timestamp?.startTime || "00:00", endTime: timestamp?.endTime || "00:00"})}, []);
+    useEffect(() => {
+        const startTimeString = timestamp?.startTime?.toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+        const endTimeString = timestamp?.endTime?.toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+        setTimestamp({startTime: startTimeString || "00:00", endTime: endTimeString || "00:00"})
+    }, []);
 
     return (
         <Modal
@@ -104,14 +103,16 @@ const DaySheetViewSingleDay: React.FC = () => {
     }
 
     // Function to calculate the difference between start and end times
-    function calculateTimeDifference(start_time: string, end_time: string): string {
+    function calculateTimeDifference(start_time: Date, end_time: Date): string {
         if (!start_time || !end_time) {
             return ''; // Handle case where either start or end time is not provided
         }
 
         // Parse hours and minutes from time strings
-        const [startHours, startMinutes] = start_time.split(':').map(Number);
-        const [endHours, endMinutes] = end_time.split(':').map(Number);
+        const startHours = start_time.getHours();
+        const startMinutes = start_time.getMinutes();
+        const endHours = end_time.getHours();
+        const endMinutes = end_time.getMinutes();
 
         // Calculate the difference in minutes
         if (startHours != undefined && startMinutes != undefined && endHours != undefined && endMinutes != undefined) {

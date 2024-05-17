@@ -21,7 +21,6 @@ public class UserDto {
     private String family_name;
     @NonNull
     private String user_id;
-    @NonNull
     private List<DaySheetDto> daySheets;
 
     private UserRole role;

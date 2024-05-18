@@ -3,10 +3,11 @@ enum toastMessages {
   DAYSHEETS_LOADED = "DaySheets wurden geladen",
   DAYSHEET_CONFIRMED = "DaySheet wurde bestätigt",
   DAYSHEET_CONFIRMED_ERROR = "DaySheet konnte nicht bestätigt werden",
+  TIMESTAMPS_LOADED = "Zeiteinträge geladen",
   TIMESTAMP_CREATED = "Zeiteintrag erstellt",
   TIMESTAMP_NOT_CREATED = "Zeiteintrag konnte nicht erstellt werden",
   TIMESTAMP_UPDATED = "Zeiteintrag wurde aktualisiert",
-  TIMESTAMP_NOT_UPDATED = "Timestamp konnte nicth aktualisiert werden",
+  TIMESTAMP_NOT_UPDATED = "Timestamp konnte nicht aktualisiert werden",
   TIMESTAMP_DELETED = "Timestamp wurde gelöscht",
   TIMESTAMP_NOT_DELETED = "Timestamp konnte nicth gelöscht werden",
   INCIDENTS_LOADED = "Vorfälle wurden geladen",
@@ -18,6 +19,7 @@ enum toastMessages {
   INCIDENT_DELETED = "Vorfall gelöscht",
   INCIDENT_NOT_DELETED = "Vorfall konnte nicht gelöscht werden",
   USER_CREATED = "User erstellt",
+  USER_NOT_SELECTED = "Kein User selektiert",
   USER_NOT_CREATED = "User konnte nicht erstellt werden",
   USER_UPDATED = "User aktualisiert",
   USER_NOT_UPDATED = "User konnte nicht aktualisiert werden",
@@ -29,12 +31,15 @@ enum toastMessages {
   DAYSHEET_NOT_UPDATED = "Arbeitstag konnte nicht aktualisiert werden",
   DAYSHEET_DELETED = "Arbeitstag gelöscht",
   DAYSHEET_NOT_DELETED = "Arbeitstag konnte nicht gelöscht werden",
+  DAYSHEET_ALREADY_CONFIRMED = "Arbeitstag kann nicht mehr bearbeitet werden, da er bereits bestätigt wurde",
+  DAYNOTES_UPDATED = "Notizen aktualisiert",
+  DAYNOTES_NOT_UPDATED = "Notizen konnten nicht aktualisiert werden",
+  STARTTIME_AFTER_ENDTIME = "Startzeit muss vor Endzeit liegen",
 
   USER_DELETED = "User gelöscht",
   USER_NOT_DELETED = "User konnte nicht gelöscht werden",
   USER_RESTORED = "User wiederhergestellt",
   USER_NOT_RESTORED = "User konnte nicht wiederhergestellt werden",
-
 }
 
 export default toastMessages;

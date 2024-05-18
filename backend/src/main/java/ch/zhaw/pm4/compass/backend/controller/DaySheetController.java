@@ -21,7 +21,7 @@ import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
 import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "Daysheet Controller", description = "Daysheet Endpoint")
+@Tag(name = "DaySheet Controller", description = "DaySheet Endpoint")
 @RestController
 @RequestMapping("/daysheet")
 public class DaySheetController {
@@ -48,7 +48,7 @@ public class DaySheetController {
 	}
 
 	@GetMapping(path = "/getByDate/{date}", produces = "application/json")
-	public ResponseEntity<DaySheetDto> getDaySheetById(@PathVariable String date, Authentication authentication) {
+	public ResponseEntity<DaySheetDto> getDaySheetDate(@PathVariable String date, Authentication authentication) {
 		DaySheetDto response = daySheetService.getDaySheetByDate(LocalDate.parse(date), authentication.getName());
 		if (response == null)
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);

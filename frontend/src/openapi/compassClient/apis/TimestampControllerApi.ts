@@ -83,7 +83,7 @@ export class TimestampControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async deleteTimestampRaw(requestParameters: DeleteTimestampRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async deleteTimestampRaw(requestParameters: DeleteTimestampRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
@@ -102,13 +102,18 @@ export class TimestampControllerApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
     }
 
     /**
      */
-    async deleteTimestamp(requestParameters: DeleteTimestampRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.deleteTimestampRaw(requestParameters, initOverrides);
+    async deleteTimestamp(requestParameters: DeleteTimestampRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.deleteTimestampRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**

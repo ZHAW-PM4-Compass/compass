@@ -10,9 +10,10 @@ import { useEffect, useState } from "react";
 import { getDaySheetControllerApi, getTimestampControllerApi} from "@/openapi/connector";
 import Button from "@/components/button";
 import Modal from "@/components/modal";
-import type { CreateDaySheetRequest, CreateTimestampRequest, TimestampDto } from "@/openapi/compassClient";
 import toast from "react-hot-toast";
 import toastMessages from "@/constants/toastMessages";
+import { time } from "console";
+import { CreateDaySheetRequest, CreateTimestampRequest, DaySheetDto, TimestampDto } from "@/openapi/compassClient";
 
  // interfaces necessary for timestamp duration
  interface Daysheet {
@@ -21,6 +22,7 @@ import toastMessages from "@/constants/toastMessages";
   dayNotes: string;
   timestamps: Timestamp[];
   timeSum: number;
+  confirmed: boolean; 
 }
 
 interface Timestamp {
@@ -28,7 +30,7 @@ interface Timestamp {
   daySheetId: number;
   startTime: string;
   endTime: string;
-  duration?: string;
+  duration?: string; 
 }
 
 
@@ -40,14 +42,23 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
   const [updatedTimestamp, setTimestamp] = useState<{ startTime: string; endTime: string;}>({ startTime: '', endTime: ''});
 
   const onSubmit = (formData: FormData) => {
-    const editedTimestamp: Timestamp = {
+    const startTime = new Date(`1970-01-01T${formData.get("startTime")}:00`);
+    const endTime = new Date(`1970-01-01T${formData.get("endTime")}:00`);
+
+    const editedTimestamp: TimestampDto = {
         id: timestamp?.id || 0,
         daySheetId: timestamp?.daySheetId || 0,
-        startTime: formData.get("startTime") + ":00" as string,
-        endTime: formData.get("endTime") + ":00" as string
+        startTime,
+        endTime
     };
 
-    getTimestampControllerApi().putTimestamp({timestampDto: editedTimestamp}).then(() => {
+    if (editedTimestamp.endTime && editedTimestamp.startTime && editedTimestamp.endTime <= editedTimestamp.startTime) {
+      toast.error(toastMessages.STARTTIME_AFTER_ENDTIME);
+      return;
+    }
+
+    getTimestampControllerApi().putTimestamp({ timestampDto: editedTimestamp}).then(() => {
+
       close();//
       setTimeout(() => onSave(), 1000);
       toast.success(toastMessages.TIMESTAMP_UPDATED);
@@ -80,17 +91,15 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
 
 
 export default function WorkingHoursPage() {
-  const [daySheet, setDaySheet] = useState<Daysheet>({ id: 0, date: new Date(), dayNotes: '', timestamps: [], timeSum: 0});
+  const [daySheet, setDaySheet] = useState<Daysheet>({ id: 0, date: new Date(), dayNotes: '', timestamps: [], timeSum: 0, confirmed: false });
   const [timestamp, setTimestamp] = useState<{ startTime: string; endTime: string;}>({ startTime: '', endTime: ''});
   const [selectedTimestamp, setSelectedTimestamp] = useState<Timestamp>();
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().slice(0, 10));
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   
   
-  function calculateDuration(start: String, end: String) {
-    const startTime = new Date(`2000-01-01 ${start}`).getTime();
-    const endTime = new Date(`2000-01-01 ${end}`).getTime();
-    const durationMs = endTime - startTime;
+  function calculateDuration(start: Date, end: Date) {
+    const durationMs = start.getTime() - end.getTime();
     return formatMilisecondsToHourMinute(durationMs);
   }
 
@@ -123,29 +132,28 @@ export default function WorkingHoursPage() {
 
 	const loadDaySheetByDate = (date: string) => {
 
-    getDaySheetControllerApi().getDaySheetByDate({date: date}).then(daySheetDto => {
+    getDaySheetControllerApi().getDaySheetDate({date: date}).then((daySheetDto: DaySheetDto) => {
         const loadedDaySheet: Daysheet = {
           id: daySheetDto.id || 0,
           date: new Date(daySheetDto.date || ''),
           dayNotes:  String(daySheetDto.dayNotes || ''),
           timestamps: [],
-          timeSum: daySheetDto.timeSum || 0
+          timeSum: daySheetDto.timeSum || 0,
+          confirmed: daySheetDto.confirmed || false
         };
 
         daySheetDto.timestamps?.sort((a: TimestampDto, b: TimestampDto) => {
-          // Convert startTime strings to numbers for comparison
-          const startTimeA = parseInt(a.startTime?.split(':')[0] || "23:59:00");
-          const startTimeB = parseInt(b.startTime?.split(':')[0] || "23:59:00");
+          const startTimeA = a.startTime?.getHours() || 0;
+          const startTimeB = b.startTime?.getHours() || 0;
           
-          // Compare the startTime values
           return startTimeA - startTimeB;
         }).forEach((timestamp: TimestampDto) => {
           if (timestamp.startTime && timestamp.endTime) {
             loadedDaySheet.timestamps.push({
               id: timestamp.id || 0,
               daySheetId: timestamp.daySheetId || 0,
-              startTime: String(timestamp.startTime.split(':').slice(0, 2).join(':')),
-              endTime: String(timestamp.endTime.split(':').slice(0, 2).join(':')), 
+              startTime: `${timestamp.startTime.getHours()}:${timestamp.startTime.getMinutes()}`,
+              endTime: `${timestamp.endTime.getHours()}:${timestamp.endTime.getMinutes()}`, 
               duration: calculateDuration(timestamp.startTime, timestamp.endTime)
             });
           }
@@ -158,7 +166,8 @@ export default function WorkingHoursPage() {
           date: new Date(),
           dayNotes: '',
           timestamps: [],
-          timeSum: 0
+          timeSum: 0,
+          confirmed: false
         };
         setDaySheet(emptyDaySheet);
      });     
@@ -167,9 +176,9 @@ export default function WorkingHoursPage() {
 
   const handleCreateTimestampSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-        
+  
     // check if daysheet already exists
-    getDaySheetControllerApi().getDaySheetByDate({date: selectedDate}).then(daySheetDto => {
+    getDaySheetControllerApi().getDaySheetDate({date: selectedDate}).then((daySheetDto: DaySheetDto) => {
       // add to existing
       if (daySheetDto && daySheetDto.id) {
         createNewTimestamp(daySheetDto.id);
@@ -178,13 +187,14 @@ export default function WorkingHoursPage() {
       // new daysheet
       const creatDaySheetDto: CreateDaySheetRequest = {
         daySheetDto: {
-        date: new Date(selectedDate),
-        dayNotes: '',
-        timestamps: []
+          date: new Date(selectedDate),
+          dayNotes: '',
+          timestamps: [],
+          confirmed: false
         }
       };
       
-      getDaySheetControllerApi().createDaySheet(creatDaySheetDto).then(createdDaySheet => {
+      getDaySheetControllerApi().createDaySheet(creatDaySheetDto).then((createdDaySheet: DaySheetDto) => {
         toast.success(toastMessages.DAYSHEET_CREATED)
         if (createdDaySheet && createdDaySheet.id) {
           createNewTimestamp(createdDaySheet.id);
@@ -195,14 +205,23 @@ export default function WorkingHoursPage() {
   };
 
   const createNewTimestamp = (daysheetId: number) => {
+
+    if (timestamp.endTime <= timestamp.startTime) {
+      toast.error(toastMessages.STARTTIME_AFTER_ENDTIME);
+      return;
+    }
+
+    const startTime = new Date(`1970-01-01T${timestamp.startTime}:00`);
+    const endTime = new Date(`1970-01-01T${timestamp.endTime}:00`);
+
     const createTimestampRequest: CreateTimestampRequest = {
       timestampDto: {
         daySheetId: daysheetId,
-        startTime: timestamp.startTime + ":00",
-        endTime: timestamp.endTime + ":00"
+        startTime,
+        endTime
       }
     };
-    
+
     getTimestampControllerApi().createTimestamp(createTimestampRequest).then(() => {
       toast.success(toastMessages.TIMESTAMP_CREATED)
     }).then(() => loadDaySheetByDate(selectedDate)).catch(() =>toast.error(toastMessages.TIMESTAMP_NOT_CREATED));
@@ -212,6 +231,7 @@ export default function WorkingHoursPage() {
   const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setTimestamp(prevState => ({ ...prevState, [name]: value }));
+    return;
   };
 
   const deleteTimestamp = () => {
@@ -285,8 +305,12 @@ export default function WorkingHoursPage() {
           {
             icon: Edit24Regular,
             onClick: (id) => {
-              setSelectedTimestamp(daySheet.timestamps[id]);
-              setShowUpdateModal(true);
+              if (!daySheet.confirmed) {
+                setSelectedTimestamp(daySheet.timestamps[id]);
+                setShowUpdateModal(true);
+              } else {
+                toast.error(toastMessages.DAYSHEET_ALREADY_CONFIRMED);
+              }
             }
           }
         ]}

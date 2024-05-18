@@ -14,7 +14,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class DaySheetDto {
-
 	private Long id;
 	private LocalDate date;
 	private String day_notes;

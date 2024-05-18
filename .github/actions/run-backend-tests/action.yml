@@ -36,20 +36,26 @@ runs:
           -e AUTH0_MGMT_AUDIENCE='https://test.local' \
           -e APP_URL='test.local' \
           --add-host host.docker.internal:host-gateway \
-          -v $(pwd)/reports:/app/build/reports \
+          -v $(pwd)/backend/build:/app/build \
           --name test-container \
           backend-tests \
           /bin/sh -c "gradle test -info && printenv"
 
-    - name: Debug Report dir
+    - name: Debug Copied Classes
       shell: bash
-      run: cd reports && ls -la
+      run: ls -la ./backend/build
+
+    - name: Upload Backend Test Results
+      uses: actions/upload-artifact@v2
+      with:
+        name: backend-test-results
+        path: ./backend/build
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
         token: ${{ inputs.codecov-token }}
-        directory: ./reports
+        directory: ./backend/build/reports
         flags: backend
         fail_ci_if_error: true
         verbose: true

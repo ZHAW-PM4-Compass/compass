@@ -15,4 +15,6 @@ public interface DaySheetRepository extends JpaRepository<DaySheet, Long> {
 	Optional<List<DaySheet>> findAllByOwnerId(String userId);
 
 	Optional<DaySheet> findByDateAndOwnerId(LocalDate date, String userId);
+
+	List<DaySheet> findAllByOwnerIdAndDateBetween(String userId, LocalDate firstMonthDay, LocalDate lastMonthDay);
 }

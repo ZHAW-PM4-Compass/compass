@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import ch.zhaw.pm4.compass.backend.GsonExculsionStrategy;
+import ch.zhaw.pm4.compass.backend.GsonExclusionStrategy;
 import com.nimbusds.jose.shaded.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -209,8 +209,8 @@ class UserServiceTest {
 	@Test
 	public void prepareCRUDTest() throws IOException {
 		Gson gson = new GsonBuilder()
-				.addSerializationExclusionStrategy(new GsonExculsionStrategy())
-				.addDeserializationExclusionStrategy(new GsonExculsionStrategy())
+				.addSerializationExclusionStrategy(new GsonExclusionStrategy())
+				.addDeserializationExclusionStrategy(new GsonExclusionStrategy())
 				.create();
 
 		// Auth0

@@ -214,9 +214,9 @@ public class DaySheetControllerTest {
 						.contentType(MediaType.APPLICATION_JSON).with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 		assertEquals("[{\"id\":1,\"date\":\"" + dateNow.toString()
-				+ "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"moodRatings\":null,\"timeSum\":0},{\"id\":2,\"date\":\""
+				+ "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"moodRatings\":null,\"incidents\":null,\"timeSum\":0},{\"id\":2,\"date\":\""
 				+ dateNow.plusDays(1).toString()
-				+ "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"moodRatings\":null,\"timeSum\":0}]",
+				+ "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"moodRatings\":null,\"incidents\":null,\"timeSum\":0}]",
 				res);
 	}
 }

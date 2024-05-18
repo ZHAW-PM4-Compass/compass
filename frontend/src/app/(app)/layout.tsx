@@ -12,8 +12,8 @@ import WorkingHoursIcon from "@fluentui/svg-icons/icons/shifts_24_regular.svg";
 import WorkingHoursIconFilled from "@fluentui/svg-icons/icons/shifts_24_filled.svg";
 import MoodIcon from "@fluentui/svg-icons/icons/person_voice_24_regular.svg";
 import MoodIconFilled from "@fluentui/svg-icons/icons/person_voice_24_filled.svg";
-import IncidentIcon from "@fluentui/svg-icons/icons/alert_24_regular.svg";
-import IncidentIconFilled from "@fluentui/svg-icons/icons/alert_24_filled.svg";
+import IncidentIcon from "@fluentui/svg-icons/icons/channel_24_regular.svg";
+import IncidentIconFilled from "@fluentui/svg-icons/icons/channel_24_filled.svg";
 
 // social worker
 import WorkingHoursCheckIcon from "@fluentui/svg-icons/icons/shifts_checkmark_24_regular.svg";
@@ -101,7 +101,7 @@ const Profile: React.FC<{user: any}> = ({ user }) => {
         </div>
       </button>
       {showMenu && (
-        <div id="profile-menu" className="left-5 sm:left-auto absolute top-20 right-5 px-8 py-7 bg-white rounded-3xl flex flex-col drop-shadow-sm">
+        <div id="profile-menu" className="left-5 sm:left-auto absolute top-20 right-5 px-8 py-7 bg-white rounded-3xl flex flex-col drop-shadow-lg">
           {user.given_name && user.family_name ? ( <span className="font-bold text-sm">{user.given_name} {user.family_name}</span> ) : null}
           <span className="mb-4 text-sm">{user.email}</span>
           <a href="/api/auth/logout" className="pt-4 border-t-[1px] border-slate-200 text-sm hover:text-slate-600 duration-150">Logout</a>
@@ -131,8 +131,8 @@ export default function RootLayout({
 
   return (
     <>
-      <div className="md:flex md:flex-row h-screen w-screen absolute">
-        <div className={`${menuOpen ? "w-full md:w-64 md:min-w-64" : "hidden md:block md:w-16 md:min-w-16"} absolute sm:relative border-r-[1px] border-slate-300 z-20 h-full bg-white overflow-y-auto`}>
+      <div className="lg:flex lg:flex-row h-screen w-screen absolute">
+        <div className={`${menuOpen ? "w-full lg:w-64 lg:min-w-64" : "hidden lg:block lg:w-16 lg:min-w-16"} absolute lg:relative border-r-[1px] border-slate-300 z-20 h-full bg-white overflow-y-auto`}>
           <div className={`${menuOpen ? "p-5 w-full" : "p-4"}  flex flex-col h-full`}>
             <div className="flex">
               {menuOpen ? (
@@ -140,7 +140,7 @@ export default function RootLayout({
               ) : (
                 <h1 className="text-lg px-1.5 py-1.5">🧭</h1>
               )}
-              <button className="p-2 bg-white hover:bg-slate-100 duration-150 rounded-md md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+              <button className="p-2 bg-white hover:bg-slate-100 duration-150 rounded-md lg:hidden" onClick={() => setMenuOpen(!menuOpen)}>
                 <img src={MenuCloseIcon.src} className="w-5 h-5" />
               </button>
             </div>
@@ -169,25 +169,25 @@ export default function RootLayout({
             
             <div className="grow"></div>
             { menuOpen ? (
-              <MenuItem className="hidden sm:flex" collapsed={!menuOpen} icon={CollapseMenuIcon} label="Zuklappen" onClick={toggleMenu} />
+              <MenuItem className="hidden lg:flex" collapsed={!menuOpen} icon={CollapseMenuIcon} label="Zuklappen" onClick={toggleMenu} />
             ) : (
-              <MenuItem className="hidden sm:flex mb-2" collapsed={true} icon={ExpandMenuIcon} label="Expandieren" onClick={toggleMenu} />
+              <MenuItem className="hidden lg:flex mb-2" collapsed={true} icon={ExpandMenuIcon} label="Expandieren" onClick={toggleMenu} />
             )}
           </div>
         </div>
-        <div className="sm:relative grow z-10 pt-20 md:pt-0 bg-slate-100 h-full">
-          <div className="w-full h-full md:container md:mx-auto px-5 md:px-24 lg:px-40 md:pt-24 pb-16">
+        <div className="grow pt-20 z-10 lg:pt-0 bg-slate-100 h-full">
+          <div className="w-full h-full lg:container lg:mx-auto px-5 lg:pt-24 pb-16">
             <div className="h-full w-full">
-            {children}
-            {
-              user && (
-                <Profile user={user} />
-              )
-            }
+              {children}
+              {
+                user && (
+                  <Profile user={user} />
+                )
+              }
             </div>
           </div>
         </div>
-        <button className="absolute left-5 top-5 block sm:hidden p-2 hover:bg-slate-200 duration-150 rounded-md" onClick={toggleMenu}>
+        <button className="absolute left-5 top-5 block lg:hidden p-2 hover:bg-slate-200 duration-150 rounded-md" onClick={toggleMenu}>
           <img src={MenuIcon.src} className="w-5 h-5" />
         </button>
       </div>

@@ -1,4 +1,5 @@
-import { Configuration, DaySheetControllerApi, TimestampControllerApi, UserControllerApi, CategoryControllerApi, RatingControllerApi } from './compassClient';
+import { Configuration, UserControllerApi, CategoryControllerApi, TimestampControllerApi, IncidentControllerApi, DaySheetControllerApi, RatingControllerApi } from "./compassClient";
+
 export function getMiddleWareControllerApi() {
   const config = new Configuration({
     basePath: process.env.API_BASE_PATH || "http://localhost:8080/api",
@@ -34,4 +35,9 @@ export function getRatingControllerApi() {
 export function getTimestampControllerApi() {
   const config = getApiConfiguration();
   return new TimestampControllerApi(config);
+}
+
+export function getIncidentControllerApi() {
+  const config = getApiConfiguration();
+  return new IncidentControllerApi(config);
 }

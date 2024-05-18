@@ -15,12 +15,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
 public class DaySheet {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +45,9 @@ public class DaySheet {
 	@OneToMany(mappedBy = "daySheet", cascade = CascadeType.ALL)
 	private List<Rating> moodRatings;
 
+	@OneToMany(mappedBy = "daySheet", cascade = CascadeType.ALL)
+	private List<Incident> incidents;
+
 	public DaySheet() {
 
 	}
@@ -52,6 +57,7 @@ public class DaySheet {
 		this.dayNotes = dayNotes;
 		this.timestamps = new ArrayList<>();
 		this.moodRatings = new ArrayList<>();
+		this.incidents = new ArrayList<>();
 	}
 
 	public DaySheet(Long id, String dayNotes, LocalDate date) {
@@ -60,6 +66,7 @@ public class DaySheet {
 		this.dayNotes = dayNotes;
 		this.timestamps = new ArrayList<>();
 		this.moodRatings = new ArrayList<>();
+		this.incidents = new ArrayList<>();
 	}
 
 	public DaySheet(Long id, String dayNotes, LocalDate date, Boolean confirmed) {
@@ -69,6 +76,7 @@ public class DaySheet {
 		this.confirmed = confirmed;
 		this.timestamps = new ArrayList<>();
 		this.moodRatings = new ArrayList<>();
+		this.incidents = new ArrayList<>();
 	}
 
 	public DaySheet(Long id, String dayNotes, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
@@ -78,6 +86,7 @@ public class DaySheet {
 		this.confirmed = confirmed;
 		this.timestamps = timestamps;
 		this.moodRatings = new ArrayList<>();
+		this.incidents = new ArrayList<>();
 	}
 
 	public DaySheet(Long id, LocalUser owner, String dayNotes, LocalDate date, Boolean confirmed,
@@ -89,6 +98,7 @@ public class DaySheet {
 		this.timestamps = timestamps;
 		this.owner = owner;
 		this.moodRatings = new ArrayList<>();
+		this.incidents = new ArrayList<>();
 	}
 
 	public DaySheet(Long id, String dayNotes, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps,
@@ -99,6 +109,7 @@ public class DaySheet {
 		this.confirmed = confirmed;
 		this.timestamps = timestamps;
 		this.moodRatings = moodRatings;
+		this.incidents = new ArrayList<>();
 	}
 
 	public DaySheet(Long id, LocalUser owner, String dayNotes, LocalDate date, Boolean confirmed,
@@ -110,11 +121,13 @@ public class DaySheet {
 		this.timestamps = timestamps;
 		this.owner = owner;
 		this.moodRatings = moodRatings;
+		this.incidents = new ArrayList<>();
 	}
 
 	public DaySheet(LocalDate date) {
 		this.date = date;
 		this.timestamps = new ArrayList<>();
 		this.moodRatings = new ArrayList<>();
+		this.incidents = new ArrayList<>();
 	}
 }

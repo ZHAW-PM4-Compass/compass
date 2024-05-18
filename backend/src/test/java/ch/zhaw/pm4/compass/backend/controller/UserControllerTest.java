@@ -1,6 +1,6 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
-import ch.zhaw.pm4.compass.backend.GsonExculsionStrategy;
+import ch.zhaw.pm4.compass.backend.GsonExclusionStrategy;
 import ch.zhaw.pm4.compass.backend.UserRole;
 import ch.zhaw.pm4.compass.backend.model.dto.AuthZeroUserDto;
 import ch.zhaw.pm4.compass.backend.model.dto.CreateAuthZeroUserDto;
@@ -161,8 +161,8 @@ public class UserControllerTest {
     @WithMockUser(username = "testuser", roles = {})
     void testGetAllUsers() throws Exception {
         Gson gson = new GsonBuilder()
-                .addSerializationExclusionStrategy(new GsonExculsionStrategy())
-                .addDeserializationExclusionStrategy(new GsonExculsionStrategy())
+                .addSerializationExclusionStrategy(new GsonExclusionStrategy())
+                .addDeserializationExclusionStrategy(new GsonExclusionStrategy())
                 .create();
 
         List<UserDto> userDtoList = new ArrayList<>();
@@ -182,8 +182,8 @@ public class UserControllerTest {
     @WithMockUser(username = "testuser", roles = {})
     void testAllParticipants() throws Exception {
         Gson gson = new GsonBuilder()
-                .addSerializationExclusionStrategy(new GsonExculsionStrategy())
-                .addDeserializationExclusionStrategy(new GsonExculsionStrategy())
+                .addSerializationExclusionStrategy(new GsonExclusionStrategy())
+                .addDeserializationExclusionStrategy(new GsonExclusionStrategy())
                 .create();
 
         List<UserDto> userDtoList = new ArrayList<>();

@@ -140,11 +140,9 @@ public class IncidentControllerTest {
 		// Act and Assert/
 		String res = mockMvc.perform(get("/incident/getAll").with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-		;
-		System.out.println(res);
+
 		List<IncidentDto> resultIncidentDtoList = gson.fromJson(res, new TypeToken<List<IncidentDto>>() {
 		}.getType());
-		System.out.println(resultIncidentDtoList.toString());
 
 		assertEquals(incidentDtoList.getFirst().getId(), resultIncidentDtoList.getFirst().getId());
 		assertEquals(incidentDtoList.getFirst().getTitle(), resultIncidentDtoList.getFirst().getTitle());

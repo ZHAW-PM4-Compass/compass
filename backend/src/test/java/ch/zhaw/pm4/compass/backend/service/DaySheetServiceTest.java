@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -18,10 +19,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import ch.zhaw.pm4.compass.backend.RatingType;
 import ch.zhaw.pm4.compass.backend.UserRole;
+import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
+import ch.zhaw.pm4.compass.backend.model.Category;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
+import ch.zhaw.pm4.compass.backend.model.Incident;
 import ch.zhaw.pm4.compass.backend.model.LocalUser;
+import ch.zhaw.pm4.compass.backend.model.Rating;
+import ch.zhaw.pm4.compass.backend.model.Timestamp;
+import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
 import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
@@ -35,6 +44,10 @@ class DaySheetServiceTest {
 
 	@Mock
 	private UserService userServiceMock;
+	@Mock
+	private TimestampService timestampService;
+	@Mock
+	private RatingService ratingService;
 
 	@InjectMocks
 	private DaySheetService daySheetService;
@@ -168,6 +181,16 @@ class DaySheetServiceTest {
 	}
 
 	@Test
+	void testUpdateDaySheetConfirmedNullReturns() {
+		when(daySheetRepository.findById(1l)).thenReturn(Optional.empty());
+		assertNull(daySheetService.updateConfirmed(1l, user_id));
+
+		when(daySheetRepository.findById(1l)).thenReturn(Optional.of(getDaySheet()));
+		when(userServiceMock.getUserRole(user_id)).thenReturn(UserRole.PARTICIPANT);
+		assertNull(daySheetService.updateConfirmed(1l, user_id));
+	}
+
+	@Test
 	void testUpdateNotExistingDaySheet() {
 		UpdateDaySheetDayNotesDto updateDay = getUpdateDaySheetDayNotesDto();
 		DaySheet daySheet = getDaySheet();
@@ -229,5 +252,44 @@ class DaySheetServiceTest {
 		assertEquals(2, daySheets.size());
 		assertEquals(1, daySheets.get(0).getId());
 		assertEquals(2, daySheets.get(1).getId());
+	}
+
+	@Test
+	void testFullEntityToDtoConvert() throws NotValidCategoryOwnerException {
+		DaySheet daySheet = getDaySheet();
+
+		Time time1 = new Time(10000);
+		Time time2 = new Time(20000);
+		Timestamp timestamp = new Timestamp(1l, daySheet, time1, time2, user_id);
+		TimestampDto timestampDto = new TimestampDto(1l, 1l, time1, time2);
+
+		Rating ratingOne = new Rating(3, RatingType.PARTICIPANT);
+		ratingOne.setCategory(new Category("Unit Test", 0, 10, List.of()));
+		ratingOne.setDaySheet(daySheet);
+		CategoryDto categoryDto = new CategoryDto(1l, "Cat", 1, 10);
+		RatingDto ratingDto = new RatingDto(categoryDto, new DaySheetDto(), 3, RatingType.PARTICIPANT);
+
+		Incident incident = new Incident(1l, "Inci Titlte", "A discription", daySheet);
+
+		daySheet.setTimestamps(List.of(timestamp));
+		daySheet.setMoodRatings(List.of(ratingOne));
+		daySheet.setIncidents(List.of(incident));
+
+		when(timestampService.convertTimestampToTimestampDto(timestamp)).thenReturn(timestampDto);
+		when(ratingService.convertEntityToDto(ratingOne)).thenReturn(ratingDto);
+
+		DaySheetDto returnDto = daySheetService.convertDaySheetToDaySheetDto(daySheet);
+
+		assertEquals(daySheet.getId(), returnDto.getId());
+		assertEquals(daySheet.getDate(), returnDto.getDate());
+		assertEquals(daySheet.getDayNotes(), returnDto.getDay_notes());
+		assertEquals(daySheet.getConfirmed(), returnDto.getConfirmed());
+		assertEquals(daySheet.getTimestamps().size(), returnDto.getTimestamps().size());
+		assertEquals(daySheet.getTimestamps().getFirst().getId(), returnDto.getTimestamps().getFirst().getId());
+		assertEquals(daySheet.getMoodRatings().size(), returnDto.getMoodRatings().size());
+		assertEquals(daySheet.getMoodRatings().getFirst().getRating(),
+				returnDto.getMoodRatings().getFirst().getRating());
+		assertEquals(daySheet.getIncidents().size(), returnDto.getIncidents().size());
+		assertEquals(daySheet.getIncidents().getFirst().getId(), returnDto.getIncidents().getFirst().getId());
 	}
 }

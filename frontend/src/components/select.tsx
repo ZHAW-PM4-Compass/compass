@@ -4,7 +4,7 @@ export default function Select({ className, placeholder, name, data, required, v
   className?: string;
   placeholder?: string;
   name?: string
-  data: Array<{ id: string, label: string}>;
+  data: Array<{ id?: string, label?: string}>;
   required?: boolean;
   value?: string;
 }>) {
@@ -24,18 +24,25 @@ export default function Select({ className, placeholder, name, data, required, v
     setFocused(true);
   }
 
-  const isInSearch = (label: string) => {
-    return !search || label.toLowerCase().includes(search.toLowerCase());
+  const isInSearch = (label?: string) => {
+    return !search || label?.toLowerCase().includes(search.toLowerCase());
   }
 
-  const selectItem = (item: { id: string, label: string}) => {
+  const selectItem = (item: { id?: string, label?: string}) => {
     setFocused(false);
-    setSelected(item);
+    setSelected({
+      id: item.id || "",
+      label: item.label || ""
+    });
   }
 
   useEffect(() => {
     if (value) {
-      setSelected(data.find(item => item.id === value) || { id: "", label: "" });
+      const item = data.find(item => item.id === value);
+      setSelected({
+        id: item?.id || "",
+        label: item?.label || ""
+      });
     }
   }, [])
 

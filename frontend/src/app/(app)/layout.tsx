@@ -12,8 +12,8 @@ import WorkingHoursIcon from "@fluentui/svg-icons/icons/shifts_24_regular.svg";
 import WorkingHoursIconFilled from "@fluentui/svg-icons/icons/shifts_24_filled.svg";
 import MoodIcon from "@fluentui/svg-icons/icons/person_voice_24_regular.svg";
 import MoodIconFilled from "@fluentui/svg-icons/icons/person_voice_24_filled.svg";
-import IncidentIcon from "@fluentui/svg-icons/icons/alert_24_regular.svg";
-import IncidentIconFilled from "@fluentui/svg-icons/icons/alert_24_filled.svg";
+import IncidentIcon from "@fluentui/svg-icons/icons/channel_24_regular.svg";
+import IncidentIconFilled from "@fluentui/svg-icons/icons/channel_24_filled.svg";
 
 // social worker
 import WorkingHoursCheckIcon from "@fluentui/svg-icons/icons/shifts_checkmark_24_regular.svg";

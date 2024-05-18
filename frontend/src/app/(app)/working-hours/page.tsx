@@ -10,10 +10,10 @@ import { useEffect, useState } from "react";
 import { getDaySheetControllerApi, getTimestampControllerApi} from "@/openapi/connector";
 import Button from "@/components/button";
 import Modal from "@/components/modal";
-import type { CreateDaySheetRequest, CreateTimestampRequest, PutTimestampRequest, TimestampDto } from "@/openapi/compassClient";
 import toast from "react-hot-toast";
 import toastMessages from "@/constants/toastMessages";
 import { time } from "console";
+import { CreateDaySheetRequest, CreateTimestampRequest, DaySheetDto, TimestampDto } from "@/openapi/compassClient";
 
  // interfaces necessary for timestamp duration
  interface Daysheet {
@@ -52,7 +52,7 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
         endTime
     };
 
-    if (editedTimestamp.endTime <= editedTimestamp.startTime) {
+    if (editedTimestamp.endTime && editedTimestamp.startTime && editedTimestamp.endTime <= editedTimestamp.startTime) {
       toast.error(toastMessages.STARTTIME_AFTER_ENDTIME);
       return;
     }
@@ -91,7 +91,7 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
 
 
 export default function WorkingHoursPage() {
-  const [daySheet, setDaySheet] = useState<Daysheet>({ id: 0, date: new Date(), dayNotes: '', timestamps: [], timeSum: 0});
+  const [daySheet, setDaySheet] = useState<Daysheet>({ id: 0, date: new Date(), dayNotes: '', timestamps: [], timeSum: 0, confirmed: false });
   const [timestamp, setTimestamp] = useState<{ startTime: string; endTime: string;}>({ startTime: '', endTime: ''});
   const [selectedTimestamp, setSelectedTimestamp] = useState<Timestamp>();
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().slice(0, 10));
@@ -132,7 +132,7 @@ export default function WorkingHoursPage() {
 
 	const loadDaySheetByDate = (date: string) => {
 
-    getDaySheetControllerApi().getDaySheetDate({date: date}).then(daySheetDto => {
+    getDaySheetControllerApi().getDaySheetDate({date: date}).then((daySheetDto: DaySheetDto) => {
         const loadedDaySheet: Daysheet = {
           id: daySheetDto.id || 0,
           date: new Date(daySheetDto.date || ''),
@@ -166,7 +166,8 @@ export default function WorkingHoursPage() {
           date: new Date(),
           dayNotes: '',
           timestamps: [],
-          timeSum: 0
+          timeSum: 0,
+          confirmed: false
         };
         setDaySheet(emptyDaySheet);
      });     
@@ -177,7 +178,7 @@ export default function WorkingHoursPage() {
     e.preventDefault();
   
     // check if daysheet already exists
-    getDaySheetControllerApi().getDaySheetDate({date: selectedDate}).then(daySheetDto => {
+    getDaySheetControllerApi().getDaySheetDate({date: selectedDate}).then((daySheetDto: DaySheetDto) => {
       // add to existing
       if (daySheetDto && daySheetDto.id) {
         createNewTimestamp(daySheetDto.id);
@@ -193,7 +194,7 @@ export default function WorkingHoursPage() {
         }
       };
       
-      getDaySheetControllerApi().createDaySheet(creatDaySheetDto).then(createdDaySheet => {
+      getDaySheetControllerApi().createDaySheet(creatDaySheetDto).then((createdDaySheet: DaySheetDto) => {
         toast.success(toastMessages.DAYSHEET_CREATED)
         if (createdDaySheet && createdDaySheet.id) {
           createNewTimestamp(createdDaySheet.id);

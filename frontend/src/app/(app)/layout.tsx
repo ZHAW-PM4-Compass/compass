@@ -34,6 +34,7 @@ import MenuCloseIcon from "@fluentui/svg-icons/icons/dismiss_24_regular.svg";
 import Roles from "@/constants/roles";
 import { getUserControllerApi } from "@/openapi/connector";
 import type { UserDto } from "@/openapi/compassClient";
+import { Checkmark24Filled, Checkmark24Regular } from "@fluentui/react-icons";
 
 const SubTitle: React.FC<{ collapsed: boolean, label: string, withLine?: boolean }> = ({ collapsed, label, withLine }) => {
   return (
@@ -104,6 +105,20 @@ const Profile: React.FC<{user: any}> = ({ user }) => {
         <div id="profile-menu" className="left-5 sm:left-auto absolute top-20 right-5 px-8 py-7 bg-white rounded-3xl flex flex-col drop-shadow-lg">
           {user.given_name && user.family_name ? ( <span className="font-bold text-sm">{user.given_name} {user.family_name}</span> ) : null}
           <span className="mb-4 text-sm">{user.email}</span>
+          <div className="py-4 border-t-[1px] border-slate-200 text-sm">
+            <div>
+              <span className="font-bold inline-block">Systemstatus</span>
+              <span className="text-slate-500 cursor-pointer ml-2 text-[0.8rem] hover:underline">#h23as2f</span>
+              <div className="mt-1 flex flex-row">
+                <Checkmark24Filled className="w-5 h-5 text-green-500" />
+                <span className="block ml-2">Backend erreichbar</span>
+              </div>
+              <div className="flex flex-row">
+                <Checkmark24Filled className="w-5 h-5 text-green-500" />
+                <span className="block ml-2">Auth0 erreichbar</span>
+              </div>
+            </div>
+          </div>
           <a href="/api/auth/logout" className="pt-4 border-t-[1px] border-slate-200 text-sm hover:text-slate-600 duration-150">Logout</a>
         </div>
       )}

@@ -31,7 +31,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import ch.zhaw.pm4.compass.backend.UserRole;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
+import ch.zhaw.pm4.compass.backend.model.LocalUser;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
 import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
@@ -66,8 +68,8 @@ public class DaySheetControllerTest {
 	}
 
 	private DaySheet getDaySheet() {
-		return new DaySheet(1l, "auth0|2svwqwqwvp2qadcjl3409wdsu340fds3eu", reportText, dateNow, false,
-				new ArrayList<Timestamp>());
+		LocalUser user = new LocalUser("auth0|2svwqwqwvp2qadcjl3409wdsu340fds3eu", UserRole.PARTICIPANT);
+		return new DaySheet(1l, user, reportText, dateNow, false, new ArrayList<Timestamp>());
 	}
 
 	@Before()
@@ -114,7 +116,6 @@ public class DaySheetControllerTest {
 	@WithMockUser(username = "testuser", roles = {})
 	public void testDayAlreadyExists() throws Exception {
 		// Arrange
-
 		DaySheet daySheet = getDaySheet();
 		when(daySheetService.createDay(any(DaySheetDto.class), any(String.class))).thenReturn(null);
 
@@ -130,7 +131,6 @@ public class DaySheetControllerTest {
 	@WithMockUser(username = "testuser", roles = {})
 	void testUpdateDayNotes() throws Exception {
 		// Arrange
-
 		DaySheetDto updateDay = getUpdateDaySheet();
 		updateDay.setConfirmed(false);
 		when(daySheetService.updateDayNotes(any(UpdateDaySheetDayNotesDto.class), any(String.class)))
@@ -210,7 +210,7 @@ public class DaySheetControllerTest {
 		daySheets.add(day2);
 		when(daySheetService.getAllDaySheetByUser(any(String.class))).thenReturn(daySheets);
 		String res = mockMvc
-				.perform(get("/daysheet/getAllByParticipant/" + getDaySheet().getUserId())
+				.perform(get("/daysheet/getAllByParticipant/" + getDaySheet().getOwner().getId())
 						.contentType(MediaType.APPLICATION_JSON).with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 		assertEquals("[{\"id\":1,\"date\":\"" + dateNow.toString()

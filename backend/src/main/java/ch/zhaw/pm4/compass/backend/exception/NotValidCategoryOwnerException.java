@@ -1,9 +1,6 @@
 package ch.zhaw.pm4.compass.backend.exception;
 
 public class NotValidCategoryOwnerException extends Exception {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6583230349633757980L;
 
 	public NotValidCategoryOwnerException() {

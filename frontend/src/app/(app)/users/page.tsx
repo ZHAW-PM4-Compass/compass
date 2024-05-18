@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
 import toastMessages from "@/constants/toastMessages";
 import RoleTitles from "@/constants/roleTitles";
-import type { AuthZeroUserDtoRoleEnum, CreateUserRequest, UpdateUserRequest, UserDto } from "@/openapi/compassClient";
+import type { AuthZeroUserDtoRoleEnum, CreateAuthZeroUserDtoRoleEnum, CreateUserRequest, UpdateUserRequest, UserDto } from "@/openapi/compassClient";
 
 const roles = [
   {
@@ -48,7 +48,7 @@ function UserCreateModal({ close, onSave }: Readonly<{
         email: formData.get(formFields.EMAIL) as string,
         givenName: formData.get(formFields.GIVEN_NAME) as string,
         familyName: formData.get(formFields.FAMILY_NAME) as string,
-        role: formData.get(formFields.ROLE) as AuthZeroUserDtoRoleEnum,
+        role: formData.get(formFields.ROLE) as CreateAuthZeroUserDtoRoleEnum,
         password: formData.get(formFields.PASSWORD) as string
       }
     };

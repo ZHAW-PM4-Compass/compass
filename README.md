@@ -1,4 +1,14 @@
 [![Build, Push and Deploy - Production](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd-prod.yml/badge.svg)](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd-prod.yml) [![Build, Push and Deploy - Staging](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd-staging.yml/badge.svg)](https://github.com/ZHAW-PM4-Compass/compass/actions/workflows/ci-cd-staging.yml)
+
+[![Quality Gate Status](https://sonarqube-compass.pm4.init-lab.ch/api/project_badges/measure?project=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR&metric=alert_status&token=sqb_e853b3dbfe820eb2a0ef7f2382504bf216db9cb5)](https://sonarqube-compass.pm4.init-lab.ch/dashboard?id=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR)
+[![Bugs](https://sonarqube-compass.pm4.init-lab.ch/api/project_badges/measure?project=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR&metric=bugs&token=sqb_e853b3dbfe820eb2a0ef7f2382504bf216db9cb5)](https://sonarqube-compass.pm4.init-lab.ch/dashboard?id=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR)
+[![Vulnerabilities](https://sonarqube-compass.pm4.init-lab.ch/api/project_badges/measure?project=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR&metric=vulnerabilities&token=sqb_e853b3dbfe820eb2a0ef7f2382504bf216db9cb5)](https://sonarqube-compass.pm4.init-lab.ch/dashboard?id=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR)
+[![Lines of Code](https://sonarqube-compass.pm4.init-lab.ch/api/project_badges/measure?project=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR&metric=ncloc&token=sqb_e853b3dbfe820eb2a0ef7f2382504bf216db9cb5)](https://sonarqube-compass.pm4.init-lab.ch/dashboard?id=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR)
+[![Security Rating](https://sonarqube-compass.pm4.init-lab.ch/api/project_badges/measure?project=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR&metric=security_rating&token=sqb_e853b3dbfe820eb2a0ef7f2382504bf216db9cb5)](https://sonarqube-compass.pm4.init-lab.ch/dashboard?id=ZHAW-PM4-Compass_compass_AY9s1cSxfbchvYxrftSR)
+[![Coverage](https://codecov.io/gh/ZHAW-PM4-Compass/compass/graph/badge.svg?token=DN7OLQH1TA)](https://codecov.io/gh/ZHAW-PM4-Compass/compass)
+
+
+
 # Compass 🧭
 Compass is a web application for the Stadtmuur organization, which allows the participants to record their working hours, track their mood, track exceptional incidents, create daily reports and visualize this information.
 

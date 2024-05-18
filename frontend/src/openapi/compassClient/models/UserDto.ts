@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { DaySheetDto } from './DaySheetDto';
+import {
+    DaySheetDtoFromJSON,
+    DaySheetDtoFromJSONTyped,
+    DaySheetDtoToJSON,
+} from './DaySheetDto';
+
 /**
  * 
  * @export
@@ -43,6 +50,12 @@ export interface UserDto {
      * @memberof UserDto
      */
     userId?: string;
+    /**
+     * 
+     * @type {Array<DaySheetDto>}
+     * @memberof UserDto
+     */
+    daySheets?: Array<DaySheetDto>;
     /**
      * 
      * @type {string}
@@ -91,6 +104,7 @@ export function UserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): U
         'givenName': json['given_name'] == null ? undefined : json['given_name'],
         'familyName': json['family_name'] == null ? undefined : json['family_name'],
         'userId': json['user_id'] == null ? undefined : json['user_id'],
+        'daySheets': json['daySheets'] == null ? undefined : ((json['daySheets'] as Array<any>).map(DaySheetDtoFromJSON)),
         'role': json['role'] == null ? undefined : json['role'],
         'deleted': json['deleted'] == null ? undefined : json['deleted'],
     };
@@ -106,6 +120,7 @@ export function UserDtoToJSON(value?: UserDto | null): any {
         'given_name': value['givenName'],
         'family_name': value['familyName'],
         'user_id': value['userId'],
+        'daySheets': value['daySheets'] == null ? undefined : ((value['daySheets'] as Array<any>).map(DaySheetDtoToJSON)),
         'role': value['role'],
         'deleted': value['deleted'],
     };

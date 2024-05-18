@@ -2,10 +2,15 @@ package ch.zhaw.pm4.compass.backend.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -16,14 +21,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import ch.zhaw.pm4.compass.backend.RatingType;
 import ch.zhaw.pm4.compass.backend.UserRole;
 import ch.zhaw.pm4.compass.backend.exception.CategoryAlreadyExistsException;
 import ch.zhaw.pm4.compass.backend.exception.GlobalCategoryException;
 import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
+import ch.zhaw.pm4.compass.backend.exception.UserIsNotParticipantException;
 import ch.zhaw.pm4.compass.backend.model.Category;
+import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.LocalUser;
+import ch.zhaw.pm4.compass.backend.model.Rating;
 import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
+import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
 import ch.zhaw.pm4.compass.backend.model.dto.ParticipantDto;
+import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
 import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
 import ch.zhaw.pm4.compass.backend.repository.CategoryRepository;
 
@@ -32,6 +43,8 @@ public class CategoryServiceTest {
 	private CategoryRepository categoryRepository;
 	@Mock
 	private UserService userService;
+	@Mock
+	private DaySheetService daySheetService;
 
 	@InjectMocks
 	private CategoryService categoryService;
@@ -51,13 +64,14 @@ public class CategoryServiceTest {
 	private int minValue = 1;
 	private int maxValue = 10;
 
-	private List<LocalUser> ownersEmpty = new ArrayList<>();
+	private List<LocalUser> ownersEmpty = List.of();
 	private List<LocalUser> ownersFull = new ArrayList<>();
-	private List<ParticipantDto> ownersDtoEmpty = new ArrayList<>();
+	private List<ParticipantDto> ownersDtoEmpty = List.of();
 	private List<ParticipantDto> ownersDtoFull = new ArrayList<>();
+	private List<RatingDto> moodRatingsEmpty = List.of();
 
 	private CategoryDto getCategoryDto() {
-		return new CategoryDto(categoryId, categoryName, minValue, maxValue, ownersDtoEmpty);
+		return new CategoryDto(categoryId, categoryName, minValue, maxValue, ownersDtoEmpty, moodRatingsEmpty);
 	}
 
 	private Category getCategory() throws NotValidCategoryOwnerException {
@@ -148,7 +162,7 @@ public class CategoryServiceTest {
 	@Test
 	public void whenLinkingUsersToExistingPersonalCategory_expectSuccessfulLinking()
 			throws NotValidCategoryOwnerException, CategoryAlreadyExistsException, GlobalCategoryException {
-		String partID = "secodn particip";
+		String partID = "second particip";
 		CategoryDto linkCategory = getCategoryDto();
 		ownersDtoFull.add(new ParticipantDto(partID));
 		linkCategory.setCategoryOwners(ownersDtoFull);
@@ -176,5 +190,80 @@ public class CategoryServiceTest {
 			assertEquals(linkCategory.getCategoryOwners().get(i).getId(),
 					resultCategory.getCategoryOwners().get(i).getId());
 		}
+	}
+
+	@Test
+	public void whenGettingCategoryListByUserId_expectGlobalAndPersonalCategories()
+			throws NotValidCategoryOwnerException, UserIsNotParticipantException {
+		Category categoryGlobal = getCategory();
+		CategoryDto categoryGlobalDto = getCategoryDto();
+
+		Category categoryPersonal = getCategory();
+		categoryPersonal.setId(2l);
+		categoryPersonal.setName(categoryName + " Special");
+		categoryPersonal.setCategoryOwners(ownersFull);
+		CategoryDto categoryPersonalDto = getCategoryDto();
+		categoryPersonalDto.setId(2l);
+		categoryPersonalDto.setName(categoryName + " Special");
+		categoryPersonalDto.setCategoryOwners(List.of());
+
+		ArrayList<Category> globalCategories = new ArrayList<>();
+		ArrayList<Category> personalCategories = new ArrayList<>();
+		globalCategories.add(categoryGlobal);
+		personalCategories.add(categoryPersonal);
+
+		List<CategoryDto> expectedCategories = List.of(categoryGlobalDto, categoryPersonalDto);
+
+		when(userService.getLocalUser(any(String.class))).thenReturn(categoryPersonal.getCategoryOwners().getFirst());
+		when(categoryRepository.findGlobalCategories()).thenReturn(globalCategories);
+		when(categoryRepository.findAllByCategoryOwners(categoryPersonal.getCategoryOwners().getFirst()))
+				.thenReturn(personalCategories);
+
+		List<CategoryDto> isList = categoryService
+				.getCategoryListByUserId(categoryPersonal.getCategoryOwners().getFirst().getId());
+
+		assertEquals(expectedCategories, isList);
+	}
+
+	@Test
+	public void whenGettingCategoryListOfNonParticipant_expectException() {
+		LocalUser user = new LocalUser("test", UserRole.SOCIAL_WORKER);
+
+		when(userService.getLocalUser(any(String.class))).thenReturn(user);
+
+		assertThrows(UserIsNotParticipantException.class, () -> categoryService.getCategoryListByUserId("test"));
+	}
+
+	@Test
+	public void whenConvertingCategoryToDto_expectRatingFlagToBeRespected() throws NotValidCategoryOwnerException {
+		Category categoryUnderTest = getCategory();
+		Rating ratingOne = new Rating(5, RatingType.PARTICIPANT);
+		Rating ratingTwo = new Rating(6, RatingType.SOCIAL_WORKER);
+		List<Rating> ratingList = Arrays.asList(ratingOne, ratingTwo);
+		categoryUnderTest.setMoodRatings(ratingList);
+
+		DaySheet daySheet = new DaySheet(1l, "notes", LocalDate.now(), false);
+		ratingOne.setDaySheet(daySheet);
+		ratingTwo.setDaySheet(daySheet);
+		DaySheetDto daySheetDto = new DaySheetDto(1l, "notes", LocalDate.now(), false);
+
+		when(daySheetService.convertDaySheetToDaySheetDto(any(DaySheet.class))).thenReturn(daySheetDto);
+
+		CategoryDto dtoOne = categoryService.convertEntityToDto(categoryUnderTest, false);
+		CategoryDto dtoTwo = categoryService.convertEntityToDto(categoryUnderTest, true);
+
+		assertEquals(dtoOne.getId(), dtoTwo.getId(), categoryUnderTest.getId());
+		assertEquals(dtoOne.getName(), dtoTwo.getName(), categoryUnderTest.getName());
+		assertEquals(dtoOne.getMinimumValue(), dtoTwo.getMinimumValue(), categoryUnderTest.getMinimumValue());
+		assertEquals(dtoOne.getMaximumValue(), dtoTwo.getMaximumValue(), categoryUnderTest.getMaximumValue());
+		assertTrue(dtoOne.getMoodRatings().size() == 0);
+		assertTrue(dtoTwo.getMoodRatings().size() == ratingList.size());
+
+		List<RatingDto> ratingListDto = dtoTwo.getMoodRatings();
+		for (int i = 0; i < ratingList.size(); i++) {
+			assertEquals(ratingList.get(i).getRating(), ratingListDto.get(i).getRating());
+			assertEquals(ratingList.get(i).getRatingRole(), ratingListDto.get(i).getRatingRole());
+		}
+		verify(daySheetService, times(2)).convertDaySheetToDaySheetDto(any(DaySheet.class));
 	}
 }

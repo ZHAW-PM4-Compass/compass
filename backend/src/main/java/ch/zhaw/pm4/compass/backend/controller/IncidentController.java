@@ -1,19 +1,26 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
-import ch.zhaw.pm4.compass.backend.UserRole;
-import ch.zhaw.pm4.compass.backend.exception.*;
-import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
-import ch.zhaw.pm4.compass.backend.model.dto.IncidentDto;
-import ch.zhaw.pm4.compass.backend.service.IncidentService;
-import io.swagger.v3.oas.annotations.media.SchemaProperties;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import ch.zhaw.pm4.compass.backend.exception.DaySheetNotFoundException;
+import ch.zhaw.pm4.compass.backend.exception.IncidentNotFoundException;
+import ch.zhaw.pm4.compass.backend.model.dto.IncidentDto;
+import ch.zhaw.pm4.compass.backend.service.IncidentService;
+import io.swagger.v3.oas.annotations.media.SchemaProperties;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Incident Controller", description = "Incident Enpoint")
 @RestController

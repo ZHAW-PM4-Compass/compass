@@ -75,7 +75,7 @@ public class CategoryService {
 		return Stream.concat(StreamSupport.stream(globalCategories.spliterator(), false),
 				StreamSupport.stream(userCategories.spliterator(), false)).map(i -> {
 					CategoryDto categoryDto = convertEntityToDto(i, false);
-					categoryDto.setCategoryOwners(null);
+					categoryDto.setCategoryOwners(List.of());
 					return categoryDto;
 				}).toList();
 	}
@@ -93,12 +93,13 @@ public class CategoryService {
 				.map(t -> new ParticipantDto(t.getId())).toList();
 		CategoryDto dto = new CategoryDto(entity.getId(), entity.getName(), entity.getMinimumValue(),
 				entity.getMaximumValue(), categoryOwnersDto);
+		List<RatingDto> ratingDtoList = List.of();
 		if (withRatings) {
-			List<RatingDto> ratingDtoList = entity.getMoodRatings().stream().map(i -> new RatingDto(dto,
+			ratingDtoList = entity.getMoodRatings().stream().map(i -> new RatingDto(dto,
 					daySheetService.convertDaySheetToDaySheetDto(i.getDaySheet()), i.getRating(), i.getRatingRole()))
 					.toList();
-			dto.setMoodRatings(ratingDtoList);
 		}
+		dto.setMoodRatings(ratingDtoList);
 		return dto;
 	}
 }

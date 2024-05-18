@@ -81,7 +81,7 @@ public class TimestampController {
 	}
 
 	@DeleteMapping(path = "/{id}")
-	public ResponseEntity deleteTimestamp(@PathVariable Long id, Authentication authentication) {
+	public ResponseEntity<Object> deleteTimestamp(@PathVariable Long id, Authentication authentication) {
 		TimestampDto timestamp = timestampService.getTimestampById(id, authentication.getName());
 		DaySheetDto daySheet = daySheetService.getDaySheetByIdAndUserId(timestamp.getDay_sheet_id(),
 				authentication.getName());

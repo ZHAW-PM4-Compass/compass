@@ -196,7 +196,7 @@ public class RatingServiceTest {
 		when(daySheetRepository.findById(any(Long.class))).thenReturn(Optional.empty());
 
 		assertThrows(DaySheetNotFoundException.class,
-				() -> ratingService.recordCategoryRatings(categoriesWithRatings, 1L, userId, false));
+				() -> ratingService.recordCategoryRatings(categoriesWithRatings, 1l, userId, false));
 	}
 
 	@Test
@@ -207,7 +207,7 @@ public class RatingServiceTest {
 		when(daySheetRepository.findById(any(Long.class))).thenReturn(Optional.of(daySheet));
 
 		assertThrows(TooManyRatingsPerCategoryException.class,
-				() -> ratingService.recordCategoryRatings(categoriesWithRatings, 1L, userId, false));
+				() -> ratingService.recordCategoryRatings(categoriesWithRatings, 1l, userId, false));
 	}
 
 	@Test
@@ -218,7 +218,7 @@ public class RatingServiceTest {
 		when(daySheetRepository.findById(any(Long.class))).thenReturn(Optional.of(daySheet));
 
 		assertThrows(UserNotOwnerOfDaySheetException.class,
-				() -> ratingService.recordCategoryRatings(categoriesWithRatings, 1L, userId + "test", false));
+				() -> ratingService.recordCategoryRatings(categoriesWithRatings, 1l, userId + "test", false));
 
 	}
 
@@ -233,7 +233,7 @@ public class RatingServiceTest {
 		when(daySheetRepository.findById(any(Long.class))).thenReturn(Optional.of(daySheet));
 		doReturn(ratingOneCategoryGlobalDto).when(ratingService).createRating(any(RatingDto.class));
 
-		ratingService.recordCategoryRatings(categoriesWithRatings, 1L, userId, false);
+		ratingService.recordCategoryRatings(categoriesWithRatings, 1l, userId, false);
 
 		verify(ratingService, times(2)).createRating(any(RatingDto.class));
 	}

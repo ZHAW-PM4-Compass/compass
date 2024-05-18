@@ -113,14 +113,16 @@ class DaySheetServiceTest {
 
 	@Test
 	public void testGetAllDaySheetByUserAndMonth() {
-		DaySheet day1 = new DaySheet(1l, user_id, reportText, dateNow, true, new ArrayList<>());
-		DaySheet day2 = new DaySheet(2l, user_id, reportText, dateNow.plusDays(1), true, new ArrayList<>());
+		LocalUser user = new LocalUser(user_id, UserRole.PARTICIPANT);
+
+		DaySheet day1 = new DaySheet(1l, user, reportText, dateNow, true, new ArrayList<>());
+		DaySheet day2 = new DaySheet(2l, user, reportText, dateNow.plusDays(1), true, new ArrayList<>());
 		LocalDate monthFirst = dateNow.withDayOfMonth(1);
 		LocalDate monthLast = dateNow.withDayOfMonth(dateNow.lengthOfMonth());
 
 		List<DaySheet> jpaResponse = Arrays.asList(day1, day2);
 
-		when(daySheetRepository.findAllByUserIdAndDateBetween(user_id, monthFirst, monthLast)).thenReturn(jpaResponse);
+		when(daySheetRepository.findAllByOwnerIdAndDateBetween(user_id, monthFirst, monthLast)).thenReturn(jpaResponse);
 		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetByUserAndMonth(user_id, YearMonth.from(monthFirst));
 
 		assertEquals(jpaResponse.size(), daySheets.size());

@@ -28,6 +28,11 @@ spec:
                 configMapKeyRef:
                   name: compass-configmap
                   key: APP_URL
+            - name: SWAGGER_UI_ON
+              valueFrom:
+                configMapKeyRef:
+                  name: compass-configmap
+                  key: SWAGGER_UI_ON 
             - name: DOCKER_ON
               valueFrom:
                 configMapKeyRef:

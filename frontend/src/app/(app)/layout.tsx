@@ -175,15 +175,15 @@ export default function RootLayout({
             )}
           </div>
         </div>
-        <div className="grow z-10 pt-20 lg:pt-0 bg-slate-100 h-full">
+        <div className="grow pt-20 z-10 lg:pt-0 bg-slate-100 h-full">
           <div className="w-full h-full lg:container lg:mx-auto px-5 lg:pt-24 pb-16">
             <div className="h-full w-full">
-            {children}
-            {
-              user && (
-                <Profile user={user} />
-              )
-            }
+              {children}
+              {
+                user && (
+                  <Profile user={user} />
+                )
+              }
             </div>
           </div>
         </div>

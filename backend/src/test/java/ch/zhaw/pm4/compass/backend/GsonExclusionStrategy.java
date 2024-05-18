@@ -7,7 +7,7 @@ public class GsonExclusionStrategy implements ExclusionStrategy {
     @Override
     public boolean shouldSkipField(FieldAttributes f) {
         // Exclude fields based on the field name
-        return f.getName().equals("daySheets") || f.getName().equals("date");
+        return f.getName().equals("date");
     }
 
     @Override

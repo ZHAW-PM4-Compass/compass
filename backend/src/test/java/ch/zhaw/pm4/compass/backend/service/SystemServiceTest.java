@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doThrow;
 
-@Service
 public class SystemServiceTest {
     @Mock
     private UserService userService;

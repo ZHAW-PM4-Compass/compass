@@ -43,7 +43,6 @@ import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 @AutoConfigureMockMvc
 @ContextConfiguration
 public class DaySheetControllerTest {
-
 	@Autowired
 	MockMvc mockMvc;
 	@Autowired

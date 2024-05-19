@@ -1,4 +1,5 @@
 import { getFormattedDate } from "@/utils/date"
+import Loading from "./loading"
 
 const Header = ({ columns }: Readonly<{
   columns: Array<{ header: string, title?: string }>
@@ -48,18 +49,43 @@ const Item = ({ itemIndex, item, columns, actions }: Readonly<{
   )
 }
 
-export default function Table({ className, data, columns, actions }: Readonly<{
+export default function Table({ className, data, columns, actions, loading }: Readonly<{
   className?: string,
   data: Array<any>,
   columns: Array<{ header: string, title?: string, titleFunction?: ((value: any) => React.ReactNode) | undefined }>
   actions?: Array<{ icon: any, label?: string, onClick: (id: number) => void, hide?: (id: number) => boolean }>
+  loading?: boolean
 }>) {
   return (
     <div className="overflow-auto">
       <table className={`table-auto w-full rounded-lg overflow-hidden ${className}`}>
         <Header columns={columns}></Header>
         <tbody>
-          {data && data.map((item,index) => {
+          {loading && (
+            <>
+              <tr>
+                <td 
+                  colSpan={columns.length + 1} 
+                  className="border-t-4 border-slate-100 bg-white h-20"
+                >
+                  <Loading />
+                </td>
+              </tr>
+            </>
+          )}
+          {!loading && data && data.length === 0 && (
+            <>
+              <tr>
+                <td 
+                  colSpan={columns.length + 1} 
+                  className="border-t-4 border-slate-100 bg-white h-20 text-center text-sm"
+                >
+                  Keine Daten gefunden
+                </td>
+              </tr>
+            </>
+          )}
+          {!loading && data && data.map((item,index) => {
             return (<Item key={index} itemIndex={index} item={item} columns={columns} actions={actions}></Item>)
           })}
         </tbody>

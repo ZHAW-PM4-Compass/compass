@@ -12,8 +12,8 @@ import WorkingHoursIcon from "@fluentui/svg-icons/icons/shifts_24_regular.svg";
 import WorkingHoursIconFilled from "@fluentui/svg-icons/icons/shifts_24_filled.svg";
 import MoodIcon from "@fluentui/svg-icons/icons/person_voice_24_regular.svg";
 import MoodIconFilled from "@fluentui/svg-icons/icons/person_voice_24_filled.svg";
-import IncidentIcon from "@fluentui/svg-icons/icons/channel_24_regular.svg";
-import IncidentIconFilled from "@fluentui/svg-icons/icons/channel_24_filled.svg";
+import IncidentIcon from "@fluentui/svg-icons/icons/alert_24_regular.svg";
+import IncidentIconFilled from "@fluentui/svg-icons/icons/alert_24_filled.svg";
 
 // social worker
 import WorkingHoursCheckIcon from "@fluentui/svg-icons/icons/shifts_checkmark_24_regular.svg";
@@ -219,11 +219,11 @@ export default function RootLayout({
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursIcon} iconActive={WorkingHoursIconFilled} label="Arbeitszeit" route="/working-hours" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={CategoryIcon} iconActive={CategoryIconFilled} label="Stimmung" route="/categories" />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
 
             {backendUser && (backendUser.role === Roles.SOCIAL_WORKER || backendUser.role === Roles.ADMIN) && (
               <>
                 <SubTitle collapsed={!menuOpen} label="Sozialarbeiter" withLine={true} />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Arbeitszeit" route="/select-user" />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={OverviewIcon} iconActive={OverviewIconFilled} label="Übersicht" route="/overview" />
               </>

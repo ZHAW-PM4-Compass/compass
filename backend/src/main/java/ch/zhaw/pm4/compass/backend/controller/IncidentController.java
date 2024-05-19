@@ -54,6 +54,6 @@ public class IncidentController {
 
 	@GetMapping(path = "/getAll", produces = "application/json")
 	public ResponseEntity<List<IncidentDto>> getAllIncidents(Authentication authentication) {
-		return ResponseEntity.ok(incidentService.getAll(authentication.getName()));
+		return ResponseEntity.ok(incidentService.getAll());
 	}
 }

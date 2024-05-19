@@ -6,8 +6,8 @@ import { getMiddleWareControllerApi } from "./openapi/connector";
 const defaultRole = Roles.ADMIN;
 
 const homeRoute = "/home";
-const participantRoutes = ["/incidents", "/moods", "/working-hours"];
-const socialWorkerRoutes = ["/working-hours-check", "/overview"];
+const participantRoutes = ["/moods", "/working-hours"];
+const socialWorkerRoutes = ["/working-hours-check", "/incidents", "/overview"];
 const adminRoutes = ["/users"];
 
 export default withMiddlewareAuthRequired(async (request: NextRequest) => {

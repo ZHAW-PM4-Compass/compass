@@ -7,7 +7,7 @@ import Modal from "@/components/modal";
 import Table from "@/components/table";
 import Title1 from "@/components/title1";
 import Roles from "@/constants/roles";
-import { Delete24Regular, Edit24Regular, Save24Regular, ChannelAdd24Regular } from "@fluentui/react-icons";
+import { Delete24Regular, Edit24Regular, Save24Regular, ChannelAdd24Regular, Add24Regular } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
 import toastMessages from "@/constants/toastMessages";
@@ -46,15 +46,17 @@ function IncidentCreateModal({ close, onSave, userId, partSelectActive, particip
         }
       }
     };
-  
-    getIncidentControllerApi().createIncident(createIncidentRequest).then(() => {
+
+    const createAction = () => getIncidentControllerApi().createIncident(createIncidentRequest).then(() => {
       close();
       onSave();
-      toast.success(toastMessages.INCIDENT_CREATED);
-    }).catch(error => {
-      console.error(error);
-      toast.error(toastMessages.INCIDENT_NOT_CREATED);
     })
+
+    toast.promise(createAction(), {
+      loading: toastMessages.CREATING,
+      success: toastMessages.INCIDENT_CREATED,
+      error: toastMessages.INCIDENT_NOT_CREATED,
+    });
   }
 
   const participantsData = participants?.map(participant => ({ 
@@ -121,13 +123,16 @@ function IncidentUpdateModal({ close, onSave, incidentDto, partSelectActive }: R
       }
     };
 
-    getIncidentControllerApi().updateIncident(updateIncidentRequest).then(() => {
+    const updateAction = () => getIncidentControllerApi().updateIncident(updateIncidentRequest).then(() => {
       close();
       onSave();
-      toast.success(toastMessages.INCIDENT_UPDATED);
-    }).catch(error => {
-      toast.error(toastMessages.INCIDENT_NOT_UPDATED);
     })
+
+    toast.promise(updateAction(), {
+      loading: toastMessages.UPDATING,
+      success: toastMessages.INCIDENT_UPDATED,
+      error: toastMessages.INCIDENT_NOT_UPDATED,
+    });
   }
 
   return (
@@ -154,40 +159,36 @@ function IncidentUpdateModal({ close, onSave, incidentDto, partSelectActive }: R
 }
 
 export default function IncidentsPage() {
+  const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [partSelectActive, setPartSelectActive] = useState(true);
   const [incidents, setIncidents] = useState<IncidentDto[]>([]);
 	const [selectedIncident, setSelectedIncident] = useState<IncidentDto>();
-  const [tableColumns, setTableColumns] = useState<{ header: string, title?: string, titleFunction?: ((value: any) => React.ReactNode) | undefined }[]>([
-      {
-        header: "Datum",
-        title: "date"
-      },
-      {
-        header: "Titel",
-        title: "title"
-      }
-    ]);
   const [userId, setUserId] = useState("");
   const [participants, setParticipants] = useState<UserDto[]>([]);
 
   const { user } = useUser();
 
 	const loadIncidents = () => {
+    setLoading(true);
     getIncidentControllerApi().getAllIncidents().then(incidentDtos => {
       setIncidents(incidentDtos);
+      setLoading(false);
     }).catch(() => {
       toast.error(toastMessages.INCIDENTS_NOT_LOADED)
     });
 	}
 
   const deleteIncident = (id: number) => {
-    getIncidentControllerApi().deleteIncident({ id }).then(() => {
+    const deleteAction = () => getIncidentControllerApi().deleteIncident({ id }).then(() => {
       loadIncidents();
-      toast.success(toastMessages.INCIDENT_DELETED);
-    }).catch(() => {
-      toast.error(toastMessages.INCIDENT_NOT_DELETED);
+    })
+
+    toast.promise(deleteAction(), {
+      loading: toastMessages.DELETING,
+      success: toastMessages.INCIDENT_DELETED,
+      error: toastMessages.INCIDENT_NOT_DELETED,
     });
   }
 
@@ -199,20 +200,6 @@ export default function IncidentsPage() {
         getUserControllerApi().getAllParticipants().then(participants => {
           setParticipants(participants);
         });
-        setTableColumns([
-          {
-            header: "Datum",
-            title: "date"
-          },
-          {
-            header: "Titel",
-            title: "title"
-          },
-          {
-            header: "Teilnehmer",
-            titleFunction: (incident: IncidentDto) => incident.user?.email
-          }
-        ]);
       }
     });
     loadIncidents();
@@ -239,12 +226,25 @@ export default function IncidentsPage() {
         <div className="flex flex-col sm:flex-row justify-between mb-5">
           <Title1>Vorfälle</Title1>
           <div className="mt-2 sm:mt-0">
-            <Button Icon={ChannelAdd24Regular} onClick={() => setShowCreateModal(true)}>Erstellen</Button>
+            <Button Icon={Add24Regular} onClick={() => setShowCreateModal(true)}>Erstellen</Button>
           </div>
         </div>
         <Table
           data={incidents}
-          columns={tableColumns}
+          columns={[
+            {
+              header: "Datum",
+              title: "date"
+            },
+            {
+              header: "Titel",
+              title: "title"
+            },
+            {
+              header: "Teilnehmer",
+              titleFunction: (incident: IncidentDto) => incident.user?.email
+            }
+          ]}
           actions={[
             {
               icon: Delete24Regular,
@@ -261,7 +261,8 @@ export default function IncidentsPage() {
 			  				setShowUpdateModal(true);
 			  			}
             }
-          ]} />
+          ]}
+          loading={loading}/>
       </div>
     </>
   );

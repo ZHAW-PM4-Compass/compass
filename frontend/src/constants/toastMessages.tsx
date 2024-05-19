@@ -1,5 +1,8 @@
 enum toastMessages {
-  DATA_NOT_LOADED = "Daten konnten nicht geladen werden",
+  CREATING = "Wird erstellt...",
+  UPDATING = "Wird aktualisiert...",
+  DELETING = "Wird gelöscht...",
+
   DAYSHEETS_LOADED = "DaySheets wurden geladen",
   DAYSHEET_CONFIRMED = "DaySheet wurde bestätigt",
   DAYSHEET_CONFIRMED_ERROR = "DaySheet konnte nicht bestätigt werden",

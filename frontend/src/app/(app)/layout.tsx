@@ -110,7 +110,7 @@ const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: 
         <div id="profile-menu" className="left-5 sm:left-auto absolute top-20 right-5 px-8 py-7 bg-white rounded-3xl flex flex-col drop-shadow-lg">
           {user?.given_name && user?.family_name ? ( <span className="font-bold text-sm">{user?.given_name} {user?.family_name}</span> ) : null}
           <span className="mb-4 text-sm">{user?.email}</span>
-          {userRole === Roles.ADMIN && (
+          {userRole === Roles.ADMIN || !userRole && (
             <div className="py-4 border-t-[1px] border-slate-200 text-sm">
               <div>
                 <span className="font-bold inline-block">Systemstatus</span>

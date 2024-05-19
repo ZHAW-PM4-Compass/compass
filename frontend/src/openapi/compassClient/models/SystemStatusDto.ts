@@ -27,12 +27,6 @@ export interface SystemStatusDto {
     commitId?: string;
     /**
      * 
-     * @type {string}
-     * @memberof SystemStatusDto
-     */
-    commitTime?: string;
-    /**
-     * 
      * @type {boolean}
      * @memberof SystemStatusDto
      */
@@ -69,7 +63,6 @@ export function SystemStatusDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
     return {
         
         'commitId': json['commitId'] == null ? undefined : json['commitId'],
-        'commitTime': json['commitTime'] == null ? undefined : json['commitTime'],
         'backendIsReachable': json['backendIsReachable'] == null ? undefined : json['backendIsReachable'],
         'databaseIsReachable': json['databaseIsReachable'] == null ? undefined : json['databaseIsReachable'],
         'auth0IsReachable': json['auth0IsReachable'] == null ? undefined : json['auth0IsReachable'],
@@ -83,7 +76,6 @@ export function SystemStatusDtoToJSON(value?: SystemStatusDto | null): any {
     return {
         
         'commitId': value['commitId'],
-        'commitTime': value['commitTime'],
         'backendIsReachable': value['backendIsReachable'],
         'databaseIsReachable': value['databaseIsReachable'],
         'auth0IsReachable': value['auth0IsReachable'],

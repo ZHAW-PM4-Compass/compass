@@ -20,15 +20,12 @@ public class SystemController {
     @Value("${git.commit.id:unknown}")
     private String commitId;
 
-    @Value("${git.commit.time:unknown}")
-    private String commitTime;
-
     @GetMapping("/status")
     public ResponseEntity<SystemStatusDto> getStatus() {
         boolean backendIsReachable = systemService.isBackendReachable();
         boolean databaseIsReachable = systemService.isDatabaseReachable();
         boolean auth0IsReachable = systemService.isAuth0Reachable();
 
-        return ResponseEntity.ok(new SystemStatusDto(commitId, commitTime, backendIsReachable, databaseIsReachable, auth0IsReachable));
+        return ResponseEntity.ok(new SystemStatusDto(commitId, backendIsReachable, databaseIsReachable, auth0IsReachable));
     }
 }

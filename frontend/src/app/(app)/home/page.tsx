@@ -23,7 +23,7 @@ export default function IncidentsPage() {
             : <Title1>Willkommen! 👋🏼</Title1>
           }
           <p className="font-light mt-4 mb-4 lg:mb-0">
-            Dies ist die Applikation der Stadtmuur für die Erfassung von Arbeitszeiten, der Stimmung und von Vorfällen.
+            Dies ist die Applikation der Stadtmuur für die Erfassung von Arbeitszeiten und der Stimmung.
           </p>
         </div>
         <span 

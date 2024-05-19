@@ -17,10 +17,10 @@ public class SystemController {
     @Autowired
     private SystemService systemService;
 
-    @Value("${git.commit.id}")
+    @Value("${git.commit.id:unknown}")
     private String commitId;
 
-    @Value("${git.commit.time}")
+    @Value("${git.commit.time:unknown}")
     private String commitTime;
 
     @GetMapping("/status")

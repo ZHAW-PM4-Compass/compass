@@ -25,7 +25,7 @@ import ch.zhaw.pm4.compass.backend.service.UserService;
 import io.swagger.v3.oas.annotations.media.SchemaProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "Rating Controller", description = "Rating Enpoint")
+@Tag(name = "Rating Controller", description = "Rating Endpoint")
 @RestController
 @RequestMapping("/rating")
 public class RatingController {

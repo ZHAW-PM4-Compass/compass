@@ -2,6 +2,7 @@ enum toastMessages {
   CREATING = "Wird erstellt...",
   UPDATING = "Wird aktualisiert...",
   DELETING = "Wird gelöscht...",
+  RESTORING = "Wird wiederhergestellt...",
 
   DAYSHEETS_LOADED = "DaySheets wurden geladen",
   DAYSHEET_CONFIRMED = "DaySheet wurde bestätigt",
@@ -13,7 +14,6 @@ enum toastMessages {
   TIMESTAMP_NOT_UPDATED = "Timestamp konnte nicht aktualisiert werden",
   TIMESTAMP_DELETED = "Timestamp wurde gelöscht",
   TIMESTAMP_NOT_DELETED = "Timestamp konnte nicth gelöscht werden",
-  INCIDENTS_LOADED = "Vorfälle wurden geladen",
   INCIDENTS_NOT_LOADED = "Vorfälle konnten nicht geladen werden",
   INCIDENT_CREATED = "Vorfall erstellt",
   INCIDENT_NOT_CREATED = "Vorfall konnte nicht erstellt werden",
@@ -21,6 +21,7 @@ enum toastMessages {
   INCIDENT_NOT_UPDATED = "Vorfall konnte nicht aktualisiert werden",
   INCIDENT_DELETED = "Vorfall gelöscht",
   INCIDENT_NOT_DELETED = "Vorfall konnte nicht gelöscht werden",
+  USERS_NOT_LOADED = "User konnten nicht geladen werden",
   USER_CREATED = "User erstellt",
   USER_NOT_SELECTED = "Kein User selektiert",
   USER_NOT_CREATED = "User konnte nicht erstellt werden",

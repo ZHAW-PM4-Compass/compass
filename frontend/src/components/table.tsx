@@ -80,7 +80,7 @@ export default function Table({ className, data, columns, actions, loading }: Re
                   colSpan={columns.length + 1} 
                   className="border-t-4 border-slate-100 bg-white h-20 text-center text-sm"
                 >
-                  Keine Daten gefunden
+                  Keine Daten erfasst
                 </td>
               </tr>
             </>

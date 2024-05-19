@@ -46,13 +46,6 @@ export default function IncidentsPage() {
           <b className="text-sm">Stimmung erfassen</b>
           <p className="text-sm mt-1">Wie fühlst du dich heute? Gib es hier an.</p>
         </div>
-        <div 
-          className="rounded-xl border-2 h-full border-slate-300 bg-slate-200 flex-1 py-4 px-6 lg:py-6 lg:px-8 cursor-pointer hover:border-slate-400 hover:bg-slate-300 duration-200 drop-shadow-xl"
-          onClick={() => router.push("/incidents")}
-        >
-          <b className="text-sm">Vorfall erfassen</b>
-          <p className="text-sm mt-1">Ist heute etwas spezielles vorgefallen? Erfasse es hier.</p>
-        </div>
       </div>
     </div>
   );

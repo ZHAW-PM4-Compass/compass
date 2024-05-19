@@ -15,6 +15,8 @@ import toastMessages from "@/constants/toastMessages";
 import RoleTitles from "@/constants/roleTitles";
 import type { AuthZeroUserDtoRoleEnum, CreateAuthZeroUserDtoRoleEnum, CreateUserRequest, UpdateUserRequest, UserDto } from "@/openapi/compassClient";
 
+const auth0Timeout = 1500;
+
 const roles = [
   {
     id: Roles.PARTICIPANT,
@@ -52,14 +54,20 @@ function UserCreateModal({ close, onSave }: Readonly<{
         password: formData.get(formFields.PASSWORD) as string
       }
     };
-  
-    getUserControllerApi().createUser(createUserDto).then(() => {
-      close();
-      setTimeout(() => onSave(), 1000);
-      toast.success(toastMessages.USER_CREATED);
-    }).catch(() => {
-      toast.error(toastMessages.USER_NOT_CREATED);
-    })
+
+    const createAction = () => getUserControllerApi().createUser(createUserDto).then(() => {
+  		close();
+      return new Promise<void>((resolve) => setTimeout(() => {
+        onSave();
+        resolve();
+      }, auth0Timeout));
+  	});
+
+    toast.promise(createAction(), {
+      loading: toastMessages.CREATING,
+      success: toastMessages.USER_CREATED,
+      error: toastMessages.USER_NOT_CREATED,
+    });
   }
 
   return (
@@ -104,13 +112,19 @@ function UserUpdateModal({ close, onSave, user }: Readonly<{
       }
     };
 
-  	getUserControllerApi().updateUser(updateUserRequest).then(() => {
+    const updateAction = () => getUserControllerApi().updateUser(updateUserRequest).then(() => {
   		close();
-  		setTimeout(() => onSave(), 1000);
-      toast.success(toastMessages.USER_UPDATED);
-  	}).catch(() => {
-  		toast.error(toastMessages.USER_NOT_UPDATED);
-  	})
+      return new Promise<void>((resolve) => setTimeout(() => {
+        onSave();
+        resolve();
+      }, auth0Timeout));
+  	});
+
+    toast.promise(updateAction(), {
+      loading: toastMessages.UPDATING,
+      success: toastMessages.USER_UPDATED,
+      error: toastMessages.USER_NOT_UPDATED,
+    });
   }
 
   return (
@@ -137,12 +151,14 @@ function UserUpdateModal({ close, onSave, user }: Readonly<{
 }
 
 export default function UsersPage() {
+  const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [users, setUsers] = useState<UserDto[]>([]);
 	const [selectedUser, setSelectedUser] = useState<UserDto>();
 
 	const loadUsers = () => {
+    setLoading(true);
 		getUserControllerApi().getAllUsers().then(userDtos => {
       const users = userDtos.map(user => {
         user.role = user.role ?? Roles.PARTICIPANT;
@@ -151,29 +167,40 @@ export default function UsersPage() {
       })
 			users.sort((a, b) => (a?.givenName || '').localeCompare(b?.givenName || ''));
 			setUsers(users);
+      setLoading(false);
 		}).catch(() => {
-			toast.error(toastMessages.DATA_NOT_LOADED);
+			toast.error(toastMessages.USERS_NOT_LOADED);
 		})
 	}
 
   const deleteUser = (id: string) => {
-    getUserControllerApi().deleteUser({ id }).then(() => {
-      loadUsers();
-      toast.success(toastMessages.USER_DELETED);
-      setTimeout(() => loadUsers(), 1000);
-    }).catch(() => {
-      toast.error(toastMessages.USER_NOT_DELETED);
+    const deleteAction = () => getUserControllerApi().deleteUser({ id }).then(() => {
+      return new Promise<void>((resolve) => setTimeout(() => {
+        loadUsers();
+        resolve();
+      }, auth0Timeout));
     })
+
+    toast.promise(deleteAction(), {
+      loading: toastMessages.DELETING,
+      success: toastMessages.USER_DELETED,
+      error: toastMessages.USER_NOT_DELETED,
+    });
   }
 
   const restoreUser = (id: string) => {
-    getUserControllerApi().restoreUser({ id }).then(() => {
-      loadUsers();
-      toast.success(toastMessages.USER_RESTORED);
-      setTimeout(() => loadUsers(), 1000);
-    }).catch(() => {
-      toast.error(toastMessages.USER_NOT_RESTORED);
+    const restoreAction = () => getUserControllerApi().restoreUser({ id }).then(() => {
+      return new Promise<void>((resolve) => setTimeout(() => {
+        loadUsers();
+        resolve();
+      }, auth0Timeout));
     })
+
+    toast.promise(restoreAction(), {
+      loading: toastMessages.RESTORING,
+      success: toastMessages.USER_RESTORED,
+      error: toastMessages.USER_NOT_RESTORED,
+    });
   }
 
   useEffect(() => loadUsers(), []);
@@ -250,7 +277,8 @@ export default function UsersPage() {
 			  				setShowUpdateModal(true);
 			  			}
             }
-          ]} />
+          ]}
+          loading={loading} />
       </div>
     </>
   );

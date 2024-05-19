@@ -74,7 +74,7 @@ const MenuItem: React.FC<{ collapsed: boolean, icon: { src: string }; iconActive
   );
 }
 
-const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: SystemStatusDto | undefined}> = ({ user, userRole, systemStatus}) => {
+const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: SystemStatusDto | undefined, isLoading: boolean}> = ({ user, userRole, systemStatus, isLoading}) => {
   const [showMenu, setShowMenu] = useState(false);
   const [commitCopyActive, setCommitCopyActive] = useState(false);
 
@@ -98,10 +98,21 @@ const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: 
         className="absolute top-5 right-5 rounded-full flex duration-150 hover:bg-slate-200 cursor-pointer"
         onClick={() => setShowMenu(!showMenu)}
       >
-        <span className="leading-10 ml-4 mr-3 text-sm">{user?.given_name ? user?.given_name : user?.nickname}</span>
-        <div className="relative">
-          <img src={user?.picture} alt="" className="h-10 w-10 border-2 border-slate-400 bg-slate-400 rounded-full" />
-        </div>
+        {isLoading ? (
+          <>
+            <span className="leading-10 ml-4 mr-3 mt-3 text-sm h-4 w-14 rounded-md bg-slate-300 animate-pulse"></span>
+            <div className="relative">
+              <div className="h-10 w-10 border-2 border-slate-400 bg-slate-400 rounded-full animate-pulse"></div>
+            </div>
+          </>
+        ) : (
+          <>
+            <span className="leading-10 ml-4 mr-3 text-sm">{user?.given_name ? user?.given_name : user?.nickname}</span>
+            <div className="relative">
+              <img src={user?.picture} alt="" className="h-10 w-10 border-2 border-slate-400 bg-slate-400 rounded-full" />
+            </div>
+          </>
+        )}
       </button>
       {showMenu && (
         <div id="profile-menu" className="left-5 sm:left-auto absolute top-20 right-5 px-8 py-7 bg-white rounded-3xl flex flex-col drop-shadow-lg">
@@ -178,7 +189,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { user } = useUser();
+  const { isLoading, user } = useUser();
   const [backendUser, setBackendUser] = useState<UserDto>();
   const [systemStatus, setSystemStatus] = useState<SystemStatusDto>();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -248,7 +259,11 @@ export default function RootLayout({
           <div className="w-full h-full lg:container lg:mx-auto px-5 lg:pt-24 pb-16">
             <div className="h-full w-full">
               {children}
-              <Profile user={user} userRole={backendUser?.role} systemStatus={systemStatus} />
+              <Profile 
+                user={user} 
+                userRole={backendUser?.role}
+                systemStatus={systemStatus}
+                isLoading={isLoading} />
             </div>
           </div>
         </div>

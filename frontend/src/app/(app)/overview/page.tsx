@@ -71,7 +71,6 @@ export default function OverviewPage() {
         id: (index + 1).toString().padStart(2, '0'),
         label: monthLabels[key as keyof typeof monthLabels]
       }
-      console.log(obj)
       return obj;
     }));
 
@@ -91,7 +90,6 @@ export default function OverviewPage() {
   }, []);
 
   useEffect(() => {
-    console.log(month, year, participantId, categorySelection)
     setIncidentsSeries([
       { type: 'bar', dataKey: 'count', color: '#134e4a', label: 'Vorfälle' },
     ]);
@@ -122,10 +120,14 @@ export default function OverviewPage() {
             dayLabel,
             count: daySheet?.incidents?.length ?? 0,
           });
+          
+          let workHours = daySheet?.timeSum ?? 0;
+          workHours = workHours / 1000 / 60 / 60;
+          workHours = Math.round(workHours * 100) / 100;
 
           const dataItem: any = { 
             dayLabel,
-            workHours: daySheet?.timeSum ?? 0,
+            workHours: workHours,
           }
           const moodRatings = daySheet?.moodRatings ?? [];
 
@@ -152,8 +154,6 @@ export default function OverviewPage() {
 
         dataSeriesSet.forEach((series, index) => series.color = getNextColor("#5eead5", index));
         dataSeriesSet.push({ type: 'line', dataKey: 'workHours', color: '#000', label: "Arbeitszeit", yAxisKey: 'leftAxis' });
-
-        console.log(dataSeriesSet)
 
         setIncidentCountPerDay(incidentCountPerDay);
         setDataset(data);

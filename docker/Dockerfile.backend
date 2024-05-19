@@ -1,4 +1,7 @@
 # Backend Build Stage
+ARG GIT_COMMIT_ID
+ENV GIT_COMMIT_ID=${GIT_COMMIT_ID}
+
 FROM gradle:8.6.0-jdk21 AS builder
 WORKDIR /app
 COPY ./backend/build.gradle .

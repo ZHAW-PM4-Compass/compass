@@ -41,7 +41,7 @@ public class SystemControllerTest {
     }
 
     SystemStatusDto getSystemStatusDto() {
-        return new SystemStatusDto("commitId", "commitTime", true, true, true);
+        return new SystemStatusDto("commitId", true, true, true);
     }
 
     @Test
@@ -55,7 +55,6 @@ public class SystemControllerTest {
         mockMvc.perform(get("/system/status")
                         .with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
                 .andExpect(jsonPath("$.commitId").value(getSystemStatusDto().getCommitId()))
-                .andExpect(jsonPath("$.commitTime").value(getSystemStatusDto().getCommitTime()))
                 .andExpect(jsonPath("$.backendIsReachable").value(getSystemStatusDto().isBackendIsReachable()))
                 .andExpect(jsonPath("$.databaseIsReachable").value(getSystemStatusDto().isDatabaseIsReachable()))
                 .andExpect(jsonPath("$.auth0IsReachable").value(getSystemStatusDto().isAuth0IsReachable()));

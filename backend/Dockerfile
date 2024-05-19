@@ -4,6 +4,9 @@ FROM gradle:8.7.0-jdk21 AS build
 # Set the working directory in the container
 WORKDIR /app
 
+# Run the shell script to generate git.properties
+RUN /scripts/generate-git-properties.sh
+
 # Copy the build.gradle and settings.gradle files to the container
 COPY build.gradle .
 COPY settings.gradle .

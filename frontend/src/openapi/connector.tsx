@@ -1,4 +1,4 @@
-import { Configuration, UserControllerApi, CategoryControllerApi, TimestampControllerApi, IncidentControllerApi, DaySheetControllerApi, RatingControllerApi } from "./compassClient";
+import { Configuration, UserControllerApi, CategoryControllerApi, TimestampControllerApi, IncidentControllerApi, DaySheetControllerApi, SystemControllerApi,RatingControllerApi } from "./compassClient";
 
 export function getMiddleWareControllerApi() {
   const config = new Configuration({
@@ -40,4 +40,9 @@ export function getTimestampControllerApi() {
 export function getIncidentControllerApi() {
   const config = getApiConfiguration();
   return new IncidentControllerApi(config);
+}
+
+export function getSystemControllerApi() {
+  const config = getApiConfiguration();
+  return new SystemControllerApi(config);
 }

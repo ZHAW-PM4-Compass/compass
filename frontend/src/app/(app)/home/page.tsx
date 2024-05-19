@@ -27,7 +27,7 @@ export default function IncidentsPage() {
           </p>
         </div>
         <span 
-          className="lg:flex-[2] bg-no-repeat bg-center bg-cover h-[30vh] md:h-[40vh] w-full rounded-xl drop-shadow-xl" 
+          className="lg:flex-[2] bg-no-repeat bg-center bg-cover h-[30vh] md:h-[40vh] w-full rounded-xl drop-shadow-xl bg-slate-300" 
           style={{ backgroundImage: "url('https://stadtmuur.ch/wp-content/uploads/2023/11/cropped-header-scaled-3.jpg')" }}
         ></span>
       </div>

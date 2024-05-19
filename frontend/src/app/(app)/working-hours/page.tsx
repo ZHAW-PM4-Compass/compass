@@ -3,17 +3,16 @@
 import Title1 from "@/components/title1";
 import Table from "@/components/table";
 import Input from "@/components/input";
-import ArrowLeftIcon from "@fluentui/svg-icons/icons/arrow_left_24_filled.svg";
-import ArrowRightIcon from "@fluentui/svg-icons/icons/arrow_right_24_filled.svg";
-import { Delete24Regular, Edit24Regular, Save24Regular} from "@fluentui/react-icons";
+import { ArrowLeft24Regular, ArrowRight24Regular, Delete24Regular, Edit24Regular, Save24Regular} from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { getDaySheetControllerApi, getTimestampControllerApi} from "@/openapi/connector";
 import Button from "@/components/button";
 import Modal from "@/components/modal";
 import toast from "react-hot-toast";
 import toastMessages from "@/constants/toastMessages";
-import { time } from "console";
 import { CreateDaySheetRequest, CreateTimestampRequest, DaySheetDto, TimestampDto } from "@/openapi/compassClient";
+import IconButton from "@/components/iconbutton";
+import { set } from "node_modules/@auth0/nextjs-auth0/dist/session";
 
  // interfaces necessary for timestamp duration
  interface Daysheet {
@@ -91,6 +90,7 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
 
 
 export default function WorkingHoursPage() {
+  const [loading, setLoading] = useState(true);
   const [daySheet, setDaySheet] = useState<Daysheet>({ id: 0, date: new Date(), dayNotes: '', timestamps: [], timeSum: 0, confirmed: false });
   const [timestamp, setTimestamp] = useState<{ startTime: string; endTime: string;}>({ startTime: '', endTime: ''});
   const [selectedTimestamp, setSelectedTimestamp] = useState<Timestamp>();
@@ -131,7 +131,7 @@ export default function WorkingHoursPage() {
   };
 
 	const loadDaySheetByDate = (date: string) => {
-
+    setLoading(true);
     getDaySheetControllerApi().getDaySheetDate({date: date}).then((daySheetDto: DaySheetDto) => {
         const loadedDaySheet: Daysheet = {
           id: daySheetDto.id || 0,
@@ -159,7 +159,7 @@ export default function WorkingHoursPage() {
           }
         });
         setDaySheet(loadedDaySheet);
-        
+        setLoading(false);
      }).catch(() => {
         const emptyDaySheet = {
           id: 0,
@@ -170,6 +170,7 @@ export default function WorkingHoursPage() {
           confirmed: false
         };
         setDaySheet(emptyDaySheet);
+        setLoading(false);
      });     
    }
 
@@ -261,73 +262,66 @@ export default function WorkingHoursPage() {
 					onSave={() => loadDaySheetByDate(selectedDate)}
 					timestamp={selectedTimestamp} />
       )}
-      <div className="flex flex-col sm:flex-row justify-between">
-        <Title1>Zeitverwaltung</Title1>
-      </div>
-      <div className="flex flex-row justify-end items-start space-x-2 mt-2 mr-2">
-        <button className="p-2 rounded-md " onClick={handlePrevDate}>
-          <img src={ArrowLeftIcon.src} className="w-5 h-5" />
-        </button>
-
-        <Input type="date" name="date" value={selectedDate} onChange={handleDateChange} />
-
-        <button className="p-2 rounded-md " onClick={handleNextDate}>
-          <img src={ArrowRightIcon.src} className="w-5 h-5" />
-        </button>
-      </div>
-      <Table 
-        className="mt-5"
-        data={daySheet.timestamps}
-
-        columns={[
-          {
-            header: "Startuhrzeit",
-            title: "startTime"
-          },
-          {
-            header: "Enduhrzeit",
-            title: "endTime"
-          },
-          {
-            header: "Dauer",
-            title: "duration"
-          }
-        ]}
-        
-        actions={[
-          {
-            icon: Delete24Regular,
-            onClick: (id) => {
-              setSelectedTimestamp(daySheet.timestamps[id]);
-              deleteTimestamp();
+      <div className="h-full flex flex-col">
+        <div className="flex flex-col sm:flex-row justify-between mb-5">
+          <Title1>Arbeitszeit erfassen</Title1>
+          <div className="mt-2 sm:mt-0 flex flex-row justify-end items-start space-x-2">
+            <IconButton Icon={ArrowLeft24Regular} onClick={handlePrevDate}></IconButton>
+            <Input type="date" name="date" value={selectedDate} onChange={handleDateChange} />
+            <IconButton Icon={ArrowRight24Regular} onClick={handleNextDate}></IconButton>
+          </div>
+        </div>
+        <Table
+          data={daySheet.timestamps}
+          columns={[
+            {
+              header: "Startuhrzeit",
+              title: "startTime"
+            },
+            {
+              header: "Enduhrzeit",
+              title: "endTime"
+            },
+            {
+              header: "Dauer",
+              title: "duration"
             }
-          },
-          {
-            icon: Edit24Regular,
-            onClick: (id) => {
-              if (!daySheet.confirmed) {
+          ]}
+          actions={[
+            {
+              icon: Delete24Regular,
+              onClick: (id) => {
                 setSelectedTimestamp(daySheet.timestamps[id]);
-                setShowUpdateModal(true);
-              } else {
-                toast.error(toastMessages.DAYSHEET_ALREADY_CONFIRMED);
+                deleteTimestamp();
+              }
+            },
+            {
+              icon: Edit24Regular,
+              onClick: (id) => {
+                if (!daySheet.confirmed) {
+                  setSelectedTimestamp(daySheet.timestamps[id]);
+                  setShowUpdateModal(true);
+                } else {
+                  toast.error(toastMessages.DAYSHEET_ALREADY_CONFIRMED);
+                }
               }
             }
-          }
-        ]}
-      />
+          ]}
+          loading={loading}
+        />
 
-      <div className="mt-4">
-        <p>Total Duration: {formatMilisecondsToHourMinute(daySheet.timeSum)}</p>
+        <div className="mt-4">
+          <p>Total Duration: {formatMilisecondsToHourMinute(daySheet.timeSum)}</p>
+        </div>
+
+        <div>
+          <form className="mb-8 flex flex-col md:flex-row md:items-center md:space-x-4 mt-4" onSubmit={handleCreateTimestampSubmit}>
+            <Input type="time" className="mb-4 mr-4 w-48 inline-block" name="startTime" value={timestamp.startTime} onChange={handleTimeChange}/>
+            <Input type="time" className="mb-4 mr-4 w-48 inline-block" name="endTime" value={timestamp.endTime} onChange={handleTimeChange}/> 
+            <Button type="submit" className="mb-4 mr-4 bg-black text-white rounded-md">Anfügen</Button>
+          </form>
+        </div>
       </div>
-
-      <div>
-        <form className="mb-8 flex flex-col md:flex-row md:items-center md:space-x-4 mt-4" onSubmit={handleCreateTimestampSubmit}>
-          <Input type="time" className="mb-4 mr-4 w-48 inline-block" name="startTime" value={timestamp.startTime} onChange={handleTimeChange}/>
-          <Input type="time" className="mb-4 mr-4 w-48 inline-block" name="endTime" value={timestamp.endTime} onChange={handleTimeChange}/> 
-          <Button type="submit" className="mb-4 mr-4 bg-black text-white rounded-md">Anfügen</Button>
-        </form>
-      </div>
-
     </>
   );
 };

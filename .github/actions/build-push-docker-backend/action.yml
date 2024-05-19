@@ -32,5 +32,5 @@ runs:
         file: ./docker/Dockerfile.backend
         push: true
         tags: ${{ inputs.image_tag }}
-        env: |
+        build-args: |
           GIT_COMMIT_ID=${{ github.sha }}

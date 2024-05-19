@@ -12,4 +12,7 @@ import lombok.NoArgsConstructor;
 public class SystemStatusDto {
     private String commitId;
     private String commitTime;
+    private boolean backendIsReachable;
+    private boolean databaseIsReachable;
+    private boolean auth0IsReachable;
 }

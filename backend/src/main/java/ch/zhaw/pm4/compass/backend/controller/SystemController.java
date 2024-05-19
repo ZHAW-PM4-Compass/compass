@@ -1,6 +1,8 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
 import ch.zhaw.pm4.compass.backend.model.dto.SystemStatusDto;
+import ch.zhaw.pm4.compass.backend.service.SystemService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/system")
 public class SystemController {
+    @Autowired
+    private SystemService systemService;
 
     @Value("${git.commit.id}")
     private String commitId;
@@ -19,6 +23,10 @@ public class SystemController {
 
     @GetMapping("/status")
     public ResponseEntity<SystemStatusDto> getStatus() {
-        return ResponseEntity.ok(new SystemStatusDto(commitId, commitTime));
+        boolean backendIsReachable = systemService.isBackendReachable();
+        boolean databaseIsReachable = systemService.isDatabaseReachable();
+        boolean auth0IsReachable = systemService.isAuth0Reachable();
+
+        return ResponseEntity.ok(new SystemStatusDto(commitId, commitTime, backendIsReachable, databaseIsReachable, auth0IsReachable));
     }
 }

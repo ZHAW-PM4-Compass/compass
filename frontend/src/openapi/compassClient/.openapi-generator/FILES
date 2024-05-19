@@ -4,6 +4,7 @@ apis/CategoryControllerApi.ts
 apis/DaySheetControllerApi.ts
 apis/IncidentControllerApi.ts
 apis/RatingControllerApi.ts
+apis/SystemControllerApi.ts
 apis/TimestampControllerApi.ts
 apis/UserControllerApi.ts
 apis/index.ts
@@ -14,6 +15,7 @@ models/CreateAuthZeroUserDto.ts
 models/DaySheetDto.ts
 models/IncidentDto.ts
 models/RatingDto.ts
+models/SystemStatusDto.ts
 models/TimestampDto.ts
 models/UpdateDaySheetDayNotesDto.ts
 models/UserDto.ts

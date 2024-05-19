@@ -32,9 +32,12 @@ import CollapseMenuIcon from "@fluentui/svg-icons/icons/chevron_left_24_regular.
 import MenuIcon from "@fluentui/svg-icons/icons/list_24_regular.svg";
 import MenuCloseIcon from "@fluentui/svg-icons/icons/dismiss_24_regular.svg";
 import Roles from "@/constants/roles";
-import { getUserControllerApi } from "@/openapi/connector";
-import type { UserDto } from "@/openapi/compassClient";
-import { Checkmark24Filled, Checkmark24Regular } from "@fluentui/react-icons";
+import { getSystemControllerApi, getUserControllerApi } from "@/openapi/connector";
+import type { SystemStatusDto, UserDto } from "@/openapi/compassClient";
+import { Checkmark24Filled, Copy24Regular, Dismiss24Filled } from "@fluentui/react-icons";
+import { get } from "http";
+import { getFormattedDate } from "@/utils/date";
+import { setTimeout } from "timers";
 
 const SubTitle: React.FC<{ collapsed: boolean, label: string, withLine?: boolean }> = ({ collapsed, label, withLine }) => {
   return (
@@ -73,8 +76,10 @@ const MenuItem: React.FC<{ collapsed: boolean, icon: { src: string }; iconActive
   );
 }
 
-const Profile: React.FC<{user: any}> = ({ user }) => {
+const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: SystemStatusDto | undefined}> = ({ user, userRole, systemStatus}) => {
   const [showMenu, setShowMenu] = useState(false);
+  const [commitCopyActive, setCommitCopyActive] = useState(false);
+  const commitTime = systemStatus?.commitTime ? new Date(systemStatus?.commitTime) : new Date();
 
   const handleClickOutsideMenu = (event: MouseEvent) => {
     const menu = document.getElementById("profile-menu");
@@ -96,29 +101,77 @@ const Profile: React.FC<{user: any}> = ({ user }) => {
         className="absolute top-5 right-5 rounded-full flex duration-150 hover:bg-slate-200 cursor-pointer"
         onClick={() => setShowMenu(!showMenu)}
       >
-        <span className="leading-10 ml-4 mr-3 text-sm">{user.given_name ? user.given_name : user.nickname}</span>
+        <span className="leading-10 ml-4 mr-3 text-sm">{user?.given_name ? user?.given_name : user?.nickname}</span>
         <div className="relative">
-          <img src={user.picture} alt="" className="h-10 w-10 border-2 border-slate-400 bg-slate-400 rounded-full" />
+          <img src={user?.picture} alt="" className="h-10 w-10 border-2 border-slate-400 bg-slate-400 rounded-full" />
         </div>
       </button>
       {showMenu && (
         <div id="profile-menu" className="left-5 sm:left-auto absolute top-20 right-5 px-8 py-7 bg-white rounded-3xl flex flex-col drop-shadow-lg">
-          {user.given_name && user.family_name ? ( <span className="font-bold text-sm">{user.given_name} {user.family_name}</span> ) : null}
-          <span className="mb-4 text-sm">{user.email}</span>
-          <div className="py-4 border-t-[1px] border-slate-200 text-sm">
-            <div>
-              <span className="font-bold inline-block">Systemstatus</span>
-              <span className="text-slate-500 cursor-pointer ml-2 text-[0.8rem] hover:underline">#h23as2f</span>
-              <div className="mt-1 flex flex-row">
-                <Checkmark24Filled className="w-5 h-5 text-green-500" />
-                <span className="block ml-2">Backend erreichbar</span>
-              </div>
-              <div className="flex flex-row">
-                <Checkmark24Filled className="w-5 h-5 text-green-500" />
-                <span className="block ml-2">Auth0 erreichbar</span>
+          {user?.given_name && user?.family_name ? ( <span className="font-bold text-sm">{user?.given_name} {user?.family_name}</span> ) : null}
+          <span className="mb-4 text-sm">{user?.email}</span>
+          {userRole === Roles.ADMIN && (
+            <div className="py-4 border-t-[1px] border-slate-200 text-sm">
+              <div>
+                <span className="font-bold inline-block">Systemstatus</span>
+                {systemStatus?.commitId && (
+                  <span 
+                    className="text-slate-500 cursor-pointer ml-2 text-[0.8rem] hover:underline has-tooltip relative"
+                    onClick={() => navigator.clipboard.writeText(systemStatus?.commitId ?? "")}>
+                    <span className="tooltip rounded-lg py-2 px-3 bg-slate-200 text-slate-600 -mt-10 -ml-[50%]">
+                      {getFormattedDate(commitTime)}
+                    </span>
+                    <div 
+                      className="inline-block"
+                      onClick={() => {
+                        setCommitCopyActive(true)
+                        setTimeout(() => setCommitCopyActive(false), 1000)
+                      }}>
+                      <span>#{systemStatus?.commitId?.substring(0, 7)}</span>
+                      {commitCopyActive ? (
+                        <Checkmark24Filled className="-mt-1 w-4 h-4 ml-1 text-slate-500"/>
+                      ) : (
+                        <Copy24Regular className="-mt-1 w-4 h-4 ml-1 text-slate-500"/>
+                      )}
+                    </div>
+                  </span>
+                )}
+                {systemStatus?.backendIsReachable ? (
+                  <div className="mt-1 flex flex-row">
+                    <Checkmark24Filled className="w-5 h-5 text-green-500" />
+                    <span className="block ml-2">Backend erreichbar</span>
+                  </div>
+                ) : (
+                  <div className="mt-1 flex flex-row">
+                    <Dismiss24Filled className="w-5 h-5 text-red-500" />
+                    <span className="block ml-2">Backend nicht erreichbar</span>
+                  </div>
+                )}
+                {systemStatus?.databaseIsReachable ? (
+                  <div className="flex flex-row">
+                    <Checkmark24Filled className="w-5 h-5 text-green-500" />
+                    <span className="block ml-2">Datenbank erreichbar</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-row">
+                    <Dismiss24Filled className="w-5 h-5 text-red-500" />
+                    <span className="block ml-2">Datenbank nicht erreichbar</span>
+                  </div>
+                )}
+                {systemStatus?.auth0IsReachable ? (
+                  <div className="flex flex-row">
+                    <Checkmark24Filled className="w-5 h-5 text-green-500" />
+                    <span className="block ml-2">Auth0 erreichbar</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-row">
+                    <Dismiss24Filled className="w-5 h-5 text-red-500" />
+                    <span className="block ml-2">Auth0 nicht erreichbar</span>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+          )}
           <a href="/api/auth/logout" className="pt-4 border-t-[1px] border-slate-200 text-sm hover:text-slate-600 duration-150">Logout</a>
         </div>
       )}
@@ -133,10 +186,17 @@ export default function RootLayout({
 }>) {
   const { user } = useUser();
   const [backendUser, setBackendUser] = useState<UserDto>();
+  const [systemStatus, setSystemStatus] = useState<SystemStatusDto>();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const handleMobileClick = () => window.innerWidth < 640 && toggleMenu();
+
+  useEffect(() => {
+    getSystemControllerApi().getStatus().then(systemStatus => {
+      setSystemStatus(systemStatus);
+    });
+  }, []);
 
   useEffect(() => {
     user?.sub && getUserControllerApi().getUserById({ id: user.sub }).then(userDto => {
@@ -194,11 +254,7 @@ export default function RootLayout({
           <div className="w-full h-full lg:container lg:mx-auto px-5 lg:pt-24 pb-16">
             <div className="h-full w-full">
               {children}
-              {
-                user && (
-                  <Profile user={user} />
-                )
-              }
+              <Profile user={user} userRole={backendUser?.role} systemStatus={systemStatus} />
             </div>
           </div>
         </div>

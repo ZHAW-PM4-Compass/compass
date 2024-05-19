@@ -3,15 +3,16 @@ package ch.zhaw.pm4.compass.backend.service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
+@Setter
 public class SystemService {
     @Autowired
-    UserService userService;
-
+    private UserService userService;
     @PersistenceContext
     private EntityManager entityManager;
 

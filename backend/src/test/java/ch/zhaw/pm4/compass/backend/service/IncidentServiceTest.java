@@ -80,7 +80,7 @@ public class IncidentServiceTest {
     }
 
     @Test
-    public void TestupdateIncident() throws IncidentNotFoundException {
+    public void TestUpdateIncident() throws IncidentNotFoundException {
         when(incidentRepository.findById(any(Long.class))).thenReturn(Optional.of(getIncident()));
         when(incidentRepository.save(any(Incident.class))).thenReturn(getIncident());
 

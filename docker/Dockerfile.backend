@@ -5,6 +5,7 @@ COPY ./backend/build.gradle .
 COPY ./backend/settings.gradle .
 COPY ./backend/src src
 COPY ./scripts/generate-git-properties.sh .
+RUN chmod +x ./generate-git-properties.sh
 RUN ./generate-git-properties.sh
 RUN gradle assemble --no-daemon
 

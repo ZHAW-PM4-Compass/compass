@@ -15,6 +15,11 @@ runs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Generate git.properties
+      run: |
+        echo "git.commit.id=${{ github.sha }}" > backend/src/main/resources/git.properties
+        echo "git.commit.time=$(date)" >> backend/src/main/resources/git.properties
+
     - name: Build Docker Image
       shell: bash
       run: docker build -t backend-tests -f ./docker/test/Dockerfile.backend .

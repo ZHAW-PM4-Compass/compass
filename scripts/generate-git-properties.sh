@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # path to the git.properties file
-GIT_PROPERTIES_FILE=src/main/resources/git.properties
+GIT_PROPERTIES_FILE=./src/main/resources/git.properties
 
 # Create the git.properties file
 cat <<EOL > $GIT_PROPERTIES_FILE

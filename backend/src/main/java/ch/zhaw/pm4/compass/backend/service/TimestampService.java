@@ -96,7 +96,7 @@ public class TimestampService {
 		return false;
 	}
 
-	public void deleteTimestamp(Long id, String userId) {
+	public void deleteTimestamp(Long id) {
 		Optional<Timestamp> timestamp = timestampRepository.findById(id);
 		if (timestamp.isPresent())
 			timestampRepository.delete(timestamp.get());
@@ -121,7 +121,7 @@ public class TimestampService {
 				.findAllByDaySheetId(timestampToCheck.getDaySheet().getId());
 
 		boolean noDoubleEntry = true;
-		if (timestampToCheck.getStartTime().after(timestampToCheck.getEndTime())
+		if (timestampToCheck.getStartTime().isAfter(timestampToCheck.getEndTime())
 				|| timestampToCheck.getStartTime().equals(timestampToCheck.getEndTime())) {
 			noDoubleEntry = false;
 			return noDoubleEntry;

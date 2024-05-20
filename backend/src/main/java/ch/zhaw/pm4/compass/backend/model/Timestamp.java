@@ -1,8 +1,6 @@
 package ch.zhaw.pm4.compass.backend.model;
 
-import java.sql.Time;
 import java.time.LocalTime;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -29,27 +27,22 @@ public class Timestamp {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "daySheet_id")
-    @JsonIgnore
     private DaySheet daySheet;
 
-    public Timestamp() {
-
-    }
-
-    public Timestamp(DaySheet daySheet, LocalTime startTime, LocalTime endTime) {
+    public Timestamp(LocalTime startTime, LocalTime endTime, DaySheet daySheet) {
         this.daySheet = daySheet;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public Timestamp(Long id, DaySheet daySheet, LocalTime startTime, LocalTime endTime) {
+    public Timestamp(Long id, LocalTime startTime, LocalTime endTime, DaySheet daySheet) {
         this.id = id;
         this.daySheet = daySheet;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public Timestamp(Long id, DaySheet daySheet, LocalTime startTime, LocalTime endTime, String userId) {
+    public Timestamp(Long id, LocalTime startTime, LocalTime endTime, DaySheet daySheet, String userId) {
         this.id = id;
         this.daySheet = daySheet;
         this.startTime = startTime;

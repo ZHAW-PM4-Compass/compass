@@ -19,7 +19,7 @@ const convertMilisecondsToTimeString = (miliseconds: number): string => {
   return `${hours}h ${minutes}min`;
 }
 
-function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
+function TimestampUpdateModal({ close, onSave, timestamp }: Readonly<{
   close: () => void;
   onSave: () => void;
   timestamp: TimestampDto | undefined;
@@ -39,7 +39,7 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
       return;
     }
 
-    const updateTimestampAction = () => getTimestampControllerApi().putTimestamp({ timestampDto: editedTimestamp}).then(() => {
+    const updateTimestampAction = () => getTimestampControllerApi().putTimestamp({ timestampDto: editedTimestamp }).then(() => {
       close();
       onSave();
     })
@@ -202,8 +202,8 @@ export default function WorkingHoursPage() {
     setTimestamp(prevState => ({ ...prevState, [name]: value }));
   };
 
-  const deleteTimestamp = (timestamp: TimestampDto) => {
-    const deleteAction = () => getTimestampControllerApi().deleteTimestamp({id: timestamp.id ?? 0}).then(() => {
+  const deleteTimestamp = (id: number) => {
+    const deleteAction = () => getTimestampControllerApi().deleteTimestamp({ id }).then(() => {
       loadDaySheetByDate(selectedDate);
     });
     
@@ -219,7 +219,7 @@ export default function WorkingHoursPage() {
   return (
     <>
       {showUpdateModal && (
-        <TimeStampUpdateModal
+        <TimestampUpdateModal
 					close={() => {
             setShowUpdateModal(false)
             loadDaySheetByDate(selectedDate)
@@ -261,8 +261,8 @@ export default function WorkingHoursPage() {
             {
               icon: Delete24Regular,
               onClick: (id) => {
-                daySheet?.timestamps && setSelectedTimestamp(daySheet.timestamps[id]);
-                selectedTimestamp && deleteTimestamp(selectedTimestamp);
+                const timestampId = daySheet?.timestamps?.[id]?.id;
+                timestampId && deleteTimestamp(timestampId);
               }
             },
             {
@@ -289,7 +289,6 @@ export default function WorkingHoursPage() {
             </tr>
           }
         />
-
         <div>
           <form className="mt-4" onSubmit={handleCreateTimestampSubmit}>
             <Input type="time" className="mb-4 mr-4 w-48 inline-block" name="startTime" value={timestamp.startTime} onChange={handleTimeChange}/>

@@ -249,7 +249,7 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryStartTimeAfterEndTime() {
 
-		timestampToCheck.setStartTime(Time.valueOf("15:00:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("15:00:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 
 		assertFalse(timestampService.checkNoDoubleEntry(timestampToCheck));
@@ -258,7 +258,7 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryStartTimeEqualsEndTime() {
 
-		timestampToCheck.setStartTime(Time.valueOf("13:00:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("13:00:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 
 		assertFalse(timestampService.checkNoDoubleEntry(timestampToCheck));
@@ -267,7 +267,7 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryStartTimeInExistingTimestamp() {
 
-		timestampToCheck.setStartTime(Time.valueOf("13:30:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("13:30:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 
 		assertFalse(timestampService.checkNoDoubleEntry(timestampToCheck));
@@ -276,8 +276,8 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryEndTimeInExistingTimestamp() {
 
-		timestampToCheck.setStartTime(Time.valueOf("12:00:00"));
-		timestampToCheck.setEndTime(Time.valueOf("13:30:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("12:00:00"));
+		timestampToCheck.setEndTime(LocalTime.parse("13:30:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 
 		assertFalse(timestampService.checkNoDoubleEntry(timestampToCheck));
@@ -286,8 +286,8 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryStartTimeEqualsExistingTimestampStartTime() {
 
-		timestampToCheck.setStartTime(Time.valueOf("13:00:00"));
-		timestampToCheck.setEndTime(Time.valueOf("14:30:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("13:00:00"));
+		timestampToCheck.setEndTime(LocalTime.parse("14:30:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 
 		Boolean result = timestampService.checkNoDoubleEntry(timestampToCheck);
@@ -297,8 +297,8 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryEndTimeEqualsExistingTimestampEndTime() {
 
-		timestampToCheck.setStartTime(Time.valueOf("12:00:00"));
-		timestampToCheck.setEndTime(Time.valueOf("14:00:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("12:00:00"));
+		timestampToCheck.setEndTime(LocalTime.parse("14:00:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 		Boolean result = timestampService.checkNoDoubleEntry(timestampToCheck);
 		assertFalse(result);
@@ -307,8 +307,8 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryNewTimestampAroundExistingTimestamp() {
 
-		timestampToCheck.setStartTime(Time.valueOf("12:00:00"));
-		timestampToCheck.setEndTime(Time.valueOf("15:00:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("12:00:00"));
+		timestampToCheck.setEndTime(LocalTime.parse("15:00:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 
 		assertFalse(timestampService.checkNoDoubleEntry(timestampToCheck));

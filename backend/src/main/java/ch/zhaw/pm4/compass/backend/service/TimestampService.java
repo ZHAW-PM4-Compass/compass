@@ -1,16 +1,17 @@
 package ch.zhaw.pm4.compass.backend.service;
 
+import java.util.ArrayList;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import ch.zhaw.pm4.compass.backend.UserRole;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.TimestampRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Optional;
 
 @Service
 public class TimestampService {
@@ -64,8 +65,8 @@ public class TimestampService {
 		Optional<Timestamp> response = timestampRepository.findById(updateTimestampDto.getId());
 		if (response.isPresent()) {
 			Timestamp timestamp = response.get();
-			Timestamp newTimestamp = new Timestamp(timestamp.getId(), timestamp.getDaySheet(),
-					updateTimestampDto.getStart_time(), updateTimestampDto.getEnd_time());
+			Timestamp newTimestamp = new Timestamp(timestamp.getId(), updateTimestampDto.getStart_time(),
+					updateTimestampDto.getEnd_time(), timestamp.getDaySheet());
 			if (checkNoDoubleEntry(newTimestamp)) {
 				timestamp.setStartTime(updateTimestampDto.getStart_time());
 				timestamp.setEndTime(updateTimestampDto.getEnd_time());
@@ -79,8 +80,8 @@ public class TimestampService {
 
 	private boolean authCheckTimestamp(Long timestampId, String userId) {
 		Optional<Timestamp> optionalTimestamp = timestampRepository.findById(timestampId);
-		if (userService.getUserRole(userId) == UserRole.SOCIAL_WORKER
-				|| (optionalTimestamp.isPresent() && optionalTimestamp.get().getDaySheet().getOwner().getId().equals(userId))) {
+		if (userService.getUserRole(userId) == UserRole.SOCIAL_WORKER || (optionalTimestamp.isPresent()
+				&& optionalTimestamp.get().getDaySheet().getOwner().getId().equals(userId))) {
 			return true;
 		}
 
@@ -104,8 +105,8 @@ public class TimestampService {
 	private Timestamp convertTimestampDtoToDTimestamp(TimestampDto timestampDto, String user_id) {
 		Optional<DaySheet> option = daySheetRepository.findByIdAndOwnerId(timestampDto.getDay_sheet_id(), user_id);
 		if (option.isPresent()) {
-			return new Timestamp(timestampDto.getId(), option.get(), timestampDto.getStart_time(),
-					timestampDto.getEnd_time());
+			return new Timestamp(timestampDto.getId(), timestampDto.getStart_time(), timestampDto.getEnd_time(),
+					option.get());
 		}
 		return null;
 	}
@@ -126,8 +127,7 @@ public class TimestampService {
 			return noDoubleEntry;
 		}
 		for (Timestamp timestamp : timestamps) {
-			if(timestampToCheck.getId() == timestamp.getId())
-			{
+			if (timestampToCheck.getId() == timestamp.getId()) {
 				continue;
 			}
 			if (timestampToCheck.getStartTime().before(timestamp.getEndTime())

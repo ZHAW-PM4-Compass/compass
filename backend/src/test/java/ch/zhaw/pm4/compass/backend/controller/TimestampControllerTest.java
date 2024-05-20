@@ -243,8 +243,8 @@ public class TimestampControllerTest {
 		getTimestamp1.setStart_time(Time.valueOf("14:00:00"));
 		getTimestamp1.setEnd_time(Time.valueOf("15:00:00"));
 		DaySheet daySheet = getDaySheet();
-		daySheet.getTimestamps().add(new Timestamp(1l, daySheet, Time.valueOf("13:00:00"), Time.valueOf("14:00:00")));
-		daySheet.getTimestamps().add(new Timestamp(2l, daySheet, Time.valueOf("14:00:00"), Time.valueOf("15:00:00")));
+		daySheet.getTimestamps().add(new Timestamp(1l, Time.valueOf("13:00:00"), Time.valueOf("14:00:00"), daySheet));
+		daySheet.getTimestamps().add(new Timestamp(2l, Time.valueOf("14:00:00"), Time.valueOf("15:00:00"), daySheet));
 		ArrayList<TimestampDto> timestamps = new ArrayList<TimestampDto>();
 		timestamps.add(getTimestamp);
 		timestamps.add(getTimestamp1);

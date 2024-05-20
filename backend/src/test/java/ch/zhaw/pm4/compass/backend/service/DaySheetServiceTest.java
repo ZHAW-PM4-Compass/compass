@@ -260,7 +260,7 @@ class DaySheetServiceTest {
 
 		Time time1 = new Time(10000);
 		Time time2 = new Time(20000);
-		Timestamp timestamp = new Timestamp(1l, daySheet, time1, time2, user_id);
+		Timestamp timestamp = new Timestamp(1l, time1, time2, daySheet);
 		TimestampDto timestampDto = new TimestampDto(1l, 1l, time1, time2);
 
 		Rating ratingOne = new Rating(3, RatingType.PARTICIPANT);

@@ -5,7 +5,7 @@ import {
     type UpdateConfirmedRequest,
 } from "@/openapi/compassClient";
 import Table from "@/components/table";
-import {Checkmark24Regular, Edit24Regular, NoteAddRegular, Save24Regular} from "@fluentui/react-icons";
+import {Checkmark24Regular, Edit24Regular, Note24Regular, NoteAddRegular, NoteRegular, Save24Regular} from "@fluentui/react-icons";
 import {toast} from "react-hot-toast";
 import {useRouter} from "next/navigation";
 import Title1 from "@/components/title1";
@@ -68,7 +68,7 @@ export default function WorkingHoursCheckPage() {
     const [loading, setLoading] = useState(true);
     const [showDayNotesModal, setShowDayNotesModal] = useState(false);
     const [daySheets, setDaySheets] = useState<DaySheetDto[]>([]);
-    const [selectedDaySheetDto, setSelectedDaySheetDto] = useState<DaySheetDto>();
+    const [selectedDaySheet, setSelectedDaySheet] = useState<DaySheetDto>();
     const router = useRouter();
 
     function loadDaySheets() {
@@ -106,9 +106,7 @@ export default function WorkingHoursCheckPage() {
     };
 
     const navigateToSingleDay = () => {
-        if (selectedDaySheetDto != undefined && selectedDaySheetDto.id != undefined) {
-            router.push(`/working-hours-single-day?day-sheet=${selectedDaySheetDto.id}`);
-        }
+        if (selectedDaySheet?.id) router.push(`/working-hours-check/${selectedDaySheet.id}`);
     };
 
     useEffect(() => {
@@ -121,7 +119,7 @@ export default function WorkingHoursCheckPage() {
           <DayNotesModal 
 			  		close={() => setShowDayNotesModal(false)}
             onSave={() => loadDaySheets()}
-            daySheetDto={selectedDaySheetDto} />
+            daySheetDto={selectedDaySheet} />
         )}
         <div className="h-full flex flex-col">
             <Title1 className='mb-5'>Kontrolle Arbeitszeit</Title1>
@@ -166,15 +164,14 @@ export default function WorkingHoursCheckPage() {
                     {
                         icon: Edit24Regular,
                         onClick: (id) => {
-                            setSelectedDaySheetDto(daySheets[id]);
+                            setSelectedDaySheet(daySheets[id]);
                             navigateToSingleDay();
                         }
                     },
                     {
-                        icon: NoteAddRegular,
-                        label: "Notizen öffnen",
+                        icon: Note24Regular,
                         onClick: (id) => {
-                            setSelectedDaySheetDto(daySheets[id]);
+                            setSelectedDaySheet(daySheets[id]);
                             setShowDayNotesModal(true);
                         },
                     }

@@ -7,9 +7,10 @@ import Button from "@/components/button";
 import {toast} from "react-hot-toast";
 import Modal from "@/components/modal";
 import Input from "@/components/input";
-import {GetAllTimestampByDaySheetIdRequest, TimestampDto} from "@/openapi/compassClient";
+import {TimestampDto} from "@/openapi/compassClient";
 import {getTimestampControllerApi} from "@/openapi/connector";
 import toastMessages from "@/constants/toastMessages";
+import { convertMilisecondsToTimeString } from '@/utils/time';
 
 function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
     close: () => void;
@@ -19,14 +20,11 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
     const [updatedTimestamp, setTimestamp] = useState<{ startTime: string; endTime: string;}>({ startTime: '', endTime: ''});
 
     const onSubmit = (formData: FormData) => {
-        const startTime = new Date(`1970-01-01T${formData.get("startTime")}:00`);
-        const endTime = new Date(`1970-01-01T${formData.get("endTime")}:00`);
-
         const editedTimestamp: TimestampDto = {
             id: timestamp?.id || 0,
             daySheetId: timestamp?.daySheetId || 0,
-            startTime: startTime,
-            endTime: endTime
+            startTime: formData.get('startTime') as string,
+            endTime: formData.get('endTime') as string
         };
 
         getTimestampControllerApi().putTimestamp({timestampDto: editedTimestamp}).then(() => {
@@ -44,9 +42,7 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
     };
 
     useEffect(() => {
-        const startTimeString = timestamp?.startTime?.toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
-        const endTimeString = timestamp?.endTime?.toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
-        setTimestamp({startTime: startTimeString || "00:00", endTime: endTimeString || "00:00"})
+        setTimestamp({startTime: timestamp?.startTime || "00:00", endTime: timestamp?.endTime || "00:00"})
     }, []);
 
     return (
@@ -64,75 +60,37 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
     );
 }
 
-const DaySheetViewSingleDay: React.FC = () => {
+export default function WorkingHoursCheckByIdPage({ params }: { params: { id: number } }) {
     const [currentDate, setCurrentDate] = useState<Date | undefined>();
     const [selectedTimestamp, setSelectedTimestamp] = useState<TimestampDto>();
     const [timestamps, setTimestamps] = useState<TimestampDto[]>([]);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
-    const [daySheetId, setDaySheetId] = useState<number | null>();
 
-    let initLoad = false;
     useEffect(() => {
-        if (!initLoad) {
-            initLoad = true;
-            const queryParams = new URLSearchParams(window.location.search);
-            const daySheetId = queryParams.get('day-sheet');
-            const id = parseInt(daySheetId!);
-            setDaySheetId(id);
-            fetchTimestamps(id);
-        }
+        fetchTimestamps();
     }, []);
 
-    function fetchTimestamps(id: number) {
-        const param: GetAllTimestampByDaySheetIdRequest = { id };
-
-        getTimestampControllerApi().getAllTimestampByDaySheetId(param).then(timestampDtos => {
-                close();
-                toast.success(toastMessages.TIMESTAMPS_LOADED);
-                timestampDtos.sort((a, b) => {
-                    if (a.id === undefined && b.id === undefined) return 0; // Both IDs are undefined, maintain current order
-                    if (a.id === undefined) return 1; // Place undefined ID at the end
-                    if (b.id === undefined) return -1; // Place undefined ID at the end
-                    return a.id - b.id; // Compare IDs if both are defined
-                });
-                setTimestamps(timestampDtos);
-            })
-            .catch(() => {
-                toast.error(toastMessages.DATA_NOT_LOADED);
+    function fetchTimestamps() {
+        getTimestampControllerApi().getAllTimestampByDaySheetId({ id: params.id }).then(timestamps => {
+            close();
+            timestamps.sort((a, b) => {
+                const startTimeAHour = a.startTime?.split(':').map(Number)[0] ?? 0;
+                const startTimeBHour = b.startTime?.split(':').map(Number)[0] ?? 0;
+                
+                return startTimeAHour - startTimeBHour;
             });
+            setTimestamps(timestamps);
+        }).catch(() => {
+            toast.error(toastMessages.TIMESTAMPS_NOT_LOADED);
+        });
     }
 
-    // Function to calculate the difference between start and end times
-    function calculateTimeDifference(start_time: Date, end_time: Date): string {
-        if (!start_time || !end_time) {
-            return ''; // Handle case where either start or end time is not provided
-        }
-
-        // Parse hours and minutes from time strings
-        const startHours = start_time.getHours();
-        const startMinutes = start_time.getMinutes();
-        const endHours = end_time.getHours();
-        const endMinutes = end_time.getMinutes();
-
-        // Calculate the difference in minutes
-        if (startHours != undefined && startMinutes != undefined && endHours != undefined && endMinutes != undefined) {
-            const startTimeInMinutes = startHours * 60 + startMinutes;
-            const endTimeInMinutes = endHours * 60 + endMinutes;
-            const differenceInMinutes = endTimeInMinutes - startTimeInMinutes;
-
-            // Convert difference in minutes back to hours and minutes format
-            const hours = Math.floor(differenceInMinutes / 60);
-            const minutes = differenceInMinutes % 60;
-
-            // Return the difference in hh:mm format
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-        }
-        return '';
-    }
-
-    const calculateDuration = (ts: TimestampDto): string => {
-        if (ts != undefined) {
-            if (ts.endTime != undefined && ts.startTime) return calculateTimeDifference(ts.startTime, ts.endTime) + " Stunden:Minuten";
+    const calculateDuration = (timestamp: TimestampDto): string => {
+        if (timestamp.startTime && timestamp.endTime) {
+            const startDate = new Date(`01/01/2000 ${timestamp.startTime}`);
+            const endDate = new Date(`01/01/2000 ${timestamp.endTime}`);
+            const timestampDuration = endDate.getTime() - startDate.getTime();
+            return convertMilisecondsToTimeString(timestampDuration);
         }
         return '';
     }
@@ -144,7 +102,7 @@ const DaySheetViewSingleDay: React.FC = () => {
             getTimestampControllerApi().deleteTimestamp({ id }).then((response) => {
                 close();
                 toast.success(toastMessages.TIMESTAMP_DELETED);
-                if (daySheetId) fetchTimestamps(daySheetId);
+                fetchTimestamps();
             }).catch(() => {
                 toast.error(toastMessages.TIMESTAMP_NOT_DELETED);
             });
@@ -156,13 +114,11 @@ const DaySheetViewSingleDay: React.FC = () => {
             {showUpdateModal && (
                 <TimeStampUpdateModal
                     close={() => setShowUpdateModal(false)}
-                    onSave={() => {
-                        if (daySheetId) fetchTimestamps(daySheetId);
-                    }}
+                    onSave={fetchTimestamps}
                     timestamp={selectedTimestamp}/>
             )}
             <div className="flex flex-col sm:flex-row justify-between">
-                <Title1>Kontrolle Arbeitszeit</Title1>
+                <Title1 className="mb-5">Kontrolle Arbeitszeit</Title1>
                 <div className="mt-2 sm:mt-0 font-bold">
                     {currentDate && <p>{currentDate.toDateString()}</p>}
                 </div>
@@ -188,8 +144,8 @@ const DaySheetViewSingleDay: React.FC = () => {
                         icon: Delete24Regular,
                         label: "Löschen",
                         onClick: (key) => {
-                            onDelete(key)
-                            if (daySheetId) fetchTimestamps(daySheetId)
+                            onDelete(key);
+                            fetchTimestamps();
                         }
                     },
                     {
@@ -205,5 +161,3 @@ const DaySheetViewSingleDay: React.FC = () => {
         </div>
     );
 };
-
-export default DaySheetViewSingleDay;

@@ -8,14 +8,8 @@ import Select from "@/components/select";
 import Table from "@/components/table";
 import { Edit24Regular, Save24Regular, Delete24Regular } from "@fluentui/react-icons";
 import Slider from "@/components/slider"; // Import the Slider component
-import type { RatingDto, CategoryDto } from "@/openapi/compassClient";
-
-// Mocked data for categories
-const mockCategories = [
-  { id: 1, name: "Category 1" , minimumValue: 0, maximumValue: 10},
-  { id: 2, name: "Category 2", minimumValue: 0, maximumValue: 5},
-  { id: 3, name: "Category 3" , minimumValue: 0, maximumValue: 1},
-];
+import { getCategoryControllerApi, getRatingControllerApi } from "@/openapi/connector";
+import { RatingDto, CategoryDto } from "@/openapi/compassClient";
 
 interface MoodModalProps {
   close: () => void;
@@ -38,8 +32,14 @@ const MoodModal: React.FC<MoodModalProps> = ({ close, onSave, rating, categories
         ratingRole: "PARTICIPANT",
       };
 
-      onSave(newRating);
-      close();
+      const ratingApi = getRatingControllerApi();
+      try {
+        const savedRating = await ratingApi.createRating({ ratingDto: newRating });
+        onSave(savedRating);
+        close();
+      } catch (error) {
+        console.error("Failed to save rating", error);
+      }
     }
   };
 
@@ -65,26 +65,33 @@ const MoodTrackingPage: React.FC = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedRating, setSelectedRating] = useState<RatingDto | null>(null);
   const [ratings, setRatings] = useState<RatingDto[]>([]);
-  const [categories, setCategories] = useState<CategoryDto[]>(mockCategories);
+  const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().slice(0, 10)
   );
 
   useEffect(() => {
-    // Mock fetching categories
     async function fetchCategories() {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setCategories(mockCategories);
+      const categoryApi = getCategoryControllerApi();
+      try {
+        const categories = await categoryApi.getAllCategories();
+        setCategories(categories);
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      }
     }
     fetchCategories();
   }, []);
 
-  const handleSaveRating = (rating: RatingDto) => {
-    const updatedRatings = ratings.filter(
-      (r) => r.category?.id !== rating.category?.id
-    );
-    setRatings([...updatedRatings, rating]);
+  const handleSaveRating = async (rating: RatingDto) => {
+    const ratingApi = getRatingControllerApi();
+    try {
+      const savedRating = await ratingApi.createRating({ ratingDto: rating });
+      const updatedRatings = ratings.filter((r) => r.category?.id !== savedRating.category?.id);
+      setRatings([...updatedRatings, savedRating]);
+    } catch (error) {
+      console.error("Failed to save rating", error);
+    }
   };
 
   const handleDateChange = (date: any) => {

@@ -7,38 +7,8 @@ import Input from "@/components/input";
 import Select from "@/components/select";
 import Table from "@/components/table";
 import { PersonAdd24Regular, Save24Regular } from "@fluentui/react-icons";
-
-// Mocked data for categories and participants
-const mockCategories = [
-  { id: 1, name: "Category 1", min: 0, max: 10, assignment: "global" },
-  { id: 2, name: "Category 2", min: 1, max: 5, assignment: "custom" },
-];
-
-const mockParticipants = [
-  { userId: 1, givenName: "John", familyName: "Doe" },
-  { userId: 2, givenName: "Jane", familyName: "Smith" },
-  { userId: 3, givenName: "Bob", familyName: "Brown" },
-];
-
-interface CategoryModalProps {
-  close: () => void;
-  onSave: (category: CategoryDto) => void;
-  category?: CategoryDto | null;
-}
-
-interface CategoryDto {
-  id: number;
-  name: string;
-  min: number;
-  max: number;
-  assignment: string;
-}
-
-interface UserDto {
-  userId: number;
-  givenName: string;
-  familyName: string;
-}
+import { getUserControllerApi, getCategoryControllerApi } from "@/openapi/connector";
+import { CategoryDto, UserDto } from "@/openapi/compassClient";
 
 const CategoryModal: React.FC<CategoryModalProps> = ({
   close,
@@ -46,29 +16,31 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   category,
 }) => {
   const [name, setName] = useState<string>(category?.name || "");
-  const [min, setMin] = useState<number>(category?.min || 0);
-  const [max, setMax] = useState<number>(category?.max || 10);
+  const [min, setMin] = useState<number>(category?.minimumValue || 0);
+  const [max, setMax] = useState<number>(category?.maximumValue || 10);
   const [assignment, setAssignment] = useState<string>(category?.assignment || "global");
   const [selectedParticipants, setSelectedParticipants] = useState<UserDto[]>([]);
   const [participants, setParticipants] = useState<UserDto[]>([]);
 
   useEffect(() => {
-    // Mock fetching users
     async function fetchUsers() {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setParticipants(mockParticipants);
+      const userApi = getUserControllerApi();
+      try {
+        const users = await userApi.getAllUsers();
+        setParticipants(users);
+      } catch (error) {
+        console.error("Failed to fetch users", error);
+      }
     }
     fetchUsers();
   }, []);
 
   const handleSubmit = () => {
     const newCategory: CategoryDto = {
-      id: category?.id || Date.now(),
+      id: category?.id || undefined,
       name: name,
-      min: min,
-      max: max,
-      assignment: assignment,
+      minimumValue: min,
+      maximumValue: max,
     };
 
     onSave(newCategory);
@@ -179,21 +151,33 @@ const CategoryPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<CategoryDto | null>(
     null
   );
-  const [categories, setCategories] = useState<CategoryDto[]>(mockCategories);
+  const [categories, setCategories] = useState<CategoryDto[]>([]);
 
   useEffect(() => {
-    // Mock fetching categories
     async function fetchCategories() {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setCategories(mockCategories);
+      const categoryApi = getCategoryControllerApi();
+      try {
+        const categories = await categoryApi.getAllCategories();
+        setCategories(categories);
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      }
     }
     fetchCategories();
   }, []);
 
-  const handleSaveCategory = (category: CategoryDto) => {
-    const updatedCategories = categories.filter((c) => c.id !== category.id);
-    setCategories([...updatedCategories, category].sort((a, b) => a.id - b.id));
+  const handleSaveCategory = async (category: CategoryDto) => {
+    const categoryApi = getCategoryControllerApi();
+    try {
+      const savedCategory = category.id
+        ? await categoryApi.updateCategory({ categoryDto: category })
+        : await categoryApi.createCategory({ categoryDto: category });
+
+      const updatedCategories = categories.filter((c) => c.id !== savedCategory.id);
+      setCategories([...updatedCategories, savedCategory].sort((a, b) => a.id - b.id));
+    } catch (error) {
+      console.error("Failed to save category", error);
+    }
   };
 
   return (
@@ -221,8 +205,8 @@ const CategoryPage: React.FC = () => {
           columns={[
             { header: "ID", title: "id" },
             { header: "Category", title: "name" },
-            { header: "Min", title: "min" },
-            { header: "Max", title: "max" },
+            { header: "Min", title: "minimumValue" },
+            { header: "Max", title: "maximumValue" },
             { header: "Assignment", title: "assignment" },
           ]}
           actions={[

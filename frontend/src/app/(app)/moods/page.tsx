@@ -6,16 +6,16 @@ import Button from "@/components/button";
 import Input from "@/components/input";
 import Select from "@/components/select";
 import Table from "@/components/table";
-import {
-  Edit24Regular,
-  Save24Regular,
-  Delete24Regular,
-} from "@fluentui/react-icons";
-import {
-  getCategoryControllerApi,
-  getRatingControllerApi,
-} from "@/openapi/connector";
-import type { CategoryDto, RatingDto } from "@/openapi/compassClient/models";
+import { Edit24Regular, Save24Regular, Delete24Regular } from "@fluentui/react-icons";
+import Slider from "@/components/slider"; // Import the Slider component
+import type { RatingDto, CategoryDto } from "@/openapi/compassClient";
+
+// Mocked data for categories
+const mockCategories = [
+  { id: 1, name: "Category 1" , minimumValue: 0, maximumValue: 10},
+  { id: 2, name: "Category 2", minimumValue: 0, maximumValue: 5},
+  { id: 3, name: "Category 3" , minimumValue: 0, maximumValue: 1},
+];
 
 interface MoodModalProps {
   close: () => void;
@@ -24,12 +24,7 @@ interface MoodModalProps {
   categories: CategoryDto[];
 }
 
-const MoodModal: React.FC<MoodModalProps> = ({
-  close,
-  onSave,
-  rating,
-  categories,
-}) => {
+const MoodModal: React.FC<MoodModalProps> = ({ close, onSave, rating, categories }) => {
   const [selectedCategory, setSelectedCategory] = useState<CategoryDto | null>(
     rating?.category || null
   );
@@ -51,23 +46,16 @@ const MoodModal: React.FC<MoodModalProps> = ({
   return (
     <Modal
       title="Rating abgeben"
-      footerActions={<Button Icon={Save24Regular}>Save</Button>}
-      close={() => { } } onSubmit={function (formData: FormData): void {
-        throw new Error("Function not implemented.");
-      } }    >
+      footerActions={<Button Icon={Save24Regular} onClick={handleSubmit}>Speichern</Button>}
+      close={close}
+    >
       <div className="flex flex-col">
-        <div className="mb-4">
-          <label>Category 1</label>
-          <input type="range" min="0" max="10" className="w-full" />
-        </div>
-        <div className="mb-4">
-          <label>Category 2</label>
-          <input type="range" min="0" max="10" className="w-full" />
-        </div>
-        <div className="mb-4">
-          <label>Category 3</label>
-          <input type="range" min="0" max="10" className="w-full" />
-        </div>
+        {categories.map((category) => (
+          <div key={category.id} className="mb-4">
+            <label>{category.name}</label>
+            <Slider min={category.minimumValue} max={category.maximumValue} value={mood} onChange={setMood} />
+          </div>
+        ))}
       </div>
     </Modal>
   );
@@ -77,16 +65,17 @@ const MoodTrackingPage: React.FC = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedRating, setSelectedRating] = useState<RatingDto | null>(null);
   const [ratings, setRatings] = useState<RatingDto[]>([]);
-  const [categories, setCategories] = useState<CategoryDto[]>([]);
+  const [categories, setCategories] = useState<CategoryDto[]>(mockCategories);
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().slice(0, 10)
   );
 
   useEffect(() => {
+    // Mock fetching categories
     async function fetchCategories() {
-      const categoryApi = getCategoryControllerApi();
-      const categoriesResponse = await categoryApi.getAllCategories();
-      setCategories(categoriesResponse);
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setCategories(mockCategories);
     }
     fetchCategories();
   }, []);

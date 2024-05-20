@@ -39,7 +39,7 @@ public class TimestampService {
 		Optional<Timestamp> response = timestampRepository.findById(id);
 		if (response.isEmpty())
 			return null;
-		if (response.get().getUserId().equals(userId))
+		if (response.get().getDaySheet().getOwner().getId().equals(userId))
 			return convertTimestampToTimestampDto(response.get());
 		return null;
 	}
@@ -65,8 +65,8 @@ public class TimestampService {
 		Optional<Timestamp> response = timestampRepository.findById(updateTimestampDto.getId());
 		if (response.isPresent()) {
 			Timestamp timestamp = response.get();
-			Timestamp newTimestamp = new Timestamp(timestamp.getId(), timestamp.getDaySheet(),
-					updateTimestampDto.getStart_time(), updateTimestampDto.getStart_time());
+			Timestamp newTimestamp = new Timestamp(timestamp.getId(), updateTimestampDto.getStart_time(),
+					updateTimestampDto.getEnd_time(), timestamp.getDaySheet());
 			if (checkNoDoubleEntry(newTimestamp)) {
 				timestamp.setStartTime(updateTimestampDto.getStart_time());
 				timestamp.setEndTime(updateTimestampDto.getEnd_time());
@@ -80,8 +80,8 @@ public class TimestampService {
 
 	private boolean authCheckTimestamp(Long timestampId, String userId) {
 		Optional<Timestamp> optionalTimestamp = timestampRepository.findById(timestampId);
-		if (userService.getUserRole(userId) == UserRole.SOCIAL_WORKER
-				|| (optionalTimestamp.isPresent() && optionalTimestamp.get().getUserId().equals(userId))) {
+		if (userService.getUserRole(userId) == UserRole.SOCIAL_WORKER || (optionalTimestamp.isPresent()
+				&& optionalTimestamp.get().getDaySheet().getOwner().getId().equals(userId))) {
 			return true;
 		}
 
@@ -104,9 +104,10 @@ public class TimestampService {
 
 	private Timestamp convertTimestampDtoToDTimestamp(TimestampDto timestampDto, String user_id) {
 		Optional<DaySheet> option = daySheetRepository.findByIdAndOwnerId(timestampDto.getDay_sheet_id(), user_id);
-		if (option.isPresent())
-			return new Timestamp(timestampDto.getId(), option.get(), timestampDto.getStart_time(),
-					timestampDto.getEnd_time(), user_id);
+		if (option.isPresent()) {
+			return new Timestamp(timestampDto.getId(), timestampDto.getStart_time(), timestampDto.getEnd_time(),
+					option.get());
+		}
 		return null;
 	}
 
@@ -115,12 +116,20 @@ public class TimestampService {
 				timestamp.getEndTime());
 	}
 
-	private boolean checkNoDoubleEntry(Timestamp timestampToCheck) {
+	public boolean checkNoDoubleEntry(Timestamp timestampToCheck) {
 		Iterable<Timestamp> timestamps = timestampRepository
-				.findAllByDaySheetIdAndUserId(timestampToCheck.getDaySheet().getId(), timestampToCheck.getUserId());
+				.findAllByDaySheetId(timestampToCheck.getDaySheet().getId());
 
 		boolean noDoubleEntry = true;
+		if (timestampToCheck.getStartTime().after(timestampToCheck.getEndTime())
+				|| timestampToCheck.getStartTime().equals(timestampToCheck.getEndTime())) {
+			noDoubleEntry = false;
+			return noDoubleEntry;
+		}
 		for (Timestamp timestamp : timestamps) {
+			if (timestampToCheck.getId() == timestamp.getId()) {
+				continue;
+			}
 			if (timestampToCheck.getStartTime().isBefore(timestamp.getEndTime())
 					&& timestampToCheck.getStartTime().isAfter(timestamp.getStartTime())) {
 				noDoubleEntry = false;
@@ -134,7 +143,7 @@ public class TimestampService {
 			}
 
 			if (timestampToCheck.getStartTime().equals(timestamp.getStartTime())
-					&& timestampToCheck.getEndTime().equals(timestamp.getEndTime())) {
+					|| timestampToCheck.getEndTime().equals(timestamp.getEndTime())) {
 				noDoubleEntry = false;
 				break;
 			}

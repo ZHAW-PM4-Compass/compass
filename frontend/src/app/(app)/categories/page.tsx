@@ -7,16 +7,37 @@ import Input from "@/components/input";
 import Select from "@/components/select";
 import Table from "@/components/table";
 import { PersonAdd24Regular, Save24Regular } from "@fluentui/react-icons";
-import {
-  getCategoryControllerApi,
-  getUserControllerApi,
-} from "@/openapi/connector";
-import type { CategoryDto, UserDto } from "@/openapi/compassClient/models";
+
+// Mocked data for categories and participants
+const mockCategories = [
+  { id: 1, name: "Category 1", min: 0, max: 10, assignment: "global" },
+  { id: 2, name: "Category 2", min: 1, max: 5, assignment: "custom" },
+];
+
+const mockParticipants = [
+  { userId: 1, givenName: "John", familyName: "Doe" },
+  { userId: 2, givenName: "Jane", familyName: "Smith" },
+  { userId: 3, givenName: "Bob", familyName: "Brown" },
+];
 
 interface CategoryModalProps {
   close: () => void;
   onSave: (category: CategoryDto) => void;
   category?: CategoryDto | null;
+}
+
+interface CategoryDto {
+  id: number;
+  name: string;
+  min: number;
+  max: number;
+  assignment: string;
+}
+
+interface UserDto {
+  userId: number;
+  givenName: string;
+  familyName: string;
 }
 
 const CategoryModal: React.FC<CategoryModalProps> = ({
@@ -26,38 +47,29 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 }) => {
   const [name, setName] = useState<string>(category?.name || "");
   const [min, setMin] = useState<number>(category?.min || 0);
-  const [max, setMax] = useState<number>(category?.max || 0);
-  const [assignment, setAssignment] = useState<string>("Global");
-  const [selectedParticipants, setSelectedParticipants] = useState<UserDto[]>(
-    []
-  );
+  const [max, setMax] = useState<number>(category?.max || 10);
+  const [assignment, setAssignment] = useState<string>(category?.assignment || "global");
+  const [selectedParticipants, setSelectedParticipants] = useState<UserDto[]>([]);
   const [participants, setParticipants] = useState<UserDto[]>([]);
 
   useEffect(() => {
+    // Mock fetching users
     async function fetchUsers() {
-      const userApi = getUserControllerApi();
-      const allParticipants = await userApi.getAllParticipants();
-      setParticipants(allParticipants);
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setParticipants(mockParticipants);
     }
     fetchUsers();
   }, []);
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const newCategory: CategoryDto = {
       id: category?.id || Date.now(),
       name: name,
-      minimumValue: min,
-      maximumValue: max,
+      min: min,
+      max: max,
+      assignment: assignment,
     };
-    const catApi = getCategoryControllerApi();
-
-    if (category) {
-      await catApi.linkUsersToExistingCategory({
-        categoryDto: newCategory,
-      });
-    } else {
-      await catApi.createCategory({ categoryDto: newCategory });
-    }
 
     onSave(newCategory);
     close();
@@ -72,9 +84,6 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
         </Button>
       }
       close={close}
-      onSubmit={function (formData: FormData): void {
-        throw new Error("Function not implemented.");
-      }}
     >
       <div className="flex">
         <div className="w-1/2 pr-2">
@@ -165,18 +174,19 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   );
 };
 
-const TaxonomyPage: React.FC = () => {
+const CategoryPage: React.FC = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<CategoryDto | null>(
     null
   );
-  const [categories, setCategories] = useState<CategoryDto[]>([]);
+  const [categories, setCategories] = useState<CategoryDto[]>(mockCategories);
 
   useEffect(() => {
+    // Mock fetching categories
     async function fetchCategories() {
-      const categoryApi = getCategoryControllerApi();
-      const categoriesResponse = await categoryApi.getAllCategories();
-      setCategories(categoriesResponse);
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setCategories(mockCategories);
     }
     fetchCategories();
   }, []);
@@ -232,4 +242,4 @@ const TaxonomyPage: React.FC = () => {
   );
 };
 
-export default TaxonomyPage;
+export default CategoryPage;

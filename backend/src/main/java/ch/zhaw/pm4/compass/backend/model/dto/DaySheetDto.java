@@ -1,6 +1,8 @@
 package ch.zhaw.pm4.compass.backend.model.dto;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -77,7 +79,10 @@ public class DaySheetDto {
 
 	private void setTimeSum() {
 		for (TimestampDto timestamp : this.getTimestamps()) {
-			timeSum += timestamp.getEnd_time().getTime() - timestamp.getStart_time().getTime();
+			LocalTime startTime = timestamp.getStart_time();
+			LocalTime endTime = timestamp.getEnd_time();
+			long durationInMilliseconds = Duration.between(startTime, endTime).toMillis();
+			timeSum += durationInMilliseconds;
 		}
 	}
 }

@@ -135,7 +135,7 @@ public class IncidentControllerTest {
 		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(new GsonExclusionStrategy())
 				.addDeserializationExclusionStrategy(new GsonExclusionStrategy()).create();
 
-		when(incidentService.getAll(any(String.class))).thenReturn(incidentDtoList);
+		when(incidentService.getAll()).thenReturn(incidentDtoList);
 
 		// Act and Assert/
 		String res = mockMvc.perform(get("/incident/getAll").with(SecurityMockMvcRequestPostProcessors.csrf()))
@@ -149,7 +149,7 @@ public class IncidentControllerTest {
 		assertEquals(incidentDtoList.getFirst().getDescription(), resultIncidentDtoList.getFirst().getDescription());
 		assertEquals(incidentDtoList.getFirst().getUser(), resultIncidentDtoList.getFirst().getUser());
 
-		verify(incidentService, times(1)).getAll(any(String.class));
+		verify(incidentService, times(1)).getAll();
 	}
 
 }

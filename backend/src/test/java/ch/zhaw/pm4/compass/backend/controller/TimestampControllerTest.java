@@ -12,8 +12,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 import org.junit.Before;
@@ -67,11 +67,11 @@ public class TimestampControllerTest {
 	}
 
 	private TimestampDto getTimestampDto() {
-		return new TimestampDto(1l, 1l, Time.valueOf("13:00:00"), Time.valueOf("14:00:00"));
+		return new TimestampDto(1l, 1l, LocalTime.parse("13:00:00"), LocalTime.parse("14:00:00"));
 	}
 
 	private TimestampDto getUpdateTimestamp() {
-		return new TimestampDto(1l, 1l, Time.valueOf("13:00:00"), Time.valueOf("15:00:00"));
+		return new TimestampDto(1l, 1l, LocalTime.parse("13:00:00"), LocalTime.parse("15:00:00"));
 	}
 
 	@Before
@@ -240,11 +240,11 @@ public class TimestampControllerTest {
 		TimestampDto getTimestamp = getTimestampDto();
 		TimestampDto getTimestamp1 = getUpdateTimestamp();
 		getUpdateTimestamp().setId(2l);
-		getTimestamp1.setStart_time(Time.valueOf("14:00:00"));
-		getTimestamp1.setEnd_time(Time.valueOf("15:00:00"));
+		getTimestamp1.setStart_time(LocalTime.parse("14:00:00"));
+		getTimestamp1.setEnd_time(LocalTime.parse("15:00:00"));
 		DaySheet daySheet = getDaySheet();
-		daySheet.getTimestamps().add(new Timestamp(1l, daySheet, Time.valueOf("13:00:00"), Time.valueOf("14:00:00")));
-		daySheet.getTimestamps().add(new Timestamp(2l, daySheet, Time.valueOf("14:00:00"), Time.valueOf("15:00:00")));
+		daySheet.getTimestamps().add(new Timestamp(1l, daySheet, LocalTime.parse("13:00:00"), LocalTime.parse("14:00:00")));
+		daySheet.getTimestamps().add(new Timestamp(2l, daySheet, LocalTime.parse("14:00:00"), LocalTime.parse("15:00:00")));
 		ArrayList<TimestampDto> timestamps = new ArrayList<TimestampDto>();
 		timestamps.add(getTimestamp);
 		timestamps.add(getTimestamp1);

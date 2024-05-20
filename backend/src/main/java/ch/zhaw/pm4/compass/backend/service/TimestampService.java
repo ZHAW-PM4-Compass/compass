@@ -121,14 +121,14 @@ public class TimestampService {
 
 		boolean noDoubleEntry = true;
 		for (Timestamp timestamp : timestamps) {
-			if (timestampToCheck.getStartTime().before(timestamp.getEndTime())
-					&& timestampToCheck.getStartTime().after(timestamp.getStartTime())) {
+			if (timestampToCheck.getStartTime().isBefore(timestamp.getEndTime())
+					&& timestampToCheck.getStartTime().isAfter(timestamp.getStartTime())) {
 				noDoubleEntry = false;
 				break;
 			}
 
-			if (timestampToCheck.getEndTime().before(timestamp.getEndTime())
-					&& timestampToCheck.getEndTime().after(timestamp.getStartTime())) {
+			if (timestampToCheck.getEndTime().isBefore(timestamp.getEndTime())
+					&& timestampToCheck.getEndTime().isAfter(timestamp.getStartTime())) {
 				noDoubleEntry = false;
 				break;
 			}
@@ -138,8 +138,8 @@ public class TimestampService {
 				noDoubleEntry = false;
 				break;
 			}
-			if (timestampToCheck.getStartTime().before(timestamp.getStartTime())
-					&& timestampToCheck.getEndTime().after(timestamp.getEndTime())) {
+			if (timestampToCheck.getStartTime().isBefore(timestamp.getStartTime())
+					&& timestampToCheck.getEndTime().isAfter(timestamp.getEndTime())) {
 				noDoubleEntry = false;
 				break;
 			}

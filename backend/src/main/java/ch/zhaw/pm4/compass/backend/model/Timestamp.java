@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Time;
+import java.time.LocalTime;
 
 
 @Getter
@@ -17,8 +18,8 @@ public class Timestamp {
     private Long id;
 
     private String userId;
-    private Time startTime;
-    private Time endTime;
+    private LocalTime startTime;
+    private LocalTime endTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "daySheet_id")
@@ -29,20 +30,20 @@ public class Timestamp {
 
     }
 
-    public Timestamp(DaySheet daySheet, Time startTime, Time endTime) {
+    public Timestamp(DaySheet daySheet, LocalTime startTime, LocalTime endTime) {
         this.daySheet = daySheet;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public Timestamp(Long id, DaySheet daySheet, Time startTime, Time endTime) {
+    public Timestamp(Long id, DaySheet daySheet, LocalTime startTime, LocalTime endTime) {
         this.id = id;
         this.daySheet = daySheet;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public Timestamp(Long id, DaySheet daySheet, Time startTime, Time endTime, String userId) {
+    public Timestamp(Long id, DaySheet daySheet, LocalTime startTime, LocalTime endTime, String userId) {
         this.id = id;
         this.daySheet = daySheet;
         this.startTime = startTime;

@@ -123,7 +123,7 @@ public class IncidentServiceTest {
         when(incidentRepository.findAll()).thenReturn(incidents);
         when(incidentRepository.findAllByDaySheet_Owner_Id(user.getUser_id())).thenReturn(incidents);
 
-        List<IncidentDto> incidentDtos = incidentService.getAll(getUserDto().getUser_id());
+        List<IncidentDto> incidentDtos = incidentService.getAll();
         assertEquals(getIncidentDto().getTitle(), incidentDtos.getFirst().getTitle());
         assertEquals(getIncidentDto().getDescription(), incidentDtos.getFirst().getDescription());
     }

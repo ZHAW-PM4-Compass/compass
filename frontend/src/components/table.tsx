@@ -49,12 +49,13 @@ const Item = ({ itemIndex, item, columns, actions }: Readonly<{
   )
 }
 
-export default function Table({ className, data, columns, actions, loading }: Readonly<{
+export default function Table({ className, data, columns, actions, loading, customBottom }: Readonly<{
   className?: string,
   data: Array<any>,
   columns: Array<{ header: string, title?: string, titleFunction?: ((value: any) => React.ReactNode) | undefined }>
   actions?: Array<{ icon: any, label?: string, onClick: (id: number) => void, hide?: (id: number) => boolean }>
   loading?: boolean
+  customBottom?: React.ReactNode
 }>) {
   return (
     <div className="overflow-auto">
@@ -88,6 +89,7 @@ export default function Table({ className, data, columns, actions, loading }: Re
           {!loading && data && data.map((item,index) => {
             return (<Item key={index} itemIndex={index} item={item} columns={columns} actions={actions}></Item>)
           })}
+          {customBottom}
         </tbody>
       </table>
     </div>

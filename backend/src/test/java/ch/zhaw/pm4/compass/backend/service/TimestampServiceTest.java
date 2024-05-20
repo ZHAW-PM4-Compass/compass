@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -66,15 +67,15 @@ class TimestampServiceTest {
 	}
 
 	private TimestampDto getTimestampDto() {
-		return new TimestampDto(1l, 1l, Time.valueOf("13:00:00"), Time.valueOf("14:00:00"));
+		return new TimestampDto(1l, 1l, LocalTime.parse("13:00:00"), LocalTime.parse("14:00:00"));
 	}
 
 	private TimestampDto getUpdateTimestamp() {
-		return new TimestampDto(1l, 1l, Time.valueOf("13:00:00"), Time.valueOf("15:00:00"));
+		return new TimestampDto(1l, 1l, LocalTime.parse("13:00:00"), LocalTime.parse("15:00:00"));
 	}
 
 	private Timestamp getTimestamp() {
-		return new Timestamp(1l, getDaySheet(), Time.valueOf("13:00:00"), Time.valueOf("14:00:00"));
+		return new Timestamp(1l, getDaySheet(), LocalTime.parse("13:00:00"), LocalTime.parse("14:00:00"));
 	}
 
 	@Test
@@ -137,7 +138,7 @@ class TimestampServiceTest {
 		List<Timestamp> timestamps = new ArrayList<>();
 		timestamps.add(timestamp);
 		TimestampDto timestampUpdateDto = getUpdateTimestamp();
-		timestampUpdateDto.setStart_time(Time.valueOf("12:00:00"));
+		timestampUpdateDto.setStart_time(LocalTime.parse("12:00:00"));
 		when(timestampRepository.findByIdAndUserId(any(Long.class), any(String.class)))
 				.thenReturn(Optional.of(timestamp));
 		when(timestampRepository.findAllByDaySheetIdAndUserId(any(Long.class), any(String.class)))
@@ -152,7 +153,7 @@ class TimestampServiceTest {
 		List<Timestamp> timestamps = new ArrayList<>();
 		timestamps.add(timestamp);
 		TimestampDto timestampUpdateDto = getUpdateTimestamp();
-		timestampUpdateDto.setStart_time(Time.valueOf("13:30:00"));
+		timestampUpdateDto.setStart_time(LocalTime.parse("13:30:00"));
 		when(timestampRepository.findByIdAndUserId(any(Long.class), any(String.class)))
 				.thenReturn(Optional.of(timestamp));
 		when(timestampRepository.findAllByDaySheetIdAndUserId(any(Long.class), any(String.class)))
@@ -167,8 +168,8 @@ class TimestampServiceTest {
 		List<Timestamp> timestamps = new ArrayList<>();
 		timestamps.add(timestamp);
 		TimestampDto timestampUpdateDto = getUpdateTimestamp();
-		timestampUpdateDto.setStart_time(Time.valueOf("12:30:00"));
-		timestampUpdateDto.setEnd_time(Time.valueOf("13:30:00"));
+		timestampUpdateDto.setStart_time(LocalTime.parse("12:30:00"));
+		timestampUpdateDto.setEnd_time(LocalTime.parse("13:30:00"));
 		when(timestampRepository.findByIdAndUserId(any(Long.class), any(String.class)))
 				.thenReturn(Optional.of(timestamp));
 		when(timestampRepository.findAllByDaySheetIdAndUserId(any(Long.class), any(String.class)))
@@ -182,13 +183,13 @@ class TimestampServiceTest {
 		TimestampDto getTimestampDto0 = getTimestampDto();
 		TimestampDto getTimestampDto1 = getUpdateTimestamp();
 		getTimestampDto1.setId(2l);
-		getTimestampDto1.setStart_time(Time.valueOf("14:00:00"));
-		getTimestampDto1.setEnd_time(Time.valueOf("15:00:00"));
+		getTimestampDto1.setStart_time(LocalTime.parse("14:00:00"));
+		getTimestampDto1.setEnd_time(LocalTime.parse("15:00:00"));
 		daySheet.setOwner(getLocalUser());
-		Timestamp timestamp1 = new Timestamp(1l, daySheet, Time.valueOf("13:00:00"), Time.valueOf("14:00:00"));
+		Timestamp timestamp1 = new Timestamp(1l, daySheet, LocalTime.parse("13:00:00"), LocalTime.parse("14:00:00"));
 		timestamp1.setUserId(user_id);
 		daySheet.getTimestamps().add(timestamp1);
-		Timestamp timestamp2 = new Timestamp(2l, daySheet, Time.valueOf("14:00:00"), Time.valueOf("15:00:00"));
+		Timestamp timestamp2 = new Timestamp(2l, daySheet, LocalTime.parse("14:00:00"), LocalTime.parse("15:00:00"));
 		timestamp2.setUserId(user_id);
 		daySheet.getTimestamps().add(timestamp2);
 		ArrayList<TimestampDto> timestampsDto = new ArrayList<TimestampDto>();

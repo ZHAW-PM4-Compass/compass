@@ -16,7 +16,7 @@ public class Timestamp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String userId;
+
     private Time startTime;
     private Time endTime;
 
@@ -42,11 +42,11 @@ public class Timestamp {
         this.endTime = endTime;
     }
 
-    public Timestamp(Long id, DaySheet daySheet, Time startTime, Time endTime, String userId) {
+    /*public Timestamp(Long id, DaySheet daySheet, Time startTime, Time endTime, String userId) {
         this.id = id;
         this.daySheet = daySheet;
         this.startTime = startTime;
         this.endTime = endTime;
         this.userId = userId;
-    }
+    }*/
 }

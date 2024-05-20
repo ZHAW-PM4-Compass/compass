@@ -1,17 +1,16 @@
 package ch.zhaw.pm4.compass.backend.service;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import ch.zhaw.pm4.compass.backend.UserRole;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.TimestampRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 public class TimestampService {
@@ -115,11 +114,16 @@ public class TimestampService {
 				timestamp.getEndTime());
 	}
 
-	private boolean checkNoDoubleEntry(Timestamp timestampToCheck) {
+	public boolean checkNoDoubleEntry(Timestamp timestampToCheck) {
 		Iterable<Timestamp> timestamps = timestampRepository
 				.findAllByDaySheetIdAndUserId(timestampToCheck.getDaySheet().getId(), timestampToCheck.getUserId());
 
 		boolean noDoubleEntry = true;
+		if (timestampToCheck.getStartTime().after(timestampToCheck.getEndTime())
+				|| timestampToCheck.getStartTime().equals(timestampToCheck.getStartTime())) {
+			noDoubleEntry = false;
+			return noDoubleEntry;
+		}
 		for (Timestamp timestamp : timestamps) {
 			if (timestampToCheck.getStartTime().before(timestamp.getEndTime())
 					&& timestampToCheck.getStartTime().after(timestamp.getStartTime())) {
@@ -134,7 +138,7 @@ public class TimestampService {
 			}
 
 			if (timestampToCheck.getStartTime().equals(timestamp.getStartTime())
-					&& timestampToCheck.getEndTime().equals(timestamp.getEndTime())) {
+					|| timestampToCheck.getEndTime().equals(timestamp.getEndTime())) {
 				noDoubleEntry = false;
 				break;
 			}

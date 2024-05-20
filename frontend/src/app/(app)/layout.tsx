@@ -35,8 +35,6 @@ import Roles from "@/constants/roles";
 import { getSystemControllerApi, getUserControllerApi } from "@/openapi/connector";
 import type { SystemStatusDto, UserDto } from "@/openapi/compassClient";
 import { Checkmark24Filled, Copy24Regular, Dismiss24Filled } from "@fluentui/react-icons";
-import { get } from "http";
-import { getFormattedDate } from "@/utils/date";
 import { setTimeout } from "timers";
 
 const SubTitle: React.FC<{ collapsed: boolean, label: string, withLine?: boolean }> = ({ collapsed, label, withLine }) => {
@@ -79,7 +77,6 @@ const MenuItem: React.FC<{ collapsed: boolean, icon: { src: string }; iconActive
 const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: SystemStatusDto | undefined}> = ({ user, userRole, systemStatus}) => {
   const [showMenu, setShowMenu] = useState(false);
   const [commitCopyActive, setCommitCopyActive] = useState(false);
-  const commitTime = systemStatus?.commitTime ? new Date(systemStatus?.commitTime) : new Date();
 
   const handleClickOutsideMenu = (event: MouseEvent) => {
     const menu = document.getElementById("profile-menu");
@@ -110,17 +107,14 @@ const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: 
         <div id="profile-menu" className="left-5 sm:left-auto absolute top-20 right-5 px-8 py-7 bg-white rounded-3xl flex flex-col drop-shadow-lg">
           {user?.given_name && user?.family_name ? ( <span className="font-bold text-sm">{user?.given_name} {user?.family_name}</span> ) : null}
           <span className="mb-4 text-sm">{user?.email}</span>
-          {userRole === Roles.ADMIN || !userRole && (
+          {userRole === Roles.ADMIN || !userRole ? (
             <div className="py-4 border-t-[1px] border-slate-200 text-sm">
               <div>
                 <span className="font-bold inline-block">Systemstatus</span>
                 {systemStatus?.commitId && (
                   <span 
-                    className="text-slate-500 cursor-pointer ml-2 text-[0.8rem] hover:underline has-tooltip relative"
+                    className="text-slate-500 cursor-pointer ml-2 text-[0.8rem] hover:underline relative"
                     onClick={() => navigator.clipboard.writeText(systemStatus?.commitId ?? "")}>
-                    <span className="tooltip rounded-lg py-2 px-3 bg-slate-200 text-slate-600 -mt-10 -ml-[50%]">
-                      {getFormattedDate(commitTime)}
-                    </span>
                     <div 
                       className="inline-block"
                       onClick={() => {
@@ -171,7 +165,7 @@ const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: 
                 )}
               </div>
             </div>
-          )}
+          ) : null}
           <a href="/api/auth/logout" className="pt-4 border-t-[1px] border-slate-200 text-sm hover:text-slate-600 duration-150">Logout</a>
         </div>
       )}

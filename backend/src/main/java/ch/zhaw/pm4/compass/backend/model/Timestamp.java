@@ -20,9 +20,8 @@ public class Timestamp {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	private String userId;
-	private Time startTime;
-	private Time endTime;
+    private Time startTime;
+    private Time endTime;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "daySheet_id")
@@ -30,26 +29,12 @@ public class Timestamp {
 
 	public Timestamp() {
 
-	}
+    }
 
-	public Timestamp(DaySheet daySheet, Time startTime, Time endTime) {
-		this.daySheet = daySheet;
-		this.startTime = startTime;
-		this.endTime = endTime;
-	}
-
-	public Timestamp(Long id, DaySheet daySheet, Time startTime, Time endTime) {
-		this.id = id;
-		this.daySheet = daySheet;
-		this.startTime = startTime;
-		this.endTime = endTime;
-	}
-
-	public Timestamp(Long id, DaySheet daySheet, Time startTime, Time endTime, String userId) {
-		this.id = id;
-		this.daySheet = daySheet;
-		this.startTime = startTime;
-		this.endTime = endTime;
-		this.userId = userId;
-	}
+    public Timestamp(Long id, DaySheet daySheet, Time startTime, Time endTime) {
+        this.id = id;
+        this.daySheet = daySheet;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
 }

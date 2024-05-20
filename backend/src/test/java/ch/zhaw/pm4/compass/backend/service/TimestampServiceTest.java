@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -303,7 +304,7 @@ class TimestampServiceTest {
 		assertFalse(result);
 	}
 	@Test
-	void testCheckNoDoubleEntryContainsExistingTimestamp() {
+	void testCheckNoDoubleEntryNewTimestampAroundExistingTimestamp() {
 		Timestamp timestamp2 = getTimestamp(); //13:00 -> 14:00
 		timestamp2.setId(2l);
 		List<Timestamp> timestamps = new ArrayList<>(){};
@@ -314,5 +315,16 @@ class TimestampServiceTest {
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps);
 
 		assertFalse(timestampService.checkNoDoubleEntry(timestmapToCheck));
+	}
+	@Test
+	void testCheckNoDoubleEntryExcludesOwnTimestamp() {
+		Timestamp timestamp2 = getTimestamp(); //13:00 -> 14:00
+		timestamp2.setId(2l);
+		List<Timestamp> timestamps = new ArrayList<>(){};
+		timestamps.add(timestamp2);
+
+		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps);
+
+		assertTrue(timestampService.checkNoDoubleEntry(timestamp2));
 	}
 }

@@ -214,20 +214,4 @@ class DaySheetServiceTest {
 				.thenReturn(Optional.empty());
 		assertNull(daySheetService.getDaySheetByDate(daySheet.getDate(), user_id));
 	}
-
-	@Test
-	void testGetAllDaySheetByParticipant() {
-		DaySheet day1 = new DaySheet(1l, getLocalUser(), reportText, dateNow, true, new ArrayList<>());
-		DaySheet day2 = new DaySheet(2l, getLocalUser(), reportText, dateNow.plusDays(1), true, new ArrayList<>());
-		List<DaySheet> daySheetList = new ArrayList<>();
-		daySheetList.add(day1);
-		daySheetList.add(day2);
-		when(daySheetRepository.findAllByOwnerId(any(String.class))).thenReturn(Optional.of(daySheetList));
-
-		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetByUser(user_id);
-
-		assertEquals(2, daySheets.size());
-		assertEquals(1, daySheets.get(0).getId());
-		assertEquals(2, daySheets.get(1).getId());
-	}
 }

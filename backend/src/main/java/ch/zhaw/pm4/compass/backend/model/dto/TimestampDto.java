@@ -1,6 +1,7 @@
 package ch.zhaw.pm4.compass.backend.model.dto;
 
 import java.time.LocalTime;
+
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModelProperty.AccessMode;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,7 +10,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter

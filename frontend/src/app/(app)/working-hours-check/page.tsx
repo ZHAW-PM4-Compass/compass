@@ -2,7 +2,6 @@
 import React, {useEffect, useState} from 'react';
 import {
     DaySheetDto,
-    TimestampDto,
     type UpdateConfirmedRequest,
 } from "@/openapi/compassClient";
 import Table from "@/components/table";
@@ -12,10 +11,10 @@ import {useRouter} from "next/navigation";
 import Title1 from "@/components/title1";
 import {getDaySheetControllerApi} from "@/openapi/connector";
 import toastMessages from "@/constants/toastMessages";
-import { useUser } from '@auth0/nextjs-auth0/client';
 import Modal from '@/components/modal';
 import Button from '@/components/button';
 import TextArea from '@/components/textarea';
+import { convertMilisecondsToTimeString } from '@/utils/time';
 
 enum formFields {
   DAY_NOTES = "dayNotes"
@@ -29,7 +28,7 @@ function DayNotesModal({ close, onSave, daySheetDto }: Readonly<{
   const [notes, setNotes] = useState(daySheetDto?.dayNotes || '');
 
   const onSubmit = () => {
-    getDaySheetControllerApi().updateDayNotes({ 
+    const updateAction = () => getDaySheetControllerApi().updateDayNotes({ 
       updateDaySheetDayNotesDto: {
         id: daySheetDto?.id,
         dayNotes: notes
@@ -37,10 +36,13 @@ function DayNotesModal({ close, onSave, daySheetDto }: Readonly<{
     }).then(() => {
       close();
       onSave();
-      toast.success(toastMessages.DAYNOTES_UPDATED);
-    }).catch(() => {
-      toast.error(toastMessages.DAYNOTES_NOT_UPDATED);
-    })
+    });
+
+    toast.promise(updateAction(), {
+      loading: toastMessages.UPDATING,
+      success: toastMessages.DAYNOTES_UPDATED,
+      error: toastMessages.DAYNOTES_NOT_UPDATED,
+    });
   }
 
   return (
@@ -63,37 +65,26 @@ function DayNotesModal({ close, onSave, daySheetDto }: Readonly<{
 }
 
 export default function WorkingHoursCheckPage() {
+    const [loading, setLoading] = useState(true);
     const [showDayNotesModal, setShowDayNotesModal] = useState(false);
-    const [daySheetDtos, setDaySheetDtos] = useState<DaySheetDto[]>([]);
+    const [daySheets, setDaySheets] = useState<DaySheetDto[]>([]);
     const [selectedDaySheetDto, setSelectedDaySheetDto] = useState<DaySheetDto>();
-    const [userId, setUserId] = useState<string | null>();
     const router = useRouter();
 
-    let initLoad = false;
-    const loadPage = () => {
-        if (!initLoad) {
-            initLoad = true;
-            const queryParams = new URLSearchParams(window.location.search);
-            const userId = queryParams.get('userId');
-            setUserId(userId);
-            if (userId) {
-                loadDaySheets(userId);
-            } else {
-                toast.error(toastMessages.USER_NOT_SELECTED);
-            }
-        }
-    }
-
-    function loadDaySheets(userId: string) {
-        getDaySheetControllerApi().getAllDaySheetByParticipant({userId: userId}).then(daySheetDtos => {
+    function loadDaySheets() {
+        setLoading(true);
+        getDaySheetControllerApi().getAllDaySheetNotConfirmed().then(daySheets => {
             close();
-            toast.success(toastMessages.DAYSHEETS_LOADED);
-            console.log(daySheetDtos);
-
-            const notConfirmedDaySheetDtos = daySheetDtos.filter(daySheetDto => !daySheetDto.confirmed);
-            setDaySheetDtos(notConfirmedDaySheetDtos);
+            daySheets = daySheets.sort((a, b) => {
+                if (a.date && b.date) {
+                    return new Date(a.date).getTime() - new Date(b.date).getTime();
+                }
+                return 0;
+            });
+            setDaySheets(daySheets);
+            setLoading(false);
         }).catch(() => {
-            toast.error(toastMessages.DATA_NOT_LOADED);
+            toast.error(toastMessages.DAYSHEETS_NOT_LOADED);
         });
     }
 
@@ -102,12 +93,15 @@ export default function WorkingHoursCheckPage() {
           id: id
         };
 
-        getDaySheetControllerApi().updateConfirmed(updateDayRequest).then(() => {
+        const confirmAction = () => getDaySheetControllerApi().updateConfirmed(updateDayRequest).then(() => {
             close();
-            toast.success(toastMessages.DAYSHEET_CONFIRMED);
-            if (userId) loadDaySheets(userId);
-        }).catch(() => {
-            toast.error(toastMessages.DAYSHEET_CONFIRMED_ERROR);
+            loadDaySheets();
+        })
+
+        toast.promise(confirmAction(), {
+            loading: toastMessages.CONFIRMING,
+            success: toastMessages.DAYSHEET_CONFIRMED,
+            error: toastMessages.DAYSHEET_NOT_CONFIRMED,
         });
     };
 
@@ -117,25 +111,8 @@ export default function WorkingHoursCheckPage() {
         }
     };
 
-    const dateFunction = (daySheetDto: DaySheetDto): string => {
-        if (daySheetDto != undefined) {
-            if (daySheetDto.date) return daySheetDto.date.toLocaleDateString();
-        }
-        return '';
-    }
-
-    const timeSumFunction = (daySheetDto: DaySheetDto): string => {
-        if (daySheetDto && daySheetDto.timeSum !== undefined) {
-            const totalSeconds = Math.floor(daySheetDto.timeSum / 1000); // converting milliseconds to seconds
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            return `${hours} hours and ${minutes} minutes`;
-        }
-        return '';
-    };
-
     useEffect(() => {
-      loadPage();
+        loadDaySheets();
     }, []);
 
     return (
@@ -143,17 +120,17 @@ export default function WorkingHoursCheckPage() {
         {showDayNotesModal && (
           <DayNotesModal 
 			  		close={() => setShowDayNotesModal(false)}
-            onSave={() => loadPage()}
+            onSave={() => loadDaySheets()}
             daySheetDto={selectedDaySheetDto} />
         )}
-        <div>
-            <Title1>Kontrolle Arbeitszeit</Title1>
+        <div className="h-full flex flex-col">
+            <Title1 className='mb-5'>Kontrolle Arbeitszeit</Title1>
             <Table
-                data={daySheetDtos}
+                data={daySheets}
                 columns={[
                     {
                         header: "Datum",
-                        titleFunction: dateFunction
+                        title: "date",
                     },
                     {
                         header: "Notizen",
@@ -161,7 +138,16 @@ export default function WorkingHoursCheckPage() {
                     },
                     {
                         header: "Erfasste Arbeitszeit",
-                        titleFunction: timeSumFunction
+                        titleFunction: (daySheet: DaySheetDto) => {
+                            const miliseconds = daySheet.timeSum || 0;
+                            return convertMilisecondsToTimeString(miliseconds);
+                        }
+                    },
+                    {
+                        header: "Teilnehmer",
+                        titleFunction: (daySheet: DaySheetDto) => {
+                            return daySheet.owner?.email || "";
+                        }
                     }
                 ]}
                 actions={[
@@ -169,7 +155,7 @@ export default function WorkingHoursCheckPage() {
                         icon: Checkmark24Regular,
                         label: "Bestätigen",
                         onClick: (id) => {
-                            let daySheetDto: DaySheetDto | undefined = daySheetDtos[id];
+                            let daySheetDto: DaySheetDto | undefined = daySheets[id];
                             if (daySheetDto !== undefined) {
                                 if (daySheetDto.id != undefined) {
                                     confirmDaySheet(daySheetDto.id);
@@ -180,7 +166,7 @@ export default function WorkingHoursCheckPage() {
                     {
                         icon: Edit24Regular,
                         onClick: (id) => {
-                            setSelectedDaySheetDto(daySheetDtos[id]);
+                            setSelectedDaySheetDto(daySheets[id]);
                             navigateToSingleDay();
                         }
                     },
@@ -188,14 +174,14 @@ export default function WorkingHoursCheckPage() {
                         icon: NoteAddRegular,
                         label: "Notizen öffnen",
                         onClick: (id) => {
-                            setSelectedDaySheetDto(daySheetDtos[id]);
+                            setSelectedDaySheetDto(daySheets[id]);
                             setShowDayNotesModal(true);
                         },
                     }
 
-                ]}>
-
-            </Table>
+                ]}
+                loading={loading}
+            />
         </div>
       </>
     );

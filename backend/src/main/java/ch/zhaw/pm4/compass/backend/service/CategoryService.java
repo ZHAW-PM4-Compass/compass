@@ -95,7 +95,7 @@ public class CategoryService {
 				entity.getMaximumValue(), categoryOwnersDto);
 		if (withRatings) {
 			List<RatingDto> ratingDtoList = entity.getMoodRatings().stream().map(i -> new RatingDto(dto,
-					daySheetService.convertDaySheetToDaySheetDto(i.getDaySheet()), i.getRating(), i.getRatingRole()))
+					daySheetService.convertDaySheetToDaySheetDto(i.getDaySheet(), null), i.getRating(), i.getRatingRole()))
 					.toList();
 			dto.setMoodRatings(ratingDtoList);
 		}

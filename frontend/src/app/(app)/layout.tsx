@@ -235,7 +235,7 @@ export default function RootLayout({
               <>
                 <SubTitle collapsed={!menuOpen} label="Sozialarbeiter" withLine={true} />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
-                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Arbeitszeit" route="/select-user" />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Kontrolle Arbeitszeit" route="/working-hours-check" />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={OverviewIcon} iconActive={OverviewIconFilled} label="Übersicht" route="/overview" />
               </>
             )}

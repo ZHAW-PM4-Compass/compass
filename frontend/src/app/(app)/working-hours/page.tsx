@@ -12,12 +12,7 @@ import toast from "react-hot-toast";
 import toastMessages from "@/constants/toastMessages";
 import { CreateDaySheetRequest, CreateTimestampRequest, DaySheetDto, TimestampDto } from "@/openapi/compassClient";
 import IconButton from "@/components/iconbutton";
-
-const convertMilisecondsToTimeString = (miliseconds: number): string => {
-  const hours = Math.floor(miliseconds / 3600000);
-  const minutes = Math.floor((miliseconds % 3600000) / 60000);
-  return `${hours}h ${minutes}min`;
-}
+import { convertMilisecondsToTimeString } from "@/utils/time";
 
 function TimestampUpdateModal({ close, onSave, timestamp }: Readonly<{
   close: () => void;

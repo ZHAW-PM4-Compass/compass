@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import ch.zhaw.pm4.compass.backend.model.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +17,6 @@ import ch.zhaw.pm4.compass.backend.model.Incident;
 import ch.zhaw.pm4.compass.backend.model.LocalUser;
 import ch.zhaw.pm4.compass.backend.model.Rating;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
-import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.IncidentDto;
-import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
-import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
 
@@ -48,13 +44,13 @@ public class DaySheetService {
 		Optional<DaySheet> optional = daySheetRepository.findByDateAndOwnerId(daySheet.getDate(), user_id);
 		if (optional.isPresent())
 			return null;
-		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
+		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet), null);
 	}
 
 	public DaySheetDto getDaySheetByIdAndUserId(Long id, String user_id) {
 		Optional<DaySheet> optional = daySheetRepository.findByIdAndOwnerId(id, user_id);
 		if (optional.isPresent())
-			return convertDaySheetToDaySheetDto(optional.get());
+			return convertDaySheetToDaySheetDto(optional.get(), null);
 
 		return null;
 	}
@@ -62,20 +58,26 @@ public class DaySheetService {
 	public DaySheetDto getDaySheetByDate(LocalDate date, String user_id) {
 		Optional<DaySheet> optional = daySheetRepository.findByDateAndOwnerId(date, user_id);
 		if (optional.isPresent())
-			return convertDaySheetToDaySheetDto(optional.get());
+			return convertDaySheetToDaySheetDto(optional.get(), null);
 		return null;
 	}
 
-	public List<DaySheetDto> getAllDaySheetByUser(String userId) {
-		Optional<List<DaySheet>> response = daySheetRepository.findAllByOwnerId(userId);
-		return response.map(daySheets -> daySheets.stream().map(this::convertDaySheetToDaySheetDto).toList())
-				.orElse(null);
+	public List<DaySheetDto> getAllDaySheetNotConfirmed() {
+		List<UserDto> userDtos = userService.getAllUsers();
+		List<DaySheet> daySheets = daySheetRepository.findAllByConfirmedIsFalse();
+		return daySheets
+				.stream().map(daySheet -> {
+					UserDto user = userDtos.stream()
+							.filter(userFilter -> userFilter.getUser_id().equals(daySheet.getOwner().getId()))
+							.findFirst().orElse(null);
+					return convertDaySheetToDaySheetDto(daySheet, user);
+				}).toList();
 	}
 
 	public List<DaySheetDto> getAllDaySheetByUserAndMonth(String userId, YearMonth month) {
 		List<DaySheet> response = daySheetRepository.findAllByOwnerIdAndDateBetween(userId, month.atDay(1),
 				month.atEndOfMonth());
-		return response.stream().map(this::convertDaySheetToDaySheetDto).collect(Collectors.toList());
+		return response.stream().map(daySheet -> convertDaySheetToDaySheetDto(daySheet, null)).collect(Collectors.toList());
 	}
 
 	public DaySheetDto updateDayNotes(UpdateDaySheetDayNotesDto updateDay, String user_id) {
@@ -84,7 +86,7 @@ public class DaySheetService {
 			return null;
 		DaySheet daySheet = optional.get();
 		daySheet.setDayNotes(updateDay.getDay_notes());
-		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
+		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet), null);
 	}
 
 	public DaySheetDto updateConfirmed(Long day_id, String user_id) {
@@ -92,19 +94,19 @@ public class DaySheetService {
 		if (optional.isEmpty())
 			return null;
 		UserRole userRole = userService.getUserRole(user_id);
-		if (userRole != UserRole.SOCIAL_WORKER) {
+		if (userRole != UserRole.SOCIAL_WORKER && userRole != UserRole.ADMIN) {
 			return null;
 		}
 		DaySheet daySheet = optional.get();
 		daySheet.setConfirmed(true);
-		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet));
+		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet), null);
 	}
 
 	public DaySheet convertDaySheetDtoToDaySheet(DaySheetDto dayDto) {
 		return new DaySheet(dayDto.getId(), dayDto.getDay_notes(), dayDto.getDate());
 	}
 
-	public DaySheetDto convertDaySheetToDaySheetDto(DaySheet daySheet) {
+	public DaySheetDto convertDaySheetToDaySheetDto(DaySheet daySheet, UserDto owner) {
 		List<TimestampDto> timestampDtos = new ArrayList<>();
 		List<RatingDto> moodRatingDtos = new ArrayList<>();
 		List<IncidentDto> incidentDtos = new ArrayList<>();
@@ -121,6 +123,6 @@ public class DaySheetService {
 			incidentDtos.add(incidentDto);
 		}
 		return new DaySheetDto(daySheet.getId(), daySheet.getDayNotes(), daySheet.getDate(), daySheet.getConfirmed(),
-				timestampDtos, moodRatingDtos, incidentDtos);
+				timestampDtos, moodRatingDtos, incidentDtos, owner);
 	}
 }

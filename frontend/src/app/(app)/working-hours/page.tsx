@@ -269,8 +269,12 @@ export default function WorkingHoursPage() {
               icon: Edit24Regular,
               onClick: (id) => {
                 if (!daySheet.confirmed) {
-                  daySheet?.timestamps && setSelectedTimestamp(daySheet.timestamps[id]);
-                  setShowUpdateModal(true);
+                  if (daySheet?.timestamps) {
+                    let timestamp = daySheet.timestamps[id];
+                    if (timestamp) timestamp.daySheetId = daySheet.id;
+                    setSelectedTimestamp(timestamp);
+                    setShowUpdateModal(true);
+                  }
                 } else {
                   toast.error(toastMessages.DAYSHEET_ALREADY_CONFIRMED);
                 }

@@ -68,10 +68,8 @@ public class TimestampController {
 	@PutMapping(produces = "application/json")
 	public ResponseEntity<TimestampDto> putTimestamp(@RequestBody TimestampDto timestamp,
 			Authentication authentication) {
-		System.out.println(timestamp);
 		DaySheetDto daySheet = daySheetService.getDaySheetByIdAndUserId(timestamp.getDay_sheet_id(),
 				authentication.getName());
-		System.out.println(daySheet);
 		if (daySheet == null)
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		if (daySheet.getConfirmed())

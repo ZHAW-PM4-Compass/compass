@@ -61,7 +61,7 @@
     "@next/bundle-analyzer": "^14.1.1",
     "@percy/cli": "1.28.1",
     "@percy/playwright": "^1.0.4",
-    "@playwright/test": "^1.42.0",
+    "@playwright/test": "^1.44.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@storybook/addon-essentials": "^7.6.17",

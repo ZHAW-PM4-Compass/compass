@@ -94,7 +94,7 @@ public class RatingController {
 
 	@GetMapping(path = "/getMoodRatingByDate/{date}", produces = "application/json")
 	public ResponseEntity<List<ExtendedRatingDto>> getMoodRatingByDate(@PathVariable LocalDate date,
-			@RequestParam("userId") Optional<String> userId) {
+			@RequestParam Optional<String> userId) {
 		List<ExtendedRatingDto> ratings = userId.isPresent() ? ratingService.getRatingsByDate(date, userId.get())
 				: ratingService.getRatingsByDate(date);
 		return ResponseEntity.ok(ratings);

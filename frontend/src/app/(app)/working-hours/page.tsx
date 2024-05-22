@@ -3,8 +3,8 @@
 import Title1 from "@/components/title1";
 import Table from "@/components/table";
 import Input from "@/components/input";
-import { ArrowLeft24Regular, ArrowRight24Regular, Delete24Regular, Edit24Regular, Save24Regular} from "@fluentui/react-icons";
-import { useEffect, useState } from "react";
+import { ArrowLeft24Regular, ArrowRight24Regular, Delete24Regular, Edit24Regular, Save24Regular, ShiftsAdd24Regular} from "@fluentui/react-icons";
+import { FormEvent, useEffect, useState } from "react";
 import { getDaySheetControllerApi, getTimestampControllerApi} from "@/openapi/connector";
 import Button from "@/components/button";
 import Modal from "@/components/modal";
@@ -72,7 +72,6 @@ function TimestampUpdateModal({ close, onSave, timestamp }: Readonly<{
 export default function WorkingHoursPage() {
   const [loading, setLoading] = useState(true);
   const [daySheet, setDaySheet] = useState<DaySheetDto>({ id: 0, date: new Date(), dayNotes: '', timestamps: [], timeSum: 0, confirmed: false });
-  const [timestamp, setTimestamp] = useState<{ startTime: string; endTime: string;}>({ startTime: '', endTime: ''});
   const [selectedTimestamp, setSelectedTimestamp] = useState<TimestampDto>();
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().slice(0, 10));
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -140,14 +139,16 @@ export default function WorkingHoursPage() {
      });     
    }
 
+  const onCreateTimestampSubmit = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		event.stopPropagation();
 
-  const handleCreateTimestampSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-  
+		const formData = new FormData(event.target as HTMLFormElement);
+    const startTime = formData.get('startTime') as string;
+    const endTime = formData.get('endTime') as string;
+    
     getDaySheetControllerApi().getDaySheetDate({date: selectedDate}).then((daySheetDto: DaySheetDto) => {
-      if (daySheetDto && daySheetDto.id) {
-        createNewTimestamp(daySheetDto.id);
-      }
+      daySheetDto?.id && createTimestamp(daySheetDto.id, startTime, endTime);
     }).catch(() => {
       const creatDaySheetDto: CreateDaySheetRequest = {
         daySheetDto: {
@@ -159,24 +160,22 @@ export default function WorkingHoursPage() {
       };
       
       getDaySheetControllerApi().createDaySheet(creatDaySheetDto).then((createdDaySheet: DaySheetDto) => {
-        if (createdDaySheet && createdDaySheet.id) {
-          createNewTimestamp(createdDaySheet.id);
-        }
+        createdDaySheet?.id && createTimestamp(createdDaySheet.id, startTime, endTime);
       })
     });
   };
 
-  const createNewTimestamp = (daysheetId: number) => {
-    if (timestamp.endTime <= timestamp.startTime) {
+  const createTimestamp = (daySheetId: number, startTime: string, endTime: string) => {
+    if (endTime <= startTime) {
       toast.error(toastMessages.STARTTIME_AFTER_ENDTIME);
       return;
     }
 
     const createTimestampRequest: CreateTimestampRequest = {
       timestampDto: {
-        daySheetId: daysheetId,
-        startTime: timestamp.startTime,
-        endTime: timestamp.endTime
+        daySheetId: daySheetId,
+        startTime: startTime,
+        endTime: endTime
       }
     };
 
@@ -189,12 +188,6 @@ export default function WorkingHoursPage() {
       success: toastMessages.TIMESTAMP_CREATED,
       error: toastMessages.TIMESTAMP_NOT_CREATED
     });
-  };
-
-
-  const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setTimestamp(prevState => ({ ...prevState, [name]: value }));
   };
 
   const deleteTimestamp = (id: number) => {
@@ -223,9 +216,9 @@ export default function WorkingHoursPage() {
 					timestamp={selectedTimestamp} />
       )}
       <div className="h-full flex flex-col">
-        <div className="flex flex-col sm:flex-row justify-between mb-5">
+        <div className="flex flex-col sm:flex-row justify-between mb-4">
           <Title1>Arbeitszeit erfassen</Title1>
-          <div className="mt-2 sm:mt-0 flex flex-row items-start space-x-4">
+          <div className="mt-2 sm:mt-0 flex flex-row space-x-4">
             <IconButton Icon={ArrowLeft24Regular} onClick={handlePrevDate}></IconButton>
             <Input type="date" name="date" value={selectedDate} onChange={handleDateChange} />
             <IconButton Icon={ArrowRight24Regular} onClick={handleNextDate}></IconButton>
@@ -288,13 +281,13 @@ export default function WorkingHoursPage() {
             </tr>
           }
         />
-        <div>
-          <form className="mt-4" onSubmit={handleCreateTimestampSubmit}>
-            <Input type="time" className="mb-4 mr-4 w-48 inline-block" name="startTime" value={timestamp.startTime} onChange={handleTimeChange}/>
-            <Input type="time" className="mb-4 mr-4 w-48 inline-block" name="endTime" value={timestamp.endTime} onChange={handleTimeChange}/> 
-            <Button type="submit" className="mb-4 mr-4 bg-black text-white rounded-md inline-block">Erfassen</Button>
-          </form>
-        </div>
+        <form className="mt-4 flex flex-col sm:flex-row sm:space-x-4" onSubmit={onCreateTimestampSubmit}>
+          <Input type="time" className="mb-4 sm:w-48" name="startTime" />
+          <Input type="time" className="mb-4 sm:w-48" name="endTime" />
+          <div>
+            <Button Icon={ShiftsAdd24Regular} type="submit" className="mb-4 bg-black text-white rounded-md">Erfassen</Button>
+          </div>
+        </form>
       </div>
     </>
   );

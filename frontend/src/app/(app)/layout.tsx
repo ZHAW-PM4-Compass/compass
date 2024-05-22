@@ -60,7 +60,7 @@ const MenuItem: React.FC<{ collapsed: boolean, icon: { src: string }; iconActive
     if (onClick) onClick();
   }
 
-  const isActive = pathname === route;
+  const isActive = pathname === route || pathname.includes(`${route}/`);
   const iconSrc = isActive && iconActive ? iconActive.src : icon.src;
 
   return (
@@ -226,10 +226,15 @@ export default function RootLayout({
             </div>
             <SubTitle collapsed={!menuOpen} label="Allgemein" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={HomeIcon} iconActive={HomeIconFilled} label="Home" route="/home" />
-            <SubTitle collapsed={!menuOpen} label="Teilnehmer" withLine={true} />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursIcon} iconActive={WorkingHoursIconFilled} label="Arbeitszeit" route="/working-hours" />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={CategoryIcon} iconActive={CategoryIconFilled} label="Stimmung" route="/categories" />
+
+            {backendUser && backendUser.role === Roles.PARTICIPANT && (
+              <>
+                <SubTitle collapsed={!menuOpen} label="Teilnehmer" withLine={true} />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursIcon} iconActive={WorkingHoursIconFilled} label="Arbeitszeit" route="/working-hours" />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={CategoryIcon} iconActive={CategoryIconFilled} label="Stimmung" route="/categories" />
+              </>
+            )}
 
             {backendUser && (backendUser.role === Roles.SOCIAL_WORKER || backendUser.role === Roles.ADMIN) && (
               <>

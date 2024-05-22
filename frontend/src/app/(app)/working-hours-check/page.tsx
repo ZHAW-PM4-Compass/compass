@@ -116,13 +116,13 @@ export default function WorkingHoursCheckPage() {
     return (
       <>
         {showDayNotesModal && (
-          <DayNotesModal 
-			  		close={() => setShowDayNotesModal(false)}
-            onSave={() => loadDaySheets()}
-            daySheetDto={selectedDaySheet} />
+            <DayNotesModal 
+			    close={() => setShowDayNotesModal(false)}
+                onSave={loadDaySheets}
+                daySheetDto={selectedDaySheet} />
         )}
         <div className="h-full flex flex-col">
-            <Title1 className='mb-5'>Kontrolle Arbeitszeit</Title1>
+            <Title1 className="mb-4">Kontrolle Arbeitszeit</Title1>
             <Table
                 data={daySheets}
                 columns={[
@@ -153,12 +153,8 @@ export default function WorkingHoursCheckPage() {
                         icon: Checkmark24Regular,
                         label: "Bestätigen",
                         onClick: (id) => {
-                            let daySheetDto: DaySheetDto | undefined = daySheets[id];
-                            if (daySheetDto !== undefined) {
-                                if (daySheetDto.id != undefined) {
-                                    confirmDaySheet(daySheetDto.id);
-                                }
-                            }
+                            const daySheetId = daySheets[id]?.id;
+                            daySheetId && confirmDaySheet(daySheetId);
                         }
                     },
                     {

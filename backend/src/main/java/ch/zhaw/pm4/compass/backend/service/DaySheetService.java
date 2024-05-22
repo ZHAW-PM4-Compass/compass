@@ -49,8 +49,10 @@ public class DaySheetService {
 
 	public DaySheetDto getDaySheetByIdAndUserId(Long id, String user_id) {
 		Optional<DaySheet> optional = daySheetRepository.findByIdAndOwnerId(id, user_id);
-		if (optional.isPresent())
-			return convertDaySheetToDaySheetDto(optional.get(), null);
+		if (optional.isPresent()) {
+			UserDto owner = userService.getUserById(user_id);
+			return convertDaySheetToDaySheetDto(optional.get(), owner);
+		}
 
 		return null;
 	}
@@ -64,7 +66,7 @@ public class DaySheetService {
 
 	public List<DaySheetDto> getAllDaySheetNotConfirmed() {
 		List<UserDto> userDtos = userService.getAllUsers();
-		List<DaySheet> daySheets = daySheetRepository.findAllByConfirmedIsFalse();
+		List<DaySheet> daySheets = daySheetRepository.findAllByConfirmedIsFalseAndOwner_Role(UserRole.PARTICIPANT);
 		return daySheets
 				.stream().map(daySheet -> {
 					UserDto user = userDtos.stream()

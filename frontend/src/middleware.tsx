@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import Roles from "./constants/roles";
 import { getMiddleWareControllerApi } from "./openapi/connector";
 
-const defaultRole = Roles.ADMIN;
+const defaultRole = Roles.PARTICIPANT;
 
 const homeRoute = "/home";
 const participantRoutes = ["/moods", "/working-hours"];
@@ -20,15 +20,23 @@ export default withMiddlewareAuthRequired(async (request: NextRequest) => {
   if (isLoggedIn) {
     let userRole = defaultRole;
     try {
-      const userControllerApi = getMiddleWareControllerApi();
-      const backendUser = user?.sub && await userControllerApi.getUserById({ id: user.sub });
-      userRole = backendUser?.role ?? userRole;
+      const userControllerApi = await getMiddleWareControllerApi();
+
+      if (user?.sub) {
+        const backendUser = await userControllerApi.getUserById({ id: user.sub });
+        userRole = backendUser?.role?.toString() as Roles;
+      }
     } catch(error) {
       // do nothing
     }
 
+    const isParticipant = userRole === Roles.PARTICIPANT;
     const isSocialWorker = userRole === Roles.SOCIAL_WORKER;
     const isAdmin = userRole === Roles.ADMIN;
+
+    if (!isParticipant && participantRoutes.includes(requestedPath)) {
+      return NextResponse.redirect(new URL(homeRoute, request.url))
+    }
 
     if (!isSocialWorker && !isAdmin && socialWorkerRoutes.includes(requestedPath)) {
       return NextResponse.redirect(new URL(homeRoute, request.url))

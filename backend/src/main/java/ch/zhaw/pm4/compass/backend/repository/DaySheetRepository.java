@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import ch.zhaw.pm4.compass.backend.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
@@ -18,5 +19,5 @@ public interface DaySheetRepository extends JpaRepository<DaySheet, Long> {
 
 	List<DaySheet> findAllByOwnerIdAndDateBetween(String userId, LocalDate firstMonthDay, LocalDate lastMonthDay);
 
-	List<DaySheet> findAllByConfirmedIsFalse();
+	List<DaySheet> findAllByConfirmedIsFalseAndOwner_Role(UserRole role);
 }

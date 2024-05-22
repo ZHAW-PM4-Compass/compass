@@ -165,7 +165,7 @@ export default function OverviewPage() {
   return (
     <>
       <div className="h-full w-full flex flex-col">
-        <div className="flex flex-col xl:flex-row justify-between">
+        <div className="flex flex-col xl:flex-row justify-between mb-4">
           <Title1>Monatsübersicht</Title1>
           <div className="mt-2 sm:mt-0">
             <Select

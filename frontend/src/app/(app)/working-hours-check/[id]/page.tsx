@@ -1,23 +1,25 @@
 'use client';
-import React, {useEffect, useState} from 'react';
+import React, {FormEvent, useEffect, useState} from 'react';
 import Table from "@/components/table";
-import {Delete24Regular, Edit24Regular, Save24Regular} from "@fluentui/react-icons";
+import {ArrowLeft24Regular, Checkmark24Regular, Delete24Regular, Edit24Regular, Save24Regular, ShiftsAdd24Regular} from "@fluentui/react-icons";
 import Title1 from "@/components/title1";
 import Button from "@/components/button";
 import {toast} from "react-hot-toast";
 import Modal from "@/components/modal";
 import Input from "@/components/input";
-import {TimestampDto} from "@/openapi/compassClient";
-import {getTimestampControllerApi} from "@/openapi/connector";
+import {CreateTimestampRequest, DaySheetDto, TimestampDto, UpdateConfirmedRequest} from "@/openapi/compassClient";
+import {getDaySheetControllerApi, getTimestampControllerApi} from "@/openapi/connector";
 import toastMessages from "@/constants/toastMessages";
 import { convertMilisecondsToTimeString } from '@/utils/time';
+import { getFormattedDate } from '@/utils/date';
+import { useRouter } from 'next/navigation';
 
 function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
     close: () => void;
     onSave: () => void;
     timestamp: TimestampDto | undefined;
 }>) {
-    const [updatedTimestamp, setTimestamp] = useState<{ startTime: string; endTime: string;}>({ startTime: '', endTime: ''});
+    const [updatedTimestamp, setTimestamp] = useState<{ startTime: string; endTime: string;}>({startTime: timestamp?.startTime || "00:00", endTime: timestamp?.endTime || "00:00"});
 
     const onSubmit = (formData: FormData) => {
         const editedTimestamp: TimestampDto = {
@@ -27,12 +29,15 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
             endTime: formData.get('endTime') as string
         };
 
-        getTimestampControllerApi().putTimestamp({timestampDto: editedTimestamp}).then(() => {
+        const updateAction = () => getTimestampControllerApi().putTimestamp({timestampDto: editedTimestamp}).then(() => {
             close();
             setTimeout(() => onSave(), 1000);
-            toast.success(toastMessages.TIMESTAMP_UPDATED);
-        }).catch(() => {
-            toast.error(toastMessages.TIMESTAMP_NOT_UPDATED);
+        });
+
+        toast.promise(updateAction(), {
+            loading: toastMessages.UPDATING,
+            success: toastMessages.TIMESTAMP_UPDATED,
+            error: toastMessages.TIMESTAMP_NOT_UPDATED
         });
     }
 
@@ -40,10 +45,6 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
         const { name, value } = event.target;
         setTimestamp(prevState => ({ ...prevState, [name]: value }));
     };
-
-    useEffect(() => {
-        setTimestamp({startTime: timestamp?.startTime || "00:00", endTime: timestamp?.endTime || "00:00"})
-    }, []);
 
     return (
         <Modal
@@ -61,91 +62,170 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
 }
 
 export default function WorkingHoursCheckByIdPage({ params }: { params: { id: number } }) {
-    const [currentDate, setCurrentDate] = useState<Date | undefined>();
+    const [loading, setLoading] = useState(true);
+    const [daySheet, setDaySheet] = useState<DaySheetDto>();
     const [selectedTimestamp, setSelectedTimestamp] = useState<TimestampDto>();
     const [timestamps, setTimestamps] = useState<TimestampDto[]>([]);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
 
-    useEffect(() => {
-        fetchTimestamps();
-    }, []);
+    const router = useRouter();
 
-    function fetchTimestamps() {
-        getTimestampControllerApi().getAllTimestampByDaySheetId({ id: params.id }).then(timestamps => {
-            close();
-            timestamps.sort((a, b) => {
-                const startTimeAHour = a.startTime?.split(':').map(Number)[0] ?? 0;
-                const startTimeBHour = b.startTime?.split(':').map(Number)[0] ?? 0;
-                
-                return startTimeAHour - startTimeBHour;
-            });
-            setTimestamps(timestamps);
-        }).catch(() => {
+    const loadTimestamps = () => {
+        setLoading(true);
+        Promise.all([
+            getTimestampControllerApi().getAllTimestampByDaySheetId({ id: params.id }).then(timestamps => {
+                close();
+                timestamps.sort((a, b) => {
+                    const startTimeAHour = a.startTime?.split(':').map(Number)[0] ?? 0;
+                    const startTimeBHour = b.startTime?.split(':').map(Number)[0] ?? 0;
+                    
+                    return startTimeAHour - startTimeBHour;
+                });
+                timestamps.forEach(timestamp => {
+                    timestamp.startTime = timestamp.startTime?.slice(0, 5);
+                    timestamp.endTime = timestamp.endTime?.slice(0, 5);
+                });
+                setTimestamps(timestamps);
+                setLoading(false);
+            }),
+            getDaySheetControllerApi().getDaySheetById({ id: params.id }).then(daySheet => {
+                setDaySheet(daySheet);
+            })
+        ]).catch(() => {
             toast.error(toastMessages.TIMESTAMPS_NOT_LOADED);
         });
     }
 
-    const calculateDuration = (timestamp: TimestampDto): string => {
-        if (timestamp.startTime && timestamp.endTime) {
-            const startDate = new Date(`01/01/2000 ${timestamp.startTime}`);
-            const endDate = new Date(`01/01/2000 ${timestamp.endTime}`);
-            const timestampDuration = endDate.getTime() - startDate.getTime();
-            return convertMilisecondsToTimeString(timestampDuration);
+    const onCreateTimestampSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const formData = new FormData(event.target as HTMLFormElement);
+        const startTime = formData.get('startTime') as string;
+        const endTime = formData.get('endTime') as string;
+
+        if (endTime <= startTime) {
+            toast.error(toastMessages.STARTTIME_AFTER_ENDTIME);
+            return;
         }
-        return '';
+
+        const createTimestampRequest: CreateTimestampRequest = {
+            timestampDto: {
+                daySheetId: daySheet?.id,
+                startTime: startTime,
+                endTime: endTime
+            }
+        };
+
+        const createAction = () => getTimestampControllerApi().createTimestamp(createTimestampRequest).then(() => {
+            loadTimestamps();
+        });
+
+        toast.promise(createAction(), {
+          loading: toastMessages.CREATING,
+          success: toastMessages.TIMESTAMP_CREATED,
+          error: toastMessages.TIMESTAMP_NOT_CREATED
+        });
+    };
+
+    const deleteTimestamp = (id: number) => {
+        const deleteAction = () => getTimestampControllerApi().deleteTimestamp({ id }).then(() => {
+          loadTimestamps();
+        });
+        
+        toast.promise(deleteAction(), {
+          loading: toastMessages.DELETING,
+          success: toastMessages.TIMESTAMP_DELETED,
+          error: toastMessages.TIMESTAMP_NOT_DELETED
+        });
     }
 
-    const onDelete = (key: number) => {
-        if (timestamps != undefined) {
-            const id = timestamps[key]?.id;
-            if (id)
-            getTimestampControllerApi().deleteTimestamp({ id }).then((response) => {
-                close();
-                toast.success(toastMessages.TIMESTAMP_DELETED);
-                fetchTimestamps();
-            }).catch(() => {
-                toast.error(toastMessages.TIMESTAMP_NOT_DELETED);
-            });
-        }
-    }
+    const confirmDaySheet = async (id: number) => {
+        const updateDayRequest: UpdateConfirmedRequest = {
+          id: id
+        };
+
+        const confirmAction = () => getDaySheetControllerApi().updateConfirmed(updateDayRequest).then(() => {
+            close();
+            router.push("/working-hours-check");
+        })
+
+        toast.promise(confirmAction(), {
+            loading: toastMessages.CONFIRMING,
+            success: toastMessages.DAYSHEET_CONFIRMED,
+            error: toastMessages.DAYSHEET_NOT_CONFIRMED,
+        });
+    };
+
+    useEffect(() => {
+        loadTimestamps();
+    }, []);
 
     return (
         <div>
             {showUpdateModal && (
                 <TimeStampUpdateModal
                     close={() => setShowUpdateModal(false)}
-                    onSave={fetchTimestamps}
+                    onSave={loadTimestamps}
                     timestamp={selectedTimestamp}/>
             )}
-            <div className="flex flex-col sm:flex-row justify-between">
-                <Title1 className="mb-5">Kontrolle Arbeitszeit</Title1>
-                <div className="mt-2 sm:mt-0 font-bold">
-                    {currentDate && <p>{currentDate.toDateString()}</p>}
+            <div className="flex flex-col md:flex-row justify-between">
+                <div>
+                    <Title1 className="mb-4 inline-block">Kontrolle Arbeitszeit</Title1>
+                    <div 
+                        className="text-sm inline-block ml-4 cursor-pointer"
+                        onClick={() => router.push("/working-hours-check")}>
+                        <ArrowLeft24Regular className="w-4 h-4 inline-block mr-2 cursor-pointer" onClick={() => window.history.back()} />
+                        <span className="inline-block hover:underline">Zurück zur Übersicht</span>
+                    </div>
+                </div>
+                <div className="mb-4 md:mt-0">
+                    {daySheet ? (
+                        <>
+                            <span className="leading-9 text-sm">
+                                {daySheet?.owner?.givenName} {daySheet?.owner?.familyName}
+                            </span>
+                            <span className="mx-2">|</span>
+                            <span className="font-bold leading-9 text-sm">
+                                {daySheet?.date && getFormattedDate(daySheet?.date)}
+                            </span>
+                        </>
+                    ) : (
+                        <>
+                            <div className="w-28 h-4 my-3 rounded-md bg-slate-300 animate-pulse mr-4 inline-block"></div>
+                            <div className="w-20 h-4 my-3 rounded-md bg-slate-300 animate-pulse inline-block"></div>
+                        </>
+                    )}
                 </div>
             </div>
             <Table
                 data={timestamps}
                 columns={[
                     {
-                        header: "Startuhrzeit",
+                        header: "Start-Uhrzeit",
                         title: "startTime"
                     },
                     {
-                        header: "Enduhrzeit",
+                        header: "End-Uhrzeit",
                         title: "endTime"
                     },
                     {
                         header: "Dauer",
-                        titleFunction: calculateDuration
+                        titleFunction: (timestamp: TimestampDto) => {
+                          const startDate = new Date(`01/01/2000 ${timestamp.startTime}`);
+                          const endDate = new Date(`01/01/2000 ${timestamp.endTime}`);
+                          const timestampDuration = endDate.getTime() - startDate.getTime();
+                          return convertMilisecondsToTimeString(timestampDuration);
+                        }
                     }
                 ]}
                 actions={[
                     {
                         icon: Delete24Regular,
                         label: "Löschen",
-                        onClick: (key) => {
-                            onDelete(key);
-                            fetchTimestamps();
+                        onClick: (id) => {
+                            const timestampId = timestamps?.[id]?.id;
+                            timestampId && deleteTimestamp(timestampId);
                         }
                     },
                     {
@@ -155,9 +235,33 @@ export default function WorkingHoursCheckByIdPage({ params }: { params: { id: nu
                             setShowUpdateModal(true);
                         }
                     }
-                ]}>
-
-            </Table>
+                ]}
+                loading={loading}
+                customBottom={
+                  <tr className="bg-white border-t-4 border-slate-100">
+                    <td colSpan={2} className="py-4 px-6 text-left text-sm font-bold">
+                      Gesamt
+                    </td>
+                    <td colSpan={2} className="py-4 px-6 text-left text-sm font-bold">
+                      {convertMilisecondsToTimeString(daySheet?.timeSum ?? 0)}
+                    </td>
+                  </tr>
+                } />
+            <form className="mt-4 flex flex-col sm:flex-row sm:space-x-4" onSubmit={onCreateTimestampSubmit}>
+              <Input type="time" className="mb-4 sm:w-48" name="startTime" />
+              <Input type="time" className="mb-4 sm:w-48" name="endTime" />
+              <div>
+                <Button Icon={ShiftsAdd24Regular} type="submit" className="mb-4 bg-black text-white rounded-md">Erfassen</Button>
+              </div>
+              <div className="grow"></div>
+              <div>
+                <Button 
+                    Icon={Checkmark24Regular} 
+                    type="button" 
+                    className="mb-4 bg-black text-white rounded-md"
+                    onClick={() => daySheet?.id && confirmDaySheet(daySheet.id)}>Bestätigen</Button>
+              </div>
+            </form>
         </div>
     );
 };

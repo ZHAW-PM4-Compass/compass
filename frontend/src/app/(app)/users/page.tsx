@@ -219,7 +219,7 @@ export default function UsersPage() {
 					user={selectedUser} />
       )}
       <div className="h-full flex flex-col">
-        <div className="flex flex-col sm:flex-row justify-between mb-5">
+        <div className="flex flex-col sm:flex-row justify-between mb-4">
           <Title1>Benutzerverwaltung</Title1>
           <div className="mt-2 sm:mt-0">
             <Button Icon={PersonAdd24Regular} onClick={() => setShowCreateModal(true)}>Erstellen</Button>

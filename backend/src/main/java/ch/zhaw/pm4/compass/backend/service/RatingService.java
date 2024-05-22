@@ -1,6 +1,10 @@
 package ch.zhaw.pm4.compass.backend.service;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +20,9 @@ import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Rating;
 import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.ExtendedRatingDto;
 import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
 import ch.zhaw.pm4.compass.backend.repository.CategoryRepository;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.RatingRepository;
@@ -29,6 +35,10 @@ public class RatingService {
 	private CategoryRepository categoryRepository;
 	@Autowired
 	private DaySheetRepository daySheetRepository;
+	@Autowired
+	private UserService userService;
+
+	private Map<String, String> userNames;
 
 	public RatingDto createRating(RatingDto createRating)
 			throws RatingIsNotValidException, CategoryNotFoundException, DaySheetNotFoundException {
@@ -74,6 +84,26 @@ public class RatingService {
 		}
 	}
 
+	public List<ExtendedRatingDto> getRatingsByDate(LocalDate date, String... userId) {
+		List<DaySheet> daySheets;
+		if (userId.length == 0) {
+			daySheets = daySheetRepository.findAllByDate(date);
+		} else if (userId.length == 1) {
+			daySheets = List.of(daySheetRepository.findByDateAndOwnerId(date, userId[0]).get());
+		} else {
+			throw new IllegalArgumentException("More than one user ID");
+		}
+
+		List<UserDto> allParticipants = userService.getAllUsers();
+		userNames = new HashMap<String, String>();
+		for (UserDto i : allParticipants) {
+			String name = i.getGiven_name() + " " + i.getFamily_name();
+			userNames.put(i.getUser_id(), name);
+		}
+
+		return daySheets.stream().mapMulti(this::expandDaySheetToExtendedRatings).toList();
+	}
+
 	public List<RatingDto> getRatingsByDaySheet(Long daySheetId) throws DaySheetNotFoundException {
 		DaySheet daySheet = daySheetRepository.findById(daySheetId)
 				.orElseThrow(() -> new DaySheetNotFoundException(daySheetId));
@@ -94,5 +124,18 @@ public class RatingService {
 				daySheet.getConfirmed());
 		RatingDto dto = new RatingDto(categoryDto, daySheetDto, entity.getRating(), entity.getRatingRole());
 		return dto;
+	}
+
+	private void expandDaySheetToExtendedRatings(DaySheet daySheet, Consumer<ExtendedRatingDto> c) {
+		String userId = daySheet.getOwner().getId();
+		String name = userNames.containsKey(userId) ? userNames.get(userId) : "k.A";
+		daySheet.getMoodRatings().stream().forEach(i -> {
+			ExtendedRatingDto extendedRating = new ExtendedRatingDto();
+			extendedRating.setDate(daySheet.getDate());
+			extendedRating.setParticipantName(name);
+			RatingDto rating = convertEntityToDto(i);
+			extendedRating.setRating(rating);
+			c.accept(extendedRating);
+		});
 	}
 }

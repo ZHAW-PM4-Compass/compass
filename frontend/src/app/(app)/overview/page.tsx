@@ -32,7 +32,7 @@ export default function OverviewPage() {
   const [participantId, setParticipantId] = useState<string>();
   const [month, setMonth] = useState<string>(new Date().toLocaleString('en-US', { month: '2-digit' }).padStart(2, '0'));
   const [year, setYear] = useState<string>(new Date().getFullYear().toString());
-  
+
   const [categories, setCategories] = useState<{ id: string, label: string }[]>([]);
   const [participants, setParticipants] = useState<{ id: string, label: string }[]>([]);
   const [months, setMonths] = useState<{ id: string, label: string }[]>([]);
@@ -81,7 +81,7 @@ export default function OverviewPage() {
     setYears(yearsList);
 
     getUserControllerApi().getAllParticipants().then(participants => {
-      setParticipants(participants.map(participant => participant && ({ 
+      setParticipants(participants.map(participant => participant && ({
         id: participant.userId ?? "",
         label: participant.email ?? ""
       })) ?? []);
@@ -112,7 +112,7 @@ export default function OverviewPage() {
             }
             return false;
           });
-          
+
           const monthLabelIndex = Object.keys(monthLabels)[parseInt(month) - 1] as keyof typeof monthLabels;
           const dayLabel = `${i}. ${monthLabels[monthLabelIndex].substring(0, 3)}`;
 
@@ -120,12 +120,12 @@ export default function OverviewPage() {
             dayLabel,
             count: daySheet?.incidents?.length ?? 0,
           });
-          
+
           let workHours = daySheet?.timeSum ?? 0;
-          workHours = workHours / 1000 / 60 / 60;
+          workHours = workHours / (1000 * 60 * 60);
           workHours = Math.round(workHours * 100) / 100;
 
-          const dataItem: any = { 
+          const dataItem: any = {
             dayLabel,
             workHours: workHours,
           }
@@ -194,7 +194,7 @@ export default function OverviewPage() {
               onChange={(e) => setParticipantId(e.target.value)} />
           </div>
         </div>
-    
+
         <div className="h-full overflow-x-auto flex flex-col space-y-4">
           <div className="min-w-[2200px] bg-white rounded-xl h-36">
             <ResponsiveChartContainer
@@ -215,10 +215,10 @@ export default function OverviewPage() {
               <LinePlot />
               <ChartsXAxis />
               <ChartsYAxis axisId="leftAxis" label="Vorfälle" />
-              <ChartsTooltip trigger="item" faded="global"/>
+              <ChartsTooltip trigger="item" faded="global" />
             </ResponsiveChartContainer>
           </div>
-            
+
           <div className="min-w-[2200px] bg-white rounded-xl grow">
             <ResponsiveChartContainer
               series={dataSeries as unknown as LineSeriesType[]}
@@ -237,7 +237,7 @@ export default function OverviewPage() {
               <ChartsGrid horizontal />
               <BarPlot />
               <LinePlot />
-              <MarkPlot /> 
+              <MarkPlot />
               <ChartsXAxis />
               <ChartsYAxis
                 axisId="leftAxis"
@@ -247,7 +247,7 @@ export default function OverviewPage() {
               <ChartsYAxis
                 axisId="rightAxis"
                 position="right"
-                label="Stimmungskategorien (in %)" 
+                label="Stimmungskategorien (in %)"
               />
               <ChartsTooltip />
             </ResponsiveChartContainer>

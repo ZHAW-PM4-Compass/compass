@@ -37,7 +37,6 @@ public class TimestampService {
 		}
 
 		Optional<Timestamp> response = timestampRepository.findById(id);
-		System.out.println(response.get());
 		if (response.isEmpty())
 			return null;
 

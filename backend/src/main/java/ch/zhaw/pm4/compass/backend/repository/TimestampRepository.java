@@ -6,9 +6,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TimestampRepository extends JpaRepository<Timestamp, Long> {
     Iterable<Timestamp> findAllByDaySheetId(Long daySheetId);
-
-
-
-
-
 }

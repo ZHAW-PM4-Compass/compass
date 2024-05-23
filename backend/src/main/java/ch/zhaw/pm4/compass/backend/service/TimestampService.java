@@ -98,7 +98,8 @@ public class TimestampService {
 
 	public void deleteTimestamp(Long id) {
 		Optional<Timestamp> timestamp = timestampRepository.findById(id);
-        timestamp.ifPresent(value -> timestampRepository.delete(value));
+        if (timestamp.isPresent())
+			timestampRepository.delete(timestamp.get());
 	}
 
 	private Timestamp convertTimestampDtoToDTimestamp(TimestampDto timestampDto, String user_id) {

@@ -12,8 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Data
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 public class Timestamp {
@@ -24,7 +24,6 @@ public class Timestamp {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "daySheet_id")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private DaySheet daySheet;
 }

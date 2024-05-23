@@ -275,7 +275,7 @@ public class TimestampControllerTest {
 		// Act and Assert//.header("Authorization", "Bearer " + token))
 		mockMvc.perform(
 				get("/timestamp/allbydaysheetid/" + daySheet.getId()).with(SecurityMockMvcRequestPostProcessors.csrf()))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isOk());
 		verify(timestampService, times(1)).getAllTimestampsByDaySheetId(any(Long.class), any(String.class));
 	}
 

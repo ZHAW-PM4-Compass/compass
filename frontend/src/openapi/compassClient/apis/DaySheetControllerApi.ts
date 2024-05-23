@@ -25,8 +25,16 @@ import {
     UpdateDaySheetDayNotesDtoToJSON,
 } from '../models/index';
 
+export interface ConfirmRequest {
+    id: number;
+}
+
 export interface CreateDaySheetRequest {
     daySheetDto: DaySheetDto;
+}
+
+export interface GetAllDaySheetByMonthRequest {
+    month: string;
 }
 
 export interface GetAllDaySheetByParticipantAndMonthRequest {
@@ -42,7 +50,7 @@ export interface GetDaySheetDateRequest {
     date: string;
 }
 
-export interface UpdateConfirmedRequest {
+export interface RevokeRequest {
     id: number;
 }
 
@@ -54,6 +62,37 @@ export interface UpdateDayNotesRequest {
  * 
  */
 export class DaySheetControllerApi extends runtime.BaseAPI {
+
+    /**
+     */
+    async confirmRaw(requestParameters: ConfirmRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DaySheetDto>> {
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling confirm().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/daysheet/confirm/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id']))),
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DaySheetDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async confirm(requestParameters: ConfirmRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DaySheetDto> {
+        const response = await this.confirmRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      */
@@ -86,6 +125,37 @@ export class DaySheetControllerApi extends runtime.BaseAPI {
      */
     async createDaySheet(requestParameters: CreateDaySheetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DaySheetDto> {
         const response = await this.createDaySheetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async getAllDaySheetByMonthRaw(requestParameters: GetAllDaySheetByMonthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<DaySheetDto>>> {
+        if (requestParameters['month'] == null) {
+            throw new runtime.RequiredError(
+                'month',
+                'Required parameter "month" was null or undefined when calling getAllDaySheetByMonth().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/daysheet/getAllByMonth/{month}`.replace(`{${"month"}}`, encodeURIComponent(String(requestParameters['month']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(DaySheetDtoFromJSON));
+    }
+
+    /**
+     */
+    async getAllDaySheetByMonth(requestParameters: GetAllDaySheetByMonthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<DaySheetDto>> {
+        const response = await this.getAllDaySheetByMonthRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -215,11 +285,11 @@ export class DaySheetControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async updateConfirmedRaw(requestParameters: UpdateConfirmedRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DaySheetDto>> {
+    async revokeRaw(requestParameters: RevokeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DaySheetDto>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling updateConfirmed().'
+                'Required parameter "id" was null or undefined when calling revoke().'
             );
         }
 
@@ -228,7 +298,7 @@ export class DaySheetControllerApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/daysheet/confirm/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id']))),
+            path: `/daysheet/revoke/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id']))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
@@ -239,8 +309,8 @@ export class DaySheetControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async updateConfirmed(requestParameters: UpdateConfirmedRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DaySheetDto> {
-        const response = await this.updateConfirmedRaw(requestParameters, initOverrides);
+    async revoke(requestParameters: RevokeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DaySheetDto> {
+        const response = await this.revokeRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

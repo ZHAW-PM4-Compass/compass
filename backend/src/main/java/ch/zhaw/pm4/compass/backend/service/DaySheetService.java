@@ -84,14 +84,26 @@ public class DaySheetService {
 				}).toList();
 	}
 
+	public List<DaySheetDto> getAllDaySheetByMonth(YearMonth month) {
+		List<UserDto> userDtos = userService.getAllUsers();
+		List<DaySheet> daySheets = daySheetRepository.findAllByDateBetween(month.atDay(1), month.atEndOfMonth());
+		return daySheets
+				.stream().map(daySheet -> {
+					UserDto user = userDtos.stream()
+							.filter(userFilter -> userFilter.getUser_id().equals(daySheet.getOwner().getId()))
+							.findFirst().orElse(null);
+					return convertDaySheetToDaySheetDto(daySheet, user);
+				}).toList();
+	}
+
 	public List<DaySheetDto> getAllDaySheetByUserAndMonth(String userId, YearMonth month) {
 		List<DaySheet> response = daySheetRepository.findAllByOwnerIdAndDateBetween(userId, month.atDay(1),
 				month.atEndOfMonth());
 		return response.stream().map(daySheet -> convertDaySheetToDaySheetDto(daySheet, null)).collect(Collectors.toList());
 	}
 
-	public DaySheetDto updateDayNotes(UpdateDaySheetDayNotesDto updateDay, String user_id) {
-		Optional<DaySheet> optional = daySheetRepository.findByIdAndOwnerId(updateDay.getId(), user_id);
+	public DaySheetDto updateDayNotes(UpdateDaySheetDayNotesDto updateDay) {
+		Optional<DaySheet> optional = daySheetRepository.findById(updateDay.getId());
 		if (optional.isEmpty())
 			return null;
 		DaySheet daySheet = optional.get();
@@ -99,7 +111,7 @@ public class DaySheetService {
 		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet), null);
 	}
 
-	public DaySheetDto updateConfirmed(Long day_id, String user_id) {
+	public DaySheetDto updateConfirmed(Long day_id, boolean value, String user_id) {
 		Optional<DaySheet> optional = daySheetRepository.findById(day_id);
 		if (optional.isEmpty())
 			return null;
@@ -108,7 +120,7 @@ public class DaySheetService {
 			return null;
 		}
 		DaySheet daySheet = optional.get();
-		daySheet.setConfirmed(true);
+		daySheet.setConfirmed(value);
 		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet), null);
 	}
 

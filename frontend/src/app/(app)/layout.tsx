@@ -18,8 +18,10 @@ import IncidentIconFilled from "@fluentui/svg-icons/icons/alert_24_filled.svg";
 // social worker
 import WorkingHoursCheckIcon from "@fluentui/svg-icons/icons/shifts_checkmark_24_regular.svg";
 import WorkingHoursCheckIconFilled from "@fluentui/svg-icons/icons/shifts_checkmark_24_filled.svg";
-import OverviewIcon from "@fluentui/svg-icons/icons/arrow_trending_lines_24_regular.svg";
-import OverviewIconFilled from "@fluentui/svg-icons/icons/arrow_trending_lines_24_filled.svg";
+import DailyOverviewIcon from "@fluentui/svg-icons/icons/calendar_day_24_regular.svg";
+import DailyOverviewIconFilled from "@fluentui/svg-icons/icons/calendar_day_24_filled.svg";
+import MonthlyOverviewIcon from "@fluentui/svg-icons/icons/calendar_month_24_regular.svg";
+import MonthlyOverviewIconFilled from "@fluentui/svg-icons/icons/calendar_month_24_filled.svg";
 import CategoryIcon from "@fluentui/svg-icons/icons/apps_list_detail_24_regular.svg";
 import CategoryIconFilled from "@fluentui/svg-icons/icons/apps_list_detail_24_filled.svg";
 
@@ -239,9 +241,10 @@ export default function RootLayout({
             {backendUser && (backendUser.role === Roles.SOCIAL_WORKER || backendUser.role === Roles.ADMIN) && (
               <>
                 <SubTitle collapsed={!menuOpen} label="Sozialarbeiter" withLine={true} />
-                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfälle" route="/incidents" />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Kontrolle Arbeitszeit" route="/working-hours-check" />
-                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={OverviewIcon} iconActive={OverviewIconFilled} label="Übersicht" route="/overview" />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={DailyOverviewIcon} iconActive={DailyOverviewIconFilled} label="Tagesübersicht" route="/daily-overview" />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MonthlyOverviewIcon} iconActive={MonthlyOverviewIconFilled} label="Monatsübersicht" route="/monthly-overview" />
               </>
             )}
 

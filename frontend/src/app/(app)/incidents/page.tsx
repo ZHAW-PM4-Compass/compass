@@ -18,6 +18,8 @@ import TextArea from "@/components/textarea";
 import Select from "@/components/select";
 import React from "react";
 
+const allParticipants = "ALL_PARTICIPANTS";
+
 enum formFields {
   DATE = "date",
   TITLE = "title",
@@ -164,9 +166,13 @@ export default function IncidentsPage() {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [partSelectActive, setPartSelectActive] = useState(true);
   const [incidents, setIncidents] = useState<IncidentDto[]>([]);
+  const [incidentsFiltered, setIncidentsFiltered] = useState<IncidentDto[]>([]);
   const [selectedIncident, setSelectedIncident] = useState<IncidentDto>();
   const [userId, setUserId] = useState("");
   const [participants, setParticipants] = useState<UserDto[]>([]);
+
+  const [participantSelection, setParticipantSelection] = useState<any>();
+  const [participantSelections, setParticipantSelections] = useState<{ id: string, label: string }[]>([]);
 
   const { user } = useUser();
 
@@ -179,6 +185,14 @@ export default function IncidentsPage() {
     }).finally(() => {
       setLoading(false);
     });
+  }
+
+  const filterIncidents = () => {
+    if (participantSelection === allParticipants) {
+      setIncidentsFiltered(incidents);
+    } else {
+      setIncidentsFiltered(incidents.filter(incident => incident.user?.userId === participantSelection));
+    }
   }
 
   const deleteIncident = (id: number) => {
@@ -200,11 +214,24 @@ export default function IncidentsPage() {
         setPartSelectActive(true);
         getUserControllerApi().getAllParticipants().then(participants => {
           setParticipants(participants);
+
+          const participantsSelections = participants.map(participant => participant && ({
+            id: participant.userId ?? "",
+            label: participant.email ?? ""
+          })) ?? [];
+
+          participantsSelections.unshift({ id: allParticipants, label: "Alle Teilnehmer" });
+          setParticipantSelections(participantsSelections);
+          setParticipantSelection(allParticipants);
         });
       }
     });
     loadIncidents();
   }, [user]);
+
+  useEffect(() => {
+    filterIncidents();
+  }, [incidents, participantSelection]);
 
   return (
     <>
@@ -226,12 +253,21 @@ export default function IncidentsPage() {
       <div className="h-full flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between mb-4">
           <Title1>Vorfälle</Title1>
-          <div className="mt-2 sm:mt-0">
-            <Button Icon={Add24Regular} onClick={() => setShowCreateModal(true)}>Erstellen</Button>
+          <div className="mt-2 sm:mt-0 flex flex-row space-x-4">
+            <Select
+              className="w-40"
+              placeholder="Teilnehmer"
+              data={participantSelections}
+              value={participantSelection}
+              onChange={(e) => setParticipantSelection(e.target.value)} />
+            <Button
+              Icon={Add24Regular}
+              onClick={() => setShowCreateModal(true)}
+            >Erstellen</Button>
           </div>
         </div>
         <Table
-          data={incidents}
+          data={incidentsFiltered}
           columns={[
             {
               header: "Datum",

@@ -27,7 +27,7 @@ const getNextColor = (baseColor: string, level: number) => {
   return chroma.hex(baseColor).darken(level * 0.5).hex();
 }
 
-export default function OverviewPage() {
+export default function MonthlyOverviewPage() {
   const [categorySelection, setCategorySelection] = useState<any>(categorySelections.PARTICIPANT);
   const [participantId, setParticipantId] = useState<string>();
   const [month, setMonth] = useState<string>(new Date().toLocaleString('en-US', { month: '2-digit' }).padStart(2, '0'));

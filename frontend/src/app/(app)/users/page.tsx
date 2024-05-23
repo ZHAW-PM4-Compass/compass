@@ -41,9 +41,9 @@ enum formFields {
 }
 
 function UserCreateModal({ close, onSave }: Readonly<{
-    close: () => void;
-		onSave: () => void;
-  }>) {
+  close: () => void;
+  onSave: () => void;
+}>) {
   const onSubmit = (formData: FormData) => {
     const createUserDto: CreateUserRequest = {
       createAuthZeroUserDto: {
@@ -56,12 +56,12 @@ function UserCreateModal({ close, onSave }: Readonly<{
     };
 
     const createAction = () => getUserControllerApi().createUser(createUserDto).then(() => {
-  		close();
+      close();
       return new Promise<void>((resolve) => setTimeout(() => {
         onSave();
         resolve();
       }, auth0Timeout));
-  	});
+    });
 
     toast.promise(createAction(), {
       loading: toastMessages.CREATING,
@@ -77,7 +77,7 @@ function UserCreateModal({ close, onSave }: Readonly<{
         <Button Icon={Save24Regular} type="submit">Speichern</Button>
       }
       close={close}
-			onSubmit={onSubmit}
+      onSubmit={onSubmit}
     >
       <Input type="text" placeholder="Vorname" className="mb-4 mr-4 w-48 inline-block" name={formFields.GIVEN_NAME} required={true} />
       <Input type="text" placeholder="Nachname" className="mb-4 mr-4 w-48 inline-block" name={formFields.FAMILY_NAME} required={true} />
@@ -86,7 +86,7 @@ function UserCreateModal({ close, onSave }: Readonly<{
         placeholder="Rolle wählen"
         name={formFields.ROLE}
         data={roles}
-				required={true} />
+        required={true} />
       <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name={formFields.EMAIL} required={true} />
       <Input type="password" placeholder="Initiales Passwort" className="mb-4 mr-4 w-48 block" name={formFields.PASSWORD} required={true} />
     </Modal>
@@ -94,9 +94,9 @@ function UserCreateModal({ close, onSave }: Readonly<{
 }
 
 function UserUpdateModal({ close, onSave, user }: Readonly<{
-	close: () => void;
-	onSave: () => void;
-	user: UserDto | undefined;
+  close: () => void;
+  onSave: () => void;
+  user: UserDto | undefined;
 }>) {
   const [givenName, setGivenName] = useState(user?.givenName);
   const [familyName, setFamilyName] = useState(user?.familyName);
@@ -113,12 +113,12 @@ function UserUpdateModal({ close, onSave, user }: Readonly<{
     };
 
     const updateAction = () => getUserControllerApi().updateUser(updateUserRequest).then(() => {
-  		close();
+      close();
       return new Promise<void>((resolve) => setTimeout(() => {
         onSave();
         resolve();
       }, auth0Timeout));
-  	});
+    });
 
     toast.promise(updateAction(), {
       loading: toastMessages.UPDATING,
@@ -155,23 +155,24 @@ export default function UsersPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [users, setUsers] = useState<UserDto[]>([]);
-	const [selectedUser, setSelectedUser] = useState<UserDto>();
+  const [selectedUser, setSelectedUser] = useState<UserDto>();
 
-	const loadUsers = () => {
+  const loadUsers = () => {
     setLoading(true);
-		getUserControllerApi().getAllUsers().then(userDtos => {
+    getUserControllerApi().getAllUsers().then(userDtos => {
       const users = userDtos.map(user => {
         user.role = user.role ?? Roles.PARTICIPANT;
         const roleTitle = RoleTitles[user.role as Roles];
         return { ...user, roleTitle }
       })
-			users.sort((a, b) => (a?.givenName || '').localeCompare(b?.givenName || ''));
-			setUsers(users);
+      users.sort((a, b) => (a?.givenName || '').localeCompare(b?.givenName || ''));
+      setUsers(users);
+    }).catch(() => {
+      toast.error(toastMessages.USERS_NOT_LOADED);
+    }).finally(() => {
       setLoading(false);
-		}).catch(() => {
-			toast.error(toastMessages.USERS_NOT_LOADED);
-		})
-	}
+    });
+  }
 
   const deleteUser = (id: string) => {
     const deleteAction = () => getUserControllerApi().deleteUser({ id }).then(() => {
@@ -208,15 +209,15 @@ export default function UsersPage() {
   return (
     <>
       {showCreateModal && (
-        <UserCreateModal 
-					close={() => setShowCreateModal(false)}
-					onSave={loadUsers} />
+        <UserCreateModal
+          close={() => setShowCreateModal(false)}
+          onSave={loadUsers} />
       )}
       {showUpdateModal && (
         <UserUpdateModal
-					close={() => setShowUpdateModal(false)}
-					onSave={loadUsers}
-					user={selectedUser} />
+          close={() => setShowUpdateModal(false)}
+          onSave={loadUsers}
+          user={selectedUser} />
       )}
       <div className="h-full flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between mb-4">
@@ -273,9 +274,9 @@ export default function UsersPage() {
             {
               icon: Edit24Regular,
               onClick: (id) => {
-			  				setSelectedUser(users[id]);
-			  				setShowUpdateModal(true);
-			  			}
+                setSelectedUser(users[id]);
+                setShowUpdateModal(true);
+              }
             }
           ]}
           loading={loading} />

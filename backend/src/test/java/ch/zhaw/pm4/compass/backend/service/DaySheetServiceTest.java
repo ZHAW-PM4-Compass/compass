@@ -224,7 +224,7 @@ class DaySheetServiceTest {
 
 		List<DaySheet> jpaResponse = Arrays.asList(day1, day2);
 
-		when(daySheetRepository.findAllByConfirmedIsFalse()).thenReturn(jpaResponse);
+		when(daySheetRepository.findAllByConfirmedIsFalseAndOwner_Role(UserRole.PARTICIPANT)).thenReturn(jpaResponse);
 		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetNotConfirmed();
 
 		assertEquals(jpaResponse.size(), daySheets.size());

@@ -11,9 +11,9 @@ import ch.zhaw.pm4.compass.backend.model.DaySheet;
 
 public interface DaySheetRepository extends JpaRepository<DaySheet, Long> {
 
-	Optional<DaySheet> findByIdAndOwnerId(Long id, String userId);
+	Optional<DaySheet> findById(Long id);
 
-	Optional<List<DaySheet>> findAllByOwnerId(String userId);
+	Optional<DaySheet> findByIdAndOwnerId(Long id, String userId);
 
 	Optional<DaySheet> findByDateAndOwnerId(LocalDate date, String userId);
 

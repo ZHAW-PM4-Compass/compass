@@ -48,7 +48,15 @@ public class DaySheetService {
 	}
 
 	public DaySheetDto getDaySheetByIdAndUserId(Long id, String user_id) {
-		Optional<DaySheet> optional = daySheetRepository.findByIdAndOwnerId(id, user_id);
+		Optional<DaySheet> optional;
+		UserRole userRole = userService.getUserRole(user_id);
+
+		if (userRole == UserRole.SOCIAL_WORKER || userRole == UserRole.ADMIN) {
+			optional = daySheetRepository.findById(id);
+		} else {
+			optional = daySheetRepository.findByIdAndOwnerId(id, user_id);
+		}
+
 		if (optional.isPresent()) {
 			UserDto owner = userService.getUserById(user_id);
 			return convertDaySheetToDaySheetDto(optional.get(), owner);

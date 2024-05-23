@@ -37,11 +37,11 @@ public class TimestampService {
 		}
 
 		Optional<Timestamp> response = timestampRepository.findById(id);
+		System.out.println(response.get());
 		if (response.isEmpty())
 			return null;
-		if (response.get().getDaySheet().getOwner().getId().equals(userId))
-			return convertTimestampToTimestampDto(response.get());
-		return null;
+
+		return convertTimestampToTimestampDto(response.get());
 	}
 
 	public ArrayList<TimestampDto> getAllTimestampsByDaySheetId(Long id, String userId) {
@@ -80,7 +80,8 @@ public class TimestampService {
 
 	private boolean authCheckTimestamp(Long timestampId, String userId) {
 		Optional<Timestamp> optionalTimestamp = timestampRepository.findById(timestampId);
-		if (userService.getUserRole(userId) == UserRole.SOCIAL_WORKER || (optionalTimestamp.isPresent()
+		UserRole userRole = userService.getUserRole(userId);
+		if (userRole == UserRole.SOCIAL_WORKER || userRole == UserRole.ADMIN || (optionalTimestamp.isPresent()
 				&& optionalTimestamp.get().getDaySheet().getOwner().getId().equals(userId))) {
 			return true;
 		}
@@ -89,7 +90,7 @@ public class TimestampService {
 	}
 
 	private boolean authCheckDaySheet(Long daySheetId, String userId) {
-		if (userService.getUserRole(userId) == UserRole.SOCIAL_WORKER
+		if (userService.getUserRole(userId) == UserRole.SOCIAL_WORKER || userService.getUserRole(userId) == UserRole.ADMIN
 				|| daySheetRepository.findById(daySheetId).get().getOwner().getId().equals(userId)) {
 			return true;
 		}
@@ -98,15 +99,21 @@ public class TimestampService {
 
 	public void deleteTimestamp(Long id) {
 		Optional<Timestamp> timestamp = timestampRepository.findById(id);
-		if (timestamp.isPresent())
-			timestampRepository.delete(timestamp.get());
+        timestamp.ifPresent(value -> timestampRepository.delete(value));
 	}
 
 	private Timestamp convertTimestampDtoToDTimestamp(TimestampDto timestampDto, String user_id) {
-		Optional<DaySheet> option = daySheetRepository.findByIdAndOwnerId(timestampDto.getDay_sheet_id(), user_id);
-		if (option.isPresent()) {
-			return new Timestamp(timestampDto.getId(), timestampDto.getStart_time(), timestampDto.getEnd_time(),
-					option.get());
+		Optional<DaySheet> daySheet;
+		UserRole userRole = userService.getUserRole(user_id);
+
+		if (userRole == UserRole.SOCIAL_WORKER || userRole == UserRole.ADMIN) {
+			daySheet = daySheetRepository.findById(timestampDto.getDay_sheet_id());
+		} else {
+			daySheet = daySheetRepository.findByIdAndOwnerId(timestampDto.getDay_sheet_id(), user_id);
+		}
+
+		if (daySheet.isPresent()) {
+			return new Timestamp(timestampDto.getId(), timestampDto.getStart_time(), timestampDto.getEnd_time(), daySheet.get());
 		}
 		return null;
 	}

@@ -64,17 +64,17 @@ const MenuItem: React.FC<{ collapsed: boolean, icon: { src: string }; iconActive
   const iconSrc = isActive && iconActive ? iconActive.src : icon.src;
 
   return (
-    <div 
+    <div
       className={`${className} ${collapsed ? "mt-3 px-1.5 py-1.5 " : "mt-1 flex flex-row px-3 py-2.5"} rounded-lg cursor-pointer hover:bg-slate-100 ${isActive ? 'bg-gradient-to-r from-slate-100 to-slate-200' : ''}`}
       onClick={onClickHandler}
-      >
+    >
       <img src={iconSrc} className="w-5 h-5 mr-2.5" />
       {!collapsed ? (<p className="text-sm">{label}</p>) : null}
     </div>
   );
 }
 
-const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: SystemStatusDto | undefined, isLoading: boolean}> = ({ user, userRole, systemStatus, isLoading}) => {
+const Profile: React.FC<{ user: any, userRole: string | undefined, systemStatus: SystemStatusDto | undefined, isLoading: boolean }> = ({ user, userRole, systemStatus, isLoading }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [commitCopyActive, setCommitCopyActive] = useState(false);
 
@@ -116,17 +116,17 @@ const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: 
       </button>
       {showMenu && (
         <div id="profile-menu" className="left-5 sm:left-auto absolute top-20 right-5 px-8 py-7 bg-white rounded-3xl flex flex-col drop-shadow-lg">
-          {user?.given_name && user?.family_name ? ( <span className="font-bold text-sm">{user?.given_name} {user?.family_name}</span> ) : null}
+          {user?.given_name && user?.family_name ? (<span className="font-bold text-sm">{user?.given_name} {user?.family_name}</span>) : null}
           <span className="mb-4 text-sm">{user?.email}</span>
           {userRole === Roles.ADMIN || !userRole ? (
             <div className="py-4 border-t-[1px] border-slate-200 text-sm">
               <div>
                 <span className="font-bold inline-block">Systemstatus</span>
                 {systemStatus?.commitId && (
-                  <span 
+                  <span
                     className="text-slate-500 cursor-pointer ml-2 text-[0.8rem] hover:underline relative"
                     onClick={() => navigator.clipboard.writeText(systemStatus?.commitId ?? "")}>
-                    <div 
+                    <div
                       className="inline-block"
                       onClick={() => {
                         setCommitCopyActive(true)
@@ -134,9 +134,9 @@ const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: 
                       }}>
                       <span>#{systemStatus?.commitId?.substring(0, 7)}</span>
                       {commitCopyActive ? (
-                        <Checkmark24Filled className="-mt-1 w-4 h-4 ml-1 text-slate-500"/>
+                        <Checkmark24Filled className="-mt-1 w-4 h-4 ml-1 text-slate-500" />
                       ) : (
-                        <Copy24Regular className="-mt-1 w-4 h-4 ml-1 text-slate-500"/>
+                        <Copy24Regular className="-mt-1 w-4 h-4 ml-1 text-slate-500" />
                       )}
                     </div>
                   </span>
@@ -195,7 +195,7 @@ export default function RootLayout({
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
-  const handleMobileClick = () => window.innerWidth < 640 && toggleMenu();
+  const handleMobileClick = () => window.innerWidth < 1024 && toggleMenu();
 
   useEffect(() => {
     getSystemControllerApi().getStatus().then(systemStatus => {
@@ -251,9 +251,9 @@ export default function RootLayout({
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={UserIcon} iconActive={UserIconFilled} label="Benutzer" route="/users" />
               </>
             )}
-            
+
             <div className="grow"></div>
-            { menuOpen ? (
+            {menuOpen ? (
               <MenuItem className="hidden lg:flex" collapsed={!menuOpen} icon={CollapseMenuIcon} label="Zuklappen" onClick={toggleMenu} />
             ) : (
               <MenuItem className="hidden lg:flex mb-2" collapsed={true} icon={ExpandMenuIcon} label="Expandieren" onClick={toggleMenu} />
@@ -264,8 +264,8 @@ export default function RootLayout({
           <div className="w-full h-full lg:container lg:mx-auto px-5 lg:pt-24 pb-16">
             <div className="h-full w-full">
               {children}
-              <Profile 
-                user={user} 
+              <Profile
+                user={user}
                 userRole={backendUser?.role}
                 systemStatus={systemStatus}
                 isLoading={isLoading} />

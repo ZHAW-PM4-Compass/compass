@@ -108,7 +108,7 @@ export default function DailyOverviewPage() {
           return dateA - dateB;
         });
         setDaySheets(daySheetsDtos);
-      }).catch(error => {
+      }).catch(() => {
         toast.error(toastMessages.DAYSHEETS_NOT_LOADED);
       }).finally(() => {
         setLoading(false);

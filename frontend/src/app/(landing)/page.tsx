@@ -14,7 +14,11 @@ export default function LandingPage() {
   if (user) router.push('/home');
 
   return (
-    isLoading || user ? <Loading /> :
+    isLoading || user ? (
+      <div className="fixed top-0 right-0 bottom-0 left-0 bg-white">
+        <Loading />
+      </div>
+    ) :
     <div className="w-full h-screen bg-slate-100 backdrop-blur-lg bg-no-repeat bg-center bg-cover flex items-center justify-center">
         <div className="flex-col">
           <h1 className="text-4xl font-bold text-slate-900">Compass 🧭</h1>

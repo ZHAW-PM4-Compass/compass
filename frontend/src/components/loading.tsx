@@ -1,10 +1,10 @@
 const Loading: React.FC = () => {
     return (
-        <div className="fixed top-0 right-0 bottom-0 left-0 flex items-center justify-center bg-white z-10">
+        <div className="w-full h-full flex items-center justify-center z-10 overflow-hidden">
           <div>
             <svg
               aria-hidden="true"
-              className="inline w-8 h-8 text-slate-200 animate-spin fill-black"
+              className="inline w-7 h-7 text-slate-200 animate-spin fill-slate-900"
               viewBox="0 0 100 101"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"

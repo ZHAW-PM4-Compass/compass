@@ -17,7 +17,7 @@ public class SystemController {
     @Autowired
     private SystemService systemService;
 
-    @Value("${git.commit.id:unknown}")
+    @Value("${git.commit.id:local}")
     private String commitId;
 
     @GetMapping("/status")

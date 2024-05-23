@@ -1,6 +1,5 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -13,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
@@ -194,28 +192,5 @@ public class DaySheetControllerTest {
 				.andExpect(jsonPath("$.date").value(getDay.getDate().toString()));
 
 		verify(daySheetService, times(1)).getDaySheetByIdAndUserId(any(Long.class), any(String.class));
-	}
-
-	@Test
-	@WithMockUser(username = "testuser", roles = {})
-	void testGetAllByParticipant() throws Exception {
-		List<DaySheetDto> daySheets = new ArrayList<>();
-		DaySheetDto day1 = getDaySheetDto();
-
-		DaySheetDto day2 = getDaySheetDto();
-		day2.setId(2l);
-		day2.setDate(dateNow.plusDays(1));
-		daySheets.add(day1);
-		daySheets.add(day2);
-		when(daySheetService.getAllDaySheetByUser(any(String.class))).thenReturn(daySheets);
-		String res = mockMvc
-				.perform(get("/daysheet/getAllByParticipant/" + getDaySheet().getOwner().getId())
-						.contentType(MediaType.APPLICATION_JSON).with(SecurityMockMvcRequestPostProcessors.csrf()))
-				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-		assertEquals("[{\"id\":1,\"date\":\"" + dateNow.toString()
-				+ "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"moodRatings\":null,\"incidents\":null,\"timeSum\":0},{\"id\":2,\"date\":\""
-				+ dateNow.plusDays(1).toString()
-				+ "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"moodRatings\":null,\"incidents\":null,\"timeSum\":0}]",
-				res);
 	}
 }

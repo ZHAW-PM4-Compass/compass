@@ -1,9 +1,10 @@
 package ch.zhaw.pm4.compass.backend.model.dto;
 
-import java.sql.Time;
+import java.time.LocalTime;
 
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModelProperty.AccessMode;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -20,12 +21,12 @@ public class TimestampDto {
 	private Long id;
 
 	private Long day_sheet_id;
-
-	private Time start_time;
-
-	private Time end_time;
+	@Schema(type = "string", example = "10:00:00")
+	private LocalTime start_time;
+	@Schema(type = "string", example = "10:00:00")
+	private LocalTime end_time;
 
 	public boolean verifyTimeStamp() {
-		return end_time.after(start_time);
+		return end_time.isAfter(start_time);
 	}
 }

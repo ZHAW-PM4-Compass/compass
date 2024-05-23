@@ -55,10 +55,9 @@ public class DaySheetController {
 		return ResponseEntity.ok(response);
 	}
 
-	@GetMapping(path = "/getAllByParticipant/{userId}", produces = "application/json")
-	public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipant(@PathVariable String userId,
-			Authentication authentication) {
-		return ResponseEntity.ok(daySheetService.getAllDaySheetByUser(userId));
+	@GetMapping(path = "/getAllNotConfirmed", produces = "application/json")
+	public ResponseEntity<List<DaySheetDto>> getAllDaySheetNotConfirmed(Authentication authentication) {
+		return ResponseEntity.ok(daySheetService.getAllDaySheetNotConfirmed());
 	}
 
 	@GetMapping(path = "/getAllByParticipantAndMonth/{userId}/{month}", produces = "application/json")
@@ -78,8 +77,6 @@ public class DaySheetController {
 
 	@PutMapping(path = "/confirm/{id}", produces = "application/json")
 	public ResponseEntity<DaySheetDto> updateConfirmed(@PathVariable Long id, Authentication authentication) {
-		if (authentication == null)
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		DaySheetDto response = daySheetService.updateConfirmed(id, authentication.getName());
 		if (response == null)
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);

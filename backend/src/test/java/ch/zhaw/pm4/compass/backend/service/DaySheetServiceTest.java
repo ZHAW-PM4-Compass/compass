@@ -216,18 +216,28 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	void testGetAllDaySheetByParticipant() {
-		DaySheet day1 = new DaySheet(1l, getLocalUser(), reportText, dateNow, true, new ArrayList<>());
-		DaySheet day2 = new DaySheet(2l, getLocalUser(), reportText, dateNow.plusDays(1), true, new ArrayList<>());
-		List<DaySheet> daySheetList = new ArrayList<>();
-		daySheetList.add(day1);
-		daySheetList.add(day2);
-		when(daySheetRepository.findAllByOwnerId(any(String.class))).thenReturn(Optional.of(daySheetList));
+	void testGetAllDaySheetNotConfirmed() {
+		LocalUser user = new LocalUser(user_id, UserRole.PARTICIPANT);
 
-		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetByUser(user_id);
+		DaySheet day1 = new DaySheet(1l, user, reportText, dateNow, false, new ArrayList<>());
+		DaySheet day2 = new DaySheet(2l, user, reportText, dateNow.plusDays(1), false, new ArrayList<>());
 
-		assertEquals(2, daySheets.size());
-		assertEquals(1, daySheets.get(0).getId());
-		assertEquals(2, daySheets.get(1).getId());
+		List<DaySheet> jpaResponse = Arrays.asList(day1, day2);
+
+		when(daySheetRepository.findAllByConfirmedIsFalseAndOwner_Role(UserRole.PARTICIPANT)).thenReturn(jpaResponse);
+		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetNotConfirmed();
+
+		assertEquals(jpaResponse.size(), daySheets.size());
+
+		for (int i = 0; i < jpaResponse.size(); i++) {
+			DaySheet daySheetEntity = jpaResponse.get(i);
+			DaySheetDto daySheetDto = daySheets.get(i);
+
+			assertEquals(daySheetEntity.getId(), daySheetDto.getId());
+			assertEquals(daySheetEntity.getDayNotes(), daySheetDto.getDay_notes());
+			assertEquals(daySheetEntity.getDate(), daySheetDto.getDate());
+			assertEquals(daySheetEntity.getConfirmed(), daySheetDto.getConfirmed());
+			assertEquals(daySheetEntity.getTimestamps(), daySheetDto.getTimestamps());
+		}
 	}
 }

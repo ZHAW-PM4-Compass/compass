@@ -89,8 +89,9 @@ public class TimestampService {
 	}
 
 	private boolean authCheckDaySheet(Long daySheetId, String userId) {
+		Optional<DaySheet> optionalDaySheet = daySheetRepository.findById(daySheetId);
 		if (userService.getUserRole(userId) == UserRole.SOCIAL_WORKER || userService.getUserRole(userId) == UserRole.ADMIN
-				|| daySheetRepository.findById(daySheetId).get().getOwner().getId().equals(userId)) {
+				|| (optionalDaySheet.isPresent() && optionalDaySheet.get().getOwner().getId().equals(userId))) {
 			return true;
 		}
 		return false;

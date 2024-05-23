@@ -112,6 +112,34 @@ class DaySheetServiceTest {
 	}
 
 	@Test
+	public void testGetAllDaySheetByMonth() {
+		LocalUser user = new LocalUser(user_id, UserRole.PARTICIPANT);
+
+		DaySheet day1 = new DaySheet(1l, user, reportText, dateNow, true, new ArrayList<>());
+		DaySheet day2 = new DaySheet(2l, user, reportText, dateNow.plusDays(1), true, new ArrayList<>());
+		LocalDate monthFirst = dateNow.withDayOfMonth(1);
+		LocalDate monthLast = dateNow.withDayOfMonth(dateNow.lengthOfMonth());
+
+		List<DaySheet> jpaResponse = Arrays.asList(day1, day2);
+
+		when(daySheetRepository.findAllByDateBetween(monthFirst, monthLast)).thenReturn(jpaResponse);
+		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetByMonth(YearMonth.from(monthFirst));
+
+		assertEquals(jpaResponse.size(), daySheets.size());
+
+		for (int i = 0; i < jpaResponse.size(); i++) {
+			DaySheet daySheetEntity = jpaResponse.get(i);
+			DaySheetDto daySheetDto = daySheets.get(i);
+
+			assertEquals(daySheetEntity.getId(), daySheetDto.getId());
+			assertEquals(daySheetEntity.getDayNotes(), daySheetDto.getDay_notes());
+			assertEquals(daySheetEntity.getDate(), daySheetDto.getDate());
+			assertEquals(daySheetEntity.getConfirmed(), daySheetDto.getConfirmed());
+			assertEquals(daySheetEntity.getTimestamps(), daySheetDto.getTimestamps());
+		}
+	}
+
+	@Test
 	public void testGetAllDaySheetByUserAndMonth() {
 		LocalUser user = new LocalUser(user_id, UserRole.PARTICIPANT);
 

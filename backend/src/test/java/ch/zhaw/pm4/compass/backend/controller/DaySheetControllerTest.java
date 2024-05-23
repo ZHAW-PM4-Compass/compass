@@ -130,7 +130,7 @@ public class DaySheetControllerTest {
 		// Arrange
 		DaySheetDto updateDay = getUpdateDaySheet();
 		updateDay.setConfirmed(false);
-		when(daySheetService.updateDayNotes(any(UpdateDaySheetDayNotesDto.class), any(String.class)))
+		when(daySheetService.updateDayNotes(any(UpdateDaySheetDayNotesDto.class)))
 				.thenReturn(updateDay);
 
 		// Act
@@ -143,7 +143,7 @@ public class DaySheetControllerTest {
 				.andExpect(jsonPath("$.date").value(updateDay.getDate().toString()))
 				.andExpect(jsonPath("$.confirmed").value(updateDay.getConfirmed().toString()));
 
-		verify(daySheetService, times(1)).updateDayNotes(any(UpdateDaySheetDayNotesDto.class), any(String.class));
+		verify(daySheetService, times(1)).updateDayNotes(any(UpdateDaySheetDayNotesDto.class));
 	}
 
 	@Test
@@ -153,7 +153,7 @@ public class DaySheetControllerTest {
 
 		DaySheetDto updateDay = getUpdateDaySheet();
 		updateDay.setConfirmed(true);
-		when(daySheetService.updateConfirmed(any(Long.class), any(String.class))).thenReturn(updateDay);
+		when(daySheetService.updateConfirmed(any(Long.class), any(Boolean.class), any(String.class))).thenReturn(updateDay);
 
 		// Act
 		mockMvc.perform(put("/daysheet/confirm/1").contentType(MediaType.APPLICATION_JSON)
@@ -161,7 +161,7 @@ public class DaySheetControllerTest {
 				.andExpect(jsonPath("$.id").value(1l))
 				.andExpect(jsonPath("$.confirmed").value(updateDay.getConfirmed().toString()));
 
-		verify(daySheetService, times(1)).updateConfirmed(any(Long.class), any(String.class));
+		verify(daySheetService, times(1)).updateConfirmed(any(Long.class), any(Boolean.class), any(String.class));
 	}
 
 	@Test

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -247,7 +248,7 @@ public class CategoryServiceTest {
 		ratingTwo.setDaySheet(daySheet);
 		DaySheetDto daySheetDto = new DaySheetDto(1l, "notes", LocalDate.now(), false);
 
-		when(daySheetService.convertDaySheetToDaySheetDto(any(DaySheet.class))).thenReturn(daySheetDto);
+		when(daySheetService.convertDaySheetToDaySheetDto(any(DaySheet.class), isNull())).thenReturn(daySheetDto);
 
 		CategoryDto dtoOne = categoryService.convertEntityToDto(categoryUnderTest, false);
 		CategoryDto dtoTwo = categoryService.convertEntityToDto(categoryUnderTest, true);
@@ -264,6 +265,6 @@ public class CategoryServiceTest {
 			assertEquals(ratingList.get(i).getRating(), ratingListDto.get(i).getRating());
 			assertEquals(ratingList.get(i).getRatingRole(), ratingListDto.get(i).getRatingRole());
 		}
-		verify(daySheetService, times(2)).convertDaySheetToDaySheetDto(any(DaySheet.class));
+		verify(daySheetService, times(2)).convertDaySheetToDaySheetDto(any(DaySheet.class), isNull());
 	}
 }

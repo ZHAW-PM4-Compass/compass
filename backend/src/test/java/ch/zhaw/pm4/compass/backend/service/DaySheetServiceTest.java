@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -268,8 +268,8 @@ class DaySheetServiceTest {
 	void testFullEntityToDtoConvert() throws NotValidCategoryOwnerException {
 		DaySheet daySheet = getDaySheet();
 
-		Time time1 = new Time(10000);
-		Time time2 = new Time(20000);
+		LocalTime time1 = LocalTime.of(10, 0);
+		LocalTime time2 = LocalTime.of(11, 0);
 		Timestamp timestamp = new Timestamp(1l, time1, time2, daySheet);
 		TimestampDto timestampDto = new TimestampDto(1l, 1l, time1, time2);
 
@@ -288,7 +288,7 @@ class DaySheetServiceTest {
 		when(timestampService.convertTimestampToTimestampDto(timestamp)).thenReturn(timestampDto);
 		when(ratingService.convertEntityToDto(ratingOne)).thenReturn(ratingDto);
 
-		DaySheetDto returnDto = daySheetService.convertDaySheetToDaySheetDto(daySheet);
+		DaySheetDto returnDto = daySheetService.convertDaySheetToDaySheetDto(daySheet, null);
 
 		assertEquals(daySheet.getId(), returnDto.getId());
 		assertEquals(daySheet.getDate(), returnDto.getDate());

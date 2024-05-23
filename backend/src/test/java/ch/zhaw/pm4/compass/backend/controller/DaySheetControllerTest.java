@@ -148,7 +148,7 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testUpdateConfirmed() throws Exception {
+	void testConfirm() throws Exception {
 		// Arrange
 
 		DaySheetDto updateDay = getUpdateDaySheet();
@@ -158,6 +158,24 @@ public class DaySheetControllerTest {
 		// Act
 		mockMvc.perform(put("/daysheet/confirm/1").contentType(MediaType.APPLICATION_JSON)
 				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(1l))
+				.andExpect(jsonPath("$.confirmed").value(updateDay.getConfirmed().toString()));
+
+		verify(daySheetService, times(1)).updateConfirmed(any(Long.class), any(Boolean.class), any(String.class));
+	}
+
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testRevoke() throws Exception {
+		// Arrange
+
+		DaySheetDto updateDay = getUpdateDaySheet();
+		updateDay.setConfirmed(false);
+		when(daySheetService.updateConfirmed(any(Long.class), any(Boolean.class), any(String.class))).thenReturn(updateDay);
+
+		// Act
+		mockMvc.perform(put("/daysheet/revoke/1").contentType(MediaType.APPLICATION_JSON)
+						.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(1l))
 				.andExpect(jsonPath("$.confirmed").value(updateDay.getConfirmed().toString()));
 

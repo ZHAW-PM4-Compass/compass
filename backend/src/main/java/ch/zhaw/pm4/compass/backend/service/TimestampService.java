@@ -45,7 +45,7 @@ public class TimestampService {
 
 	public ArrayList<TimestampDto> getAllTimestampsByDaySheetId(Long id, String userId) {
 		if (!authCheckDaySheet(id, userId)) {
-			return null;
+			return new ArrayList<>();
 		}
 
 		ArrayList<TimestampDto> resultList = new ArrayList<>();

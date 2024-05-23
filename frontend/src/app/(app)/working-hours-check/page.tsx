@@ -1,77 +1,31 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import {
   DaySheetDto,
-  type UpdateConfirmedRequest,
+  type ConfirmRequest,
 } from "@/openapi/compassClient";
 import Table from "@/components/table";
-import { Checkmark24Regular, Edit24Regular, Note24Regular, NoteAddRegular, NoteRegular, Save24Regular } from "@fluentui/react-icons";
+import { Edit24Regular, ShiftsCheckmark24Regular } from "@fluentui/react-icons";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Title1 from "@/components/title1";
-import { getDaySheetControllerApi } from "@/openapi/connector";
+import { getDaySheetControllerApi, getUserControllerApi } from "@/openapi/connector";
 import toastMessages from "@/constants/toastMessages";
-import Modal from '@/components/modal';
-import Button from '@/components/button';
-import TextArea from '@/components/textarea';
 import { convertMilisecondsToTimeString } from '@/utils/time';
+import Select from '@/components/select';
 
-enum formFields {
-  DAY_NOTES = "dayNotes"
-}
-
-function DayNotesModal({ close, onSave, daySheetDto }: Readonly<{
-  close: () => void;
-  onSave: () => void;
-  daySheetDto?: DaySheetDto;
-}>) {
-  const [notes, setNotes] = useState(daySheetDto?.dayNotes || '');
-
-  const onSubmit = () => {
-    const updateAction = () => getDaySheetControllerApi().updateDayNotes({
-      updateDaySheetDayNotesDto: {
-        id: daySheetDto?.id,
-        dayNotes: notes
-      }
-    }).then(() => {
-      close();
-      onSave();
-    });
-
-    toast.promise(updateAction(), {
-      loading: toastMessages.UPDATING,
-      success: toastMessages.DAYNOTES_UPDATED,
-      error: toastMessages.DAYNOTES_NOT_UPDATED,
-    });
-  }
-
-  return (
-    <Modal
-      title="Notizen bearbeiten"
-      footerActions={
-        <Button Icon={Save24Regular} type="submit">Speichern</Button>
-      }
-      close={close}
-      onSubmit={onSubmit}
-    >
-      <TextArea
-        name={formFields.DAY_NOTES}
-        placeholder='Notizen'
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        className='w-full min-h-32' />
-    </Modal>
-  );
-}
+const allParticipants = "ALL_PARTICIPANTS";
 
 export default function WorkingHoursCheckPage() {
   const [loading, setLoading] = useState(true);
-  const [showDayNotesModal, setShowDayNotesModal] = useState(false);
   const [daySheets, setDaySheets] = useState<DaySheetDto[]>([]);
+  const [daySheetsFiltered, setDaySheetsFiltered] = useState<DaySheetDto[]>([]);
   const [selectedDaySheet, setSelectedDaySheet] = useState<DaySheetDto>();
+  const [participantSelection, setParticipantSelection] = useState<any>();
+  const [participantSelections, setParticipantSelections] = useState<{ id: string, label: string }[]>([]);
   const router = useRouter();
 
-  function loadDaySheets() {
+  const loadDaySheets = () => {
     setLoading(true);
     getDaySheetControllerApi().getAllDaySheetNotConfirmed().then(daySheets => {
       close();
@@ -89,12 +43,21 @@ export default function WorkingHoursCheckPage() {
     });
   }
 
-  const confirmDaySheet = async (id: number) => {
-    const updateDayRequest: UpdateConfirmedRequest = {
+  const filterDaySheets = () => {
+    setDaySheetsFiltered(daySheets.filter(daySheet => {
+      if (participantSelection === allParticipants) {
+        return true;
+      }
+      return daySheet.owner?.userId === participantSelection ? true : false;
+    }));
+  }
+
+  const confirmDaySheet = (id: number) => {
+    const updateDayRequest: ConfirmRequest = {
       id: id
     };
 
-    const confirmAction = () => getDaySheetControllerApi().updateConfirmed(updateDayRequest).then(() => {
+    const confirmAction = () => getDaySheetControllerApi().confirm(updateDayRequest).then(() => {
       close();
       loadDaySheets();
     })
@@ -112,28 +75,42 @@ export default function WorkingHoursCheckPage() {
 
   useEffect(() => {
     loadDaySheets();
+    getUserControllerApi().getAllParticipants().then(participants => {
+      const participantsSelections = participants.map(participant => participant && ({
+        id: participant.userId ?? "",
+        label: participant.email ?? ""
+      })) ?? [];
+
+      participantsSelections.unshift({ id: allParticipants, label: "Alle Teilnehmer" });
+      setParticipantSelections(participantsSelections);
+      setParticipantSelection(allParticipants);
+    });
   }, []);
+
+  useEffect(() => {
+    filterDaySheets();
+  }, [daySheets, participantSelection]);
 
   return (
     <>
-      {showDayNotesModal && (
-        <DayNotesModal
-          close={() => setShowDayNotesModal(false)}
-          onSave={loadDaySheets}
-          daySheetDto={selectedDaySheet} />
-      )}
       <div className="h-full flex flex-col">
-        <Title1 className="mb-4">Kontrolle Arbeitszeit</Title1>
+        <div className="flex flex-col sm:flex-row justify-between mb-4">
+          <Title1>Kontrolle Arbeitszeit</Title1>
+          <div className="mt-2 sm:mt-0">
+            <Select
+              className="w-40 inline-block mb-4"
+              placeholder="Teilnehmer"
+              data={participantSelections}
+              value={participantSelection}
+              onChange={(e) => setParticipantSelection(e.target.value)} />
+          </div>
+        </div>
         <Table
-          data={daySheets}
+          data={daySheetsFiltered}
           columns={[
             {
               header: "Datum",
               title: "date",
-            },
-            {
-              header: "Notizen",
-              title: "dayNotes"
             },
             {
               header: "Erfasste Arbeitszeit",
@@ -151,7 +128,7 @@ export default function WorkingHoursCheckPage() {
           ]}
           actions={[
             {
-              icon: Checkmark24Regular,
+              icon: ShiftsCheckmark24Regular,
               label: "Bestätigen",
               onClick: (id) => {
                 const daySheetId = daySheets[id]?.id;
@@ -164,15 +141,7 @@ export default function WorkingHoursCheckPage() {
                 setSelectedDaySheet(daySheets[id]);
                 navigateToSingleDay();
               }
-            },
-            {
-              icon: Note24Regular,
-              onClick: (id) => {
-                setSelectedDaySheet(daySheets[id]);
-                setShowDayNotesModal(true);
-              },
             }
-
           ]}
           loading={loading}
         />

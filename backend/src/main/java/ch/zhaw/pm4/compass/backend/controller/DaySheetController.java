@@ -60,6 +60,11 @@ public class DaySheetController {
 		return ResponseEntity.ok(daySheetService.getAllDaySheetNotConfirmed());
 	}
 
+	@GetMapping(path = "/getAllByMonth/{month}", produces = "application/json")
+	public ResponseEntity<List<DaySheetDto>> getAllDaySheetByMonth(@PathVariable YearMonth month, Authentication authentication) {
+		return ResponseEntity.ok(daySheetService.getAllDaySheetByMonth(month));
+	}
+
 	@GetMapping(path = "/getAllByParticipantAndMonth/{userId}/{month}", produces = "application/json")
 	public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipantAndMonth(@PathVariable String userId,
 			@PathVariable YearMonth month, Authentication authentication) {
@@ -69,15 +74,23 @@ public class DaySheetController {
 	@PutMapping(path = "/updateDayNotes", produces = "application/json")
 	public ResponseEntity<DaySheetDto> updateDayNotes(@RequestBody UpdateDaySheetDayNotesDto updateDay,
 			Authentication authentication) {
-		DaySheetDto response = daySheetService.updateDayNotes(updateDay, authentication.getName());
+		DaySheetDto response = daySheetService.updateDayNotes(updateDay);
 		if (response == null)
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		return ResponseEntity.ok(response);
 	}
 
 	@PutMapping(path = "/confirm/{id}", produces = "application/json")
-	public ResponseEntity<DaySheetDto> updateConfirmed(@PathVariable Long id, Authentication authentication) {
-		DaySheetDto response = daySheetService.updateConfirmed(id, authentication.getName());
+	public ResponseEntity<DaySheetDto> confirm(@PathVariable Long id, Authentication authentication) {
+		DaySheetDto response = daySheetService.updateConfirmed(id, true, authentication.getName());
+		if (response == null)
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		return ResponseEntity.ok(response);
+	}
+
+	@PutMapping(path = "/revoke/{id}", produces = "application/json")
+	public ResponseEntity<DaySheetDto> revoke(@PathVariable Long id, Authentication authentication) {
+		DaySheetDto response = daySheetService.updateConfirmed(id, false, authentication.getName());
 		if (response == null)
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		return ResponseEntity.ok(response);

@@ -7,7 +7,7 @@ import Button from "@/components/button";
 import { toast } from "react-hot-toast";
 import Modal from "@/components/modal";
 import Input from "@/components/input";
-import { CreateTimestampRequest, DaySheetDto, TimestampDto, UpdateConfirmedRequest } from "@/openapi/compassClient";
+import { CreateTimestampRequest, DaySheetDto, TimestampDto, type ConfirmRequest } from "@/openapi/compassClient";
 import { getDaySheetControllerApi, getTimestampControllerApi } from "@/openapi/connector";
 import toastMessages from "@/constants/toastMessages";
 import { convertMilisecondsToTimeString } from '@/utils/time';
@@ -142,11 +142,11 @@ export default function WorkingHoursCheckByIdPage({ params }: { params: { id: nu
   }
 
   const confirmDaySheet = async (id: number) => {
-    const updateDayRequest: UpdateConfirmedRequest = {
+    const updateDayRequest: ConfirmRequest = {
       id: id
     };
 
-    const confirmAction = () => getDaySheetControllerApi().updateConfirmed(updateDayRequest).then(() => {
+    const confirmAction = () => getDaySheetControllerApi().confirm(updateDayRequest).then(() => {
       close();
       router.push("/working-hours-check");
     })

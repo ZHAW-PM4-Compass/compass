@@ -35,7 +35,7 @@ const Item = ({ itemIndex, item, columns, actions }: Readonly<{
           </td>
         )
       })}
-      <td className="text-right text-md pr-2 min-w-56">
+      <td className="text-right text-md pr-2 min-w-52">
         {actions && actions.map((action, index) => {
           return (
             <button key={index} onClick={() => action.onClick(itemIndex)} className={`rounded-md hover:bg-slate-100 text-sm mr-2 px-2 py-1.5 focus:outline-2 focus:outline-black duration-200 ${!action.label && "w-9"}`} hidden={action.hide ? action.hide(itemIndex) : false}>

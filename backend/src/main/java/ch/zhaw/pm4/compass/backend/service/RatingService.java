@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +90,8 @@ public class RatingService {
 		if (userId.length == 0) {
 			daySheets = daySheetRepository.findAllByDate(date);
 		} else if (userId.length == 1) {
-			daySheets = List.of(daySheetRepository.findByDateAndOwnerId(date, userId[0]).get());
+			Optional<DaySheet> userDaySheet = daySheetRepository.findByDateAndOwnerId(date, userId[0]);
+			daySheets = userDaySheet.isPresent() ? List.of(userDaySheet.get()) : List.of();
 		} else {
 			throw new IllegalArgumentException("More than one user ID");
 		}

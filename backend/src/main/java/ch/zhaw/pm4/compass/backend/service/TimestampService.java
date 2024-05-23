@@ -39,9 +39,8 @@ public class TimestampService {
 		Optional<Timestamp> response = timestampRepository.findById(id);
 		if (response.isEmpty())
 			return null;
-		if (response.get().getDaySheet().getOwner().getId().equals(userId))
-			return convertTimestampToTimestampDto(response.get());
-		return null;
+
+		return convertTimestampToTimestampDto(response.get());
 	}
 
 	public ArrayList<TimestampDto> getAllTimestampsByDaySheetId(Long id, String userId) {
@@ -80,7 +79,8 @@ public class TimestampService {
 
 	private boolean authCheckTimestamp(Long timestampId, String userId) {
 		Optional<Timestamp> optionalTimestamp = timestampRepository.findById(timestampId);
-		if (userService.getUserRole(userId) == UserRole.SOCIAL_WORKER || (optionalTimestamp.isPresent()
+		UserRole userRole = userService.getUserRole(userId);
+		if (userRole == UserRole.SOCIAL_WORKER || userRole == UserRole.ADMIN || (optionalTimestamp.isPresent()
 				&& optionalTimestamp.get().getDaySheet().getOwner().getId().equals(userId))) {
 			return true;
 		}
@@ -89,24 +89,31 @@ public class TimestampService {
 	}
 
 	private boolean authCheckDaySheet(Long daySheetId, String userId) {
-		if (userService.getUserRole(userId) == UserRole.SOCIAL_WORKER
+		if (userService.getUserRole(userId) == UserRole.SOCIAL_WORKER || userService.getUserRole(userId) == UserRole.ADMIN
 				|| daySheetRepository.findById(daySheetId).get().getOwner().getId().equals(userId)) {
 			return true;
 		}
 		return false;
 	}
 
-	public void deleteTimestamp(Long id, String userId) {
+	public void deleteTimestamp(Long id) {
 		Optional<Timestamp> timestamp = timestampRepository.findById(id);
-		if (timestamp.isPresent())
+        if (timestamp.isPresent())
 			timestampRepository.delete(timestamp.get());
 	}
 
 	private Timestamp convertTimestampDtoToDTimestamp(TimestampDto timestampDto, String user_id) {
-		Optional<DaySheet> option = daySheetRepository.findByIdAndOwnerId(timestampDto.getDay_sheet_id(), user_id);
-		if (option.isPresent()) {
-			return new Timestamp(timestampDto.getId(), timestampDto.getStart_time(), timestampDto.getEnd_time(),
-					option.get());
+		Optional<DaySheet> daySheet;
+		UserRole userRole = userService.getUserRole(user_id);
+
+		if (userRole == UserRole.SOCIAL_WORKER || userRole == UserRole.ADMIN) {
+			daySheet = daySheetRepository.findById(timestampDto.getDay_sheet_id());
+		} else {
+			daySheet = daySheetRepository.findByIdAndOwnerId(timestampDto.getDay_sheet_id(), user_id);
+		}
+
+		if (daySheet.isPresent()) {
+			return new Timestamp(timestampDto.getId(), timestampDto.getStart_time(), timestampDto.getEnd_time(), daySheet.get());
 		}
 		return null;
 	}
@@ -121,7 +128,7 @@ public class TimestampService {
 				.findAllByDaySheetId(timestampToCheck.getDaySheet().getId());
 
 		boolean noDoubleEntry = true;
-		if (timestampToCheck.getStartTime().after(timestampToCheck.getEndTime())
+		if (timestampToCheck.getStartTime().isAfter(timestampToCheck.getEndTime())
 				|| timestampToCheck.getStartTime().equals(timestampToCheck.getEndTime())) {
 			noDoubleEntry = false;
 			return noDoubleEntry;
@@ -130,14 +137,14 @@ public class TimestampService {
 			if (timestampToCheck.getId() == timestamp.getId()) {
 				continue;
 			}
-			if (timestampToCheck.getStartTime().before(timestamp.getEndTime())
-					&& timestampToCheck.getStartTime().after(timestamp.getStartTime())) {
+			if (timestampToCheck.getStartTime().isBefore(timestamp.getEndTime())
+					&& timestampToCheck.getStartTime().isAfter(timestamp.getStartTime())) {
 				noDoubleEntry = false;
 				break;
 			}
 
-			if (timestampToCheck.getEndTime().before(timestamp.getEndTime())
-					&& timestampToCheck.getEndTime().after(timestamp.getStartTime())) {
+			if (timestampToCheck.getEndTime().isBefore(timestamp.getEndTime())
+					&& timestampToCheck.getEndTime().isAfter(timestamp.getStartTime())) {
 				noDoubleEntry = false;
 				break;
 			}
@@ -147,8 +154,8 @@ public class TimestampService {
 				noDoubleEntry = false;
 				break;
 			}
-			if (timestampToCheck.getStartTime().before(timestamp.getStartTime())
-					&& timestampToCheck.getEndTime().after(timestamp.getEndTime())) {
+			if (timestampToCheck.getStartTime().isBefore(timestamp.getStartTime())
+					&& timestampToCheck.getEndTime().isAfter(timestamp.getEndTime())) {
 				noDoubleEntry = false;
 				break;
 			}

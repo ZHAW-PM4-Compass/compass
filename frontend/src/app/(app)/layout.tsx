@@ -12,8 +12,8 @@ import WorkingHoursIcon from "@fluentui/svg-icons/icons/shifts_24_regular.svg";
 import WorkingHoursIconFilled from "@fluentui/svg-icons/icons/shifts_24_filled.svg";
 import MoodIcon from "@fluentui/svg-icons/icons/person_voice_24_regular.svg";
 import MoodIconFilled from "@fluentui/svg-icons/icons/person_voice_24_filled.svg";
-import IncidentIcon from "@fluentui/svg-icons/icons/channel_24_regular.svg";
-import IncidentIconFilled from "@fluentui/svg-icons/icons/channel_24_filled.svg";
+import IncidentIcon from "@fluentui/svg-icons/icons/alert_24_regular.svg";
+import IncidentIconFilled from "@fluentui/svg-icons/icons/alert_24_filled.svg";
 
 // social worker
 import WorkingHoursCheckIcon from "@fluentui/svg-icons/icons/shifts_checkmark_24_regular.svg";
@@ -60,21 +60,21 @@ const MenuItem: React.FC<{ collapsed: boolean, icon: { src: string }; iconActive
     if (onClick) onClick();
   }
 
-  const isActive = pathname === route;
+  const isActive = pathname === route || pathname.includes(`${route}/`);
   const iconSrc = isActive && iconActive ? iconActive.src : icon.src;
 
   return (
-    <div 
+    <div
       className={`${className} ${collapsed ? "mt-3 px-1.5 py-1.5 " : "mt-1 flex flex-row px-3 py-2.5"} rounded-lg cursor-pointer hover:bg-slate-100 ${isActive ? 'bg-gradient-to-r from-slate-100 to-slate-200' : ''}`}
       onClick={onClickHandler}
-      >
+    >
       <img src={iconSrc} className="w-5 h-5 mr-2.5" />
       {!collapsed ? (<p className="text-sm">{label}</p>) : null}
     </div>
   );
 }
 
-const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: SystemStatusDto | undefined}> = ({ user, userRole, systemStatus}) => {
+const Profile: React.FC<{ user: any, userRole: string | undefined, systemStatus: SystemStatusDto | undefined, isLoading: boolean }> = ({ user, userRole, systemStatus, isLoading }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [commitCopyActive, setCommitCopyActive] = useState(false);
 
@@ -98,24 +98,35 @@ const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: 
         className="absolute top-5 right-5 rounded-full flex duration-150 hover:bg-slate-200 cursor-pointer"
         onClick={() => setShowMenu(!showMenu)}
       >
-        <span className="leading-10 ml-4 mr-3 text-sm">{user?.given_name ? user?.given_name : user?.nickname}</span>
-        <div className="relative">
-          <img src={user?.picture} alt="" className="h-10 w-10 border-2 border-slate-400 bg-slate-400 rounded-full" />
-        </div>
+        {isLoading ? (
+          <>
+            <span className="leading-10 ml-4 mr-3 mt-3 text-sm h-4 w-14 rounded-md bg-slate-300 animate-pulse"></span>
+            <div className="relative">
+              <div className="h-10 w-10 border-2 border-slate-400 bg-slate-400 rounded-full animate-pulse"></div>
+            </div>
+          </>
+        ) : (
+          <>
+            <span className="leading-10 ml-4 mr-3 text-sm">{user?.given_name ? user?.given_name : user?.nickname}</span>
+            <div className="relative">
+              <img src={user?.picture} alt="" className="h-10 w-10 border-2 border-slate-400 bg-slate-400 rounded-full" />
+            </div>
+          </>
+        )}
       </button>
       {showMenu && (
         <div id="profile-menu" className="left-5 sm:left-auto absolute top-20 right-5 px-8 py-7 bg-white rounded-3xl flex flex-col drop-shadow-lg">
-          {user?.given_name && user?.family_name ? ( <span className="font-bold text-sm">{user?.given_name} {user?.family_name}</span> ) : null}
+          {user?.given_name && user?.family_name ? (<span className="font-bold text-sm">{user?.given_name} {user?.family_name}</span>) : null}
           <span className="mb-4 text-sm">{user?.email}</span>
           {userRole === Roles.ADMIN || !userRole ? (
             <div className="py-4 border-t-[1px] border-slate-200 text-sm">
               <div>
                 <span className="font-bold inline-block">Systemstatus</span>
                 {systemStatus?.commitId && (
-                  <span 
+                  <span
                     className="text-slate-500 cursor-pointer ml-2 text-[0.8rem] hover:underline relative"
                     onClick={() => navigator.clipboard.writeText(systemStatus?.commitId ?? "")}>
-                    <div 
+                    <div
                       className="inline-block"
                       onClick={() => {
                         setCommitCopyActive(true)
@@ -123,9 +134,9 @@ const Profile: React.FC<{user: any, userRole: string | undefined, systemStatus: 
                       }}>
                       <span>#{systemStatus?.commitId?.substring(0, 7)}</span>
                       {commitCopyActive ? (
-                        <Checkmark24Filled className="-mt-1 w-4 h-4 ml-1 text-slate-500"/>
+                        <Checkmark24Filled className="-mt-1 w-4 h-4 ml-1 text-slate-500" />
                       ) : (
-                        <Copy24Regular className="-mt-1 w-4 h-4 ml-1 text-slate-500"/>
+                        <Copy24Regular className="-mt-1 w-4 h-4 ml-1 text-slate-500" />
                       )}
                     </div>
                   </span>
@@ -178,13 +189,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { user } = useUser();
+  const { isLoading, user } = useUser();
   const [backendUser, setBackendUser] = useState<UserDto>();
   const [systemStatus, setSystemStatus] = useState<SystemStatusDto>();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
-  const handleMobileClick = () => window.innerWidth < 640 && toggleMenu();
+  const handleMobileClick = () => window.innerWidth < 1024 && toggleMenu();
 
   useEffect(() => {
     getSystemControllerApi().getStatus().then(systemStatus => {
@@ -215,16 +226,21 @@ export default function RootLayout({
             </div>
             <SubTitle collapsed={!menuOpen} label="Allgemein" />
             <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={HomeIcon} iconActive={HomeIconFilled} label="Home" route="/home" />
-            <SubTitle collapsed={!menuOpen} label="Teilnehmer" withLine={true} />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursIcon} iconActive={WorkingHoursIconFilled} label="Arbeitszeit" route="/working-hours" />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={CategoryIcon} iconActive={CategoryIconFilled} label="Kategorien" route="/categories" />
-            <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
+
+            {backendUser && backendUser.role === Roles.PARTICIPANT && (
+              <>
+                <SubTitle collapsed={!menuOpen} label="Teilnehmer" withLine={true} />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursIcon} iconActive={WorkingHoursIconFilled} label="Arbeitszeit" route="/working-hours" />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={CategoryIcon} iconActive={CategoryIconFilled} label="Stimmung" route="/categories" />
+              </>
+            )}
 
             {backendUser && (backendUser.role === Roles.SOCIAL_WORKER || backendUser.role === Roles.ADMIN) && (
               <>
                 <SubTitle collapsed={!menuOpen} label="Sozialarbeiter" withLine={true} />
-                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Arbeitszeit" route="/select-user" />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfall" route="/incidents" />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Kontrolle Arbeitszeit" route="/working-hours-check" />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={OverviewIcon} iconActive={OverviewIconFilled} label="Übersicht" route="/overview" />
               </>
             )}
@@ -235,9 +251,9 @@ export default function RootLayout({
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={UserIcon} iconActive={UserIconFilled} label="Benutzer" route="/users" />
               </>
             )}
-            
+
             <div className="grow"></div>
-            { menuOpen ? (
+            {menuOpen ? (
               <MenuItem className="hidden lg:flex" collapsed={!menuOpen} icon={CollapseMenuIcon} label="Zuklappen" onClick={toggleMenu} />
             ) : (
               <MenuItem className="hidden lg:flex mb-2" collapsed={true} icon={ExpandMenuIcon} label="Expandieren" onClick={toggleMenu} />
@@ -248,7 +264,11 @@ export default function RootLayout({
           <div className="w-full h-full lg:container lg:mx-auto px-5 lg:pt-24 pb-16">
             <div className="h-full w-full">
               {children}
-              <Profile user={user} userRole={backendUser?.role} systemStatus={systemStatus} />
+              <Profile
+                user={user}
+                userRole={backendUser?.role}
+                systemStatus={systemStatus}
+                isLoading={isLoading} />
             </div>
           </div>
         </div>

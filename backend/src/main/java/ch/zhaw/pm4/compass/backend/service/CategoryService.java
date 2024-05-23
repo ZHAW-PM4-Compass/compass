@@ -96,7 +96,7 @@ public class CategoryService {
 		List<RatingDto> ratingDtoList = List.of();
 		if (withRatings) {
 			ratingDtoList = entity.getMoodRatings().stream().map(i -> new RatingDto(dto,
-					daySheetService.convertDaySheetToDaySheetDto(i.getDaySheet()), i.getRating(), i.getRatingRole()))
+					daySheetService.convertDaySheetToDaySheetDto(i.getDaySheet(), null), i.getRating(), i.getRatingRole()))
 					.toList();
 		}
 		dto.setMoodRatings(ratingDtoList);

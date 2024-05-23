@@ -1,8 +1,13 @@
+import { getSession } from "@auth0/nextjs-auth0/edge";
 import { Configuration, UserControllerApi, CategoryControllerApi, TimestampControllerApi, IncidentControllerApi, DaySheetControllerApi, SystemControllerApi,RatingControllerApi } from "./compassClient";
 
-export function getMiddleWareControllerApi() {
+export async function getMiddleWareControllerApi() {
+  const session = await getSession();
   const config = new Configuration({
     basePath: process.env.API_BASE_PATH || "http://localhost:8080/api",
+    headers: {
+      Authorization: `Bearer ${session?.accessToken}`
+    }
   });
   return new UserControllerApi(config);
 }

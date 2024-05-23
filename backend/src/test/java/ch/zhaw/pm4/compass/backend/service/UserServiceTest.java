@@ -7,13 +7,13 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import ch.zhaw.pm4.compass.backend.GsonExclusionStrategy;
-import com.nimbusds.jose.shaded.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,8 +25,14 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.nimbusds.jose.shaded.gson.Gson;
+import com.nimbusds.jose.shaded.gson.GsonBuilder;
 import com.nimbusds.jose.shaded.gson.reflect.TypeToken;
 
+import ch.zhaw.pm4.compass.backend.GsonExclusionStrategy;
+import ch.zhaw.pm4.compass.backend.LocalDateDeserializer;
+import ch.zhaw.pm4.compass.backend.LocalDateSerializer;
+import ch.zhaw.pm4.compass.backend.LocalTimeDeserializer;
+import ch.zhaw.pm4.compass.backend.LocalTimeSerializer;
 import ch.zhaw.pm4.compass.backend.UserRole;
 import ch.zhaw.pm4.compass.backend.model.LocalUser;
 import ch.zhaw.pm4.compass.backend.model.dto.AuthZeroUserDto;
@@ -208,10 +214,12 @@ class UserServiceTest {
 
 	@Test
 	public void prepareCRUDTest() throws IOException {
-		Gson gson = new GsonBuilder()
-				.addSerializationExclusionStrategy(new GsonExclusionStrategy())
+		Gson gson = new GsonBuilder().registerTypeAdapter(LocalTime.class, new LocalTimeDeserializer())
+				.registerTypeAdapter(LocalTime.class, new LocalTimeSerializer())
+				.registerTypeAdapter(LocalDate.class, new LocalDateDeserializer())
+				.registerTypeAdapter(LocalDate.class, new LocalDateSerializer())
 				.addDeserializationExclusionStrategy(new GsonExclusionStrategy())
-				.create();
+				.addDeserializationExclusionStrategy(new GsonExclusionStrategy()).create();
 
 		// Auth0
 		mockAuthZeroCall();

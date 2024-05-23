@@ -29,10 +29,6 @@ export interface CreateDaySheetRequest {
     daySheetDto: DaySheetDto;
 }
 
-export interface GetAllDaySheetByParticipantRequest {
-    userId: string;
-}
-
 export interface GetAllDaySheetByParticipantAndMonthRequest {
     userId: string;
     month: string;
@@ -95,37 +91,6 @@ export class DaySheetControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async getAllDaySheetByParticipantRaw(requestParameters: GetAllDaySheetByParticipantRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<DaySheetDto>>> {
-        if (requestParameters['userId'] == null) {
-            throw new runtime.RequiredError(
-                'userId',
-                'Required parameter "userId" was null or undefined when calling getAllDaySheetByParticipant().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/daysheet/getAllByParticipant/{userId}`.replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters['userId']))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(DaySheetDtoFromJSON));
-    }
-
-    /**
-     */
-    async getAllDaySheetByParticipant(requestParameters: GetAllDaySheetByParticipantRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<DaySheetDto>> {
-        const response = await this.getAllDaySheetByParticipantRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     */
     async getAllDaySheetByParticipantAndMonthRaw(requestParameters: GetAllDaySheetByParticipantAndMonthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<DaySheetDto>>> {
         if (requestParameters['userId'] == null) {
             throw new runtime.RequiredError(
@@ -159,6 +124,30 @@ export class DaySheetControllerApi extends runtime.BaseAPI {
      */
     async getAllDaySheetByParticipantAndMonth(requestParameters: GetAllDaySheetByParticipantAndMonthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<DaySheetDto>> {
         const response = await this.getAllDaySheetByParticipantAndMonthRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async getAllDaySheetNotConfirmedRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<DaySheetDto>>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/daysheet/getAllNotConfirmed`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(DaySheetDtoFromJSON));
+    }
+
+    /**
+     */
+    async getAllDaySheetNotConfirmed(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<DaySheetDto>> {
+        const response = await this.getAllDaySheetNotConfirmedRaw(initOverrides);
         return await response.value();
     }
 

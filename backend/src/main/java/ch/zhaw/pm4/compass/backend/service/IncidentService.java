@@ -51,21 +51,15 @@ public class IncidentService {
 		incidentRepository.delete(incident);
 	}
 
-	public List<IncidentDto> getAll(String userId) {
-		UserDto userDto = userService.getUserById(userId);
-		if (userDto.getRole().equals(UserRole.SOCIAL_WORKER) || userDto.getRole().equals(UserRole.ADMIN)) {
-			List<UserDto> userDtos = userService.getAllUsers();
-			return incidentRepository.findAll()
-					.stream().map(incident -> {
-						UserDto user = userDtos.stream()
-								.filter(userFilter -> userFilter.getUser_id().equals(incident.getDaySheet().getOwner().getId()))
-								.findFirst().orElse(null);
-						return convertEntityToDto(incident, user);
-					}).toList();
-		} else {
-			return incidentRepository.findAllByDaySheet_Owner_Id(userId)
-					.stream().map(incident -> convertEntityToDto(incident, null)).toList();
-		}
+	public List<IncidentDto> getAll() {
+		List<UserDto> userDtos = userService.getAllUsers();
+		return incidentRepository.findAll()
+				.stream().map(incident -> {
+					UserDto user = userDtos.stream()
+							.filter(userFilter -> userFilter.getUser_id().equals(incident.getDaySheet().getOwner().getId()))
+							.findFirst().orElse(null);
+					return convertEntityToDto(incident, user);
+				}).toList();
 	}
 
 	public Incident convertDtoToEntity(IncidentDto dto) {

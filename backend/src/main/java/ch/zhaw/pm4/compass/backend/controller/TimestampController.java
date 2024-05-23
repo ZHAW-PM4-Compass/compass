@@ -2,6 +2,7 @@ package ch.zhaw.pm4.compass.backend.controller;
 
 import java.util.ArrayList;
 
+import ch.zhaw.pm4.compass.backend.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -83,13 +84,15 @@ public class TimestampController {
 	@DeleteMapping(path = "/{id}")
 	public ResponseEntity<Object> deleteTimestamp(@PathVariable Long id, Authentication authentication) {
 		TimestampDto timestamp = timestampService.getTimestampById(id, authentication.getName());
+		if (timestamp == null)
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		DaySheetDto daySheet = daySheetService.getDaySheetByIdAndUserId(timestamp.getDay_sheet_id(),
 				authentication.getName());
 		if (daySheet == null)
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		if (daySheet.getConfirmed())
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-		timestampService.deleteTimestamp(id, authentication.getName());
+		timestampService.deleteTimestamp(id);
 		return ResponseEntity.ok().build();
 	}
 }

@@ -3,7 +3,7 @@
 import Title1 from "@/components/title1";
 import Table from "@/components/table";
 import Input from "@/components/input";
-import { ArrowLeft24Regular, ArrowRight24Regular, Delete24Regular, Edit24Regular, Save24Regular, ShiftsAdd24Regular } from "@fluentui/react-icons";
+import { ArrowLeft24Regular, ArrowRight24Regular, Checkmark24Filled, Delete24Regular, Edit24Regular, Save24Regular, ShiftsAdd24Regular } from "@fluentui/react-icons";
 import { FormEvent, useEffect, useState } from "react";
 import { getDaySheetControllerApi, getTimestampControllerApi } from "@/openapi/connector";
 import Button from "@/components/button";
@@ -71,7 +71,7 @@ function TimestampUpdateModal({ close, onSave, timestamp }: Readonly<{
 
 export default function WorkingHoursPage() {
   const [loading, setLoading] = useState(true);
-  const [daySheet, setDaySheet] = useState<DaySheetDto>({ id: 0, date: new Date(), dayNotes: '', timestamps: [], timeSum: 0, confirmed: false });
+  const [daySheet, setDaySheet] = useState<DaySheetDto>({ id: -1, date: new Date(), dayNotes: '', timestamps: [], timeSum: 0, confirmed: false });
   const [selectedTimestamp, setSelectedTimestamp] = useState<TimestampDto>();
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().slice(0, 10));
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -216,9 +216,17 @@ export default function WorkingHoursPage() {
           timestamp={selectedTimestamp} />
       )}
       <div className="h-full flex flex-col">
-        <div className="flex flex-col sm:flex-row justify-between mb-4">
-          <Title1>Arbeitszeit erfassen</Title1>
-          <div className="mt-2 sm:mt-0 flex flex-row space-x-4">
+        <div className="flex flex-col md:flex-row justify-between mb-4">
+          <div>
+            <Title1 className="inline-block">Arbeitszeit erfassen</Title1>
+            {daySheet.id !== -1 && daySheet.confirmed && (
+              <div className="text-sm inline-block ml-4 cursor-pointer text-green-500" >
+                <Checkmark24Filled className="w-4 h-4 inline-block mr-2 cursor-pointer" />
+                <span className="inline-block hover:underline">Daten wurden bestätigt</span>
+              </div>
+            )}
+          </div>
+          <div className="mt-2 md:mt-0 flex flex-row space-x-4">
             <IconButton Icon={ArrowLeft24Regular} onClick={handlePrevDate}></IconButton>
             <Input type="date" name="date" value={selectedDate} onChange={handleDateChange} />
             <IconButton Icon={ArrowRight24Regular} onClick={handleNextDate}></IconButton>
@@ -248,6 +256,7 @@ export default function WorkingHoursPage() {
           actions={[
             {
               icon: Delete24Regular,
+              hide: () => daySheet?.confirmed ?? false,
               onClick: (id) => {
                 const timestampId = daySheet?.timestamps?.[id]?.id;
                 timestampId && deleteTimestamp(timestampId);
@@ -255,6 +264,7 @@ export default function WorkingHoursPage() {
             },
             {
               icon: Edit24Regular,
+              hide: () => daySheet?.confirmed ?? false,
               onClick: (id) => {
                 if (!daySheet.confirmed) {
                   if (daySheet?.timestamps) {
@@ -281,13 +291,15 @@ export default function WorkingHoursPage() {
             </tr>
           }
         />
-        <form className="mt-4 flex flex-col sm:flex-row sm:space-x-4" onSubmit={onCreateTimestampSubmit}>
-          <Input type="time" className="mb-4 sm:w-48" name="startTime" />
-          <Input type="time" className="mb-4 sm:w-48" name="endTime" />
-          <div>
-            <Button Icon={ShiftsAdd24Regular} type="submit" className="mb-4 bg-black text-white rounded-md">Erfassen</Button>
-          </div>
-        </form>
+        {daySheet.id !== -1 && !daySheet.confirmed && (
+          <form className="mt-4 flex flex-col sm:flex-row sm:space-x-4" onSubmit={onCreateTimestampSubmit}>
+            <Input type="time" className="mb-4 sm:w-48" name="startTime" />
+            <Input type="time" className="mb-4 sm:w-48" name="endTime" />
+            <div>
+              <Button Icon={ShiftsAdd24Regular} type="submit" className="mb-4 bg-black text-white rounded-md">Erfassen</Button>
+            </div>
+          </form>
+        )}
       </div>
     </>
   );

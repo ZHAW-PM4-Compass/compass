@@ -61,7 +61,7 @@ public class TimestampController {
 	public ResponseEntity<ArrayList<TimestampDto>> getAllTimestampByDaySheetId(@PathVariable Long id,
 			Authentication authentication) {
 		ArrayList<TimestampDto> list = timestampService.getAllTimestampsByDaySheetId(id, authentication.getName());
-		if (list.size() == 0)
+		if (list == null)
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		return ResponseEntity.ok(list);
 	}

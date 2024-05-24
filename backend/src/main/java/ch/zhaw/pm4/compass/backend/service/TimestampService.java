@@ -1,17 +1,16 @@
 package ch.zhaw.pm4.compass.backend.service;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import ch.zhaw.pm4.compass.backend.UserRole;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.TimestampRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 public class TimestampService {
@@ -100,7 +99,7 @@ public class TimestampService {
 	public void deleteTimestamp(Long id) {
 		Optional<Timestamp> timestamp = timestampRepository.findById(id);
         if (timestamp.isPresent())
-			timestampRepository.delete(timestamp.get());
+			timestampRepository.deleteTimestamp(timestamp.get().getId());
 	}
 
 	private Timestamp convertTimestampDtoToDTimestamp(TimestampDto timestampDto, String user_id) {

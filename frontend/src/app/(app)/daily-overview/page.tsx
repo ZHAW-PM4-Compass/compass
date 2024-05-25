@@ -195,7 +195,7 @@ export default function DailyOverviewPage() {
           daySheetDto={selectedDaySheet} />
       )}
       <div className="h-full flex flex-col">
-        <div className="flex flex-col md:flex-row justify-between mb-4">
+        <div className="flex flex-col md:flex-row justify-between">
           <Title1>Tagesübersicht</Title1>
           <div className="mt-2 md:mt-0">
             <Select

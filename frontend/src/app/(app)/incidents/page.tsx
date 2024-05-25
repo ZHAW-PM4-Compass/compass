@@ -251,17 +251,18 @@ export default function IncidentsPage() {
           partSelectActive={partSelectActive} />
       )}
       <div className="h-full flex flex-col">
-        <div className="flex flex-col sm:flex-row justify-between mb-4">
+        <div className="flex flex-col sm:flex-row justify-between">
           <Title1>Vorfälle</Title1>
           <div className="mt-2 sm:mt-0 flex flex-row space-x-4">
             <Select
-              className="w-40"
+              className="w-40 mb-4"
               placeholder="Teilnehmer"
               data={participantSelections}
               value={participantSelection}
               onChange={(e) => setParticipantSelection(e.target.value)} />
             <Button
               Icon={Add24Regular}
+              className="mb-4"
               onClick={() => setShowCreateModal(true)}
             >Erstellen</Button>
           </div>

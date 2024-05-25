@@ -15,7 +15,9 @@ import chroma from 'chroma-js';
 import { useEffect, useState } from "react";
 import Select from "@/components/select";
 import { getDaySheetControllerApi, getUserControllerApi } from "@/openapi/connector";
-import { RatingDtoRatingRoleEnum } from "@/openapi/compassClient";
+import { RatingDtoRatingRoleEnum, type UserDto } from "@/openapi/compassClient";
+
+import ReportGenerator from "@/components/reportgenerator";
 
 enum categorySelections {
   PARTICIPANT = "PARTICIPANT",
@@ -43,6 +45,10 @@ export default function MonthlyOverviewPage() {
 
   const [incidentCountPerDay, setIncidentCountPerDay] = useState<DatasetType>([]);
   const [dataset, setDataset] = useState<DatasetType>([]);
+
+  const [daySheets, setDaySheets] = useState<any[]>([]);
+  const [participantDtos, setParticipantDtos] = useState<UserDto[]>([]);
+  const [selectedParticipant, setSelectedParticipant] = useState<UserDto>();
 
   enum monthLabels {
     JANUARY = "Januar",
@@ -86,6 +92,8 @@ export default function MonthlyOverviewPage() {
         label: participant.email ?? ""
       })) ?? []);
       participants[0] && setParticipantId(participants[0].userId);
+
+      setParticipantDtos(participants);
     });
   }, []);
 
@@ -94,11 +102,18 @@ export default function MonthlyOverviewPage() {
       { type: 'bar', dataKey: 'count', color: '#134e4a', label: 'Vorfälle' },
     ]);
 
+    if (participantId) {
+      const selectedParticipant = participantDtos.find(participant => participant.userId === participantId);
+      setSelectedParticipant(selectedParticipant);
+    }
+
     if (participantId && month && year) {
       getDaySheetControllerApi().getAllDaySheetByParticipantAndMonth({
         userId: participantId,
         month: `${year}-${month}`,
       }).then(daySheets => {
+        setDaySheets(daySheets);
+
         const incidentCountPerDay: { dayLabel: string, count: number }[] = [];
         const dayCountPerSelectedMonth = new Date(parseInt(year), parseInt(month), 0).getDate();
         const data: any[] = [];
@@ -165,9 +180,18 @@ export default function MonthlyOverviewPage() {
   return (
     <>
       <div className="h-full w-full flex flex-col">
-        <div className="flex flex-col xl:flex-row justify-between mb-4">
-          <Title1>Monatsübersicht</Title1>
-          <div className="mt-2 sm:mt-0">
+        <div className="flex flex-col lg:flex-row justify-between">
+          <div className="flex flex-row mb-3 lg:mb-0">
+            <Title1>Monatsbericht</Title1>
+            <div className="ml-4">
+              <ReportGenerator
+                month={`${year}-${month}`}
+                participant={selectedParticipant}
+                daySheets={daySheets}
+              />
+            </div>
+          </div>
+          <div className="mt-2 lg:mt-0">
             <Select
               className="w-32 inline-block mr-4 mb-4"
               placeholder="Monat"

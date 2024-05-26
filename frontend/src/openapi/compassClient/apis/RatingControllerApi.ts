@@ -16,17 +16,25 @@
 import * as runtime from '../runtime';
 import type {
   CategoryDto,
+  ExtendedRatingDto,
   RatingDto,
 } from '../models/index';
 import {
     CategoryDtoFromJSON,
     CategoryDtoToJSON,
+    ExtendedRatingDtoFromJSON,
+    ExtendedRatingDtoToJSON,
     RatingDtoFromJSON,
     RatingDtoToJSON,
 } from '../models/index';
 
 export interface CreateRatingRequest {
     ratingDto: RatingDto;
+}
+
+export interface GetMoodRatingByDateRequest {
+    date: Date;
+    userId?: string;
 }
 
 export interface RecordCategoryRatingsByDaySheetAndUserIdRequest {
@@ -76,6 +84,41 @@ export class RatingControllerApi extends runtime.BaseAPI {
      */
     async createRating(requestParameters: CreateRatingRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RatingDto> {
         const response = await this.createRatingRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async getMoodRatingByDateRaw(requestParameters: GetMoodRatingByDateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<ExtendedRatingDto>>> {
+        if (requestParameters['date'] == null) {
+            throw new runtime.RequiredError(
+                'date',
+                'Required parameter "date" was null or undefined when calling getMoodRatingByDate().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['userId'] != null) {
+            queryParameters['userId'] = requestParameters['userId'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/rating/getMoodRatingByDate/{date}`.replace(`{${"date"}}`, encodeURIComponent(String(requestParameters['date']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(ExtendedRatingDtoFromJSON));
+    }
+
+    /**
+     */
+    async getMoodRatingByDate(requestParameters: GetMoodRatingByDateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<ExtendedRatingDto>> {
+        const response = await this.getMoodRatingByDateRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

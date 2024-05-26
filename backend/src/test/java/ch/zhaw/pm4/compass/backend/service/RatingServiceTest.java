@@ -3,6 +3,7 @@ package ch.zhaw.pm4.compass.backend.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -34,7 +35,9 @@ import ch.zhaw.pm4.compass.backend.model.LocalUser;
 import ch.zhaw.pm4.compass.backend.model.Rating;
 import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.ExtendedRatingDto;
 import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
 import ch.zhaw.pm4.compass.backend.repository.CategoryRepository;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.RatingRepository;
@@ -46,6 +49,9 @@ public class RatingServiceTest {
 	private DaySheetRepository daySheetRepository;
 	@Mock
 	private CategoryRepository categoryRepository;
+
+	@Mock
+	private UserService userService;
 
 	@Spy
 	@InjectMocks
@@ -62,6 +68,10 @@ public class RatingServiceTest {
 	private RatingDto ratingOneCategoryGlobalDto;
 	private RatingDto ratingTwoCategoryGlobalDto;
 	private RatingDto ratingOneCategoryPersonalDto;
+
+	private ExtendedRatingDto extendedRatingOneCaregoryGlobalDto;
+	private ExtendedRatingDto extendedRatingTwoCaregoryGlobalDto;
+	private ExtendedRatingDto extendedRatingOneCaregoryPersonalDto;
 
 	private String userId;
 	private LocalUser participant;
@@ -105,6 +115,22 @@ public class RatingServiceTest {
 		ratingOneCategoryPersonalDto.setDaySheet(daySheetDto);
 		ratingOneCategoryPersonalDto.setRating(2);
 		ratingOneCategoryPersonalDto.setRatingRole(RatingType.PARTICIPANT);
+
+		extendedRatingOneCaregoryGlobalDto = new ExtendedRatingDto();
+		extendedRatingTwoCaregoryGlobalDto = new ExtendedRatingDto();
+		extendedRatingOneCaregoryPersonalDto = new ExtendedRatingDto();
+
+		extendedRatingOneCaregoryGlobalDto.setRating(ratingOneCategoryGlobalDto);
+		extendedRatingOneCaregoryGlobalDto.setDate(now);
+		extendedRatingOneCaregoryGlobalDto.setParticipantName("Chester");
+
+		extendedRatingTwoCaregoryGlobalDto.setRating(ratingTwoCategoryGlobalDto);
+		extendedRatingTwoCaregoryGlobalDto.setDate(now);
+		extendedRatingTwoCaregoryGlobalDto.setParticipantName("Tester McTester");
+
+		extendedRatingOneCaregoryPersonalDto.setRating(ratingOneCategoryPersonalDto);
+		extendedRatingOneCaregoryPersonalDto.setDate(now);
+		extendedRatingOneCaregoryPersonalDto.setParticipantName("Chester");
 	}
 
 	@Test
@@ -185,6 +211,71 @@ public class RatingServiceTest {
 			assertEquals(expectedRatings.get(i).getRating(), returnRatings.get(i).getRating());
 			assertEquals(expectedRatings.get(i).getRatingRole(), returnRatings.get(i).getRatingRole());
 		}
+	}
+
+	@Test
+	public void whenGettingRatingsByDateByMoreThanOneUser_expectIllegalArgumentException() {
+		String[] userIds = new String[] { "id1", "id2" };
+		assertThrows(IllegalArgumentException.class, () -> ratingService.getRatingsByDate(LocalDate.now(), userIds));
+	}
+
+	@Test
+	public void whenGettingRatingsByDate_expectListOfExpandedRatingDtos() {
+		String userIdTwo = "dm,xnciouoi";
+		UserDto userDtoOne = new UserDto(userId, "testmail", "Chester", "", null, UserRole.PARTICIPANT);
+		UserDto userDtoTwo = new UserDto(userIdTwo, "testmail2", "Tester", "McTester", null, UserRole.PARTICIPANT);
+
+		LocalUser participantTwo = new LocalUser(userIdTwo, UserRole.PARTICIPANT);
+		LocalDate now = LocalDate.now();
+		DaySheet daySheetTwo = new DaySheet(2l, "", now, false);
+		daySheetTwo.setOwner(participantTwo);
+
+		Rating ratingSavedOne = new Rating(3, RatingType.PARTICIPANT);
+		ratingSavedOne.setCategory(categoryGlobal);
+		ratingSavedOne.setDaySheet(daySheet);
+		Rating ratingSavedTwo = new Rating(2, RatingType.PARTICIPANT);
+		ratingSavedTwo.setCategory(categoryPersonal);
+		ratingSavedTwo.setDaySheet(daySheet);
+		Rating ratingSavedThree = new Rating(6, RatingType.PARTICIPANT);
+		ratingSavedThree.setCategory(categoryGlobal);
+		ratingSavedThree.setDaySheet(daySheetTwo);
+
+		List<UserDto> allParticipants = List.of(userDtoOne, userDtoTwo);
+
+		List<ExtendedRatingDto> expectedRatings = List.of(extendedRatingOneCaregoryGlobalDto,
+				extendedRatingOneCaregoryPersonalDto, extendedRatingTwoCaregoryGlobalDto);
+		List<Rating> moodRatingsReturnOne = List.of(ratingSavedOne, ratingSavedTwo);
+		List<Rating> moodRatingsReturnTwo = List.of(ratingSavedThree);
+
+		daySheet.setMoodRatings(moodRatingsReturnOne);
+		daySheetTwo.setMoodRatings(moodRatingsReturnTwo);
+		List<DaySheet> daySheets = List.of(daySheet, daySheetTwo);
+
+		when(userService.getAllParticipants()).thenReturn(allParticipants);
+		when(daySheetRepository.findAllByDate(any(LocalDate.class))).thenReturn(daySheets);
+		when(daySheetRepository.findByDateAndOwnerId(any(LocalDate.class), eq(userIdTwo)))
+				.thenReturn(Optional.of(daySheetTwo));
+
+		List<ExtendedRatingDto> returnRatings = ratingService.getRatingsByDate(now);
+
+		assertEquals(expectedRatings.size(), returnRatings.size());
+
+		for (int i = 0; i < expectedRatings.size(); i++) {
+			assertEquals(expectedRatings.get(i).getRating().getCategory().getId(),
+					returnRatings.get(i).getRating().getCategory().getId());
+			assertEquals(expectedRatings.get(i).getRating().getRating(), returnRatings.get(i).getRating().getRating());
+			assertEquals(expectedRatings.get(i).getRating().getRatingRole(),
+					returnRatings.get(i).getRating().getRatingRole());
+			assertEquals(expectedRatings.get(i).getParticipantName(), returnRatings.get(i).getParticipantName());
+		}
+
+		List<ExtendedRatingDto> returnOneRating = ratingService.getRatingsByDate(now, userIdTwo);
+		assertEquals(1, returnOneRating.size());
+		assertEquals(ratingSavedThree.getCategory().getId(), returnOneRating.get(0).getRating().getCategory().getId());
+		assertEquals(ratingSavedThree.getRating(), returnOneRating.get(0).getRating().getRating());
+		assertEquals(ratingSavedThree.getRatingRole(), returnOneRating.get(0).getRating().getRatingRole());
+		assertEquals(userDtoTwo.getGiven_name() + " " + userDtoTwo.getFamily_name(),
+				returnOneRating.get(0).getParticipantName());
 	}
 
 	@Test

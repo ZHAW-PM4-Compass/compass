@@ -96,10 +96,10 @@ public class RatingService {
 			throw new IllegalArgumentException("More than one user ID");
 		}
 
-		List<UserDto> allParticipants = userService.getAllUsers();
+		List<UserDto> allParticipants = userService.getAllParticipants();
 		userNames = new HashMap<String, String>();
 		for (UserDto i : allParticipants) {
-			String name = i.getGiven_name() + " " + i.getFamily_name();
+			String name = (i.getGiven_name() + " " + i.getFamily_name()).trim();
 			userNames.put(i.getUser_id(), name);
 		}
 

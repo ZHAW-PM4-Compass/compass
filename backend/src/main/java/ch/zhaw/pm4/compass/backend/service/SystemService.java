@@ -8,6 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for checking the status of various system components such as the database and external authentication services.
+ * This class provides functionalities to ensure that all parts of the system are operational and reachable.
+ *
+ * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas, zimmenoe
+ * @version 26.05.2024
+ */
 @Service
 @Setter
 public class SystemService {
@@ -16,10 +23,22 @@ public class SystemService {
     @PersistenceContext
     private EntityManager entityManager;
 
+    /**
+     * Checks if the backend service is operational. Always returns true as it's a simple check to demonstrate
+     * the method could be extended to perform actual system checks.
+     *
+     * @return always true, indicating the backend is reachable.
+     */
     public boolean isBackendReachable() {
         return true;
     }
 
+    /**
+     * Verifies that the database is accessible by performing a simple query.
+     * Uses a native query that selects a minimal amount of data, designed to test connectivity and not load.
+     *
+     * @return true if the database query executes successfully, false if an exception occurs.
+     */
     public boolean isDatabaseReachable() {
         try {
             Query query = entityManager.createNativeQuery("SELECT 1");
@@ -32,6 +51,12 @@ public class SystemService {
         }
     }
 
+    /**
+     * Checks if the Auth0 service is reachable by attempting to retrieve a token.
+     * This method assumes a valid configuration of the user service to communicate with Auth0.
+     *
+     * @return true if the token is successfully retrieved, indicating Auth0 is reachable, false if an exception occurs.
+     */
     public boolean isAuth0Reachable() {
         try {
             userService.getToken();

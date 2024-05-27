@@ -31,7 +31,7 @@ import io.swagger.v3.oas.annotations.media.SchemaProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
- * Controller for managing ratings within the Compass application. 
+ * Controller for managing ratings within the Compass application.
  * Provides RESTful endpoints for creating and recording ratings related to day sheets and categories.
  *
  * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas, zimmenoe

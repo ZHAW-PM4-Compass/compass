@@ -72,7 +72,7 @@ public class DaySheetService {
 	}
 
 	/**
-	 * Retrieves a day sheet by its ID and ensures that it belongs to the specified user, 
+	 * Retrieves a day sheet by its ID and ensures that it belongs to the specified user,
    * unless the user is a social worker or admin.
 	 *
 	 * @param id The ID of the day sheet to retrieve.
@@ -176,8 +176,7 @@ public class DaySheetService {
 	}
 
 	/**
-	 * Updates the confirmed status of a day sheet based on user role and provided
-	 * value.
+	 * Updates the confirmed status of a day sheet based on user role and provided value.
 	 *
 	 * @param day_id The ID of the day sheet to be updated.
 	 * @param value The new confirmed status to set.

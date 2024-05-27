@@ -56,7 +56,7 @@ public class CategoryDto {
 	}
 
 	/**
-	 * Constructs a CategoryDto using JSON properties, initializing the list of category owners. 
+	 * Constructs a CategoryDto using JSON properties, initializing the list of category owners.
    * This constructor is used for JSON deserialization.
 	 *
 	 * @param id The unique identifier of the category.

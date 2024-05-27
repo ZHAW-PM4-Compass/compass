@@ -72,7 +72,7 @@ public class DaySheetDto {
 	}
 
 	/**
-	 * Constructor for creating a fully detailed DaySheetDto. 
+	 * Constructor for creating a fully detailed DaySheetDto.
    * Includes all associated data such as timestamps, mood ratings, and incidents.
 	 *
 	 * @param id Unique identifier of the day sheet.
@@ -96,7 +96,7 @@ public class DaySheetDto {
 	}
 
 	/**
-	 * Constructor for DaySheetDto with timestamps only. 
+	 * Constructor for DaySheetDto with timestamps only.
    * Suitable for cases focusing primarily on time tracking.
 	 *
 	 * @param id Unique identifier of the day sheet.
@@ -114,7 +114,7 @@ public class DaySheetDto {
 	}
 
 	/**
-	 * Constructor for DaySheetDto with mood ratings only. 
+	 * Constructor for DaySheetDto with mood ratings only.
    * Used when primary concern is to track emotional feedback without detailed time logs.
 	 *
 	 * @param id Unique identifier of the day sheet.
@@ -158,7 +158,7 @@ public class DaySheetDto {
 	}
 
 	/**
-	 * Calculates the total time sum of all timestamps within the day sheet. 
+	 * Calculates the total time sum of all timestamps within the day sheet.
    * This is a utility method used internally to aggregate time durations from each timestamp.
 	 */
 	private void setTimeSum() {

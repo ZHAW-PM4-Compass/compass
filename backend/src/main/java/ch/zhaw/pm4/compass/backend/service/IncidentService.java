@@ -25,12 +25,12 @@ import ch.zhaw.pm4.compass.backend.repository.IncidentRepository;
  */
 @Service
 public class IncidentService {
-  @Autowired
-  private IncidentRepository incidentRepository;
-  @Autowired
-  private DaySheetService daySheetService;
-  @Autowired
-  private UserService userService;
+   @Autowired
+   private IncidentRepository incidentRepository;
+   @Autowired
+   private DaySheetService daySheetService;
+   @Autowired
+   private UserService userService;
 
   /**
    * Creates an incident and assigns it to an existing day sheet based on the provided date, 

@@ -177,7 +177,7 @@ public class RatingService {
 	/**
 	 * Converts a {@link Rating} entity back to a {@link RatingDto}. This conversion includes
 	 * assembling related data such as the category and day sheet details into the DTO for comprehensive data transfer.
-   * 
+   *  
 	 * @param entity The {@link Rating} entity to be converted.
 	 * @return A {@link RatingDto} containing the details from the entity and its related data.
 	 */

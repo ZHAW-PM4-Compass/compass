@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import ch.zhaw.pm4.compass.backend.model.dto.*;
-import ch.zhaw.pm4.compass.backend.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,17 +16,25 @@ import ch.zhaw.pm4.compass.backend.model.Incident;
 import ch.zhaw.pm4.compass.backend.model.LocalUser;
 import ch.zhaw.pm4.compass.backend.model.Rating;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
+import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.IncidentDto;
+import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
+import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
 
 /**
- * Service class that handles business logic related to day sheets.
- * This includes operations such as creating, retrieving, updating day sheets and integrating them with ratings,
- * timestamps, and incidents based on user roles and other conditions,
+ * Service class that handles business logic related to day sheets. This
+ * includes operations such as creating, retrieving, updating day sheets and
+ * integrating them with ratings, timestamps, and incidents based on user roles
+ * and other conditions,
  *
  * Using {@link DaySheetRepository} for persistence operations.
  *
- * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas, zimmenoe
+ * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas,
+ *         zimmenoe
  * @version 26.05.2024
  */
 @Service
@@ -47,12 +53,14 @@ public class DaySheetService {
 	UserService userService;
 
 	/**
-	 * Creates a new day sheet from a DTO and assigns an owner to it based on the user ID provided.
-	 * It checks for existing day sheets with the same date and owner before creating a new one.
+	 * Creates a new day sheet from a DTO and assigns an owner to it based on the
+	 * user ID provided. It checks for existing day sheets with the same date and
+	 * owner before creating a new one.
 	 *
 	 * @param createDay The day sheet DTO to create.
-	 * @param user_id The ID of the user who will own the new day sheet.
-	 * @return The created day sheet DTO or null if a day sheet with the same date already exists.
+	 * @param user_id   The ID of the user who will own the new day sheet.
+	 * @return The created day sheet DTO or null if a day sheet with the same date
+	 *         already exists.
 	 */
 	public DaySheetDto createDay(DaySheetDto createDay, String user_id) {
 		DaySheet daySheet = convertDaySheetDtoToDaySheet(createDay);
@@ -67,12 +75,13 @@ public class DaySheetService {
 	}
 
 	/**
-	 * Retrieves a day sheet by its ID and ensures that it belongs to the specified user,
-	 * unless the user is a social worker or admin.
+	 * Retrieves a day sheet by its ID and ensures that it belongs to the specified
+	 * user, unless the user is a social worker or admin.
 	 *
-	 * @param id The ID of the day sheet to retrieve.
+	 * @param id      The ID of the day sheet to retrieve.
 	 * @param user_id The user ID used to verify ownership of the day sheet.
-	 * @return The retrieved day sheet DTO or null if no suitable day sheet is found.
+	 * @return The retrieved day sheet DTO or null if no suitable day sheet is
+	 *         found.
 	 */
 	public DaySheetDto getDaySheetByIdAndUserId(Long id, String user_id) {
 		Optional<DaySheet> optional;
@@ -93,12 +102,14 @@ public class DaySheetService {
 	}
 
 	/**
-	 * Retrieves a day sheet by a specific date for a given user.
-	 * This method checks if a day sheet exists for the specified date and user ID and returns it if found.
+	 * Retrieves a day sheet by a specific date for a given user. This method checks
+	 * if a day sheet exists for the specified date and user ID and returns it if
+	 * found.
 	 *
-	 * @param date The date of the day sheet to retrieve.
+	 * @param date    The date of the day sheet to retrieve.
 	 * @param user_id The ID of the user who owns the day sheet.
-	 * @return The day sheet DTO if found, or null if no day sheet exists for the specified date and user.
+	 * @return The day sheet DTO if found, or null if no day sheet exists for the
+	 *         specified date and user.
 	 */
 	public DaySheetDto getDaySheetByDate(LocalDate date, String user_id) {
 		Optional<DaySheet> optional = daySheetRepository.findByDateAndOwnerId(date, user_id);
@@ -116,17 +127,17 @@ public class DaySheetService {
 	public List<DaySheetDto> getAllDaySheetNotConfirmed() {
 		List<UserDto> userDtos = userService.getAllUsers();
 		List<DaySheet> daySheets = daySheetRepository.findAllByConfirmedIsFalseAndOwner_Role(UserRole.PARTICIPANT);
-		return daySheets
-				.stream().map(daySheet -> {
-					UserDto user = userDtos.stream()
-							.filter(userFilter -> userFilter.getUser_id().equals(daySheet.getOwner().getId()))
-							.findFirst().orElse(null);
-					return convertDaySheetToDaySheetDto(daySheet, user);
-				}).toList();
+		return daySheets.stream().map(daySheet -> {
+			UserDto user = userDtos.stream()
+					.filter(userFilter -> userFilter.getUser_id().equals(daySheet.getOwner().getId())).findFirst()
+					.orElse(null);
+			return convertDaySheetToDaySheetDto(daySheet, user);
+		}).toList();
 	}
 
 	/**
-	 * Retrieves all day sheets for a specific month, incorporating user information.
+	 * Retrieves all day sheets for a specific month, incorporating user
+	 * information.
 	 *
 	 * @param month The month and year to search within.
 	 * @return A list of day sheet DTOs for the specified month.
@@ -134,32 +145,33 @@ public class DaySheetService {
 	public List<DaySheetDto> getAllDaySheetByMonth(YearMonth month) {
 		List<UserDto> userDtos = userService.getAllUsers();
 		List<DaySheet> daySheets = daySheetRepository.findAllByDateBetween(month.atDay(1), month.atEndOfMonth());
-		return daySheets
-				.stream().map(daySheet -> {
-					UserDto user = userDtos.stream()
-							.filter(userFilter -> userFilter.getUser_id().equals(daySheet.getOwner().getId()))
-							.findFirst().orElse(null);
-					return convertDaySheetToDaySheetDto(daySheet, user);
-				}).toList();
+		return daySheets.stream().map(daySheet -> {
+			UserDto user = userDtos.stream()
+					.filter(userFilter -> userFilter.getUser_id().equals(daySheet.getOwner().getId())).findFirst()
+					.orElse(null);
+			return convertDaySheetToDaySheetDto(daySheet, user);
+		}).toList();
 	}
 
 	/**
 	 * Retrieves all day sheets for a specific user and month.
 	 *
 	 * @param userId The ID of the user.
-	 * @param month The month and year to search within.
+	 * @param month  The month and year to search within.
 	 * @return A list of day sheet DTOs for the specified user and month.
 	 */
 	public List<DaySheetDto> getAllDaySheetByUserAndMonth(String userId, YearMonth month) {
 		List<DaySheet> response = daySheetRepository.findAllByOwnerIdAndDateBetween(userId, month.atDay(1),
 				month.atEndOfMonth());
-		return response.stream().map(daySheet -> convertDaySheetToDaySheetDto(daySheet, null)).collect(Collectors.toList());
+		return response.stream().map(daySheet -> convertDaySheetToDaySheetDto(daySheet, null))
+				.collect(Collectors.toList());
 	}
 
 	/**
 	 * Updates the notes for a specific day sheet.
 	 *
-	 * @param updateDay Contains the ID of the day sheet and the new notes to be updated.
+	 * @param updateDay Contains the ID of the day sheet and the new notes to be
+	 *                  updated.
 	 * @return The updated day sheet DTO, or null if the day sheet does not exist.
 	 */
 	public DaySheetDto updateDayNotes(UpdateDaySheetDayNotesDto updateDay) {
@@ -172,12 +184,14 @@ public class DaySheetService {
 	}
 
 	/**
-	 * Updates the confirmed status of a day sheet based on user role and provided value.
+	 * Updates the confirmed status of a day sheet based on user role and provided
+	 * value.
 	 *
-	 * @param day_id The ID of the day sheet to be updated.
-	 * @param value The new confirmed status to set.
+	 * @param day_id  The ID of the day sheet to be updated.
+	 * @param value   The new confirmed status to set.
 	 * @param user_id The ID of the user performing the update.
-	 * @return The updated day sheet DTO, or null if the day sheet does not exist or if the user lacks proper authorization.
+	 * @return The updated day sheet DTO, or null if the day sheet does not exist or
+	 *         if the user lacks proper authorization.
 	 */
 	public DaySheetDto updateConfirmed(Long day_id, boolean value, String user_id) {
 		Optional<DaySheet> optional = daySheetRepository.findById(day_id);
@@ -203,10 +217,11 @@ public class DaySheetService {
 	}
 
 	/**
-	 * Converts a DaySheet entity to a DaySheetDto, potentially including associated users and details.
+	 * Converts a DaySheet entity to a DaySheetDto, potentially including associated
+	 * users and details.
 	 *
 	 * @param daySheet The day sheet entity to convert.
-	 * @param owner The owner user DTO, if applicable.
+	 * @param owner    The owner user DTO, if applicable.
 	 * @return A day sheet DTO with potentially additional details included.
 	 */
 	public DaySheetDto convertDaySheetToDaySheetDto(DaySheet daySheet, UserDto owner) {

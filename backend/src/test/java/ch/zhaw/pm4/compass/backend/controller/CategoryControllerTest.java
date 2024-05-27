@@ -98,7 +98,7 @@ public class CategoryControllerTest {
 		return new CategoryDto(categoryId + 1, categoryName + "2", minValue, maxValue, ownersDtoFull);
 	}
 
-	@Before()
+	@Before
 	public void setup() {
 		mockMvc = MockMvcBuilders.webAppContextSetup(controller).apply(SecurityMockMvcConfigurers.springSecurity())
 				.build();
@@ -106,7 +106,7 @@ public class CategoryControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingCreateEndpointWithGlobalCategory_expectCategory() throws Exception {
+	public void whenCallingCreateEndpointWithGlobalCategory_expectCategory() throws Exception {
 		CategoryDto category = getGlobalCategoryDto();
 		when(categoryService.createCategory(any(CategoryDto.class))).thenReturn(category);
 		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
@@ -126,7 +126,7 @@ public class CategoryControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingAdminProtectedEndpointsAsNotAdmin_expectForbidden() throws Exception {
+	public void whenCallingAdminProtectedEndpointsAsNotAdmin_expectForbidden() throws Exception {
 		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.SOCIAL_WORKER);
 
 		mockMvc.perform(post("/category").contentType(MediaType.APPLICATION_JSON)
@@ -142,7 +142,7 @@ public class CategoryControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingCreateEndpointWithBadRequest_expectBadRequest() throws Exception {
+	public void whenCallingCreateEndpointWithBadRequest_expectBadRequest() throws Exception {
 		Category category = new Category(categoryName, minValue, maxValue, List.of());
 
 		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
@@ -163,7 +163,7 @@ public class CategoryControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingGetEndpoint_expectList() throws Exception {
+	public void whenCallingGetEndpoint_expectList() throws Exception {
 		List<CategoryDto> categoryDtoList = List.of(getGlobalCategoryDto());
 
 		when(categoryService.getAllCategories()).thenReturn(categoryDtoList);
@@ -179,7 +179,7 @@ public class CategoryControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingGetEndpointWithName_expectReturn() throws Exception {
+	public void whenCallingGetEndpointWithName_expectReturn() throws Exception {
 		CategoryDto category = getGlobalCategoryDto();
 		when(categoryService.getCategoryByName(eq(categoryName), any())).thenReturn(category);
 
@@ -196,7 +196,7 @@ public class CategoryControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingGetEndpointWithNameAndRatings_expectReturn() throws Exception {
+	public void whenCallingGetEndpointWithNameAndRatings_expectReturn() throws Exception {
 		CategoryDto category = getGlobalCategoryDto();
 		RatingDto rating = new RatingDto(new CategoryDto(), new DaySheetDto(), 5, RatingType.PARTICIPANT);
 		category.setMoodRatings(List.of(rating));
@@ -215,7 +215,7 @@ public class CategoryControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingGetEndpointsWithNonExistantName_expectNotFound() throws Exception {
+	public void whenCallingGetEndpointsWithNonExistantName_expectNotFound() throws Exception {
 		when(categoryService.getCategoryByName(eq(categoryName), any())).thenThrow(new NoSuchElementException());
 
 		mockMvc.perform(get("/category/getByName/" + categoryName).contentType(MediaType.APPLICATION_JSON)
@@ -230,7 +230,7 @@ public class CategoryControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingLinkEndpointWithBadRequest_expectBadRequest() throws Exception {
+	public void whenCallingLinkEndpointWithBadRequest_expectBadRequest() throws Exception {
 		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
 
 		when(categoryService.linkUsersToExistingCategory(any(CategoryDto.class)))
@@ -256,7 +256,7 @@ public class CategoryControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingLinkEndpoint_expectCategory() throws Exception {
+	public void whenCallingLinkEndpoint_expectCategory() throws Exception {
 		CategoryDto category = getPersonalCategoryDto();
 		String owners = gson.toJson(category.getCategoryOwners(), new TypeToken<List<ParticipantDto>>() {
 		}.getType());
@@ -280,7 +280,7 @@ public class CategoryControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingGetListByUserIdEndpointWithBadRequest_expectBadRequest() throws Exception {
+	public void whenCallingGetListByUserIdEndpointWithBadRequest_expectBadRequest() throws Exception {
 		when(categoryService.getCategoryListByUserId(any(String.class))).thenThrow(new NoSuchElementException());
 		mockMvc.perform(get("/category/getCategoryListByUserId/tester").contentType(MediaType.APPLICATION_JSON)
 				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isBadRequest());
@@ -294,7 +294,7 @@ public class CategoryControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingGetListByUserIdEndpointWithGoodRequest_expectOk() throws Exception {
+	public void whenCallingGetListByUserIdEndpointWithGoodRequest_expectOk() throws Exception {
 		List<CategoryDto> categoryDtoList = new ArrayList<>();
 		categoryDtoList.add(getGlobalCategoryDto());
 		categoryDtoList.add(getPersonalCategoryDto());

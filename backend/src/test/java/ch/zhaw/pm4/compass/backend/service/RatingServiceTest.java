@@ -77,7 +77,7 @@ public class RatingServiceTest {
 	private LocalUser participant;
 
 	@BeforeEach
-	void setUp() throws NotValidCategoryOwnerException {
+	public void setup() throws NotValidCategoryOwnerException {
 		MockitoAnnotations.openMocks(this);
 
 		userId = "dasfdwssdio";

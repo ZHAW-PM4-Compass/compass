@@ -2,7 +2,6 @@ package ch.zhaw.pm4.compass.backend.controller;
 
 import java.util.ArrayList;
 
-import ch.zhaw.pm4.compass.backend.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +22,12 @@ import ch.zhaw.pm4.compass.backend.service.TimestampService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
- * Controller for managing timestamps related to day sheets in the Compass application.
- * Provides endpoints for creating, retrieving, updating, and deleting timestamps.
+ * Controller for managing timestamps related to day sheets in the Compass
+ * application. Provides endpoints for creating, retrieving, updating, and
+ * deleting timestamps.
  *
- * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas, zimmenoe
+ * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas,
+ *         zimmenoe
  * @version 26.05.2024
  */
 @Tag(name = "Timestamp Controller", description = "Timestamp Endpoint")
@@ -41,9 +42,12 @@ public class TimestampController {
 	/**
 	 * Creates a new timestamp based on the provided DTO.
 	 *
-	 * @param timestamp Timestamp data transfer object containing details of the timestamp.
-	 * @param authentication Authentication object containing the user's security credentials.
-	 * @return ResponseEntity with the created TimestampDto or appropriate error status.
+	 * @param timestamp      Timestamp data transfer object containing details of
+	 *                       the timestamp.
+	 * @param authentication Authentication object containing the user's security
+	 *                       credentials.
+	 * @return ResponseEntity with the created TimestampDto or appropriate error
+	 *         status.
 	 */
 	@PostMapping(produces = "application/json")
 	public ResponseEntity<TimestampDto> createTimestamp(@RequestBody TimestampDto timestamp,
@@ -66,9 +70,11 @@ public class TimestampController {
 	/**
 	 * Retrieves a timestamp by its ID.
 	 *
-	 * @param id The unique identifier of the timestamp.
-	 * @param authentication Authentication object containing the user's security credentials.
-	 * @return ResponseEntity with the TimestampDto or NOT_FOUND if it does not exist.
+	 * @param id             The unique identifier of the timestamp.
+	 * @param authentication Authentication object containing the user's security
+	 *                       credentials.
+	 * @return ResponseEntity with the TimestampDto or NOT_FOUND if it does not
+	 *         exist.
 	 */
 	@GetMapping(path = "/getById/{id}", produces = "application/json")
 	public ResponseEntity<TimestampDto> getTimestampById(@PathVariable Long id, Authentication authentication) {
@@ -81,9 +87,11 @@ public class TimestampController {
 	/**
 	 * Retrieves all timestamps associated with a specific day sheet ID.
 	 *
-	 * @param id The day sheet ID.
-	 * @param authentication Authentication object containing the user's security credentials.
-	 * @return ResponseEntity containing a list of TimestampDto or NOT_FOUND if no timestamps are found.
+	 * @param id             The day sheet ID.
+	 * @param authentication Authentication object containing the user's security
+	 *                       credentials.
+	 * @return ResponseEntity containing a list of TimestampDto or NOT_FOUND if no
+	 *         timestamps are found.
 	 */
 	@GetMapping(path = "/allbydaysheetid/{id}", produces = "application/json")
 	public ResponseEntity<ArrayList<TimestampDto>> getAllTimestampByDaySheetId(@PathVariable Long id,
@@ -97,9 +105,12 @@ public class TimestampController {
 	/**
 	 * Updates a timestamp based on the provided DTO.
 	 *
-	 * @param timestamp Timestamp data transfer object containing updated details of the timestamp.
-	 * @param authentication Authentication object containing the user's security credentials.
-	 * @return ResponseEntity with the updated TimestampDto or appropriate error status.
+	 * @param timestamp      Timestamp data transfer object containing updated
+	 *                       details of the timestamp.
+	 * @param authentication Authentication object containing the user's security
+	 *                       credentials.
+	 * @return ResponseEntity with the updated TimestampDto or appropriate error
+	 *         status.
 	 */
 	@PutMapping(produces = "application/json")
 	public ResponseEntity<TimestampDto> putTimestamp(@RequestBody TimestampDto timestamp,
@@ -119,9 +130,11 @@ public class TimestampController {
 	/**
 	 * Deletes a timestamp by its ID.
 	 *
-	 * @param id The unique identifier of the timestamp to delete.
-	 * @param authentication Authentication object containing the user's security credentials.
-	 * @return ResponseEntity indicating the result of the operation or appropriate error status.
+	 * @param id             The unique identifier of the timestamp to delete.
+	 * @param authentication Authentication object containing the user's security
+	 *                       credentials.
+	 * @return ResponseEntity indicating the result of the operation or appropriate
+	 *         error status.
 	 */
 	@DeleteMapping(path = "/{id}")
 	public ResponseEntity<Object> deleteTimestamp(@PathVariable Long id, Authentication authentication) {

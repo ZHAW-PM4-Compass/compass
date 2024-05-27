@@ -12,14 +12,11 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 /**
- * Data Transfer Object (DTO) for categories used within the Compass
- * application. This DTO includes details about category identifiers, names,
- * value ranges, owners, and associated ratings. Utilizes Lombok for simplifying
- * the codebase by automatically generating getters, setters, equals, hashCode,
- * and toString methods.
+ * Data Transfer Object (DTO) for categories used within the Compass application.
+ * This DTO includes details about category identifiers, names, value ranges, owners, and associated ratings.
+ * Utilizes Lombok for simplifying the codebase by automatically generating getters, setters, equals, hashCode, and toString methods.
  *
- * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas,
- *         zimmenoe
+ * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas, zimmenoe
  * @version 26.05.2024
  */
 @Data
@@ -43,10 +40,10 @@ public class CategoryDto {
 	/**
 	 * Constructs a CategoryDto with all fields except mood ratings.
 	 *
-	 * @param id             The unique identifier of the category.
-	 * @param name           The name of the category.
-	 * @param minimumValue   The minimum value for ratings within this category.
-	 * @param maximumValue   The maximum value for ratings within this category.
+	 * @param id The unique identifier of the category.
+	 * @param name The name of the category.
+	 * @param minimumValue The minimum value for ratings within this category.
+	 * @param maximumValue The maximum value for ratings within this category.
 	 * @param categoryOwners The list of participants who own this category.
 	 */
 	public CategoryDto(Long id, String name, Integer minimumValue, Integer maximumValue,
@@ -59,11 +56,11 @@ public class CategoryDto {
 	}
 
 	/**
-	 * Constructs a CategoryDto using JSON properties, initializing the list of
-	 * category owners. This constructor is used for JSON deserialization.
+	 * Constructs a CategoryDto using JSON properties, initializing the list of category owners. 
+   * This constructor is used for JSON deserialization.
 	 *
-	 * @param id           The unique identifier of the category.
-	 * @param name         The name of the category.
+	 * @param id The unique identifier of the category.
+	 * @param name The name of the category.
 	 * @param minimumValue The minimum value for ratings within this category.
 	 * @param maximumValue The maximum value for ratings within this category.
 	 */

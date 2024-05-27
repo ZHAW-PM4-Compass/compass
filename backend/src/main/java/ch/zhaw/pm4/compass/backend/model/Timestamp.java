@@ -26,13 +26,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Timestamp {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-	private LocalTime startTime;
-	private LocalTime endTime;
+  private LocalTime startTime;
+  private LocalTime endTime;
 
-	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	private DaySheet daySheet;
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
+  private DaySheet daySheet;
 }

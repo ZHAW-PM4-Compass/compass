@@ -146,7 +146,7 @@ export class RatingControllerApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/rating/recordMyMoodRatingsByDaySheetId/{daySheetId}/`.replace(`{${"daySheetId"}}`, encodeURIComponent(String(requestParameters['daySheetId']))),
+            path: `/rating/recordMyMoodRatingsByDaySheetId/{daySheetId}`.replace(`{${"daySheetId"}}`, encodeURIComponent(String(requestParameters['daySheetId']))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,

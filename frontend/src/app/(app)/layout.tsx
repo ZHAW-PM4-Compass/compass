@@ -10,8 +10,8 @@ import HomeIconFilled from "@fluentui/svg-icons/icons/home_24_filled.svg";
 // participant
 import WorkingHoursIcon from "@fluentui/svg-icons/icons/shifts_24_regular.svg";
 import WorkingHoursIconFilled from "@fluentui/svg-icons/icons/shifts_24_filled.svg";
-import MoodIcon from "@fluentui/svg-icons/icons/person_voice_24_regular.svg";
-import MoodIconFilled from "@fluentui/svg-icons/icons/person_voice_24_filled.svg";
+import MoodIcon from "@fluentui/svg-icons/icons/person_feedback_24_regular.svg";
+import MoodIconFilled from "@fluentui/svg-icons/icons/person_feedback_24_filled.svg";
 import IncidentIcon from "@fluentui/svg-icons/icons/alert_24_regular.svg";
 import IncidentIconFilled from "@fluentui/svg-icons/icons/alert_24_filled.svg";
 
@@ -22,8 +22,8 @@ import DailyOverviewIcon from "@fluentui/svg-icons/icons/calendar_day_24_regular
 import DailyOverviewIconFilled from "@fluentui/svg-icons/icons/calendar_day_24_filled.svg";
 import MonthlyOverviewIcon from "@fluentui/svg-icons/icons/calendar_month_24_regular.svg";
 import MonthlyOverviewIconFilled from "@fluentui/svg-icons/icons/calendar_month_24_filled.svg";
-import CategoryIcon from "@fluentui/svg-icons/icons/apps_list_detail_24_regular.svg";
-import CategoryIconFilled from "@fluentui/svg-icons/icons/apps_list_detail_24_filled.svg";
+import CategoryIcon from "@fluentui/svg-icons/icons/apps_24_regular.svg";
+import CategoryIconFilled from "@fluentui/svg-icons/icons/apps_24_filled.svg";
 
 // admin
 import UserIcon from "@fluentui/svg-icons/icons/people_24_regular.svg";
@@ -234,13 +234,13 @@ export default function RootLayout({
                 <SubTitle collapsed={!menuOpen} label="Teilnehmer" withLine={true} />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursIcon} iconActive={WorkingHoursIconFilled} label="Arbeitszeit" route="/working-hours" />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
-                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={CategoryIcon} iconActive={CategoryIconFilled} label="Stimmung" route="/categories" />
               </>
             )}
 
             {backendUser && (backendUser.role === Roles.SOCIAL_WORKER || backendUser.role === Roles.ADMIN) && (
               <>
                 <SubTitle collapsed={!menuOpen} label="Sozialarbeiter" withLine={true} />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={MoodIcon} iconActive={MoodIconFilled} label="Stimmung" route="/moods" />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={IncidentIcon} iconActive={IncidentIconFilled} label="Vorfälle" route="/incidents" />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={WorkingHoursCheckIcon} iconActive={WorkingHoursCheckIconFilled} label="Kontrolle Arbeitszeit" route="/working-hours-check" />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={DailyOverviewIcon} iconActive={DailyOverviewIconFilled} label="Tagesübersicht" route="/daily-overview" />
@@ -252,6 +252,7 @@ export default function RootLayout({
               <>
                 <SubTitle collapsed={!menuOpen} label="Admin" withLine={true} />
                 <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={UserIcon} iconActive={UserIconFilled} label="Benutzer" route="/users" />
+                <MenuItem onClick={handleMobileClick} collapsed={!menuOpen} icon={CategoryIcon} iconActive={CategoryIconFilled} label="Kategorien" route="/categories" />
               </>
             )}
 

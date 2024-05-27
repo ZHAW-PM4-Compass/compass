@@ -6,19 +6,22 @@ import Button from "@/components/button";
 import Input from "@/components/input";
 import Select from "@/components/select";
 import Table from "@/components/table";
-import { PersonAdd24Regular, Save24Regular } from "@fluentui/react-icons";
-import { getUserControllerApi, getCategoryControllerApi } from "@/openapi/connector";
+import { AppsAddIn24Regular, Edit24Regular, PersonAdd24Regular, Save24Regular } from "@fluentui/react-icons";
+import { getUserControllerApi, getCategoryControllerApi, getRatingControllerApi } from "@/openapi/connector";
 import { CategoryDto, UserDto } from "@/openapi/compassClient";
+import Title1 from "@/components/title1";
+import { toast } from "react-hot-toast";
+import toastMessages from "@/constants/toastMessages";
 
-const CategoryModal: React.FC<CategoryModalProps> = ({
-  close,
-  onSave,
-  category,
-}) => {
+function CategoryCreateModal({ close, onSave, category }: Readonly<{
+  close: () => void;
+  onSave: () => void;
+  category: CategoryDto | null;
+}>) {
   const [name, setName] = useState<string>(category?.name || "");
   const [min, setMin] = useState<number>(category?.minimumValue || 0);
   const [max, setMax] = useState<number>(category?.maximumValue || 10);
-  const [assignment, setAssignment] = useState<string>(category?.assignment || "global");
+  const [assignment, setAssignment] = useState<string>("global");
   const [selectedParticipants, setSelectedParticipants] = useState<UserDto[]>([]);
   const [participants, setParticipants] = useState<UserDto[]>([]);
 
@@ -37,22 +40,29 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 
   const handleSubmit = () => {
     const newCategory: CategoryDto = {
-      id: category?.id || undefined,
       name: name,
       minimumValue: min,
       maximumValue: max,
     };
 
-    onSave(newCategory);
-    close();
+    const createAction = () => getCategoryControllerApi().createCategory({ categoryDto: newCategory }).then(() => {
+      onSave();
+      close();
+    });
+
+    toast.promise(createAction(), {
+      loading: toastMessages.CREATING,
+      success: toastMessages.CATEGORY_CREATED,
+      error: toastMessages.CATEGORY_NOT_CREATED,
+    });
   };
 
   return (
     <Modal
-      title={category ? "Kategorie bearbeiten" : "Kategorie erstellen"}
+      title="Kategorie erstellen"
       footerActions={
         <Button Icon={Save24Regular} onClick={handleSubmit}>
-          Save
+          Speichern
         </Button>
       }
       close={close}
@@ -146,84 +156,70 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   );
 };
 
-const CategoryPage: React.FC = () => {
+export default function CategoryPage() {
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<CategoryDto | null>(
     null
   );
   const [categories, setCategories] = useState<CategoryDto[]>([]);
 
-  useEffect(() => {
-    async function fetchCategories() {
-      const categoryApi = getCategoryControllerApi();
-      try {
-        const categories = await categoryApi.getAllCategories();
-        setCategories(categories);
-      } catch (error) {
-        console.error("Failed to fetch categories", error);
-      }
-    }
-    fetchCategories();
-  }, []);
+  const loadCategories = () => {
+    setLoading(true);
+    getCategoryControllerApi().getAllCategories().then((categories) => {
+      setCategories(categories);
+    }).catch(() => {
+      toast.error(toastMessages.CATEGORIES_NOT_LOADED);
+    }).finally(() => {
+      setLoading(false);
+    });
+  }
 
-  const handleSaveCategory = async (category: CategoryDto) => {
-    const categoryApi = getCategoryControllerApi();
-    try {
-      const savedCategory = category.id
-        ? await categoryApi.updateCategory({ categoryDto: category })
-        : await categoryApi.createCategory({ categoryDto: category });
-
-      const updatedCategories = categories.filter((c) => c.id !== savedCategory.id);
-      setCategories([...updatedCategories, savedCategory].sort((a, b) => a.id - b.id));
-    } catch (error) {
-      console.error("Failed to save category", error);
-    }
-  };
+  useEffect(loadCategories, []);
 
   return (
     <>
       {showModal && (
-        <CategoryModal
+        <CategoryCreateModal
           close={() => setShowModal(false)}
-          onSave={handleSaveCategory}
+          onSave={loadCategories}
           category={selectedCategory}
         />
       )}
-      <div className="flex flex-col">
-        <Button
-          className="max-w-[200px] self-end mb-4"
-          Icon={PersonAdd24Regular}
-          onClick={() => {
-            setShowModal(true);
-            setSelectedCategory(null);
-          }}
-        >
-          Kategorie erstellen
-        </Button>
+      <div className="h-full flex flex-col">
+        <div className="flex flex-col sm:flex-row justify-between mb-4">
+          <Title1>Kategorien</Title1>
+          <div className="mt-2 sm:mt-0">
+            <Button Icon={AppsAddIn24Regular} onClick={() => {
+              setShowModal(true);
+              setSelectedCategory(null);
+            }}>Erstellen</Button>
+          </div>
+        </div>
         <Table
           data={categories}
           columns={[
-            { header: "ID", title: "id" },
-            { header: "Category", title: "name" },
-            { header: "Min", title: "minimumValue" },
-            { header: "Max", title: "maximumValue" },
-            { header: "Assignment", title: "assignment" },
-          ]}
-          actions={[
             {
-              icon: PersonAdd24Regular,
-              label: "Edit",
-              onClick: (id) => {
-                const category = categories.find((c) => c.id === id);
-                setSelectedCategory(category || null);
-                setShowModal(true);
-              },
+              header: "Kategorie",
+              title: "name"
+            },
+            {
+              header: "Min",
+              title: "minimumValue"
+            },
+            {
+              header: "Max",
+              title: "maximumValue"
+            },
+            {
+              header: "Zuweisung",
+              title: "assignment"
             },
           ]}
+          actions={[]}
+          loading={loading}
         />
-      </div>
+      </div >
     </>
   );
 };
-
-export default CategoryPage;

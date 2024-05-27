@@ -31,7 +31,6 @@ enum toastMessages {
   USER_NOT_CREATED = "User konnte nicht erstellt werden",
   USER_UPDATED = "User aktualisiert",
   USER_NOT_UPDATED = "User konnte nicht aktualisiert werden",
-
   DAYSHEET_NOT_AVAILABLE = "Keine Zeiteinträge für diesen Tag vorhanden",
   DAYSHEET_CREATED = "Arbeitstag erstellt",
   DAYSHEET_NOT_CREATED = "Arbeitstag konnte nicht erstellt werden",
@@ -43,6 +42,11 @@ enum toastMessages {
   DAYNOTES_UPDATED = "Notizen aktualisiert",
   DAYNOTES_NOT_UPDATED = "Notizen konnten nicht aktualisiert werden",
   STARTTIME_AFTER_ENDTIME = "Startzeit muss vor Endzeit liegen",
+  CATEGORIES_NOT_LOADED = "Kategorien konnten nicht geladen werden",
+  CATEGORY_CREATED = "Kategorie erstellt",
+  CATEGORY_NOT_CREATED = "Kategorie konnte nicht erstellt werden",
+  CATEGORY_UPDATED = "Kategorie aktualisiert",
+  CATEGORY_NOT_UPDATED = "Kategorie konnte nicht aktualisiert werden",
 
   USER_DELETED = "User gelöscht",
   USER_NOT_DELETED = "User konnte nicht gelöscht werden",

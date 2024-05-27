@@ -6,8 +6,8 @@ import { getMiddleWareControllerApi } from "./openapi/connector";
 const defaultRole = Roles.PARTICIPANT;
 
 const homeRoute = "/home";
-const participantRoutes = ["/moods", "/working-hours"];
-const socialWorkerRoutes = ["/working-hours-check", "/incidents", "/overview"];
+const participantRoutes = ["/working-hours", "/moods"];
+const socialWorkerRoutes = ["/moods", "/working-hours-check", "/incidents", "/daily-overview", "/monthly-overview"];
 const adminRoutes = ["/users"];
 
 export default withMiddlewareAuthRequired(async (request: NextRequest) => {
@@ -26,7 +26,7 @@ export default withMiddlewareAuthRequired(async (request: NextRequest) => {
         const backendUser = await userControllerApi.getUserById({ id: user.sub });
         userRole = backendUser?.role?.toString() as Roles;
       }
-    } catch(error) {
+    } catch (error) {
       // do nothing
     }
 
@@ -34,19 +34,14 @@ export default withMiddlewareAuthRequired(async (request: NextRequest) => {
     const isSocialWorker = userRole === Roles.SOCIAL_WORKER;
     const isAdmin = userRole === Roles.ADMIN;
 
-    if (!isParticipant && participantRoutes.includes(requestedPath)) {
-      return NextResponse.redirect(new URL(homeRoute, request.url))
-    }
+    let accessAllowed = false;
 
-    if (!isSocialWorker && !isAdmin && socialWorkerRoutes.includes(requestedPath)) {
-      return NextResponse.redirect(new URL(homeRoute, request.url))
-    }
+    if (requestedPath === homeRoute) accessAllowed = true;
+    if (isParticipant && participantRoutes.includes(requestedPath)) accessAllowed = true;
+    if (isSocialWorker || isAdmin && socialWorkerRoutes.includes(requestedPath)) accessAllowed = true;
+    if (isAdmin && adminRoutes.includes(requestedPath)) accessAllowed = true;
 
-    if (!isAdmin && adminRoutes.includes(requestedPath)) {
-      return NextResponse.redirect(new URL(homeRoute, request.url))
-    }
-
-    if (requestedPath === "/") {
+    if (requestedPath === "/" || !accessAllowed) {
       return NextResponse.redirect(new URL(homeRoute, request.url))
     }
   }

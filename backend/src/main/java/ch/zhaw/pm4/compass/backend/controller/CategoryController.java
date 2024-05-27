@@ -52,9 +52,11 @@ public class CategoryController {
 	@PostMapping(produces = "application/json")
 	public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto category,
 			Authentication authentication) {
-		String callerId = authentication.getName();
-		UserRole callingRole = userService.getUserRole(callerId);
-		if (callingRole != UserRole.ADMIN) {
+		System.out.println("CategoryController.createCategory()");
+		String userId = authentication.getName();
+		UserRole userRole = userService.getUserRole(userId);
+		System.out.println(userRole);
+		if (userRole != UserRole.ADMIN) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 

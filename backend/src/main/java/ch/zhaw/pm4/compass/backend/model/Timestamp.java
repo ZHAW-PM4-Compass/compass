@@ -12,6 +12,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entity representing a time record within a day sheet.
+ * This class stores start and end times for activities or events recorded in a specific day sheet.
+ *
+ * Lombok annotations are used to simplify the creation of getters and constructors
+ *
+ * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas, zimmenoe
+ * @version 26.05.2024
+ */
 @Data
 @Entity
 @AllArgsConstructor

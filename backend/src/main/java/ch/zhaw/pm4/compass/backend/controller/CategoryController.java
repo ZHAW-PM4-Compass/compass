@@ -52,10 +52,8 @@ public class CategoryController {
 	@PostMapping(produces = "application/json")
 	public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto category,
 			Authentication authentication) {
-		System.out.println("CategoryController.createCategory()");
 		String userId = authentication.getName();
 		UserRole userRole = userService.getUserRole(userId);
-		System.out.println(userRole);
 		if (userRole != UserRole.ADMIN) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}

@@ -30,6 +30,14 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+/**
+ * Service class for managing users within the system. This service integrates with Auth0 for
+ * user management, including user creation, retrieval, updating, and deletion. It also handles
+ * local user roles and persistence.
+ *
+ * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas, zimmenoe
+ * @version 26.05.2024
+ */
 @Service
 public class UserService {
 	@Autowired
@@ -44,12 +52,23 @@ public class UserService {
 
 	private OkHttpClient client = new OkHttpClient().newBuilder().build();
 
+	/**
+	 * Initializes the service by setting environment properties for Auth0 integration.
+	 */
 	@PostConstruct
 	public void init() {
 		setEnv(env.getProperty("auth0.mgmt.baseurl"), env.getProperty("auth0.mgmt.clientId"),
 				env.getProperty("auth0.mgmt.clientSecret"), env.getProperty("auth0.mgmt.audience"));
 	}
 
+	/**
+	 * Sets the environment variables required for Auth0 integration.
+	 *
+	 * @param baseUrl The base URL for Auth0 management API.
+	 * @param clientId The client ID for Auth0.
+	 * @param clientSecret The client secret for Auth0.
+	 * @param audience The audience for Auth0.
+	 */
 	public void setEnv(String baseUrl, String clientId, String clientSecret, String audience) {
 		this.baseUrl = baseUrl;
 		this.clientId = clientId;
@@ -57,6 +76,12 @@ public class UserService {
 		this.audience = audience;
 	}
 
+	/**
+	 * Retrieves a user by their ID from Auth0 and maps it to a {@link UserDto}.
+	 *
+	 * @param userID The ID of the user to retrieve.
+	 * @return The {@link UserDto} object containing user details.
+	 */
 	public UserDto getUserById(String userID) {
 		CreateAuthZeroUserDto createAuthZeroUserDto = null;
 
@@ -79,6 +104,11 @@ public class UserService {
 		return mapAuthZeroUserToUserDto(userID, createAuthZeroUserDto);
 	}
 
+	/**
+	 * Retrieves all users from Auth0 and maps them to a list of {@link UserDto} objects.
+	 *
+	 * @return A list of {@link UserDto} objects.
+	 */
 	public List<UserDto> getAllUsers() {
 		List<CreateAuthZeroUserDto> authZeroUserDtos = new ArrayList<>();
 		List<UserDto> userDtos = new ArrayList<>();
@@ -107,11 +137,22 @@ public class UserService {
 		return userDtos;
 	}
 
+	/**
+	 * Retrieves all users with the role PARTICIPANT.
+	 *
+	 * @return A list of {@link UserDto} objects with the role PARTICIPANT.
+	 */
 	public List<UserDto> getAllParticipants() {
 		return getAllUsers().stream().filter(authorizesUserDTO -> authorizesUserDTO.getRole() == UserRole.PARTICIPANT)
 				.toList();
 	}
 
+	/**
+	 * Creates a new user in Auth0 and persists the role locally.
+	 *
+	 * @param createUserDto The DTO containing user details for creation.
+	 * @return The created {@link UserDto} object.
+	 */
 	public UserDto createUser(CreateAuthZeroUserDto createUserDto) {
 		CreateAuthZeroUserDto createAuthZeroUserDto = null;
 		UserRole role = createUserDto.getRole();
@@ -141,6 +182,12 @@ public class UserService {
 		return null;
 	}
 
+	/**
+	 * Retrieves the role of a user by their ID.
+	 *
+	 * @param id The ID of the user.
+	 * @return The {@link UserRole} of the user.
+	 */
 	public UserRole getUserRole(String id) {
 		Optional<LocalUser> user = localUserRepository.findById(id);
 		if (user.isPresent()) {
@@ -149,6 +196,13 @@ public class UserService {
 		return null;
 	}
 
+	/**
+	 * Updates a user's details in Auth0 and persists the updated role locally.
+	 *
+	 * @param userId The ID of the user to update.
+	 * @param updateUserDto The DTO containing updated user details.
+	 * @return The updated {@link UserDto} object.
+	 */
 	public UserDto updateUser(String userId, AuthZeroUserDto updateUserDto) {
 		AuthZeroUserDto authZeroUserDto = null;
 		UserRole role = updateUserDto.getRole();
@@ -177,6 +231,12 @@ public class UserService {
 		return mapAuthZeroUserToUserDto(userId, authZeroUserDto);
 	}
 
+	/**
+	 * Deletes a user by marking them as blocked in Auth0.
+	 *
+	 * @param userId The ID of the user to delete.
+	 * @return The updated {@link UserDto} object with the user marked as blocked.
+	 */
 	public UserDto deleteUser(String userId) {
 		UserDto currentUser = getUserById(userId);
 		if (currentUser == null)
@@ -188,6 +248,12 @@ public class UserService {
 		return updateUser(userId, updateUserDto);
 	}
 
+	/**
+	 * Restores a user by unblocking them in Auth0.
+	 *
+	 * @param userId The ID of the user to restore.
+	 * @return The updated {@link UserDto} object with the user unblocked.
+	 */
 	public UserDto restoreUser(String userId) {
 		UserDto currentUser = getUserById(userId);
 		if (currentUser == null)
@@ -199,10 +265,21 @@ public class UserService {
 		return updateUser(userId, updateUserDto);
 	}
 
+	/**
+	 * Retrieves a local user by their ID.
+	 *
+	 * @param id The ID of the local user.
+	 * @return The {@link LocalUser} object.
+	 */
 	public LocalUser getLocalUser(String id) {
 		return localUserRepository.findById(id).orElseThrow();
 	}
 
+	/**
+	 * Retrieves all local users and their roles.
+	 *
+	 * @return A map of user IDs to their roles.
+	 */
 	public Map<String, UserRole> getAllLocalUsers() {
 		return localUserRepository.findAll().stream().map(localUser -> {
 			if (localUser.getRole() == null) {
@@ -212,6 +289,11 @@ public class UserService {
 		}).collect(Collectors.toMap(LocalUser::getId, LocalUser::getRole));
 	}
 
+	/**
+	 * Retrieves an access token from Auth0 for making API requests.
+	 *
+	 * @return The access token as a string.
+	 */
 	public String getToken() {
 		String token = "";
 
@@ -235,6 +317,13 @@ public class UserService {
 		return jsonObject.get("access_token").getAsString();
 	}
 
+	/**
+	 * Maps an Auth0 user DTO to a system {@link UserDto}.
+	 *
+	 * @param userId The ID of the user.
+	 * @param authZeroUserDto The Auth0 user DTO.
+	 * @return The system {@link UserDto}.
+	 */
 	public UserDto mapAuthZeroUserToUserDto(String userId, AuthZeroUserDto authZeroUserDto) {
 		if (authZeroUserDto == null)
 			return null;

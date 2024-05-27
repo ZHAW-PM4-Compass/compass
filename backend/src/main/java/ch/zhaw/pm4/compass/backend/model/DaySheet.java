@@ -19,6 +19,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+
+/**
+ * JPA entity representing a day sheet, which details activities, incidents, and assessments for a particular day.
+ * This class supports multiple constructor configurations to accommodate various initialization scenarios.
+ *
+ * Lombok annotations are used to simplify the creation of getters and constructors
+ *
+ * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas, zimmenoe
+ * @version 26.05.2024
+ */
 @Getter
 @Setter
 @Entity
@@ -52,6 +62,13 @@ public class DaySheet {
 
 	}
 
+	/**
+	 * Simplified constructor initializing a day sheet with just notes and date.
+	 * Useful for basic day sheet creation where detailed relations are not yet established.
+	 *
+	 * @param dayNotes Descriptive notes for the day.
+	 * @param date The specific date of the day sheet.
+	 */
 	public DaySheet(String dayNotes, LocalDate date) {
 		this.date = date;
 		this.dayNotes = dayNotes;
@@ -60,6 +77,13 @@ public class DaySheet {
 		this.incidents = new ArrayList<>();
 	}
 
+	/**
+	 * Constructor initializing a day sheet with basic information.
+	 *
+	 * @param id       The identifier of the day sheet.
+	 * @param dayNotes Descriptive notes for the day.
+	 * @param date     The specific date of the day sheet.
+	 */
 	public DaySheet(Long id, String dayNotes, LocalDate date) {
 		this.id = id;
 		this.date = date;
@@ -69,6 +93,14 @@ public class DaySheet {
 		this.incidents = new ArrayList<>();
 	}
 
+	/**
+	 * Constructor initializing a day sheet with confirmation status.
+	 *
+	 * @param id        The identifier of the day sheet.
+	 * @param dayNotes  Descriptive notes for the day.
+	 * @param date      The specific date of the day sheet.
+	 * @param confirmed Whether the day sheet has been confirmed or not.
+	 */
 	public DaySheet(Long id, String dayNotes, LocalDate date, Boolean confirmed) {
 		this.id = id;
 		this.date = date;
@@ -79,6 +111,15 @@ public class DaySheet {
 		this.incidents = new ArrayList<>();
 	}
 
+	/**
+	 * Constructor initializing a day sheet with timestamps and confirmation status.
+	 *
+	 * @param id         The identifier of the day sheet.
+	 * @param dayNotes   Descriptive notes for the day.
+	 * @param date       The specific date of the day sheet.
+	 * @param confirmed  Whether the day sheet has been confirmed or not.
+	 * @param timestamps List of timestamps associated with the day sheet.
+	 */
 	public DaySheet(Long id, String dayNotes, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps) {
 		this.id = id;
 		this.date = date;
@@ -89,6 +130,16 @@ public class DaySheet {
 		this.incidents = new ArrayList<>();
 	}
 
+	/**
+	 * Constructor initializing a day sheet with an owner, timestamps, and confirmation status.
+	 *
+	 * @param id         The identifier of the day sheet.
+	 * @param owner      The owner of the day sheet.
+	 * @param dayNotes   Descriptive notes for the day.
+	 * @param date       The specific date of the day sheet.
+	 * @param confirmed  Whether the day sheet has been confirmed or not.
+	 * @param timestamps List of timestamps associated with the day sheet.
+	 */
 	public DaySheet(Long id, LocalUser owner, String dayNotes, LocalDate date, Boolean confirmed,
 			ArrayList<Timestamp> timestamps) {
 		this.id = id;
@@ -101,6 +152,16 @@ public class DaySheet {
 		this.incidents = new ArrayList<>();
 	}
 
+	/**
+	 * Constructor initializing a day sheet with timestamps, mood ratings, and confirmation status.
+	 *
+	 * @param id          The identifier of the day sheet.
+	 * @param dayNotes    Descriptive notes for the day.
+	 * @param date        The specific date of the day sheet.
+	 * @param confirmed   Whether the day sheet has been confirmed or not.
+	 * @param timestamps  List of timestamps associated with the day sheet.
+	 * @param moodRatings List of mood ratings associated with the day sheet.
+	 */
 	public DaySheet(Long id, String dayNotes, LocalDate date, Boolean confirmed, ArrayList<Timestamp> timestamps,
 			ArrayList<Rating> moodRatings) {
 		this.id = id;
@@ -112,6 +173,17 @@ public class DaySheet {
 		this.incidents = new ArrayList<>();
 	}
 
+	/**
+	 * Fully specified constructor including all relationships.
+	 *
+	 * @param id          The identifier of the day sheet.
+	 * @param owner       The owner of the day sheet.
+	 * @param dayNotes    Descriptive notes for the day.
+	 * @param date        The specific date of the day sheet.
+	 * @param confirmed   Whether the day sheet has been confirmed or not.
+	 * @param timestamps  List of timestamps associated with the day sheet.
+	 * @param moodRatings List of mood ratings associated with the day sheet.
+	 */
 	public DaySheet(Long id, LocalUser owner, String dayNotes, LocalDate date, Boolean confirmed,
 			ArrayList<Timestamp> timestamps, ArrayList<Rating> moodRatings) {
 		this.id = id;
@@ -124,6 +196,11 @@ public class DaySheet {
 		this.incidents = new ArrayList<>();
 	}
 
+	/**
+	 * Minimal constructor used for simple day sheet initialization with just the date.
+	 *
+	 * @param date The specific date of the day sheet.
+	 */
 	public DaySheet(LocalDate date) {
 		this.date = date;
 		this.timestamps = new ArrayList<>();

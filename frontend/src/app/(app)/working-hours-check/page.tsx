@@ -20,7 +20,6 @@ export default function WorkingHoursCheckPage() {
   const [loading, setLoading] = useState(true);
   const [daySheets, setDaySheets] = useState<DaySheetDto[]>([]);
   const [daySheetsFiltered, setDaySheetsFiltered] = useState<DaySheetDto[]>([]);
-  const [selectedDaySheet, setSelectedDaySheet] = useState<DaySheetDto>();
   const [participantSelection, setParticipantSelection] = useState<any>();
   const [participantSelections, setParticipantSelections] = useState<{ id: string, label: string }[]>([]);
   const router = useRouter();
@@ -69,8 +68,8 @@ export default function WorkingHoursCheckPage() {
     });
   };
 
-  const navigateToSingleDay = () => {
-    if (selectedDaySheet?.id) router.push(`/working-hours-check/${selectedDaySheet.id}`);
+  const navigateToSingleDay = (daySheet: DaySheetDto) => {
+    if (daySheet?.id) router.push(`/working-hours-check/${daySheet.id}`);
   };
 
   useEffect(() => {
@@ -94,7 +93,7 @@ export default function WorkingHoursCheckPage() {
   return (
     <>
       <div className="h-full flex flex-col">
-        <div className="flex flex-col sm:flex-row justify-between mb-4">
+        <div className="flex flex-col sm:flex-row justify-between">
           <Title1>Kontrolle Arbeitszeit</Title1>
           <div className="mt-2 sm:mt-0">
             <Select
@@ -138,8 +137,8 @@ export default function WorkingHoursCheckPage() {
             {
               icon: Edit24Regular,
               onClick: (id) => {
-                setSelectedDaySheet(daySheets[id]);
-                navigateToSingleDay();
+                const daySheet = daySheets[id];
+                daySheet && navigateToSingleDay(daySheet);
               }
             }
           ]}

@@ -21,6 +21,16 @@ import ch.zhaw.pm4.compass.backend.repository.CategoryRepository;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.RatingRepository;
 
+/**
+ * Service class for managing ratings within the system.
+ * This service handles the creation, retrieval, and validation of ratings for categories within day sheets,
+ * adhering to specific business rules and data integrity requirements.
+ *
+ * Using {@link RatingRepository} for persistence operations.
+ *
+ * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas, zimmenoe
+ * @version 26.05.2024
+ */
 @Service
 public class RatingService {
 	@Autowired
@@ -30,6 +40,16 @@ public class RatingService {
 	@Autowired
 	private DaySheetRepository daySheetRepository;
 
+	/**
+	 * Creates a new rating based on the provided DTO. It validates the rating against the category
+	 * rules and associates it with the specified day sheet.
+	 *
+	 * @param createRating The rating DTO to create.
+	 * @return The newly created rating DTO.
+	 * @throws RatingIsNotValidException If the rating is not within the valid range for the category.
+	 * @throws CategoryNotFoundException If the category specified does not exist.
+	 * @throws DaySheetNotFoundException If the day sheet specified does not exist.
+	 */
 	public RatingDto createRating(RatingDto createRating)
 			throws RatingIsNotValidException, CategoryNotFoundException, DaySheetNotFoundException {
 		long categoryId = createRating.getCategory().getId();
@@ -49,6 +69,20 @@ public class RatingService {
 		return convertEntityToDto(ratingRepository.save(rating));
 	}
 
+	/**
+	 * Records multiple category ratings for a day sheet. Ensures that only one rating per category is recorded
+	 * unless explicitly allowed and checks if the user is the owner of the day sheet.
+	 *
+	 * @param categoryDtoList List of category DTOs with their respective ratings.
+	 * @param daySheetId ID of the day sheet where ratings are to be recorded.
+	 * @param userId ID of the user recording the ratings.
+	 * @param isSocialWorkerRating Indicates if the ratings are being recorded by a social worker.
+	 * @throws TooManyRatingsPerCategoryException If multiple ratings for a single category are attempted to be recorded.
+	 * @throws RatingIsNotValidException If a rating does not meet the category's specified range.
+	 * @throws CategoryNotFoundException If any specified category does not exist.
+	 * @throws DaySheetNotFoundException If the specified day sheet does not exist.
+	 * @throws UserNotOwnerOfDaySheetException If the user is not the owner of the day sheet and tries to record ratings.
+	 */
 	public void recordCategoryRatings(List<CategoryDto> categoryDtoList, Long daySheetId, String userId,
 			Boolean isSocialWorkerRating) throws TooManyRatingsPerCategoryException, RatingIsNotValidException,
 			CategoryNotFoundException, DaySheetNotFoundException, UserNotOwnerOfDaySheetException {
@@ -74,6 +108,13 @@ public class RatingService {
 		}
 	}
 
+	/**
+	 * Retrieves all ratings associated with a specific day sheet.
+	 *
+	 * @param daySheetId The ID of the day sheet for which ratings are to be retrieved.
+	 * @return A list of rating DTOs.
+	 * @throws DaySheetNotFoundException If the day sheet does not exist.
+	 */
 	public List<RatingDto> getRatingsByDaySheet(Long daySheetId) throws DaySheetNotFoundException {
 		DaySheet daySheet = daySheetRepository.findById(daySheetId)
 				.orElseThrow(() -> new DaySheetNotFoundException(daySheetId));
@@ -81,10 +122,24 @@ public class RatingService {
 		return daySheet.getMoodRatings().stream().map(i -> convertEntityToDto(i)).toList();
 	}
 
+	/**
+	 * Converts a {@link RatingDto} to a {@link Rating} entity. This method is crucial for persisting
+	 * rating information obtained from the API into the database.
+	 *
+	 * @param dto The {@link RatingDto} object containing the details to be converted into an entity.
+	 * @return A {@link Rating} entity with values set from the {@link RatingDto}.
+	 */
 	Rating convertDtoToEntity(RatingDto dto) {
 		return new Rating(dto.getRating(), dto.getRatingRole());
 	}
 
+	/**
+	 * Converts a {@link Rating} entity back to a {@link RatingDto}. This conversion includes
+	 * assembling related data such as the category and day sheet details into the DTO for comprehensive data transfer.
+	 *
+	 * @param entity The {@link Rating} entity to be converted.
+	 * @return A {@link RatingDto} containing the details from the entity and its related data.
+	 */
 	RatingDto convertEntityToDto(Rating entity) {
 		Category ratingCategory = entity.getCategory();
 		CategoryDto categoryDto = new CategoryDto(ratingCategory.getId(), ratingCategory.getName(),

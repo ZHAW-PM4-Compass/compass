@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
 
-public class DaySheetModeTest {
+public class DaySheetModelTest {
 	@Test
 	public void testConstructors() {
 		LocalDate now = LocalDate.now();

@@ -103,6 +103,7 @@ public class DaySheetDto {
 	 * @param day_notes Notes relevant to the day's activities.
 	 * @param date The specific date of the day sheet.
 	 * @param confirmed Status indicating whether the day sheet has been confirmed.
+   * @param timestamps List of timestamps logged during the day.
 	 */
 	public DaySheetDto(Long id, String day_notes, LocalDate date, Boolean confirmed, List<TimestampDto> timestamps) {
 		this.id = id;

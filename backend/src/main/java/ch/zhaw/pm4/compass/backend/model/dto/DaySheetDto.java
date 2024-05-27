@@ -73,7 +73,7 @@ public class DaySheetDto {
 
 	/**
 	 * Constructor for creating a fully detailed DaySheetDto.
-   * Includes all associated data such as timestamps, mood ratings, and incidents.
+	 * Includes all associated data such as timestamps, mood ratings, and incidents.
 	 *
 	 * @param id Unique identifier of the day sheet.
 	 * @param day_notes Notes relevant to the day's activities.
@@ -97,7 +97,7 @@ public class DaySheetDto {
 
 	/**
 	 * Constructor for DaySheetDto with timestamps only.
-   * Suitable for cases focusing primarily on time tracking.
+	 * Suitable for cases focusing primarily on time tracking.
 	 *
 	 * @param id Unique identifier of the day sheet.
 	 * @param day_notes Notes relevant to the day's activities.
@@ -115,7 +115,7 @@ public class DaySheetDto {
 
 	/**
 	 * Constructor for DaySheetDto with mood ratings only.
-   * Used when primary concern is to track emotional feedback without detailed time logs.
+	 * Used when primary concern is to track emotional feedback without detailed time logs.
 	 *
 	 * @param id Unique identifier of the day sheet.
 	 * @param day_notes Notes relevant to the day's activities.
@@ -159,7 +159,7 @@ public class DaySheetDto {
 
 	/**
 	 * Calculates the total time sum of all timestamps within the day sheet.
-   * This is a utility method used internally to aggregate time durations from each timestamp.
+	 * This is a utility method used internally to aggregate time durations from each timestamp.
 	 */
 	private void setTimeSum() {
 		for (TimestampDto timestamp : this.getTimestamps()) {

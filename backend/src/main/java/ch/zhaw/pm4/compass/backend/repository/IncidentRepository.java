@@ -7,10 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import ch.zhaw.pm4.compass.backend.model.Incident;
 
 /**
- * Spring Data JPA repository for the {@link Incident} entity. This interface provides methods to query 
+ * Spring Data JPA repository for the {@link Incident} entity. This interface provides methods to query
  * Incident stored in the database
  *
- * Extends JpaRepository to provide CRUD operations and the ability to define custom queries 
+ * Extends JpaRepository to provide CRUD operations and the ability to define custom queries
  * for more complex retrieval operations on the Incident entity.
  *
  * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas, zimmenoe

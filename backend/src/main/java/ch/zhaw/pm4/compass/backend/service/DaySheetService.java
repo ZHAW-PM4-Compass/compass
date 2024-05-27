@@ -73,7 +73,7 @@ public class DaySheetService {
 
 	/**
 	 * Retrieves a day sheet by its ID and ensures that it belongs to the specified user,
-   * unless the user is a social worker or admin.
+	 * unless the user is a social worker or admin.
 	 *
 	 * @param id The ID of the day sheet to retrieve.
 	 * @param user_id The user ID used to verify ownership of the day sheet.

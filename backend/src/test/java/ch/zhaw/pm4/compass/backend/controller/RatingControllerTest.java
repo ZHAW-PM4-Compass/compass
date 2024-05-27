@@ -115,6 +115,7 @@ public class RatingControllerTest {
 				.build();
 	}
 
+	// Broken Tests
 //	@Test
 //	@WithMockUser(username = "testuser", roles = {})
 //	public void whenCallingPost_expectReturnOK() throws Exception {

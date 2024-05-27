@@ -52,8 +52,7 @@ class TimestampServiceTest {
 		daySheet = getDaySheet();
 		timestamp2 = getTimestamp(); // 13:00 -> 14:00
 		timestamp2.setId(2l);
-		timestamps2 = new ArrayList<>() {
-		};
+		timestamps2 = new ArrayList<>();
 		timestamps2.add(timestamp2);
 		timestampToCheck = getTimestamp();
 		timestamps1 = new ArrayList<>();

@@ -1,11 +1,12 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
@@ -33,6 +34,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.GsonBuilder;
+import com.nimbusds.jose.shaded.gson.reflect.TypeToken;
 
 import ch.zhaw.pm4.compass.backend.GsonExclusionStrategy;
 import ch.zhaw.pm4.compass.backend.LocalDateDeserializer;
@@ -44,6 +46,8 @@ import ch.zhaw.pm4.compass.backend.exception.CategoryNotFoundException;
 import ch.zhaw.pm4.compass.backend.exception.DaySheetNotFoundException;
 import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
 import ch.zhaw.pm4.compass.backend.exception.RatingIsNotValidException;
+import ch.zhaw.pm4.compass.backend.exception.TooManyRatingsPerCategoryException;
+import ch.zhaw.pm4.compass.backend.exception.UserNotOwnerOfDaySheetException;
 import ch.zhaw.pm4.compass.backend.model.Category;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.LocalUser;
@@ -84,20 +88,8 @@ public class RatingControllerTest {
 	private CategoryDto categoryGlobalDto;
 	private CategoryDto categoryPersonalDto;
 
-	private RatingDto ratingOneCategoryGlobalDto;
-	private RatingDto ratingTwoCategoryGlobalDto;
-	private RatingDto ratingOneCategoryPersonalDto;
-
 	private String userId = "dasfdwssdio";
 	private LocalUser participant = new LocalUser(userId, UserRole.PARTICIPANT);
-
-	private RatingDto getRatingOneDto() {
-		ratingOneCategoryGlobalDto = new RatingDto();
-		ratingOneCategoryGlobalDto.setCategory(categoryGlobalDto);
-		ratingOneCategoryGlobalDto.setRating(3);
-		ratingOneCategoryGlobalDto.setDaySheet(daySheetDto);
-		return ratingOneCategoryGlobalDto;
-	}
 
 	@BeforeEach
 	public void setUpDtos() throws NotValidCategoryOwnerException {
@@ -114,10 +106,7 @@ public class RatingControllerTest {
 
 		categoryPersonal = new Category("Integration Test", 0, 2, categoryOwners);
 		categoryPersonal.setId(2l);
-		categoryPersonalDto = new CategoryDto(2l, "Integration Test", 0, 2);
-
-		ratingTwoCategoryGlobalDto = new RatingDto();
-		ratingOneCategoryPersonalDto = new RatingDto();
+		categoryPersonalDto = new CategoryDto(2l, "Integration Test", 0, 2, null);
 	}
 
 	@Before
@@ -126,43 +115,198 @@ public class RatingControllerTest {
 				.build();
 	}
 
+//	@Test
+//	@WithMockUser(username = "testuser", roles = {})
+//	public void whenCallingPost_expectReturnOK() throws Exception {
+//		RatingDto rating = new RatingDto();
+//		rating.setCategory(categoryPersonalDto);
+//		rating.setRating(1);
+//		rating.setDaySheet(daySheetDto);
+//		when(ratingService.createRating(any(RatingDto.class))).thenReturn(rating);
+//
+//		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
+//				.content(this.gson.toJson(rating, RatingDto.class)).with(SecurityMockMvcRequestPostProcessors.csrf()))
+//				.andExpect(status().isOk()).andExpect(jsonPath("$.category").value(rating.getCategory()))
+//				.andExpect(jsonPath("$.rating").value(rating.getRating()))
+//				.andExpect(jsonPath("$.ratingRole").value(rating.getRatingRole().toString()));
+//
+//		verify(ratingService, times(1)).createRating(any(RatingDto.class));
+//	}
+//
+//	@Test
+//	@WithMockUser(username = "testuser", roles = {})
+//	public void whenCallingPostWithBadData_expectBadRequest() throws Exception {
+//		RatingDto rating = new RatingDto();
+//		rating.setCategory(categoryPersonalDto);
+//		rating.setRating(1);
+//		rating.setDaySheet(daySheetDto);
+//		rating.getCategory().setCategoryOwners(null);
+//
+//		when(ratingService.createRating(any(RatingDto.class))).thenThrow(new RatingIsNotValidException(categoryGlobal));
+//
+//		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
+//				.content(this.gson.toJson(rating, RatingDto.class)).with(SecurityMockMvcRequestPostProcessors.csrf()))
+//				.andExpect(status().isBadRequest());
+//
+//		when(ratingService.createRating(any(RatingDto.class))).thenThrow(new CategoryNotFoundException(30l));
+//
+//		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
+//				.content(this.gson.toJson(rating, RatingDto.class)).with(SecurityMockMvcRequestPostProcessors.csrf()))
+//				.andExpect(status().isBadRequest());
+//
+//		when(ratingService.createRating(any(RatingDto.class))).thenThrow(new DaySheetNotFoundException(1917l));
+//		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
+//				.content(this.gson.toJson(rating, RatingDto.class)).with(SecurityMockMvcRequestPostProcessors.csrf()))
+//				.andExpect(status().isBadRequest());
+//
+//		verify(ratingService, times(3)).createRating(any(RatingDto.class));
+//	}
+
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	public void whenCallingPostWithBadData_expectBadRequest() throws Exception {
-		when(ratingService.createRating(any(RatingDto.class))).thenThrow(new RatingIsNotValidException(categoryGlobal));
+	public void whenCallingUserIdRecordEndpointWithBadData_expectBadRequest() throws Exception {
+		RatingDto rating = new RatingDto();
+		rating.setRating(1);
+		categoryPersonalDto.setMoodRatings(List.of(rating));
 
-		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
-				.content(this.gson.toJson(getRatingOneDto(), RatingDto.class))
-				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isBadRequest());
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
 
-		when(ratingService.createRating(any(RatingDto.class))).thenThrow(new CategoryNotFoundException(30l));
+		doThrow(new TooManyRatingsPerCategoryException()).when(ratingService).recordCategoryRatings(any(),
+				any(Long.class), any(String.class), eq(true));
 
-		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
-				.content(this.gson.toJson(getRatingOneDto(), RatingDto.class))
-				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isBadRequest());
+		mockMvc.perform(
+				post("/rating/recordMoodRatingsByDaySheetIdAndUserId/12/userid").contentType(MediaType.APPLICATION_JSON)
+						.content(this.gson.toJson(List.of(categoryPersonalDto), new TypeToken<List<CategoryDto>>() {
+						}.getType())).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isBadRequest());
 
-		when(ratingService.createRating(any(RatingDto.class))).thenThrow(new DaySheetNotFoundException(1917l));
-		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
-				.content(this.gson.toJson(getRatingOneDto(), RatingDto.class))
-				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isBadRequest());
+		doThrow(new RatingIsNotValidException(categoryGlobal)).when(ratingService).recordCategoryRatings(any(),
+				any(Long.class), any(String.class), eq(true));
+		mockMvc.perform(
+				post("/rating/recordMoodRatingsByDaySheetIdAndUserId/12/userid").contentType(MediaType.APPLICATION_JSON)
+						.content(this.gson.toJson(List.of(categoryPersonalDto), new TypeToken<List<CategoryDto>>() {
+						}.getType())).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isBadRequest());
 
-		verify(ratingService, times(3)).createRating(any(RatingDto.class));
+		doThrow(new CategoryNotFoundException(1l)).when(ratingService).recordCategoryRatings(any(), any(Long.class),
+				any(String.class), eq(true));
+		mockMvc.perform(
+				post("/rating/recordMoodRatingsByDaySheetIdAndUserId/12/userid").contentType(MediaType.APPLICATION_JSON)
+						.content(this.gson.toJson(List.of(categoryPersonalDto), new TypeToken<List<CategoryDto>>() {
+						}.getType())).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isBadRequest());
+
+		doThrow(new DaySheetNotFoundException(1l)).when(ratingService).recordCategoryRatings(any(), any(Long.class),
+				any(String.class), eq(true));
+		mockMvc.perform(
+				post("/rating/recordMoodRatingsByDaySheetIdAndUserId/12/userid").contentType(MediaType.APPLICATION_JSON)
+						.content(this.gson.toJson(List.of(categoryPersonalDto), new TypeToken<List<CategoryDto>>() {
+						}.getType())).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isBadRequest());
+
+		verify(ratingService, times(4)).recordCategoryRatings(any(), any(Long.class), any(String.class), eq(true));
+		verify(userService, times(4)).getUserRole(any(String.class));
 	}
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	public void whenCallingPost_expectReturnOK() throws Exception {
-		RatingDto rating = getRatingOneDto();
-		rating.getCategory().setCategoryOwners(null);
-		when(ratingService.createRating(any(RatingDto.class))).thenReturn(rating);
+	public void whenCallingUserIdRecordEndpointAsParticipant_expectForbidden() throws Exception {
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.PARTICIPANT);
 
-		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
-				.content(this.gson.toJson(rating, RatingDto.class)).with(SecurityMockMvcRequestPostProcessors.csrf()))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.category").value(rating.getCategory()))
-				.andExpect(jsonPath("$.rating").value(rating.getRating()))
-				.andExpect(jsonPath("$.ratingRole").value(rating.getRatingRole()));
+		mockMvc.perform(post("/rating/recordMoodRatingsByDaySheetIdAndUserId/12/dasfdwssdio")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(List.of(categoryGlobal), new TypeToken<List<CategoryDto>>() {
+				}.getType())).with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
 
-		verify(ratingService, times(1)).createRating(any(RatingDto.class));
+		verify(userService, times(1)).getUserRole(any(String.class));
 	}
 
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	public void whenCallingUserIdRecordEndpointWithWithConfilictingUsersData_expectForbidden() throws Exception {
+		RatingDto rating = new RatingDto();
+		rating.setRating(1);
+		categoryPersonalDto.setMoodRatings(List.of(rating));
+
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.SOCIAL_WORKER);
+		doThrow(new UserNotOwnerOfDaySheetException()).when(ratingService).recordCategoryRatings(any(), any(Long.class),
+				any(String.class), eq(true));
+
+		mockMvc.perform(post("/rating/recordMoodRatingsByDaySheetIdAndUserId/" + 1 + "/" + userId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(List.of(categoryPersonalDto), new TypeToken<List<CategoryDto>>() {
+				}.getType())).with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+		verify(ratingService, times(1)).recordCategoryRatings(any(), any(Long.class), any(String.class), eq(true));
+		verify(userService, times(1)).getUserRole(any(String.class));
+	}
+
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	public void whenCallingRecordEndpointWithBadData_expectBadRequest() throws Exception {
+		RatingDto rating = new RatingDto();
+		rating.setRating(1);
+		categoryPersonalDto.setMoodRatings(List.of(rating));
+
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.PARTICIPANT);
+
+		doThrow(new TooManyRatingsPerCategoryException()).when(ratingService).recordCategoryRatings(any(),
+				any(Long.class), any(String.class), eq(false));
+
+		mockMvc.perform(post("/rating/recordMyMoodRatingsByDaySheetId/12").contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(List.of(categoryPersonalDto), new TypeToken<List<CategoryDto>>() {
+				}.getType())).with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isBadRequest());
+
+		doThrow(new RatingIsNotValidException(categoryGlobal)).when(ratingService).recordCategoryRatings(any(),
+				any(Long.class), any(String.class), eq(false));
+		mockMvc.perform(post("/rating/recordMyMoodRatingsByDaySheetId/12").contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(List.of(categoryPersonalDto), new TypeToken<List<CategoryDto>>() {
+				}.getType())).with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isBadRequest());
+
+		doThrow(new CategoryNotFoundException(1l)).when(ratingService).recordCategoryRatings(any(), any(Long.class),
+				any(String.class), eq(false));
+		mockMvc.perform(post("/rating/recordMyMoodRatingsByDaySheetId/12").contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(List.of(categoryPersonalDto), new TypeToken<List<CategoryDto>>() {
+				}.getType())).with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isBadRequest());
+
+		doThrow(new DaySheetNotFoundException(1l)).when(ratingService).recordCategoryRatings(any(), any(Long.class),
+				any(String.class), eq(false));
+		mockMvc.perform(post("/rating/recordMyMoodRatingsByDaySheetId/12").contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(List.of(categoryPersonalDto), new TypeToken<List<CategoryDto>>() {
+				}.getType())).with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isBadRequest());
+
+		verify(ratingService, times(4)).recordCategoryRatings(any(), any(Long.class), any(String.class), eq(false));
+		verify(userService, times(4)).getUserRole(any(String.class));
+	}
+
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	public void whenCallingRecordEndpointAsSocalWorker_expectForbidden() throws Exception {
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.SOCIAL_WORKER);
+
+		mockMvc.perform(post("/rating/recordMyMoodRatingsByDaySheetId/12").contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(List.of(categoryGlobal), new TypeToken<List<CategoryDto>>() {
+				}.getType())).with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+		verify(userService, times(1)).getUserRole(any(String.class));
+	}
+
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	public void whenCallingRecordEndpointWithWithConfilictingUsersData_expectForbidden() throws Exception {
+		RatingDto rating = new RatingDto();
+		rating.setRating(1);
+		categoryPersonalDto.setMoodRatings(List.of(rating));
+
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.PARTICIPANT);
+		doThrow(new UserNotOwnerOfDaySheetException()).when(ratingService).recordCategoryRatings(any(), any(Long.class),
+				any(String.class), eq(false));
+
+		mockMvc.perform(post("/rating/recordMyMoodRatingsByDaySheetId/" + 1).contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(List.of(categoryPersonalDto), new TypeToken<List<CategoryDto>>() {
+				}.getType())).with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+		verify(ratingService, times(1)).recordCategoryRatings(any(), any(Long.class), any(String.class), eq(false));
+		verify(userService, times(1)).getUserRole(any(String.class));
+	}
 }

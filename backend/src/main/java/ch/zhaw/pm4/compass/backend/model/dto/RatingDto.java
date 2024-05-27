@@ -11,13 +11,15 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 /**
- * Data Transfer Object (DTO) for representing ratings within the system.
- * Each rating is linked to a specific category and day sheet and includes additional attributes
- * such as the rating value and the role of the rating.
+ * Data Transfer Object (DTO) for representing ratings within the system. Each
+ * rating is linked to a specific category and day sheet and includes additional
+ * attributes such as the rating value and the role of the rating.
  *
- * Lombok annotations are used to simplify the creation of getters and constructors
+ * Lombok annotations are used to simplify the creation of getters and
+ * constructors
  *
- * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas, zimmenoe
+ * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas,
+ *         zimmenoe
  * @version 26.05.2024
  */
 @Data

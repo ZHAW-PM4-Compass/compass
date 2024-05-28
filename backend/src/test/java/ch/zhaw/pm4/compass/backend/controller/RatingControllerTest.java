@@ -76,9 +76,7 @@ public class RatingControllerTest {
 	private Gson gson = new GsonBuilder().registerTypeAdapter(LocalTime.class, new LocalTimeDeserializer())
 			.registerTypeAdapter(LocalTime.class, new LocalTimeSerializer())
 			.registerTypeAdapter(LocalDate.class, new LocalDateDeserializer())
-			.registerTypeAdapter(LocalDate.class, new LocalDateSerializer())
-			.addDeserializationExclusionStrategy(new GsonExclusionStrategy())
-			.addDeserializationExclusionStrategy(new GsonExclusionStrategy()).create();
+			.registerTypeAdapter(LocalDate.class, new LocalDateSerializer()).create();
 
 	private DaySheet daySheet;
 	private DaySheetDto daySheetDto;
@@ -114,54 +112,6 @@ public class RatingControllerTest {
 		mockMvc = MockMvcBuilders.webAppContextSetup(controller).apply(SecurityMockMvcConfigurers.springSecurity())
 				.build();
 	}
-
-	// Broken Tests
-//	@Test
-//	@WithMockUser(username = "testuser", roles = {})
-//	public void whenCallingPost_expectReturnOK() throws Exception {
-//		RatingDto rating = new RatingDto();
-//		rating.setCategory(categoryPersonalDto);
-//		rating.setRating(1);
-//		rating.setDaySheet(daySheetDto);
-//		when(ratingService.createRating(any(RatingDto.class))).thenReturn(rating);
-//
-//		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
-//				.content(this.gson.toJson(rating, RatingDto.class)).with(SecurityMockMvcRequestPostProcessors.csrf()))
-//				.andExpect(status().isOk()).andExpect(jsonPath("$.category").value(rating.getCategory()))
-//				.andExpect(jsonPath("$.rating").value(rating.getRating()))
-//				.andExpect(jsonPath("$.ratingRole").value(rating.getRatingRole().toString()));
-//
-//		verify(ratingService, times(1)).createRating(any(RatingDto.class));
-//	}
-//
-//	@Test
-//	@WithMockUser(username = "testuser", roles = {})
-//	public void whenCallingPostWithBadData_expectBadRequest() throws Exception {
-//		RatingDto rating = new RatingDto();
-//		rating.setCategory(categoryPersonalDto);
-//		rating.setRating(1);
-//		rating.setDaySheet(daySheetDto);
-//		rating.getCategory().setCategoryOwners(null);
-//
-//		when(ratingService.createRating(any(RatingDto.class))).thenThrow(new RatingIsNotValidException(categoryGlobal));
-//
-//		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
-//				.content(this.gson.toJson(rating, RatingDto.class)).with(SecurityMockMvcRequestPostProcessors.csrf()))
-//				.andExpect(status().isBadRequest());
-//
-//		when(ratingService.createRating(any(RatingDto.class))).thenThrow(new CategoryNotFoundException(30l));
-//
-//		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
-//				.content(this.gson.toJson(rating, RatingDto.class)).with(SecurityMockMvcRequestPostProcessors.csrf()))
-//				.andExpect(status().isBadRequest());
-//
-//		when(ratingService.createRating(any(RatingDto.class))).thenThrow(new DaySheetNotFoundException(1917l));
-//		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
-//				.content(this.gson.toJson(rating, RatingDto.class)).with(SecurityMockMvcRequestPostProcessors.csrf()))
-//				.andExpect(status().isBadRequest());
-//
-//		verify(ratingService, times(3)).createRating(any(RatingDto.class));
-//	}
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})

@@ -66,9 +66,7 @@ public class IncidentControllerTest {
 	private Gson gson = new GsonBuilder().registerTypeAdapter(LocalTime.class, new LocalTimeDeserializer())
 			.registerTypeAdapter(LocalTime.class, new LocalTimeSerializer())
 			.registerTypeAdapter(LocalDate.class, new LocalDateDeserializer())
-			.registerTypeAdapter(LocalDate.class, new LocalDateSerializer())
-			.addDeserializationExclusionStrategy(new GsonExclusionStrategy())
-			.addDeserializationExclusionStrategy(new GsonExclusionStrategy()).create();
+			.registerTypeAdapter(LocalDate.class, new LocalDateSerializer()).create();
 
 
 	private UserDto getUserDto() {

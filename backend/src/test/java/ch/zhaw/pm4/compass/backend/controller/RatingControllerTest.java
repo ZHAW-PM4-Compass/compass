@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.zhaw.pm4.compass.backend.*;
 import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,12 +39,6 @@ import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.GsonBuilder;
 import com.nimbusds.jose.shaded.gson.reflect.TypeToken;
 
-import ch.zhaw.pm4.compass.backend.GsonExclusionStrategy;
-import ch.zhaw.pm4.compass.backend.LocalDateDeserializer;
-import ch.zhaw.pm4.compass.backend.LocalDateSerializer;
-import ch.zhaw.pm4.compass.backend.LocalTimeDeserializer;
-import ch.zhaw.pm4.compass.backend.LocalTimeSerializer;
-import ch.zhaw.pm4.compass.backend.UserRole;
 import ch.zhaw.pm4.compass.backend.exception.CategoryNotFoundException;
 import ch.zhaw.pm4.compass.backend.exception.DaySheetNotFoundException;
 import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
@@ -113,6 +109,54 @@ public class RatingControllerTest {
 	public void setup() {
 		mockMvc = MockMvcBuilders.webAppContextSetup(controller).apply(SecurityMockMvcConfigurers.springSecurity())
 				.build();
+	}
+
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	public void whenCallingPost_expectReturnOK() throws Exception {
+		RatingDto rating = new RatingDto();
+		rating.setCategory(categoryPersonalDto);
+		rating.setRating(1);
+		rating.setDaySheet(daySheetDto);
+		rating.setRatingRole(RatingType.SOCIAL_WORKER);
+		when(ratingService.createRating(any(RatingDto.class))).thenReturn(rating);
+
+		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(rating, RatingDto.class)).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.category").value(rating.getCategory()))
+				.andExpect(jsonPath("$.rating").value(rating.getRating()))
+				.andExpect(jsonPath("$.ratingRole").value(rating.getRatingRole().toString()));
+
+		verify(ratingService, times(1)).createRating(any(RatingDto.class));
+	}
+
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	public void whenCallingPostWithBadData_expectBadRequest() throws Exception {
+		RatingDto rating = new RatingDto();
+		rating.setCategory(categoryPersonalDto);
+		rating.setRating(1);
+		rating.setDaySheet(daySheetDto);
+		rating.getCategory().setCategoryOwners(null);
+
+		when(ratingService.createRating(any(RatingDto.class))).thenThrow(new RatingIsNotValidException(categoryGlobal));
+
+		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(rating, RatingDto.class)).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isBadRequest());
+
+		when(ratingService.createRating(any(RatingDto.class))).thenThrow(new CategoryNotFoundException(30l));
+
+		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(rating, RatingDto.class)).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isBadRequest());
+
+		when(ratingService.createRating(any(RatingDto.class))).thenThrow(new DaySheetNotFoundException(1917l));
+		mockMvc.perform(post("/rating").contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(rating, RatingDto.class)).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isBadRequest());
+
+		verify(ratingService, times(3)).createRating(any(RatingDto.class));
 	}
 
 	@Test

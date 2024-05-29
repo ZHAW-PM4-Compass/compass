@@ -70,6 +70,7 @@ public class RatingController {
 	@SchemaProperties()
 	public ResponseEntity<List<RatingDto>> createRatingsByDaySheetId(@PathVariable Long daySheetId, @RequestBody List<CreateRatingDto> createRatingDtos) {
 		try {
+			// TODO: javadoc, user check
 			return ResponseEntity.ok(ratingService.createRatingsByDaySheetId(daySheetId, createRatingDtos));
 		} catch (RuntimeException | DaySheetNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

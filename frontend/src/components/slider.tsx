@@ -5,10 +5,10 @@ interface SliderProps {
   max: number;
   value: number;
   onChange: (value: number) => void;
-  name : string;
+  name: string;
 }
 
-const Slider: React.FC<SliderProps> = ({ min, max, value, onChange,name }) => {
+const Slider: React.FC<SliderProps> = ({ min, max, value, onChange, name }) => {
   const [sliderValue, setSliderValue] = useState(value);
   const steps = max - min + 1;
 

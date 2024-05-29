@@ -16,12 +16,15 @@
 import * as runtime from '../runtime';
 import type {
   CategoryDto,
+  CreateRatingDto,
   ExtendedRatingDto,
   RatingDto,
 } from '../models/index';
 import {
     CategoryDtoFromJSON,
     CategoryDtoToJSON,
+    CreateRatingDtoFromJSON,
+    CreateRatingDtoToJSON,
     ExtendedRatingDtoFromJSON,
     ExtendedRatingDtoToJSON,
     RatingDtoFromJSON,
@@ -30,6 +33,11 @@ import {
 
 export interface CreateRatingRequest {
     ratingDto: RatingDto;
+}
+
+export interface CreateRatingsByDaySheetIdRequest {
+    daySheetId: number;
+    createRatingDto: Array<CreateRatingDto>;
 }
 
 export interface GetMoodRatingByDateRequest {
@@ -84,6 +92,47 @@ export class RatingControllerApi extends runtime.BaseAPI {
      */
     async createRating(requestParameters: CreateRatingRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RatingDto> {
         const response = await this.createRatingRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async createRatingsByDaySheetIdRaw(requestParameters: CreateRatingsByDaySheetIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<RatingDto>>> {
+        if (requestParameters['daySheetId'] == null) {
+            throw new runtime.RequiredError(
+                'daySheetId',
+                'Required parameter "daySheetId" was null or undefined when calling createRatingsByDaySheetId().'
+            );
+        }
+
+        if (requestParameters['createRatingDto'] == null) {
+            throw new runtime.RequiredError(
+                'createRatingDto',
+                'Required parameter "createRatingDto" was null or undefined when calling createRatingsByDaySheetId().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/rating/createRatingsByDaySheetId/{daySheetId}`.replace(`{${"daySheetId"}}`, encodeURIComponent(String(requestParameters['daySheetId']))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters['createRatingDto']!.map(CreateRatingDtoToJSON),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(RatingDtoFromJSON));
+    }
+
+    /**
+     */
+    async createRatingsByDaySheetId(requestParameters: CreateRatingsByDaySheetIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<RatingDto>> {
+        const response = await this.createRatingsByDaySheetIdRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

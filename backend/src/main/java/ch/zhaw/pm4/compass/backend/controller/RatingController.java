@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import ch.zhaw.pm4.compass.backend.model.dto.CreateRatingDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,6 +62,16 @@ public class RatingController {
 		try {
 			return ResponseEntity.ok(ratingService.createRating(rating));
 		} catch (RatingIsNotValidException | CategoryNotFoundException | DaySheetNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	@PostMapping(path = "/createRatingsByDaySheetId/{daySheetId}", produces = "application/json")
+	@SchemaProperties()
+	public ResponseEntity<List<RatingDto>> createRatingsByDaySheetId(@PathVariable Long daySheetId, @RequestBody List<CreateRatingDto> createRatingDtos) {
+		try {
+			return ResponseEntity.ok(ratingService.createRatingsByDaySheetId(daySheetId, createRatingDtos));
+		} catch (RuntimeException | DaySheetNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}

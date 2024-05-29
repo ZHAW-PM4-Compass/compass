@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import ch.zhaw.pm4.compass.backend.model.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +20,6 @@ import ch.zhaw.pm4.compass.backend.exception.UserNotOwnerOfDaySheetException;
 import ch.zhaw.pm4.compass.backend.model.Category;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Rating;
-import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
-import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.ExtendedRatingDto;
-import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
 import ch.zhaw.pm4.compass.backend.repository.CategoryRepository;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.RatingRepository;
@@ -78,6 +74,23 @@ public class RatingService {
 		rating.setDaySheet(daysheet);
 
 		return convertEntityToDto(ratingRepository.save(rating));
+	}
+
+	public List<RatingDto> createRatingsByDaySheetId(Long daySheetId, List<CreateRatingDto> ratings) throws DaySheetNotFoundException, RuntimeException {
+		DaySheet daySheet = daySheetRepository.findById(daySheetId).orElseThrow(() -> new DaySheetNotFoundException(daySheetId));
+
+		// TODO: add check if categories are user categories, if category is not already rated for this day sheet
+
+		List<Rating> ratingEntities = ratings.stream().map(ratingDto -> {
+			Category category = categoryRepository.findById(ratingDto.getCategoryId()).orElse(null); // throws exception if category does not exist
+
+			Rating rating = new Rating(ratingDto.getRating(), ratingDto.getRatingRole());
+			rating.setCategory(category);
+			rating.setDaySheet(daySheet);
+			return rating;
+		}).toList();
+
+		return ratingRepository.saveAll(ratingEntities).stream().map(this::convertEntityToDto).toList();
 	}
 
 	/**

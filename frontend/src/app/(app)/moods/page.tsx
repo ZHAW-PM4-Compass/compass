@@ -6,49 +6,21 @@ import Button from "@/components/button";
 import Input from "@/components/input";
 import Select from "@/components/select";
 import Table from "@/components/table";
-import {
-  Edit24Regular,
-  Save24Regular,
-  Delete24Regular,
-} from "@fluentui/react-icons";
+import { Edit24Regular, Save24Regular, Delete24Regular } from "@fluentui/react-icons";
 import Slider from "@/components/slider";
-import {
-  getUserControllerApi,
-  getCategoryControllerApi,
-  getRatingControllerApi,
-  getDaySheetControllerApi,
-} from "@/openapi/connector";
-import {
-  RatingDto,
-  CategoryDto,
-  UserDto,
-  RatingDtoRatingRoleEnum,
-  DaySheetDto,
-} from "@/openapi/compassClient";
+import { getUserControllerApi, getCategoryControllerApi, getRatingControllerApi, getDaySheetControllerApi } from "@/openapi/connector";
+import { RatingDto, CreateRatingDto } from "@/openapi/compassClient";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import Title1 from "@/components/title1";
+import { toast } from "react-hot-toast";
+import toastMessages from "@/constants/toastMessages";
 
 const allParticipants = "ALL_PARTICIPANTS";
 
-const MoodModal = ({
-  close,
-  onSave,
-  categories,
-  participants,
-  selectedParticipant,
-  setSelectedParticipant,
-  role,
-}: {
-  close: () => void;
-  onSave: (ratings: RatingDto[]) => void;
-  categories: CategoryDto[];
-  participants: UserDto[];
-  selectedParticipant: string;
-  setSelectedParticipant: (participant: string) => void;
-  role: RatingDtoRatingRoleEnum;
-}) => {
-  const [moodValues, setMoodValues] = useState<{ [key: string]: number }>({});
+const MoodModal = ({ close, onSave, categories, participants, selectedParticipant, setSelectedParticipant, role }) => {
+  const [moodValues, setMoodValues] = useState({});
 
-  const handleMoodChange = (categoryId: number | undefined, value: number) => {
+  const handleMoodChange = (categoryId, value) => {
     setMoodValues((prevValues) => ({
       ...prevValues,
       [String(categoryId)]: value,
@@ -61,6 +33,7 @@ const MoodModal = ({
       rating: moodValues[categoryId],
       ratingRole: role,
     }));
+    console.log("Saving ratings:", ratingsToSave);
     onSave(ratingsToSave);
   };
 
@@ -73,7 +46,7 @@ const MoodModal = ({
             <Select
               className="mr-4 w-48 inline-block"
               name="participant"
-              required={true}
+              required
               data={participants}
               value={selectedParticipant}
               onChange={(event) => setSelectedParticipant(event.target.value)}
@@ -105,36 +78,24 @@ const MoodModal = ({
   );
 };
 
-type RatingData = {
-  date: Date;
-  participantName: string;
-  rating: RatingDto;
-};
-
 const MoodTrackingPage = () => {
   const { user } = useUser();
-  const [role, setRole] = useState<RatingDtoRatingRoleEnum>("PARTICIPANT");
+  const [role, setRole] = useState("PARTICIPANT");
   const [showModal, setShowModal] = useState(false);
-  const [ratings, setRatings] = useState<RatingData[]>([]);
-  const [categories, setCategories] = useState<CategoryDto[]>([]);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  );
-  const [participants, setParticipants] = useState<UserDto[]>([]);
-  const [selectedParticipant, setSelectedParticipant] = useState(
-    user?.sub || ""
-  );
-  const [daySheetId, setDaySheetId] = useState<number | undefined>(null);
+  const [ratings, setRatings] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
+  const [participants, setParticipants] = useState([]);
+  const [selectedParticipant, setSelectedParticipant] = useState(user?.sub || "");
+  const [daySheetId, setDaySheetId] = useState(null);
 
   useEffect(() => {
     const fetchDaySheet = async () => {
       const daySheetApi = getDaySheetControllerApi();
       try {
-        const daySheet = await daySheetApi.getDaySheetDate({
-          date: selectedDate,
-        });
-
+        const daySheet = await daySheetApi.getDaySheetDate({ date: selectedDate });
         setDaySheetId(daySheet?.id);
+        console.log("Fetched daySheetId:", daySheet?.id);
       } catch (error) {
         console.error("Failed to fetch daySheet", error);
       }
@@ -162,11 +123,10 @@ const MoodTrackingPage = () => {
         setParticipants(users);
       } else if (userDto.role === "PARTICIPANT") {
         const categoryApi = getCategoryControllerApi();
-        const categories = await categoryApi.getCategoryListByUserId({
-          userId: user.sub ?? "",
-        });
+        const categories = await categoryApi.getCategoryListByUserId({ userId: user.sub ?? "" });
         setCategories(categories);
       }
+      console.log("Fetched user role:", userDto.role);
     } catch (error) {
       console.error("Failed to fetch user role", error);
     }
@@ -177,66 +137,54 @@ const MoodTrackingPage = () => {
     try {
       const ratings = await ratingApi.getMoodRatingByDate({
         date: selectedDate,
-        userId:
-          role === "PARTICIPANT"
-            ? user?.sub
-            : selectedParticipant !== allParticipants
-              ? selectedParticipant
-              : undefined,
+        userId: role === "PARTICIPANT" ? user?.sub : selectedParticipant !== allParticipants ? selectedParticipant : undefined,
       });
       setRatings(ratings);
+      console.log("Fetched ratings:", ratings);
     } catch (error) {
       console.error("Failed to fetch ratings", error);
     }
   };
 
-  const fetchCategories = async (participantId: string) => {
+  const fetchCategories = async (participantId) => {
     const categoryApi = getCategoryControllerApi();
     try {
-      const categories = await categoryApi.getCategoryListByUserId({
-        userId: participantId,
-      });
+      const categories = await categoryApi.getCategoryListByUserId({ userId: participantId });
       setCategories(categories);
+      console.log("Fetched categories for participant:", participantId, categories);
     } catch (error) {
       console.error("Failed to fetch categories", error);
     }
   };
 
-  const handleSaveRating = async (ratings: RatingDto[]) => {
+  const handleSaveRating = async (ratings) => {
     const ratingApi = getRatingControllerApi();
     try {
-        console.log("daySheetId", daySheetId);
-        console.log("Original ratings", ratings);
+      console.log("daySheetId", daySheetId);
+      console.log("Original ratings", ratings);
 
-        // Map ratings to categoryDto
-        const categoryDto = ratings.map(rating => ({
-            id: rating.category.id,
-            name: rating.category.name,
-            minimumValue: rating.category.minimumValue,
-            maximumValue: rating.category.maximumValue
-        }));
+      const createRatingDtos = ratings.map((rating) => ({
+        categoryId: rating.category.id,
+        rating: rating.rating,
+        ratingRole: rating.ratingRole,
+      }));
 
-        console.log("Transformed categoryDto", categoryDto);
-
-        await ratingApi.recordCategoryRatingsByDaySheetAndUserId({
-            daySheetId: daySheetId!,
-            categoryDto: categoryDto
-        });
-
-        fetchRatings();
+      console.log("Transformed createRatingDtos", createRatingDtos);
+      await ratingApi.createRatingsByDaySheetId({
+        daySheetId: daySheetId,
+        createRatingDto: createRatingDtos,
+      });
+      fetchRatings();
     } catch (error) {
-        console.error("Failed to save rating", error);
+      console.error("Failed to save rating", error);
     }
-};
+  };
 
-
-
-
-  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
   };
 
-  const handleParticipantChange = async (participantId: string) => {
+  const handleParticipantChange = async (participantId) => {
     setSelectedParticipant(participantId);
     await fetchCategories(participantId);
   };
@@ -253,11 +201,7 @@ const MoodTrackingPage = () => {
           close={() => setShowModal(false)}
           onSave={handleSaveRating}
           categories={categories}
-          participants={
-            role === "SOCIAL_WORKER" || role === "ADMIN"
-              ? participantsData
-              : undefined
-          }
+          participants={role === "SOCIAL_WORKER" || role === "ADMIN" ? participantsData : undefined}
           selectedParticipant={selectedParticipant}
           setSelectedParticipant={setSelectedParticipant}
           role={role}
@@ -277,7 +221,7 @@ const MoodTrackingPage = () => {
           <Select
             className="mr-4 w-48 inline-block"
             name="participant"
-            required={true}
+            required
             data={participantsData}
             value={selectedParticipant}
             onChange={(event) => handleParticipantChange(event.target.value)}
@@ -302,9 +246,7 @@ const MoodTrackingPage = () => {
               icon: Edit24Regular,
               label: "Edit",
               onClick: (id) => {
-                const rating = ratings.find(
-                  (r) => r.rating?.category?.id === id
-                )?.rating;
+                const rating = ratings.find((r) => r.rating?.category?.id === id)?.rating;
                 setSelectedDate(rating || null);
                 setShowModal(true);
               },
@@ -313,9 +255,7 @@ const MoodTrackingPage = () => {
               icon: Delete24Regular,
               label: "Delete",
               onClick: (id) => {
-                setRatings(
-                  ratings.filter((r) => r.rating?.category?.id !== id)
-                );
+                setRatings(ratings.filter((r) => r.rating?.category?.id !== id));
               },
             },
           ]}

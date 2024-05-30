@@ -6,9 +6,9 @@ import Button from "@/components/button";
 import Input from "@/components/input";
 import Select from "@/components/select";
 import Table from "@/components/table";
-import { AppsAddIn24Regular, Edit24Regular, PersonAdd24Regular, Save24Regular } from "@fluentui/react-icons";
-import { getUserControllerApi, getCategoryControllerApi, getRatingControllerApi } from "@/openapi/connector";
-import { CategoryDto, UserDto } from "@/openapi/compassClient";
+import { AppsAddIn24Regular, Save24Regular } from "@fluentui/react-icons";
+import { getUserControllerApi, getCategoryControllerApi } from "@/openapi/connector";
+import { CategoryDto, UserDto, ParticipantDto } from "@/openapi/compassClient";
 import Title1 from "@/components/title1";
 import { toast } from "react-hot-toast";
 import toastMessages from "@/constants/toastMessages";
@@ -29,7 +29,7 @@ function CategoryCreateModal({ close, onSave, category }: Readonly<{
     async function fetchUsers() {
       const userApi = getUserControllerApi();
       try {
-        const users = await userApi.getAllUsers();
+        const users = await userApi.getAllParticipants();
         setParticipants(users);
       } catch (error) {
         console.error("Failed to fetch users", error);
@@ -38,23 +38,29 @@ function CategoryCreateModal({ close, onSave, category }: Readonly<{
     fetchUsers();
   }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    const participantDtos: ParticipantDto[] = selectedParticipants.map(user => ({ id: user.userId }));
+
     const newCategory: CategoryDto = {
       name: name,
       minimumValue: min,
       maximumValue: max,
+      categoryOwners: assignment === "custom" ? participantDtos : [],
     };
 
-    const createAction = () => getCategoryControllerApi().createCategory({ categoryDto: newCategory }).then(() => {
+    try {
+      // Create the category
+      const createdCategory = await getCategoryControllerApi().createCategory({ categoryDto: newCategory });
+
+      // Success message and close modal
+      toast.success(toastMessages.CATEGORY_CREATED);
       onSave();
       close();
-    });
-
-    toast.promise(createAction(), {
-      loading: toastMessages.CREATING,
-      success: toastMessages.CATEGORY_CREATED,
-      error: toastMessages.CATEGORY_NOT_CREATED,
-    });
+    } catch (error) {
+      // Error handling
+      toast.error(toastMessages.CATEGORY_NOT_CREATED);
+      console.error("Failed to create category or link users", error);
+    }
   };
 
   return (
@@ -68,7 +74,10 @@ function CategoryCreateModal({ close, onSave, category }: Readonly<{
       close={close}
     >
       <div className="flex">
-        <div className="w-1/2 pr-2">
+        <div className="w-1/3 pr-2">
+        <label>
+          Name:
+          <br />
           <Input
             type="text"
             placeholder="Name"
@@ -76,34 +85,36 @@ function CategoryCreateModal({ close, onSave, category }: Readonly<{
             onChange={(e) => setName(e.target.value)}
             className="mb-4"
           />
+        </label>
           <div className="flex">
-            <div className="w-1/2 pr-2">
+            <div className="w-1/4 pr-2">
               <label>
-                Min:
+                Von:
                 <Input
                   type="number"
                   placeholder="Min"
                   value={min.toString()}
                   onChange={(e) => setMin(Number(e.target.value))}
-                  className="mb-4"
+                  className="mb-4 w-20"
                 />
               </label>
             </div>
-            <div className="w-1/2 pl-2">
+            <div className="w-1/4 pl-2">
               <label>
-                Max:
+                Bis:
                 <Input
                   type="number"
                   placeholder="Max"
                   value={max.toString()}
                   onChange={(e) => setMax(Number(e.target.value))}
-                  className="mb-4"
+                  className="mb-4 w-20"
                 />
               </label>
             </div>
           </div>
           <label>
             Zuteilung:
+            <br />
             <Select
               value={assignment}
               onChange={(e) => setAssignment(e.target.value)}
@@ -118,6 +129,7 @@ function CategoryCreateModal({ close, onSave, category }: Readonly<{
         <div className="w-1/2 pl-2">
           {assignment === "custom" && (
             <div className="overflow-auto max-h-64">
+              Teilnehmer auswählen:
               {participants.map((participant) => (
                 <div
                   key={participant.userId}
@@ -142,6 +154,7 @@ function CategoryCreateModal({ close, onSave, category }: Readonly<{
                         );
                       }
                     }}
+                    className="w-6 h-6"
                   />
                   <span className="ml-2">
                     {participant.givenName} {participant.familyName}
@@ -164,16 +177,44 @@ export default function CategoryPage() {
   );
   const [categories, setCategories] = useState<CategoryDto[]>([]);
 
+  const formatAssignment = async (category: CategoryDto) => {
+    if (!category.categoryOwners || category.categoryOwners.length === 0) {
+      return "Alle Teilnehmer";
+    }
+  
+    const namesPromises = category.categoryOwners.map(async (owner) => {
+      try {
+        const user = await getUserControllerApi().getUserById({ id: owner.id || '' });
+        return `${user.givenName} ${user.familyName}`;
+      } catch (error) {
+        console.error(`Failed to fetch user with id ${owner.id}`, error);
+        return "Unknown";
+      }
+    });
+  
+    const names = await Promise.all(namesPromises);
+    const sortedNames = names.sort();
+    const namesString = sortedNames.join(", ");
+    return namesString.length > 30 ? `${namesString.substring(0, 30)}...` : namesString;
+  };
+  
+  
+
   const loadCategories = () => {
     setLoading(true);
     getCategoryControllerApi().getAllCategories().then((categories) => {
-      setCategories(categories);
+      const formattedCategories = categories.map(category => ({
+        ...category,
+        assignment: formatAssignment(category)
+      }));
+      setCategories(formattedCategories);
     }).catch(() => {
       toast.error(toastMessages.CATEGORIES_NOT_LOADED);
     }).finally(() => {
       setLoading(false);
     });
   }
+  
 
   useEffect(loadCategories, []);
 
@@ -204,22 +245,22 @@ export default function CategoryPage() {
               title: "name"
             },
             {
-              header: "Min",
+              header: "Von",
               title: "minimumValue"
             },
             {
-              header: "Max",
+              header: "Bis",
               title: "maximumValue"
             },
             {
               header: "Zuweisung",
-              title: "assignment"
+              title: "assignment",
             },
           ]}
           actions={[]}
           loading={loading}
         />
-      </div >
+      </div>
     </>
   );
 };

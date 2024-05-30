@@ -1,23 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Modal from "@/components/modal";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import Select from "@/components/select";
 import Table from "@/components/table";
-import { Edit24Regular, Save24Regular, Delete24Regular } from "@fluentui/react-icons";
+import { Edit24Regular, Save24Regular } from "@fluentui/react-icons";
 import Slider from "@/components/slider";
 import { getUserControllerApi, getCategoryControllerApi, getRatingControllerApi, getDaySheetControllerApi } from "@/openapi/connector";
-import { RatingDto, CreateRatingDto } from "@/openapi/compassClient";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import Title1 from "@/components/title1";
-import { toast } from "react-hot-toast";
-import toastMessages from "@/constants/toastMessages";
+import { debounce } from "lodash";
 
 const allParticipants = "ALL_PARTICIPANTS";
 
-const MoodModal = ({ close, onSave, categories, participants, selectedParticipant, setSelectedParticipant, role }) => {
+const MoodModal = ({ close, onSave, categories, participants, selectedParticipant, setSelectedParticipant, role }: { close: any, onSave: any, categories: any, participants: any, selectedParticipant: any, setSelectedParticipant: any, role: any }) => {
   const [moodValues, setMoodValues] = useState({});
 
   const handleMoodChange = (categoryId, value) => {
@@ -42,7 +39,7 @@ const MoodModal = ({ close, onSave, categories, participants, selectedParticipan
       title="Rating abgeben"
       footerActions={
         <>
-          {participants && setSelectedParticipant && (
+          {role === "SOCIAL_WORKER" || role === "ADMIN" ? (
             <Select
               className="mr-4 w-48 inline-block"
               name="participant"
@@ -52,7 +49,7 @@ const MoodModal = ({ close, onSave, categories, participants, selectedParticipan
               onChange={(event) => setSelectedParticipant(event.target.value)}
               disabled={role === "PARTICIPANT"}
             />
-          )}
+          ) : null}
           <Button Icon={Save24Regular} type="submit" onClick={handleSubmit}>
             Speichern
           </Button>
@@ -111,7 +108,7 @@ const MoodTrackingPage = () => {
 
   useEffect(() => {
     fetchRatings();
-  }, [selectedDate, selectedParticipant, role, user]);
+  }, [selectedDate, selectedParticipant, role]);
 
   const fetchUserRole = async () => {
     try {
@@ -139,8 +136,15 @@ const MoodTrackingPage = () => {
         date: selectedDate,
         userId: role === "PARTICIPANT" ? user?.sub : selectedParticipant !== allParticipants ? selectedParticipant : undefined,
       });
-      setRatings(ratings);
-      console.log("Fetched ratings:", ratings);
+
+      const formattedRatings = ratings.map(rating => ({
+        category: rating.rating.category.name.trim(),
+        participantName: rating.participantName,
+        rating: rating.rating.rating
+      }));
+
+      setRatings(formattedRatings);
+      console.log("Fetched ratings:", formattedRatings);
     } catch (error) {
       console.error("Failed to fetch ratings", error);
     }
@@ -157,28 +161,31 @@ const MoodTrackingPage = () => {
     }
   };
 
-  const handleSaveRating = async (ratings) => {
-    const ratingApi = getRatingControllerApi();
-    try {
-      console.log("daySheetId", daySheetId);
-      console.log("Original ratings", ratings);
+  const handleSaveRating = useCallback(
+    debounce(async (ratings) => {
+      const ratingApi = getRatingControllerApi();
+      try {
+        console.log("daySheetId", daySheetId);
+        console.log("Original ratings", ratings);
 
-      const createRatingDtos = ratings.map((rating) => ({
-        categoryId: rating.category.id,
-        rating: rating.rating,
-        ratingRole: rating.ratingRole,
-      }));
+        const createRatingDtos = ratings.map((rating) => ({
+          categoryId: rating.category.id,
+          rating: rating.rating,
+          ratingRole: rating.ratingRole,
+        }));
 
-      console.log("Transformed createRatingDtos", createRatingDtos);
-      await ratingApi.createRatingsByDaySheetId({
-        daySheetId: daySheetId,
-        createRatingDto: createRatingDtos,
-      });
-      fetchRatings();
-    } catch (error) {
-      console.error("Failed to save rating", error);
-    }
-  };
+        console.log("Transformed createRatingDtos", createRatingDtos);
+        await ratingApi.createRatingsByDaySheetId({
+          daySheetId: daySheetId,
+          createRatingDto: createRatingDtos,
+        });
+        fetchRatings();
+      } catch (error) {
+        console.error("Failed to save rating", error);
+      }
+    }, 300),
+    [daySheetId]
+  );
 
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
@@ -218,15 +225,17 @@ const MoodTrackingPage = () => {
           >
             Rating abgeben
           </Button>
-          <Select
-            className="mr-4 w-48 inline-block"
-            name="participant"
-            required
-            data={participantsData}
-            value={selectedParticipant}
-            onChange={(event) => handleParticipantChange(event.target.value)}
-            disabled={role === "PARTICIPANT"}
-          />
+          {role === "SOCIAL_WORKER" || role === "ADMIN" ? (
+            <Select
+              className="mr-4 w-48 inline-block"
+              name="participant"
+              required
+              data={participantsData}
+              value={selectedParticipant}
+              onChange={(event) => handleParticipantChange(event.target.value)}
+              disabled={role === "PARTICIPANT"}
+            />
+          ) : null}
           <Input
             type="date"
             name="date"
@@ -237,28 +246,11 @@ const MoodTrackingPage = () => {
         <Table
           data={ratings}
           columns={[
-            { header: "Kategorie", title: "rating.category.name" },
+            { header: "Kategorie", title: "category" },
             { header: "Teilnehmer", title: "participantName" },
-            { header: "Value", title: "rating.rating" },
+            { header: "Angabe", title: "rating" },
           ]}
-          actions={[
-            {
-              icon: Edit24Regular,
-              label: "Edit",
-              onClick: (id) => {
-                const rating = ratings.find((r) => r.rating?.category?.id === id)?.rating;
-                setSelectedDate(rating || null);
-                setShowModal(true);
-              },
-            },
-            {
-              icon: Delete24Regular,
-              label: "Delete",
-              onClick: (id) => {
-                setRatings(ratings.filter((r) => r.rating?.category?.id !== id));
-              },
-            },
-          ]}
+          actions={[]}
         />
       </div>
     </>

@@ -16,6 +16,7 @@ models/CreateRatingDto.ts
 models/DaySheetDto.ts
 models/ExtendedRatingDto.ts
 models/IncidentDto.ts
+models/ParticipantDto.ts
 models/RatingDto.ts
 models/SystemStatusDto.ts
 models/TimestampDto.ts

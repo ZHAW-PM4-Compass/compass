@@ -58,7 +58,7 @@ const MoodModal = ({
     }));
     console.log("Saving ratings:", ratingsToSave);
     onSave(ratingsToSave);
-    close(); // Close the modal after saving
+    close();
   };
 
   return (
@@ -87,11 +87,10 @@ const MoodModal = ({
       <div className="flex flex-col">
         {categories.map((category) => (
           <div key={category.id} className="mb-4">
-            <label>{category.name}</label>
+            <label className="mb-4 font-bold" >{category.name}</label>
             <Slider
               min={category.minimumValue}
               max={category.maximumValue}
-              value={moodValues[category.id] || category.minimumValue}
               onChange={(value) => handleMoodChange(category.id, value)}
               name={""}
             />
@@ -125,54 +124,28 @@ const MoodTrackingPage = () => {
           const daySheet = await daySheetApi.getDaySheetDate({
             date: selectedDate,
           });
-          setDaySheetId(daySheet?.id ?? null); // Provide a default value of null if daySheet?.id is undefined
+          setDaySheetId(daySheet?.id ?? null);
           setRatings(daySheet?.moodRatings || []);
           return;
         } else {
-          const daySheets =
-            await daySheetApi.getAllDaySheetByParticipantAndMonth({
+          const daySheet =
+            await daySheetApi.getDaySheetByParticipantAndDate({
               userId: selectedParticipant,
-              month: selectedDate.slice(0, 7),
+              date: selectedDate,
             });
 
-          const formattedSelectedDate = new Date(selectedDate.slice(0, 10));
-          console.log("Formatted selected date:", formattedSelectedDate);
-          console.log("Fetched daySheets:", daySheets);
-
-          const formatDate = (date: Date) => {
-            const year = date.getFullYear();
-            const month = (date.getMonth() + 1).toString().padStart(2, "0");
-            const day = date.getDate().toString().padStart(2, "0");
-            return `${year}-${month}-${day}`;
-          };
-
-          const selectedDateString = formatDate(formattedSelectedDate);
-
-          let matchingDaySheet: DaySheetDto | undefined;
-
-          daySheets.forEach((daySheet) => {
-            const daySheetDateString = formatDate(
-              new Date(daySheet.date ? daySheet.date : new Date())
-            );
-            console.log("DaySheet date:", daySheetDateString);
-
-            if (daySheetDateString === selectedDateString) {
-              console.log("Found matching daySheet:", daySheet);
-              matchingDaySheet = daySheet;
-            }
-          });
-
-          if (matchingDaySheet) {
-            setDaySheetId(matchingDaySheet.id || null);
-            setRatings(matchingDaySheet.moodRatings || []);
+          if (daySheet) {
+            setDaySheetId(daySheet.id || null);
+            setRatings(daySheet.moodRatings || []);
           } else {
             setDaySheetId(null);
             setRatings([]);
           }
 
-          console.log("Fetched daySheetId:", matchingDaySheet?.id);
+          console.log("Fetched daySheetId:", daySheet?.id);
         }
       } catch (error) {
+        console.error("Failed to fetch daySheet", error);
         toast.error("Failed to fetch daySheet");
       }
     };
@@ -186,7 +159,7 @@ const MoodTrackingPage = () => {
   }, [user]);
 
   useEffect(() => {
-    //fetchRatings();
+    fetchRatings();
   }, [selectedDate, selectedParticipant, role]);
 
   const fetchUserRole = async () => {
@@ -228,6 +201,7 @@ const MoodTrackingPage = () => {
         });
         setRatings(daySheet?.moodRatings || []);
       } else {
+
         const daySheets = await daySheetApi.getAllDaySheetByParticipantAndMonth(
           {
             userId: selectedParticipant,
@@ -269,8 +243,6 @@ const MoodTrackingPage = () => {
     debounce(async (ratings) => {
       const ratingApi = getRatingControllerApi();
       try {
-        console.log("daySheetId", daySheetId);
-        console.log("Original ratings", ratings);
 
         const createRatingDtos = ratings.map(
           (rating: {
@@ -284,7 +256,6 @@ const MoodTrackingPage = () => {
           })
         );
 
-        console.log("Transformed createRatingDtos", createRatingDtos);
         await ratingApi.createRatingsByDaySheetId({
           daySheetId: daySheetId ?? 0,
           createRatingDto: createRatingDtos,

@@ -46,6 +46,11 @@ export interface GetDaySheetByIdRequest {
     id: number;
 }
 
+export interface GetDaySheetByParticipantAndDateRequest {
+    userId: string;
+    date: string;
+}
+
 export interface GetDaySheetDateRequest {
     date: string;
 }
@@ -249,6 +254,44 @@ export class DaySheetControllerApi extends runtime.BaseAPI {
      */
     async getDaySheetById(requestParameters: GetDaySheetByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DaySheetDto> {
         const response = await this.getDaySheetByIdRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async getDaySheetByParticipantAndDateRaw(requestParameters: GetDaySheetByParticipantAndDateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DaySheetDto>> {
+        if (requestParameters['userId'] == null) {
+            throw new runtime.RequiredError(
+                'userId',
+                'Required parameter "userId" was null or undefined when calling getDaySheetByParticipantAndDate().'
+            );
+        }
+
+        if (requestParameters['date'] == null) {
+            throw new runtime.RequiredError(
+                'date',
+                'Required parameter "date" was null or undefined when calling getDaySheetByParticipantAndDate().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/daysheet/getByParticipantAndDate/{userId}/{date}`.replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters['userId']))).replace(`{${"date"}}`, encodeURIComponent(String(requestParameters['date']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DaySheetDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async getDaySheetByParticipantAndDate(requestParameters: GetDaySheetByParticipantAndDateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DaySheetDto> {
+        const response = await this.getDaySheetByParticipantAndDateRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

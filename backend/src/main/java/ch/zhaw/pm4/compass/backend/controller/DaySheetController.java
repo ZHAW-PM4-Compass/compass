@@ -121,6 +121,14 @@ public class DaySheetController {
 		return ResponseEntity.ok(daySheetService.getAllDaySheetByUserAndMonth(userId, month));
 	}
 
+
+	@GetMapping(path = "/getByParticipantAndDate/{userId}/{date}", produces = "application/json")
+	public ResponseEntity<DaySheetDto> getDaySheetByParticipantAndDate(@PathVariable String userId, @PathVariable String date, Authentication authentication) {
+		System.out.println("date: " + date);
+		LocalDate localDate = LocalDate.parse(date);
+		return ResponseEntity.ok(daySheetService.getDaySheetByUserAndDate(userId, localDate));
+	}
+
 	/**
 	 * Updates the notes of a specific day sheet.
 	 *

@@ -160,6 +160,14 @@ public class DaySheetService {
 				.collect(Collectors.toList());
 	}
 
+	public DaySheetDto getDaySheetByUserAndDate(String userId, LocalDate date) {
+		Optional<DaySheet> optional = daySheetRepository.findByDateAndOwnerId(date, userId);
+		if (optional.isPresent()) {
+			return convertDaySheetToDaySheetDto(optional.get(), null);
+		}
+		return null;
+	}
+
 	/**
 	 * Updates the notes for a specific day sheet.
 	 *

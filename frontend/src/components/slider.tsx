@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 interface SliderProps {
   min: number;
   max: number;
-  value: number;
   onChange: (value: number) => void;
   name: string;
 }
@@ -32,7 +31,7 @@ const Slider: React.FC<SliderProps> = ({ min, max, value, onChange, name }) => {
         <div className="slider-line absolute w-full h-1 bg-gray-400"></div>
       </div>
       <span className="mr-2">{min === 0 && max === 1 ? "Ja" : max}</span>
-      <input type="hidden" name={name} value={sliderValue} />
+      <input type="hidden" name={name} />
     </div>
   );
 };

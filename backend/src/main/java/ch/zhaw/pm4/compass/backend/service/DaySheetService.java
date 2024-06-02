@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import ch.zhaw.pm4.compass.backend.RatingType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -56,19 +57,19 @@ public class DaySheetService {
 	 * It checks for existing day sheets with the same date and owner before creating a new one.
 	 *
 	 * @param createDay The day sheet DTO to create.
-	 * @param user_id The ID of the user who will own the new day sheet.
+	 * @param userId The ID of the user who will own the new day sheet.
 	 * @return The created day sheet DTO or null if a day sheet with the same date already exists.
 	 */
-	public DaySheetDto createDay(DaySheetDto createDay, String user_id) {
+	public DaySheetDto createDay(DaySheetDto createDay, String userId) {
 		DaySheet daySheet = convertDaySheetDtoToDaySheet(createDay);
-		Optional<LocalUser> owner = localUserRepository.findById(user_id);
+		Optional<LocalUser> owner = localUserRepository.findById(userId);
 		if (owner.isEmpty())
 			return null;
 		daySheet.setOwner(owner.get());
-		Optional<DaySheet> optional = daySheetRepository.findByDateAndOwnerId(daySheet.getDate(), user_id);
+		Optional<DaySheet> optional = daySheetRepository.findByDateAndOwnerId(daySheet.getDate(), userId);
 		if (optional.isPresent())
 			return null;
-		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet), null);
+		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet), null, userId);
 	}
 
 	/**
@@ -76,22 +77,22 @@ public class DaySheetService {
 	 * unless the user is a social worker or admin.
 	 *
 	 * @param id The ID of the day sheet to retrieve.
-	 * @param user_id The user ID used to verify ownership of the day sheet.
+	 * @param userId The user ID used to verify ownership of the day sheet.
 	 * @return The retrieved day sheet DTO or null if no suitable day sheet is found.
 	 */
-	public DaySheetDto getDaySheetByIdAndUserId(Long id, String user_id) {
+	public DaySheetDto getDaySheetByIdAndUserId(Long id, String userId) {
 		Optional<DaySheet> optional;
-		UserRole userRole = userService.getUserRole(user_id);
+		UserRole userRole = userService.getUserRole(userId);
 
 		if (userRole == UserRole.SOCIAL_WORKER || userRole == UserRole.ADMIN) {
 			optional = daySheetRepository.findById(id);
 		} else {
-			optional = daySheetRepository.findByIdAndOwnerId(id, user_id);
+			optional = daySheetRepository.findByIdAndOwnerId(id, userId);
 		}
 
 		if (optional.isPresent()) {
-			UserDto owner = userService.getUserById(user_id);
-			return convertDaySheetToDaySheetDto(optional.get(), owner);
+			UserDto owner = userService.getUserById(userId);
+			return convertDaySheetToDaySheetDto(optional.get(), owner, userId);
 		}
 
 		return null;
@@ -102,13 +103,13 @@ public class DaySheetService {
 	 * This method checks if a day sheet exists for the specified date and user ID and returns it if found.
 	 *
 	 * @param date The date of the day sheet to retrieve.
-	 * @param user_id The ID of the user who owns the day sheet.
+	 * @param userId The ID of the user who owns the day sheet.
 	 * @return The day sheet DTO if found, or null if no day sheet exists for the specified date and user.
 	 */
-	public DaySheetDto getDaySheetByDate(LocalDate date, String user_id) {
-		Optional<DaySheet> optional = daySheetRepository.findByDateAndOwnerId(date, user_id);
+	public DaySheetDto getDaySheetByDate(LocalDate date, String userId) {
+		Optional<DaySheet> optional = daySheetRepository.findByDateAndOwnerId(date, userId);
 		if (optional.isPresent())
-			return convertDaySheetToDaySheetDto(optional.get(), null);
+			return convertDaySheetToDaySheetDto(optional.get(), null, userId);
 		return null;
 	}
 
@@ -118,14 +119,14 @@ public class DaySheetService {
 	 *
 	 * @return A list of unconfirmed day sheet DTOs.
 	 */
-	public List<DaySheetDto> getAllDaySheetNotConfirmed() {
+	public List<DaySheetDto> getAllDaySheetNotConfirmed(String userId) {
 		List<UserDto> userDtos = userService.getAllUsers();
 		List<DaySheet> daySheets = daySheetRepository.findAllByConfirmedIsFalseAndOwner_Role(UserRole.PARTICIPANT);
 		return daySheets.stream().map(daySheet -> {
 			UserDto user = userDtos.stream()
 					.filter(userFilter -> userFilter.getUser_id().equals(daySheet.getOwner().getId())).findFirst()
 					.orElse(null);
-			return convertDaySheetToDaySheetDto(daySheet, user);
+			return convertDaySheetToDaySheetDto(daySheet, user, userId);
 		}).toList();
 	}
 
@@ -135,14 +136,14 @@ public class DaySheetService {
 	 * @param month The month and year to search within.
 	 * @return A list of day sheet DTOs for the specified month.
 	 */
-	public List<DaySheetDto> getAllDaySheetByMonth(YearMonth month) {
+	public List<DaySheetDto> getAllDaySheetByMonth(YearMonth month, String userId) {
 		List<UserDto> userDtos = userService.getAllUsers();
 		List<DaySheet> daySheets = daySheetRepository.findAllByDateBetween(month.atDay(1), month.atEndOfMonth());
 		return daySheets.stream().map(daySheet -> {
 			UserDto user = userDtos.stream()
 					.filter(userFilter -> userFilter.getUser_id().equals(daySheet.getOwner().getId())).findFirst()
 					.orElse(null);
-			return convertDaySheetToDaySheetDto(daySheet, user);
+			return convertDaySheetToDaySheetDto(daySheet, user, userId);
 		}).toList();
 	}
 
@@ -156,14 +157,25 @@ public class DaySheetService {
 	public List<DaySheetDto> getAllDaySheetByUserAndMonth(String userId, YearMonth month) {
 		List<DaySheet> response = daySheetRepository.findAllByOwnerIdAndDateBetween(userId, month.atDay(1),
 				month.atEndOfMonth());
-		return response.stream().map(daySheet -> convertDaySheetToDaySheetDto(daySheet, null))
+		return response.stream().map(daySheet -> convertDaySheetToDaySheetDto(daySheet, null, userId))
 				.collect(Collectors.toList());
 	}
 
-	public DaySheetDto getDaySheetByUserAndDate(String userId, LocalDate date) {
+	/**
+	 * Retrieves a day sheet by user ID and date.
+	 * @param userId The ID of the user.
+	 * @param date The date of the day sheet.
+	 * @return The day sheet DTO if found, or null if no day sheet exists for the specified date and user.
+	 */
+	public DaySheetDto getDaySheetByUserAndDate(String userId, LocalDate date, String owner_id) {
+		UserRole userRole = userService.getUserRole(owner_id);
+		if (userRole == UserRole.PARTICIPANT && !userId.equals(owner_id)) {
+			return null;
+		}
+
 		Optional<DaySheet> optional = daySheetRepository.findByDateAndOwnerId(date, userId);
 		if (optional.isPresent()) {
-			return convertDaySheetToDaySheetDto(optional.get(), null);
+			return convertDaySheetToDaySheetDto(optional.get(), null, userId);
 		}
 		return null;
 	}
@@ -174,13 +186,13 @@ public class DaySheetService {
 	 * @param updateDay Contains the ID of the day sheet and the new notes to be updated.
 	 * @return The updated day sheet DTO, or null if the day sheet does not exist.
 	 */
-	public DaySheetDto updateDayNotes(UpdateDaySheetDayNotesDto updateDay) {
+	public DaySheetDto updateDayNotes(UpdateDaySheetDayNotesDto updateDay, String userId) {
 		Optional<DaySheet> optional = daySheetRepository.findById(updateDay.getId());
 		if (optional.isEmpty())
 			return null;
 		DaySheet daySheet = optional.get();
 		daySheet.setDayNotes(updateDay.getDay_notes());
-		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet), null);
+		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet), null, userId);
 	}
 
 	/**
@@ -188,20 +200,20 @@ public class DaySheetService {
 	 *
 	 * @param day_id The ID of the day sheet to be updated.
 	 * @param value The new confirmed status to set.
-	 * @param user_id The ID of the user performing the update.
+	 * @param userId The ID of the user performing the update.
 	 * @return The updated day sheet DTO, or null if the day sheet does not exist or if the user lacks proper authorization.
 	 */
-	public DaySheetDto updateConfirmed(Long day_id, boolean value, String user_id) {
+	public DaySheetDto updateConfirmed(Long day_id, boolean value, String userId) {
 		Optional<DaySheet> optional = daySheetRepository.findById(day_id);
 		if (optional.isEmpty())
 			return null;
-		UserRole userRole = userService.getUserRole(user_id);
+		UserRole userRole = userService.getUserRole(userId);
 		if (userRole != UserRole.SOCIAL_WORKER && userRole != UserRole.ADMIN) {
 			return null;
 		}
 		DaySheet daySheet = optional.get();
 		daySheet.setConfirmed(value);
-		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet), null);
+		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet), null, userId);
 	}
 
 	/**
@@ -221,15 +233,22 @@ public class DaySheetService {
 	 * @param owner The owner user DTO, if applicable.
 	 * @return A day sheet DTO with potentially additional details included.
 	 */
-	public DaySheetDto convertDaySheetToDaySheetDto(DaySheet daySheet, UserDto owner) {
+	public DaySheetDto convertDaySheetToDaySheetDto(DaySheet daySheet, UserDto owner, String userId) {
+		UserRole userRole = !userId.isEmpty() ? userService.getUserRole(userId) : UserRole.PARTICIPANT;
+
 		List<TimestampDto> timestampDtos = new ArrayList<>();
 		List<RatingDto> moodRatingDtos = new ArrayList<>();
 		List<IncidentDto> incidentDtos = new ArrayList<>();
+
 		for (Timestamp timestamp : daySheet.getTimestamps()) {
 			timestampDtos.add(timestampService.convertTimestampToTimestampDto(timestamp));
 		}
+
 		for (Rating rating : daySheet.getMoodRatings()) {
-			moodRatingDtos.add(ratingService.convertEntityToDto(rating));
+			if (userRole == UserRole.PARTICIPANT && rating.getRatingRole() == RatingType.PARTICIPANT
+					|| userRole == UserRole.SOCIAL_WORKER || userRole == UserRole.ADMIN) {
+				moodRatingDtos.add(ratingService.convertEntityToDto(rating));
+			}
 		}
 
 		for (Incident incident : daySheet.getIncidents()) {
@@ -237,6 +256,7 @@ public class DaySheetService {
 					.description(incident.getDescription()).date(incident.getDaySheet().getDate()).build();
 			incidentDtos.add(incidentDto);
 		}
+
 		return new DaySheetDto(daySheet.getId(), daySheet.getDayNotes(), daySheet.getDate(), daySheet.getConfirmed(),
 				timestampDtos, moodRatingDtos, incidentDtos, owner);
 	}

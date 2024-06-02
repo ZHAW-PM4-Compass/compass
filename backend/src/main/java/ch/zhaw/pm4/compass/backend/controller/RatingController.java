@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import ch.zhaw.pm4.compass.backend.exception.*;
 import ch.zhaw.pm4.compass.backend.model.dto.CreateRatingDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,11 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.zhaw.pm4.compass.backend.UserRole;
-import ch.zhaw.pm4.compass.backend.exception.CategoryNotFoundException;
-import ch.zhaw.pm4.compass.backend.exception.DaySheetNotFoundException;
-import ch.zhaw.pm4.compass.backend.exception.RatingIsNotValidException;
-import ch.zhaw.pm4.compass.backend.exception.TooManyRatingsPerCategoryException;
-import ch.zhaw.pm4.compass.backend.exception.UserNotOwnerOfDaySheetException;
 import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
 import ch.zhaw.pm4.compass.backend.model.dto.ExtendedRatingDto;
 import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
@@ -66,13 +62,18 @@ public class RatingController {
 		}
 	}
 
+	/**
+	 * Create multiple ratings related to a specific day sheet.
+	 * @param daySheetId The day sheet ID where the ratings will be recorded.
+	 * @param createRatingDtos List of rating DTOs related to the ratings.
+	 * @return ResponseEntity with a list of created RatingDto or appropriate error status.
+	 */
 	@PostMapping(path = "/createRatingsByDaySheetId/{daySheetId}", produces = "application/json")
 	@SchemaProperties()
-	public ResponseEntity<List<RatingDto>> createRatingsByDaySheetId(@PathVariable Long daySheetId, @RequestBody List<CreateRatingDto> createRatingDtos) {
+	public ResponseEntity<List<RatingDto>> createRatingsByDaySheetId(@PathVariable Long daySheetId, @RequestBody List<CreateRatingDto> createRatingDtos, Authentication authentication) {
 		try {
-			// TODO: javadoc, user check
-			return ResponseEntity.ok(ratingService.createRatingsByDaySheetId(daySheetId, createRatingDtos));
-		} catch (RuntimeException | DaySheetNotFoundException e) {
+			return ResponseEntity.ok(ratingService.createRatingsByDaySheetId(daySheetId, createRatingDtos, authentication.getName()));
+		} catch (DaySheetNotFoundException | CategoryNotFoundException | RatingAlreadyExistsException e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}

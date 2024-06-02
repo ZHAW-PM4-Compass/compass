@@ -13,5 +13,4 @@ import lombok.NoArgsConstructor;
 public class CreateRatingDto {
     private Long categoryId;
     private Integer rating;
-    private RatingType ratingRole;
 }

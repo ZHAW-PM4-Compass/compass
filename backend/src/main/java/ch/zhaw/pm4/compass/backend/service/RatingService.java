@@ -1,22 +1,16 @@
 package ch.zhaw.pm4.compass.backend.service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
+import ch.zhaw.pm4.compass.backend.UserRole;
+import ch.zhaw.pm4.compass.backend.exception.*;
 import ch.zhaw.pm4.compass.backend.model.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ch.zhaw.pm4.compass.backend.RatingType;
-import ch.zhaw.pm4.compass.backend.exception.CategoryNotFoundException;
-import ch.zhaw.pm4.compass.backend.exception.DaySheetNotFoundException;
-import ch.zhaw.pm4.compass.backend.exception.RatingIsNotValidException;
-import ch.zhaw.pm4.compass.backend.exception.TooManyRatingsPerCategoryException;
-import ch.zhaw.pm4.compass.backend.exception.UserNotOwnerOfDaySheetException;
 import ch.zhaw.pm4.compass.backend.model.Category;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Rating;
@@ -76,19 +70,42 @@ public class RatingService {
 		return convertEntityToDto(ratingRepository.save(rating));
 	}
 
-	public List<RatingDto> createRatingsByDaySheetId(Long daySheetId, List<CreateRatingDto> ratings) throws DaySheetNotFoundException, RuntimeException {
+	/**
+	 * Creates multiple ratings for a day sheet. The ratings are created based on the provided DTOs.
+	 * @param daySheetId The ID of the day sheet where the ratings will be recorded.
+	 * @param ratings The list of rating DTOs to create.
+	 * @param userId The ID of the user creating the ratings.
+	 * @return A list of created rating DTOs.
+	 * @throws DaySheetNotFoundException If the day sheet does not exist.
+	 * @throws CategoryNotFoundException If any of the categories specified do not exist.
+	 */
+	public List<RatingDto> createRatingsByDaySheetId(Long daySheetId, List<CreateRatingDto> ratings, String userId) throws DaySheetNotFoundException, CategoryNotFoundException, RatingAlreadyExistsException {
+		UserRole userRole = userService.getUserRole(userId);
 		DaySheet daySheet = daySheetRepository.findById(daySheetId).orElseThrow(() -> new DaySheetNotFoundException(daySheetId));
 
-		// TODO: add check if categories are user categories, if category is not already rated for this day sheet
+		List<Rating> ratingEntities = new ArrayList<>();
+		List<Rating> existingRatings = daySheet.getMoodRatings();
 
-		List<Rating> ratingEntities = ratings.stream().map(ratingDto -> {
-			Category category = categoryRepository.findById(ratingDto.getCategoryId()).orElse(null); // throws exception if category does not exist
+		for (CreateRatingDto ratingDto : ratings) {
+			Category category = categoryRepository.findById(ratingDto.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException(ratingDto.getCategoryId()));
+			RatingType ratingType = RatingType.PARTICIPANT;
 
-			Rating rating = new Rating(ratingDto.getRating(), ratingDto.getRatingRole());
+			if (userRole == UserRole.SOCIAL_WORKER || userRole == UserRole.ADMIN) {
+				ratingType = RatingType.SOCIAL_WORKER;
+			}
+
+			for (Rating existingRating : existingRatings) {
+				if (existingRating.getCategory().getId().equals(category.getId()) && existingRating.getRatingRole() == ratingType) {
+					throw new RatingAlreadyExistsException(category.getId());
+				}
+			}
+
+			Rating rating = new Rating(ratingDto.getRating(), ratingType);
 			rating.setCategory(category);
 			rating.setDaySheet(daySheet);
-			return rating;
-		}).toList();
+
+			ratingEntities.add(rating);
+		}
 
 		return ratingRepository.saveAll(ratingEntities).stream().map(this::convertEntityToDto).toList();
 	}

@@ -15,8 +15,6 @@ public class IncidentNotFoundException extends Exception {
      *
      * @param id The ID of the incident that could not be located.
      */
-	private static final long serialVersionUID = -2803300336215487208L;
-
     public IncidentNotFoundException(long id) {
         super(String.format("DaySheet with id %d not found", id));
     }

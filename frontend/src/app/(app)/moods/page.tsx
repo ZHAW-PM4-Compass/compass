@@ -248,11 +248,9 @@ const MoodTrackingPage = () => {
           (rating: {
             category: { id: any };
             rating: any;
-            ratingRole: any;
           }) => ({
             categoryId: rating.category.id,
             rating: rating.rating,
-            ratingRole: rating.ratingRole,
           })
         );
 

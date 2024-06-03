@@ -36,6 +36,7 @@ runs:
           -e AUTH0_MGMT_AUDIENCE='https://test.local' \
           -e APP_URL='test.local' \
           -e SECURITY_LOG_LEVEL='DEBUG' \
+          -e SWAGGER_UI_ON='false' \
           --add-host host.docker.internal:host-gateway \
           -v $(pwd)/backend/build:/app/build \
           --name test-container \

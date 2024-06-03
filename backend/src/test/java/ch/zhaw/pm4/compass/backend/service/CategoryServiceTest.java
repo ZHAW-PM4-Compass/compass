@@ -1,27 +1,5 @@
 package ch.zhaw.pm4.compass.backend.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 import ch.zhaw.pm4.compass.backend.RatingType;
 import ch.zhaw.pm4.compass.backend.UserRole;
 import ch.zhaw.pm4.compass.backend.exception.CategoryAlreadyExistsException;
@@ -32,12 +10,21 @@ import ch.zhaw.pm4.compass.backend.model.Category;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.LocalUser;
 import ch.zhaw.pm4.compass.backend.model.Rating;
-import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
-import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.ParticipantDto;
-import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
+import ch.zhaw.pm4.compass.backend.model.dto.*;
 import ch.zhaw.pm4.compass.backend.repository.CategoryRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.time.LocalDate;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.*;
 
 public class CategoryServiceTest {
 	@Mock
@@ -248,7 +235,7 @@ public class CategoryServiceTest {
 		ratingTwo.setDaySheet(daySheet);
 		DaySheetDto daySheetDto = new DaySheetDto(1l, "notes", LocalDate.now(), false);
 
-		when(daySheetService.convertDaySheetToDaySheetDto(any(DaySheet.class), isNull())).thenReturn(daySheetDto);
+		when(daySheetService.convertDaySheetToDaySheetDto(any(DaySheet.class), isNull(),any(String.class))).thenReturn(daySheetDto);
 
 		CategoryDto dtoOne = categoryService.convertEntityToDto(categoryUnderTest, false);
 		CategoryDto dtoTwo = categoryService.convertEntityToDto(categoryUnderTest, true);
@@ -265,6 +252,6 @@ public class CategoryServiceTest {
 			assertEquals(ratingList.get(i).getRating(), ratingListDto.get(i).getRating());
 			assertEquals(ratingList.get(i).getRatingRole(), ratingListDto.get(i).getRatingRole());
 		}
-		verify(daySheetService, times(2)).convertDaySheetToDaySheetDto(any(DaySheet.class), isNull());
+		verify(daySheetService, times(2)).convertDaySheetToDaySheetDto(any(DaySheet.class), isNull(),any(String.class));
 	}
 }

@@ -1,9 +1,17 @@
 package ch.zhaw.pm4.compass.backend.service;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import ch.zhaw.pm4.compass.backend.RatingType;
+import ch.zhaw.pm4.compass.backend.UserRole;
+import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
+import ch.zhaw.pm4.compass.backend.model.*;
+import ch.zhaw.pm4.compass.backend.model.dto.*;
+import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
+import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -13,28 +21,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import ch.zhaw.pm4.compass.backend.RatingType;
-import ch.zhaw.pm4.compass.backend.UserRole;
-import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
-import ch.zhaw.pm4.compass.backend.model.Category;
-import ch.zhaw.pm4.compass.backend.model.DaySheet;
-import ch.zhaw.pm4.compass.backend.model.Incident;
-import ch.zhaw.pm4.compass.backend.model.LocalUser;
-import ch.zhaw.pm4.compass.backend.model.Rating;
-import ch.zhaw.pm4.compass.backend.model.Timestamp;
-import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
-import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
-import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
-import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
-import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
+import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class DaySheetServiceTest {
 	@Mock
@@ -136,7 +126,7 @@ class DaySheetServiceTest {
 		List<DaySheet> jpaResponse = Arrays.asList(day1, day2);
 
 		when(daySheetRepository.findAllByDateBetween(monthFirst, monthLast)).thenReturn(jpaResponse);
-		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetByMonth(YearMonth.from(monthFirst));
+		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetByMonth(YearMonth.from(monthFirst),user.getId());
 
 		assertEquals(jpaResponse.size(), daySheets.size());
 
@@ -182,12 +172,13 @@ class DaySheetServiceTest {
 
 	@Test
 	void testUpdateDaySheetNotes() {
+		LocalUser user = getLocalUser();
 		UpdateDaySheetDayNotesDto updateDay = getUpdateDaySheetDayNotesDto();
 		DaySheet daySheet = getDaySheet();
 		daySheet.setDayNotes(updateDay.getDay_notes());
 		when(daySheetRepository.findById(any(Long.class))).thenReturn(Optional.of(daySheet));
 		when(daySheetRepository.save(any(DaySheet.class))).thenReturn(daySheet);
-		DaySheetDto getDay = daySheetService.updateDayNotes(updateDay);
+		DaySheetDto getDay = daySheetService.updateDayNotes(updateDay,user.getId());
 		assertEquals(daySheet.getId(), getDay.getId());
 		assertEquals(daySheet.getDate(), getDay.getDate());
 		assertEquals(daySheet.getDayNotes(), getDay.getDay_notes());
@@ -223,7 +214,7 @@ class DaySheetServiceTest {
 		DaySheet daySheet = getDaySheet();
 		daySheet.setDayNotes(updateDay.getDay_notes());
 		when(daySheetRepository.save(any(DaySheet.class))).thenReturn(daySheet);
-		assertNull(daySheetService.updateDayNotes(updateDay));
+		assertNull(daySheetService.updateDayNotes(updateDay,getLocalUser().getId()));
 	}
 
 	@Test
@@ -275,7 +266,7 @@ class DaySheetServiceTest {
 		List<DaySheet> jpaResponse = Arrays.asList(day1, day2);
 
 		when(daySheetRepository.findAllByConfirmedIsFalseAndOwner_Role(UserRole.PARTICIPANT)).thenReturn(jpaResponse);
-		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetNotConfirmed();
+		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetNotConfirmed(user.getId());
 
 		assertEquals(jpaResponse.size(), daySheets.size());
 
@@ -294,7 +285,7 @@ class DaySheetServiceTest {
 	@Test
 	void testFullEntityToDtoConvert() throws NotValidCategoryOwnerException {
 		DaySheet daySheet = getDaySheet();
-
+		LocalUser user = getLocalUser();
 		LocalTime time1 = LocalTime.of(10, 0);
 		LocalTime time2 = LocalTime.of(11, 0);
 		Timestamp timestamp = new Timestamp(1l, time1, time2, daySheet);
@@ -315,7 +306,7 @@ class DaySheetServiceTest {
 		when(timestampService.convertTimestampToTimestampDto(timestamp)).thenReturn(timestampDto);
 		when(ratingService.convertEntityToDto(ratingOne)).thenReturn(ratingDto);
 
-		DaySheetDto returnDto = daySheetService.convertDaySheetToDaySheetDto(daySheet, null);
+		DaySheetDto returnDto = daySheetService.convertDaySheetToDaySheetDto(daySheet, null,"");
 
 		assertEquals(daySheet.getId(), returnDto.getId());
 		assertEquals(daySheet.getDate(), returnDto.getDate());

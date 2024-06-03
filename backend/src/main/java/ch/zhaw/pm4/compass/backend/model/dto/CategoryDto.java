@@ -1,17 +1,12 @@
 package ch.zhaw.pm4.compass.backend.model.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Data Transfer Object (DTO) for categories used within the Compass application.
@@ -40,10 +35,10 @@ public class CategoryDto {
     private Integer maximumValue;
 
     @ApiModelProperty(notes = "The list of participants who own this category")
-    private List<ParticipantDto> categoryOwners = new ArrayList<>();
+    private List<ParticipantDto> categoryOwners;// = new ArrayList<>();
 
     @ApiModelProperty(notes = "The list of mood ratings associated with this category")
-    private List<RatingDto> moodRatings = new ArrayList<>();
+    private List<RatingDto> moodRatings;// = new ArrayList<>();
 
     /**
      * Constructs a CategoryDto with all fields except mood ratings.

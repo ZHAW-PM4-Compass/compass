@@ -232,4 +232,31 @@ public class DaySheetControllerTest {
 				+ "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"moodRatings\":null,\"incidents\":null,\"timeSum\":0,\"owner\":null}]",
 				res);
 	}
+
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testGtDaySheetByParticipantAndDate() throws Exception {
+		DaySheetDto getDay = getDaySheetDto();
+		when(daySheetService.getDaySheetByUserAndDate(any(String.class), any(LocalDate.class),any(String.class)))
+				.thenReturn(getDay);
+		String res = mockMvc.perform(
+						get("/daysheet/getByParticipantAndDate/" + getDaySheet().getOwner().getId() + "/" + getDaySheet().getDate().toString())
+								.contentType(MediaType.APPLICATION_JSON).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+		assertEquals("{\"id\":1,\"date\":\"" + dateNow.toString()
+						+ "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"moodRatings\":null,\"incidents\":null,\"timeSum\":0,\"owner\":null}",
+				res);
+	}
+
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testGtDaySheetByParticipantAndDateNotExisting() throws Exception {
+		DaySheetDto getDay = getDaySheetDto();
+		when(daySheetService.getDaySheetByUserAndDate(any(String.class), any(LocalDate.class),any(String.class)))
+				.thenReturn(null);
+		mockMvc.perform(
+						get("/daysheet/getByParticipantAndDate/" + getDaySheet().getOwner().getId() + "/" + getDaySheet().getDate().toString())
+								.contentType(MediaType.APPLICATION_JSON).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isNotFound());
+	}
 }

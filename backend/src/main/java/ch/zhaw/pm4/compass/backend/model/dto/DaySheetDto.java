@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-import ch.zhaw.pm4.compass.backend.model.LocalUser;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -60,7 +59,7 @@ public class DaySheetDto {
 	 * @param owner Owner of the day sheet.
 	 */
 	public DaySheetDto(Long id, String day_notes, LocalDate date, Boolean confirmed, List<TimestampDto> timestamps,
-					   List<RatingDto> moodRatings, List<IncidentDto> incidents, UserDto owner) {
+			List<RatingDto> moodRatings, List<IncidentDto> incidents, UserDto owner) {
 		this.id = id;
 		this.date = date;
 		this.day_notes = day_notes;

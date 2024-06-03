@@ -1,5 +1,5 @@
 import { getSession } from "@auth0/nextjs-auth0/edge";
-import { Configuration, UserControllerApi, CategoryControllerApi, TimestampControllerApi, IncidentControllerApi, DaySheetControllerApi, SystemControllerApi } from "./compassClient";
+import { Configuration, UserControllerApi, CategoryControllerApi, TimestampControllerApi, IncidentControllerApi, DaySheetControllerApi, SystemControllerApi,RatingControllerApi } from "./compassClient";
 
 export async function getMiddleWareControllerApi() {
   const session = await getSession();
@@ -31,6 +31,10 @@ export function getUserControllerApi() {
 export function getCategoryControllerApi() {
   const config = getApiConfiguration();
   return new CategoryControllerApi(config);
+}
+export function getRatingControllerApi() {
+  const config = getApiConfiguration();
+  return new RatingControllerApi(config);
 }
 
 export function getTimestampControllerApi() {

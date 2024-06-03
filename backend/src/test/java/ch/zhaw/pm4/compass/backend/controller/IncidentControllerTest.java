@@ -63,14 +63,11 @@ public class IncidentControllerTest {
 	@MockBean
 	private IncidentService incidentService;
 
-	private LocalDate dateNow = LocalDate.now();
-
 	private Gson gson = new GsonBuilder().registerTypeAdapter(LocalTime.class, new LocalTimeDeserializer())
 			.registerTypeAdapter(LocalTime.class, new LocalTimeSerializer())
 			.registerTypeAdapter(LocalDate.class, new LocalDateDeserializer())
-			.registerTypeAdapter(LocalDate.class, new LocalDateSerializer())
-			.addDeserializationExclusionStrategy(new GsonExclusionStrategy())
-			.addDeserializationExclusionStrategy(new GsonExclusionStrategy()).create();
+			.registerTypeAdapter(LocalDate.class, new LocalDateSerializer()).create();
+
 
 	private UserDto getUserDto() {
 		return new UserDto("auth0|23sdfyl22ffowqpmclblrtkwerwsdff", "Test", "User", "test.user@stadtmuur.ch",

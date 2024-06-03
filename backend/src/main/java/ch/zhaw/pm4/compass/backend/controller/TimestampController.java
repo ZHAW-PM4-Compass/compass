@@ -2,7 +2,6 @@ package ch.zhaw.pm4.compass.backend.controller;
 
 import java.util.ArrayList;
 
-import ch.zhaw.pm4.compass.backend.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -124,7 +123,7 @@ public class TimestampController {
 	 * @return ResponseEntity indicating the result of the operation or appropriate error status.
 	 */
 	@DeleteMapping(path = "/{id}")
-	public ResponseEntity deleteTimestamp(@PathVariable Long id, Authentication authentication) {
+	public ResponseEntity<Object> deleteTimestamp(@PathVariable Long id, Authentication authentication) {
 		TimestampDto timestamp = timestampService.getTimestampById(id, authentication.getName());
 		if (timestamp == null)
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

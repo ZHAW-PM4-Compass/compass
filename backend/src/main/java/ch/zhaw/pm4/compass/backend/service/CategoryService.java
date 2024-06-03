@@ -121,7 +121,7 @@ public class CategoryService {
 		return Stream.concat(StreamSupport.stream(globalCategories.spliterator(), false),
 				StreamSupport.stream(userCategories.spliterator(), false)).map(i -> {
 					CategoryDto categoryDto = convertEntityToDto(i, false);
-					categoryDto.setCategoryOwners(null);
+					categoryDto.setCategoryOwners(List.of());
 					return categoryDto;
 				}).toList();
 	}
@@ -154,17 +154,18 @@ public class CategoryService {
 	 * @param withRatings Flag indicating whether to include mood ratings in the resulting DTO.
 	 * @return The corresponding {@link CategoryDto} with or without mood ratings based on the provided flag.
 	 */
-	public CategoryDto convertEntityToDto(Category entity, Boolean withRatings) {
-		List<ParticipantDto> categoryOwnersDto = entity.getCategoryOwners().stream()
-				.map(t -> new ParticipantDto(t.getId())).toList();
-		CategoryDto dto = new CategoryDto(entity.getId(), entity.getName(), entity.getMinimumValue(),
-				entity.getMaximumValue(), categoryOwnersDto);
-		if (withRatings) {
-			List<RatingDto> ratingDtoList = entity.getMoodRatings().stream().map(i -> new RatingDto(dto,
-					daySheetService.convertDaySheetToDaySheetDto(i.getDaySheet(), null), i.getRating(), i.getRatingRole()))
-					.toList();
-			dto.setMoodRatings(ratingDtoList);
-		}
-		return dto;
-	}
+  public CategoryDto convertEntityToDto(Category entity, Boolean withRatings) {
+    List<ParticipantDto> categoryOwnersDto = entity.getCategoryOwners().stream()
+        .map(t -> new ParticipantDto(t.getId())).toList();
+      CategoryDto dto = new CategoryDto(entity.getId(), entity.getName(), entity.getMinimumValue(),
+              entity.getMaximumValue(), categoryOwnersDto);
+      List<RatingDto> ratingDtoList = List.of();
+      if (withRatings) {
+          ratingDtoList = entity.getMoodRatings().stream().map(i -> new RatingDto(dto,
+                  daySheetService.convertDaySheetToDaySheetDto(i.getDaySheet(), null, ""), i.getRating(), i.getRatingRole()))
+                  .toList();
+      }
+      dto.setMoodRatings(ratingDtoList);
+      return dto;
+  }
 }

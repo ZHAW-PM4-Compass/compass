@@ -1,22 +1,19 @@
 package ch.zhaw.pm4.compass.backend.service;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.function.Consumer;
 
+import ch.zhaw.pm4.compass.backend.UserRole;
+import ch.zhaw.pm4.compass.backend.exception.*;
+import ch.zhaw.pm4.compass.backend.model.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ch.zhaw.pm4.compass.backend.RatingType;
-import ch.zhaw.pm4.compass.backend.exception.CategoryNotFoundException;
-import ch.zhaw.pm4.compass.backend.exception.DaySheetNotFoundException;
-import ch.zhaw.pm4.compass.backend.exception.RatingIsNotValidException;
-import ch.zhaw.pm4.compass.backend.exception.TooManyRatingsPerCategoryException;
-import ch.zhaw.pm4.compass.backend.exception.UserNotOwnerOfDaySheetException;
 import ch.zhaw.pm4.compass.backend.model.Category;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.Rating;
-import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
-import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
 import ch.zhaw.pm4.compass.backend.repository.CategoryRepository;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.RatingRepository;
@@ -39,6 +36,10 @@ public class RatingService {
 	private CategoryRepository categoryRepository;
 	@Autowired
 	private DaySheetRepository daySheetRepository;
+	@Autowired
+	private UserService userService;
+
+	private Map<String, String> userNames;
 
 	/**
 	 * Creates a new rating based on the provided DTO. It validates the rating against the category
@@ -61,12 +62,52 @@ public class RatingService {
 
 		Rating rating = convertDtoToEntity(createRating);
 		if (!category.isValidRating(rating)) {
-			throw new RatingIsNotValidException(rating, category);
+			throw new RatingIsNotValidException(category);
 		}
 		rating.setCategory(category);
 		rating.setDaySheet(daysheet);
 
 		return convertEntityToDto(ratingRepository.save(rating));
+	}
+
+	/**
+	 * Creates multiple ratings for a day sheet. The ratings are created based on the provided DTOs.
+	 * @param daySheetId The ID of the day sheet where the ratings will be recorded.
+	 * @param ratings The list of rating DTOs to create.
+	 * @param userId The ID of the user creating the ratings.
+	 * @return A list of created rating DTOs.
+	 * @throws DaySheetNotFoundException If the day sheet does not exist.
+	 * @throws CategoryNotFoundException If any of the categories specified do not exist.
+	 */
+	public List<RatingDto> createRatingsByDaySheetId(Long daySheetId, List<CreateRatingDto> ratings, String userId) throws DaySheetNotFoundException, CategoryNotFoundException, RatingAlreadyExistsException {
+		UserRole userRole = userService.getUserRole(userId);
+		DaySheet daySheet = daySheetRepository.findById(daySheetId).orElseThrow(() -> new DaySheetNotFoundException(daySheetId));
+
+		List<Rating> ratingEntities = new ArrayList<>();
+		List<Rating> existingRatings = daySheet.getMoodRatings();
+
+		for (CreateRatingDto ratingDto : ratings) {
+			Category category = categoryRepository.findById(ratingDto.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException(ratingDto.getCategoryId()));
+			RatingType ratingType = RatingType.PARTICIPANT;
+
+			if (userRole == UserRole.SOCIAL_WORKER || userRole == UserRole.ADMIN) {
+				ratingType = RatingType.SOCIAL_WORKER;
+			}
+
+			for (Rating existingRating : existingRatings) {
+				if (existingRating.getCategory().getId().equals(category.getId()) && existingRating.getRatingRole() == ratingType) {
+					throw new RatingAlreadyExistsException(category.getId());
+				}
+			}
+
+			Rating rating = new Rating(ratingDto.getRating(), ratingType);
+			rating.setCategory(category);
+			rating.setDaySheet(daySheet);
+
+			ratingEntities.add(rating);
+		}
+
+		return ratingRepository.saveAll(ratingEntities).stream().map(this::convertEntityToDto).toList();
 	}
 
 	/**
@@ -109,6 +150,36 @@ public class RatingService {
 	}
 
 	/**
+	 * Retrieves all ratings for a specific date. Optionally, ratings can also be
+	 * filtered by user ID. The method returns a list of extended rating DTOs, which
+	 * include the participant's name.
+	 * 
+	 * @param date The date for which ratings are to be retrieved.
+	 * @param userId Optional user ID to filter ratings by.
+	 * @return A list of extended rating DTOs containing the ratings for the specified date.
+	 */
+	public List<ExtendedRatingDto> getRatingsByDate(LocalDate date, String... userId) {
+		List<DaySheet> daySheets;
+		if (userId.length == 0) {
+			daySheets = daySheetRepository.findAllByDate(date);
+		} else if (userId.length == 1) {
+			Optional<DaySheet> userDaySheet = daySheetRepository.findByDateAndOwnerId(date, userId[0]);
+			daySheets = userDaySheet.isPresent() ? List.of(userDaySheet.get()) : List.of();
+		} else {
+			throw new IllegalArgumentException("More than one user ID");
+		}
+
+		List<UserDto> allParticipants = userService.getAllParticipants();
+		userNames = new HashMap<String, String>();
+		for (UserDto i : allParticipants) {
+			String name = (i.getGiven_name() + " " + i.getFamily_name()).trim();
+			userNames.put(i.getUser_id(), name);
+		}
+
+		return daySheets.stream().mapMulti(this::expandDaySheetToExtendedRatings).toList();
+	}
+
+	/**
 	 * Retrieves all ratings associated with a specific day sheet.
 	 *
 	 * @param daySheetId The ID of the day sheet for which ratings are to be retrieved.
@@ -136,7 +207,7 @@ public class RatingService {
 	/**
 	 * Converts a {@link Rating} entity back to a {@link RatingDto}. This conversion includes
 	 * assembling related data such as the category and day sheet details into the DTO for comprehensive data transfer.
-	 *
+   *  
 	 * @param entity The {@link Rating} entity to be converted.
 	 * @return A {@link RatingDto} containing the details from the entity and its related data.
 	 */
@@ -149,5 +220,18 @@ public class RatingService {
 				daySheet.getConfirmed());
 		RatingDto dto = new RatingDto(categoryDto, daySheetDto, entity.getRating(), entity.getRatingRole());
 		return dto;
+	}
+
+	private void expandDaySheetToExtendedRatings(DaySheet daySheet, Consumer<ExtendedRatingDto> c) {
+		String userId = daySheet.getOwner().getId();
+		String name = userNames.containsKey(userId) ? userNames.get(userId) : "k.A";
+		daySheet.getMoodRatings().stream().forEach(i -> {
+			ExtendedRatingDto extendedRating = new ExtendedRatingDto();
+			extendedRating.setDate(daySheet.getDate());
+			extendedRating.setParticipantName(name);
+			RatingDto rating = convertEntityToDto(i);
+			extendedRating.setRating(rating);
+			c.accept(extendedRating);
+		});
 	}
 }

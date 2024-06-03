@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 /**
  * Data Transfer Object (DTO) representing a participant.
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
  * @version 26.05.2024
  */
 @Getter
+@ToString
 @RequiredArgsConstructor
 @NoArgsConstructor
 public class ParticipantDto {

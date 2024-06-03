@@ -1,7 +1,6 @@
 package ch.zhaw.pm4.compass.backend.exception;
 
 import ch.zhaw.pm4.compass.backend.model.Category;
-import ch.zhaw.pm4.compass.backend.model.Rating;
 
 /**
  * Custom exception thrown when a rating value does not comply with the predefined limits set for a category.
@@ -20,7 +19,7 @@ public class RatingIsNotValidException extends Exception {
 	 * @param rating The rating object that failed validation.
 	 * @param category The category against which the rating was validated.
 	 */
-	public RatingIsNotValidException(Rating rating, Category category) {
+	public RatingIsNotValidException(Category category) {
 		super(String.format("Rating is not within range 0f %s: Min(%d) - Max:(%d)", category.getName(),
 				category.getMinimumValue(), category.getMaximumValue()));
 	}

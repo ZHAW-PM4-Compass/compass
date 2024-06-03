@@ -66,6 +66,14 @@ public interface DaySheetRepository extends JpaRepository<DaySheet, Long> {
 	 */
 	List<DaySheet> findAllByOwnerIdAndDateBetween(String userId, LocalDate firstMonthDay, LocalDate lastMonthDay);
 
+  /**
+   * Finds all day sheets for a specific date regardless of the owner.
+   *
+   * @param date The date of the day sheets.
+   * @return A list of day sheets that fall on the specified date.
+   */
+	List<DaySheet> findAllByDate(LocalDate date);
+
 	/**
 	 * Finds all unconfirmed day sheets where the owner has a specific role.
 	 *

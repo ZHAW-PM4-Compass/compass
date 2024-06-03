@@ -1,10 +1,10 @@
 package ch.zhaw.pm4.compass.backend.repository;
 
-import ch.zhaw.pm4.compass.backend.model.DaySheet;
-import ch.zhaw.pm4.compass.backend.model.Incident;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import ch.zhaw.pm4.compass.backend.model.Incident;
 
 /**
  * Spring Data JPA repository for the {@link Incident} entity. This interface provides methods to query

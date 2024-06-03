@@ -92,7 +92,7 @@ public class DaySheetController {
 	 */
 	@GetMapping(path = "/getAllNotConfirmed", produces = "application/json")
 	public ResponseEntity<List<DaySheetDto>> getAllDaySheetNotConfirmed(Authentication authentication) {
-		return ResponseEntity.ok(daySheetService.getAllDaySheetNotConfirmed());
+		return ResponseEntity.ok(daySheetService.getAllDaySheetNotConfirmed(authentication.getName()));
 	}
 
 	/**
@@ -104,7 +104,7 @@ public class DaySheetController {
 	 */
 	@GetMapping(path = "/getAllByMonth/{month}", produces = "application/json")
 	public ResponseEntity<List<DaySheetDto>> getAllDaySheetByMonth(@PathVariable YearMonth month, Authentication authentication) {
-		return ResponseEntity.ok(daySheetService.getAllDaySheetByMonth(month));
+		return ResponseEntity.ok(daySheetService.getAllDaySheetByMonth(month, authentication.getName()));
 	}
 
 	/**
@@ -122,6 +122,23 @@ public class DaySheetController {
 	}
 
 	/**
+	 * Retrieves a day sheet by its ID and user ID.
+	 * @param userId The ID of the user.
+	 * @param date The date of the day sheet.
+	 * @param authentication Current user's authentication details.
+	 * @return ResponseEntity with the DaySheetDto or NotFound if it does not exist.
+	 */
+	@GetMapping(path = "/getByParticipantAndDate/{userId}/{date}", produces = "application/json")
+	public ResponseEntity<DaySheetDto> getDaySheetByParticipantAndDate(@PathVariable String userId, @PathVariable String date, Authentication authentication) {
+		LocalDate localDate = LocalDate.parse(date);
+		DaySheetDto response = daySheetService.getDaySheetByUserAndDate(userId, localDate, authentication.getName());
+
+		if (response == null)
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		return ResponseEntity.ok(response);
+	}
+
+	/**
 	 * Updates the notes of a specific day sheet.
 	 *
 	 * @param updateDay DaySheet update details.
@@ -131,7 +148,7 @@ public class DaySheetController {
 	@PutMapping(path = "/updateDayNotes", produces = "application/json")
 	public ResponseEntity<DaySheetDto> updateDayNotes(@RequestBody UpdateDaySheetDayNotesDto updateDay,
 			Authentication authentication) {
-		DaySheetDto response = daySheetService.updateDayNotes(updateDay);
+		DaySheetDto response = daySheetService.updateDayNotes(updateDay, authentication.getName());
 		if (response == null)
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		return ResponseEntity.ok(response);

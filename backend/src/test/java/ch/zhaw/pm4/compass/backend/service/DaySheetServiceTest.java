@@ -320,4 +320,44 @@ class DaySheetServiceTest {
 		assertEquals(daySheet.getIncidents().size(), returnDto.getIncidents().size());
 		assertEquals(daySheet.getIncidents().getFirst().getId(), returnDto.getIncidents().getFirst().getId());
 	}
+	@Test
+	void testGetDaySheetByUserAndDate()
+	{
+
+		LocalUser user = getLocalUser();
+		DaySheet daySheet = getDaySheet();
+		when(userServiceMock.getUserRole(any(String.class))).thenReturn(user.getRole());
+		when(daySheetRepository.findByDateAndOwnerId(any(LocalDate.class),any(String.class))).thenReturn(Optional.of(daySheet));
+		DaySheetDto returnDaySheetDto = daySheetService.getDaySheetByUserAndDate(user.getId(),daySheet.getDate(),user.getId());
+
+		assertEquals(daySheet.getId(),returnDaySheetDto.getId());
+	}
+	@Test
+	void testGetDaySheetByUserAndDateSocialWorkerTriesToGetParticipantsDaySheet()
+	{
+
+		LocalUser user = getLocalUser();
+		user.setRole(UserRole.SOCIAL_WORKER);
+		LocalUser owner = getLocalUser();
+		owner.setId("ownerId");
+		DaySheet daySheet = getDaySheet();
+		when(userServiceMock.getUserRole(any(String.class))).thenReturn(user.getRole());
+		when(daySheetRepository.findByDateAndOwnerId(any(LocalDate.class),any(String.class))).thenReturn(Optional.of(daySheet));
+		DaySheetDto returnDaySheetDto = daySheetService.getDaySheetByUserAndDate(owner.getId(),daySheet.getDate(),user.getId());
+
+		assertEquals(daySheet.getId(),returnDaySheetDto.getId());
+	}
+	@Test
+	void testGetDaySheetByUserAndDateParticipantTriesToGetAnotherParticipantsDaySheet()
+	{
+
+		LocalUser user = getLocalUser();
+		LocalUser owner = getLocalUser();
+		owner.setId("anotherParticipantId");
+		DaySheet daySheet = getDaySheet();
+		when(userServiceMock.getUserRole(any(String.class))).thenReturn(owner.getRole());
+		DaySheetDto returnDaySheetDto = daySheetService.getDaySheetByUserAndDate(user.getId(),daySheet.getDate(),owner.getId());
+
+		assertEquals(null,returnDaySheetDto);
+	}
 }

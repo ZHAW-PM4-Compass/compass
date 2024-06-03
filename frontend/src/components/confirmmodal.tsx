@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import Title2 from "./title2";
 import { Checkmark24Regular, Dismiss24Regular } from '@fluentui/react-icons';
 import Button from "./button";
+import Title3 from "./title3";
 
 export default function ConfirmModal({ title, question, confirm, abort }: Readonly<{
     title: string;
@@ -11,7 +11,7 @@ export default function ConfirmModal({ title, question, confirm, abort }: Readon
 }>) {
     useEffect(() => {
         const handleEsc = (event: any) => {
-            if (event.keyCode === 27) close();
+            if (event.keyCode === 27) abort();
         };
 
         window.addEventListener('keydown', handleEsc);
@@ -22,19 +22,19 @@ export default function ConfirmModal({ title, question, confirm, abort }: Readon
             <div className="mx-5 md:mx-0">
                 <div className="bg-white p-6 rounded-xl mt-48 mx-auto w-full md:w-96">
                     <div className="flex flex-row justify-between">
-                        <Title2 className="leading-9">{title}</Title2>
+                        <Title3 className="leading-9">{title}</Title3>
                         <button
                             type="button"
                             className="px-2 py-1.5 hover:bg-slate-100 duration-200 rounded-md focus:outline-2 focus:outline-black"
-                            onClick={close}
+                            onClick={abort}
                         >
                             <Dismiss24Regular className="color-black w-5 h-5 -mt-1" />
                         </button>
                     </div>
-                    <div className="mt-4 text-md">
+                    <div className="mt-4 text-sm">
                         <p>{question}</p>
                     </div>
-                    <div className="mt-7 flex space-x-4">
+                    <div className="mt-7 flex space-x-5 max-w-80 md:max-w-full mx-auto">
                         <Button
                             Icon={Checkmark24Regular}
                             className="w-full text-right"

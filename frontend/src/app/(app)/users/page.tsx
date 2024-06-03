@@ -224,7 +224,7 @@ export default function UsersPage() {
       {showDeleteConfirmModal && (
         <ConfirmModal
           title="Benutzer löschen"
-          question="Möchten Sie diesen Benutzer wirklich löschen? Der Benutzer kann wenn nötig wiederhergestellt werden."
+          question="Möchten Sie diesen Benutzer wirklich löschen? Der Benutzer bleibt im System erhalten."
           confirm={() => {
             selectedUser?.userId && deleteUser(selectedUser.userId);
             setShowDeleteConfirmModal(false);

@@ -32,17 +32,26 @@ runs:
         npm run build
       shell: bash
 
-    - name: Run Tests
+    - name: Wait for Backend to be Ready
+      shell: bash
+      run: |
+        until curl -s http://localhost:8080/health; do
+          echo 'Waiting for backend to be ready...'
+          sleep 5
+        done
+        echo 'Backend is ready!'
+
+    - name: Run Playwright Tests
       run: |
         cd ${{ inputs.working-directory }}
-        npm run test
+        NODE_ENV=test npm run test:coverage
       shell: bash
 
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
         token: ${{ inputs.codecov-token }}
-        directory: ${{ inputs.working-directory }}/coverage
+        directory: ${{ inputs.working-directory }}/.nyc_output
         flags: frontend
         fail_ci_if_error: true
         verbose: true
@@ -51,4 +60,4 @@ runs:
       uses: actions/upload-artifact@v2
       with:
         name: frontend-test-results
-        path: ${{ inputs.working-directory }}/coverage
+        path: ${{ inputs.working-directory }}/.nyc_output

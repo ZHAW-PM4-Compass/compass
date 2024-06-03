@@ -22,7 +22,7 @@ runs:
     - name: Run Tests in Docker Container
       shell: bash
       run: |
-        docker run \
+        docker run -d \
           -e DOCKER_ON='false' \
           -e PORT='8080' \
           -e DB_HOST='//host.docker.internal:5432/compass' \
@@ -38,8 +38,20 @@ runs:
           --add-host host.docker.internal:host-gateway \
           -v $(pwd)/backend/build:/app/build \
           --name test-container \
-          backend-tests \
-          /bin/sh -c "gradle test -info && printenv"
+          backend-tests
+
+    - name: Wait for Backend to be Ready
+      shell: bash
+      run: |
+        until curl -s http://localhost:8080/health; do
+          echo 'Waiting for backend to be ready...'
+          sleep 5
+        done
+        echo 'Backend is ready!'
+
+    - name: Run Gradle Tests in Docker Container
+      shell: bash
+      run: docker exec test-container /bin/sh -c "gradle test -info"
 
     - name: Debug Copied Classes
       shell: bash

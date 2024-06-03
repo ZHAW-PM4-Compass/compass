@@ -1,19 +1,16 @@
 package ch.zhaw.pm4.compass.backend.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
+import ch.zhaw.pm4.compass.backend.RatingType;
+import ch.zhaw.pm4.compass.backend.UserRole;
+import ch.zhaw.pm4.compass.backend.exception.*;
+import ch.zhaw.pm4.compass.backend.model.Category;
+import ch.zhaw.pm4.compass.backend.model.DaySheet;
+import ch.zhaw.pm4.compass.backend.model.LocalUser;
+import ch.zhaw.pm4.compass.backend.model.Rating;
+import ch.zhaw.pm4.compass.backend.model.dto.*;
+import ch.zhaw.pm4.compass.backend.repository.CategoryRepository;
+import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
+import ch.zhaw.pm4.compass.backend.repository.RatingRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -21,26 +18,17 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-import ch.zhaw.pm4.compass.backend.RatingType;
-import ch.zhaw.pm4.compass.backend.UserRole;
-import ch.zhaw.pm4.compass.backend.exception.CategoryNotFoundException;
-import ch.zhaw.pm4.compass.backend.exception.DaySheetNotFoundException;
-import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
-import ch.zhaw.pm4.compass.backend.exception.RatingIsNotValidException;
-import ch.zhaw.pm4.compass.backend.exception.TooManyRatingsPerCategoryException;
-import ch.zhaw.pm4.compass.backend.exception.UserNotOwnerOfDaySheetException;
-import ch.zhaw.pm4.compass.backend.model.Category;
-import ch.zhaw.pm4.compass.backend.model.DaySheet;
-import ch.zhaw.pm4.compass.backend.model.LocalUser;
-import ch.zhaw.pm4.compass.backend.model.Rating;
-import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
-import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.ExtendedRatingDto;
-import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
-import ch.zhaw.pm4.compass.backend.repository.CategoryRepository;
-import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
-import ch.zhaw.pm4.compass.backend.repository.RatingRepository;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class RatingServiceTest {
 	@Mock
@@ -73,6 +61,8 @@ public class RatingServiceTest {
 	private ExtendedRatingDto extendedRatingTwoCaregoryGlobalDto;
 	private ExtendedRatingDto extendedRatingOneCaregoryPersonalDto;
 
+	private CreateRatingDto createRatingOneCategoryGlobalDto;
+	private CreateRatingDto createRatingTwoCategoryGlobalDto;
 	private String userId;
 	private LocalUser participant;
 
@@ -131,6 +121,15 @@ public class RatingServiceTest {
 		extendedRatingOneCaregoryPersonalDto.setRating(ratingOneCategoryPersonalDto);
 		extendedRatingOneCaregoryPersonalDto.setDate(now);
 		extendedRatingOneCaregoryPersonalDto.setParticipantName("Chester");
+
+		createRatingOneCategoryGlobalDto = new CreateRatingDto();
+		createRatingTwoCategoryGlobalDto = new CreateRatingDto();
+
+		createRatingOneCategoryGlobalDto.setCategoryId(categoryGlobalDto.getId());
+		createRatingOneCategoryGlobalDto.setRating(3);
+
+		createRatingTwoCategoryGlobalDto.setCategoryId(categoryGlobalDto.getId());
+		createRatingTwoCategoryGlobalDto.setRating(6);
 	}
 
 	@Test
@@ -327,5 +326,57 @@ public class RatingServiceTest {
 		ratingService.recordCategoryRatings(categoriesWithRatings, 1l, userId, false);
 
 		verify(ratingService, times(2)).createRating(any(RatingDto.class));
+	}
+	@Test
+	void whenCreateRatingsByDaySheetId_expectCorrectDaySheet() throws CategoryNotFoundException, RatingAlreadyExistsException, DaySheetNotFoundException {
+		List<RatingDto> ratingList = new ArrayList<>();
+		ratingList.add(ratingOneCategoryGlobalDto);
+		ratingList.add(ratingTwoCategoryGlobalDto);
+		List<CreateRatingDto> createRatingList = new ArrayList<>();
+		createRatingList.add(createRatingOneCategoryGlobalDto);
+		createRatingList.add(createRatingTwoCategoryGlobalDto);
+		Rating ratingOne = ratingService.convertDtoToEntity(ratingOneCategoryGlobalDto);
+		ratingOne.setCategory(categoryGlobal);
+		ratingOne.setDaySheet(daySheet);
+		Rating ratingTwo = ratingService.convertDtoToEntity(ratingTwoCategoryGlobalDto);
+		ratingTwo.setCategory(categoryGlobal);
+		ratingTwo.setDaySheet(daySheet);
+		List<Rating> existingRatings = new ArrayList<Rating>();
+		existingRatings.add(ratingOne);
+		existingRatings.add(ratingTwo);
+
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.PARTICIPANT);
+		when(daySheetRepository.findById(any(Long.class))).thenReturn(Optional.of(daySheet));
+		when(categoryRepository.findById(any(Long.class))).thenReturn(Optional.of(categoryPersonal));
+		when(ratingRepository.saveAll(any(List.class))).thenReturn(existingRatings);
+		//when(ratingRepository.saveAll(existingRatings).stream().map(any()).toList()).thenReturn( ratingList);
+
+		List<RatingDto> resultRatings = ratingService.createRatingsByDaySheetId(daySheet.getId(), createRatingList, userId);
+
+		assertEquals(createRatingList.get(0).getRating(),resultRatings.get(0).getRating());
+	}
+	@Test
+	void whenCreateRatingsByDaySheetId_expectRatingAlreadyExistsException() throws CategoryNotFoundException, RatingAlreadyExistsException, DaySheetNotFoundException {
+		List<RatingDto> ratingList = new ArrayList<>();
+		ratingList.add(ratingOneCategoryGlobalDto);
+		ratingList.add(ratingTwoCategoryGlobalDto);
+		List<CreateRatingDto> createRatingList = new ArrayList<>();
+		createRatingList.add(createRatingOneCategoryGlobalDto);
+		createRatingList.add(createRatingTwoCategoryGlobalDto);
+		Rating ratingOne = ratingService.convertDtoToEntity(ratingOneCategoryGlobalDto);
+		ratingOne.setCategory(categoryGlobal);
+		List<Rating> existingRatings = new ArrayList<Rating>();
+		existingRatings.add(ratingOne);
+
+		daySheet.setMoodRatings(existingRatings);
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.PARTICIPANT);
+		when(daySheetRepository.findById(any(Long.class))).thenReturn(Optional.of(daySheet));
+		when(categoryRepository.findById(any(Long.class))).thenReturn(Optional.of(categoryGlobal));
+		//when(ratingRepository.saveAll(any(List.class))).thenReturn(ratingList);
+
+
+		assertThrows(RatingAlreadyExistsException.class,() ->ratingService.createRatingsByDaySheetId(daySheet.getId(), createRatingList, userId));
+
+
 	}
 }

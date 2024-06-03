@@ -43,11 +43,18 @@ runs:
     - name: Wait for Backend to be Ready
       shell: bash
       run: |
-        until curl -s http://localhost:8080 > /dev/null; do
+        for i in {1..10}; do
+          if curl -s http://localhost:8080 > /dev/null; then
+            echo 'Backend is ready!'
+            exit 0
+          fi
           echo 'Waiting for backend to be ready...'
+          docker ps -a
+          docker logs test-container || true
           sleep 5
         done
-        echo 'Backend is ready!'
+        echo 'Backend did not become ready in time'
+        exit 1
 
     - name: Run Gradle Tests in Docker Container
       shell: bash

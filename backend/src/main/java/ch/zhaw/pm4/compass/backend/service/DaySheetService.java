@@ -1,30 +1,20 @@
 package ch.zhaw.pm4.compass.backend.service;
 
+import ch.zhaw.pm4.compass.backend.RatingType;
+import ch.zhaw.pm4.compass.backend.UserRole;
+import ch.zhaw.pm4.compass.backend.model.*;
+import ch.zhaw.pm4.compass.backend.model.dto.*;
+import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
+import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import ch.zhaw.pm4.compass.backend.RatingType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import ch.zhaw.pm4.compass.backend.UserRole;
-import ch.zhaw.pm4.compass.backend.model.DaySheet;
-import ch.zhaw.pm4.compass.backend.model.Incident;
-import ch.zhaw.pm4.compass.backend.model.LocalUser;
-import ch.zhaw.pm4.compass.backend.model.Rating;
-import ch.zhaw.pm4.compass.backend.model.Timestamp;
-import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.IncidentDto;
-import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
-import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UserDto;
-import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
-import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
 
 /**
  * Service class that handles business logic related to day sheets.
@@ -167,13 +157,13 @@ public class DaySheetService {
 	 * @param date The date of the day sheet.
 	 * @return The day sheet DTO if found, or null if no day sheet exists for the specified date and user.
 	 */
-	public DaySheetDto getDaySheetByUserAndDate(String userId, LocalDate date, String owner_id) {
-		UserRole userRole = userService.getUserRole(owner_id);
+	public DaySheetDto getDaySheetByUserAndDate(String owner_id, LocalDate date, String userId) {
+		UserRole userRole = userService.getUserRole(userId);
 		if (userRole == UserRole.PARTICIPANT && !userId.equals(owner_id)) {
 			return null;
 		}
 
-		Optional<DaySheet> optional = daySheetRepository.findByDateAndOwnerId(date, userId);
+		Optional<DaySheet> optional = daySheetRepository.findByDateAndOwnerId(date, owner_id);
 		if (optional.isPresent()) {
 			return convertDaySheetToDaySheetDto(optional.get(), null, userId);
 		}

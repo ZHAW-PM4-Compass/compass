@@ -26,6 +26,12 @@ runs:
         npm install
       shell: bash
 
+    - name: Build Project
+      run: |
+        cd ${{ inputs.working-directory }}
+        npm run build
+      shell: bash
+
     - name: Run Tests
       run: |
         cd ${{ inputs.working-directory }}

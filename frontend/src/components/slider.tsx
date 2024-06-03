@@ -8,7 +8,7 @@ interface SliderProps {
 }
 
 const Slider: React.FC<SliderProps> = ({ min, max, onChange, name }) => {
-  const [sliderValue, setSliderValue] = useState(value);
+  const [sliderValue, setSliderValue] = useState(0);
   const steps = max - min + 1;
 
   const handleClick = (index: number) => {

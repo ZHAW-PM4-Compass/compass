@@ -19,7 +19,7 @@ runs:
       shell: bash
       run: docker build -t backend-tests -f ./docker/test/Dockerfile.backend .
 
-    - name: Run Tests in Docker Container
+    - name: Start Backend Container
       shell: bash
       run: |
         docker run -d \
@@ -51,7 +51,7 @@ runs:
 
     - name: Run Gradle Tests in Docker Container
       shell: bash
-      run: docker exec test-container /bin/sh -c "gradle test -info"
+      run: docker exec test-container gradle test -info
 
     - name: Debug Copied Classes
       shell: bash

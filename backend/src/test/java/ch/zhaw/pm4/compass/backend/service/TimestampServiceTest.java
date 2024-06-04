@@ -1,5 +1,26 @@
 package ch.zhaw.pm4.compass.backend.service;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import ch.zhaw.pm4.compass.backend.UserRole;
 import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.LocalUser;
@@ -7,24 +28,6 @@ import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
 import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
 import ch.zhaw.pm4.compass.backend.repository.TimestampRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import java.sql.Time;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 class TimestampServiceTest {
 
@@ -49,8 +52,7 @@ class TimestampServiceTest {
 		daySheet = getDaySheet();
 		timestamp2 = getTimestamp(); // 13:00 -> 14:00
 		timestamp2.setId(2l);
-		timestamps2 = new ArrayList<>() {
-		};
+		timestamps2 = new ArrayList<>();
 		timestamps2.add(timestamp2);
 		timestampToCheck = getTimestamp();
 		timestamps1 = new ArrayList<>();
@@ -78,15 +80,15 @@ class TimestampServiceTest {
 	}
 
 	private TimestampDto getTimestampDto() {
-		return new TimestampDto(1l, 1l, Time.valueOf("13:00:00"), Time.valueOf("14:00:00"));
+		return new TimestampDto(1l, 1l, LocalTime.parse("13:00:00"), LocalTime.parse("14:00:00"));
 	}
 
 	private TimestampDto getUpdateTimestamp() {
-		return new TimestampDto(1l, 1l, Time.valueOf("13:00:00"), Time.valueOf("15:00:00"));
+		return new TimestampDto(1l, 1l, LocalTime.parse("13:00:00"), LocalTime.parse("15:00:00"));
 	}
 
 	private Timestamp getTimestamp() {
-		return new Timestamp(1l, Time.valueOf("13:00:00"), Time.valueOf("14:00:00"), getDaySheet());
+		return new Timestamp(1l, LocalTime.parse("13:00:00"), LocalTime.parse("14:00:00"), getDaySheet());
 	}
 
 	@Test
@@ -131,7 +133,6 @@ class TimestampServiceTest {
 	@Test
 	void testCreateExistingTimestamp() {
 
-
 		when(timestampRepository.findById(any(Long.class))).thenReturn(Optional.of(timestamp));
 
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
@@ -143,7 +144,7 @@ class TimestampServiceTest {
 	void testCreateOverlappingTimestamp1() {
 
 		TimestampDto timestampUpdateDto = getUpdateTimestamp();
-		timestampUpdateDto.setStart_time(Time.valueOf("12:00:00"));
+		timestampUpdateDto.setStart_time(LocalTime.parse("12:00:00"));
 		when(timestampRepository.findById(any(Long.class))).thenReturn(Optional.of(timestamp));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps1);
 		TimestampDto result = timestampService.createTimestamp(timestampUpdateDto, user_id);
@@ -154,7 +155,7 @@ class TimestampServiceTest {
 	void testCreateOverlappingTimestamp2() {
 
 		TimestampDto timestampUpdateDto = getUpdateTimestamp();
-		timestampUpdateDto.setStart_time(Time.valueOf("13:30:00"));
+		timestampUpdateDto.setStart_time(LocalTime.parse("13:30:00"));
 		when(timestampRepository.findById(any(Long.class))).thenReturn(Optional.of(timestamp));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps1);
 		TimestampDto result = timestampService.createTimestamp(timestampUpdateDto, user_id);
@@ -165,8 +166,8 @@ class TimestampServiceTest {
 	void testCreateOverlappingTimestamp3() {
 
 		TimestampDto timestampUpdateDto = getUpdateTimestamp();
-		timestampUpdateDto.setStart_time(Time.valueOf("12:30:00"));
-		timestampUpdateDto.setEnd_time(Time.valueOf("13:30:00"));
+		timestampUpdateDto.setStart_time(LocalTime.parse("12:30:00"));
+		timestampUpdateDto.setEnd_time(LocalTime.parse("13:30:00"));
 		when(timestampRepository.findById(any(Long.class))).thenReturn(Optional.of(timestamp));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps1);
 		TimestampDto result = timestampService.createTimestamp(timestampUpdateDto, user_id);
@@ -178,12 +179,12 @@ class TimestampServiceTest {
 		TimestampDto getTimestampDto0 = getTimestampDto();
 		TimestampDto getTimestampDto1 = getUpdateTimestamp();
 		getTimestampDto1.setId(2l);
-		getTimestampDto1.setStart_time(Time.valueOf("14:00:00"));
-		getTimestampDto1.setEnd_time(Time.valueOf("15:00:00"));
+		getTimestampDto1.setStart_time(LocalTime.parse("14:00:00"));
+		getTimestampDto1.setEnd_time(LocalTime.parse("15:00:00"));
 		daySheet.setOwner(getLocalUser());
-		Timestamp timestamp01 = new Timestamp(1l, Time.valueOf("13:00:00"), Time.valueOf("14:00:00"), daySheet);
+		Timestamp timestamp01 = new Timestamp(1l, LocalTime.parse("13:00:00"), LocalTime.parse("14:00:00"), daySheet);
 		daySheet.getTimestamps().add(timestamp01);
-		Timestamp timestamp02 = new Timestamp(2l, Time.valueOf("14:00:00"), Time.valueOf("15:00:00"), daySheet);
+		Timestamp timestamp02 = new Timestamp(2l, LocalTime.parse("14:00:00"), LocalTime.parse("15:00:00"), daySheet);
 		daySheet.getTimestamps().add(timestamp02);
 		ArrayList<TimestampDto> timestampsDto = new ArrayList<TimestampDto>();
 		timestampsDto.add(getTimestampDto0);
@@ -229,7 +230,7 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryStartTimeAfterEndTime() {
 
-		timestampToCheck.setStartTime(Time.valueOf("15:00:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("15:00:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 
 		assertFalse(timestampService.checkNoDoubleEntry(timestampToCheck));
@@ -238,7 +239,7 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryStartTimeEqualsEndTime() {
 
-		timestampToCheck.setStartTime(Time.valueOf("13:00:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("13:00:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 
 		assertFalse(timestampService.checkNoDoubleEntry(timestampToCheck));
@@ -247,7 +248,7 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryStartTimeInExistingTimestamp() {
 
-		timestampToCheck.setStartTime(Time.valueOf("13:30:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("13:30:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 
 		assertFalse(timestampService.checkNoDoubleEntry(timestampToCheck));
@@ -256,8 +257,8 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryEndTimeInExistingTimestamp() {
 
-		timestampToCheck.setStartTime(Time.valueOf("12:00:00"));
-		timestampToCheck.setEndTime(Time.valueOf("13:30:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("12:00:00"));
+		timestampToCheck.setEndTime(LocalTime.parse("13:30:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 
 		assertFalse(timestampService.checkNoDoubleEntry(timestampToCheck));
@@ -266,8 +267,8 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryStartTimeEqualsExistingTimestampStartTime() {
 
-		timestampToCheck.setStartTime(Time.valueOf("13:00:00"));
-		timestampToCheck.setEndTime(Time.valueOf("14:30:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("13:00:00"));
+		timestampToCheck.setEndTime(LocalTime.parse("14:30:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 
 		Boolean result = timestampService.checkNoDoubleEntry(timestampToCheck);
@@ -277,8 +278,8 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryEndTimeEqualsExistingTimestampEndTime() {
 
-		timestampToCheck.setStartTime(Time.valueOf("12:00:00"));
-		timestampToCheck.setEndTime(Time.valueOf("14:00:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("12:00:00"));
+		timestampToCheck.setEndTime(LocalTime.parse("14:00:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 		Boolean result = timestampService.checkNoDoubleEntry(timestampToCheck);
 		assertFalse(result);
@@ -287,8 +288,8 @@ class TimestampServiceTest {
 	@Test
 	void testCheckNoDoubleEntryNewTimestampAroundExistingTimestamp() {
 
-		timestampToCheck.setStartTime(Time.valueOf("12:00:00"));
-		timestampToCheck.setEndTime(Time.valueOf("15:00:00"));
+		timestampToCheck.setStartTime(LocalTime.parse("12:00:00"));
+		timestampToCheck.setEndTime(LocalTime.parse("15:00:00"));
 		when(timestampRepository.findAllByDaySheetId(any(Long.class))).thenReturn(timestamps2);
 
 		assertFalse(timestampService.checkNoDoubleEntry(timestampToCheck));

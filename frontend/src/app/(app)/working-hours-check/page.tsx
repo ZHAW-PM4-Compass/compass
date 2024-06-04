@@ -1,202 +1,150 @@
 'use client';
-import React, {useEffect, useState} from 'react';
+import React, { use, useEffect, useState } from 'react';
 import {
-    DaySheetDto,
-    TimestampDto,
-    type UpdateConfirmedRequest,
+  DaySheetDto,
+  type ConfirmRequest,
 } from "@/openapi/compassClient";
 import Table from "@/components/table";
-import {Checkmark24Regular, Edit24Regular, NoteAddRegular, Save24Regular} from "@fluentui/react-icons";
-import {toast} from "react-hot-toast";
-import {useRouter} from "next/navigation";
+import { Edit24Regular, ShiftsCheckmark24Regular } from "@fluentui/react-icons";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 import Title1 from "@/components/title1";
-import {getDaySheetControllerApi} from "@/openapi/connector";
+import { getDaySheetControllerApi, getUserControllerApi } from "@/openapi/connector";
 import toastMessages from "@/constants/toastMessages";
-import { useUser } from '@auth0/nextjs-auth0/client';
-import Modal from '@/components/modal';
-import Button from '@/components/button';
-import TextArea from '@/components/textarea';
+import { convertMilisecondsToTimeString } from '@/utils/time';
+import Select from '@/components/select';
 
-enum formFields {
-  DAY_NOTES = "dayNotes"
-}
-
-function DayNotesModal({ close, onSave, daySheetDto }: Readonly<{
-  close: () => void;
-  onSave: () => void;
-  daySheetDto?: DaySheetDto;
-}>) {
-  const [notes, setNotes] = useState(daySheetDto?.dayNotes || '');
-
-  const onSubmit = () => {
-    getDaySheetControllerApi().updateDayNotes({ 
-      updateDaySheetDayNotesDto: {
-        id: daySheetDto?.id,
-        dayNotes: notes
-      }
-    }).then(() => {
-      close();
-      onSave();
-      toast.success(toastMessages.DAYNOTES_UPDATED);
-    }).catch(() => {
-      toast.error(toastMessages.DAYNOTES_NOT_UPDATED);
-    })
-  }
-
-  return (
-    <Modal
-      title="Notizen bearbeiten"
-      footerActions={
-        <Button Icon={Save24Regular} type="submit">Speichern</Button>
-      }
-      close={close}
-      onSubmit={onSubmit}
-    >
-      <TextArea 
-        name={formFields.DAY_NOTES}
-        placeholder='Notizen' 
-        value={notes} 
-        onChange={(e) => setNotes(e.target.value)}
-        className='w-full min-h-32' />
-    </Modal>
-  );
-}
+const allParticipants = "ALL_PARTICIPANTS";
 
 export default function WorkingHoursCheckPage() {
-    const [showDayNotesModal, setShowDayNotesModal] = useState(false);
-    const [daySheetDtos, setDaySheetDtos] = useState<DaySheetDto[]>([]);
-    const [selectedDaySheetDto, setSelectedDaySheetDto] = useState<DaySheetDto>();
-    const [userId, setUserId] = useState<string | null>();
-    const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [daySheets, setDaySheets] = useState<DaySheetDto[]>([]);
+  const [daySheetsFiltered, setDaySheetsFiltered] = useState<DaySheetDto[]>([]);
+  const [participantSelection, setParticipantSelection] = useState<any>();
+  const [participantSelections, setParticipantSelections] = useState<{ id: string, label: string }[]>([]);
+  const router = useRouter();
 
-    let initLoad = false;
-    const loadPage = () => {
-        if (!initLoad) {
-            initLoad = true;
-            const queryParams = new URLSearchParams(window.location.search);
-            const userId = queryParams.get('userId');
-            setUserId(userId);
-            if (userId) {
-                loadDaySheets(userId);
-            } else {
-                toast.error(toastMessages.USER_NOT_SELECTED);
-            }
+  const loadDaySheets = () => {
+    setLoading(true);
+    getDaySheetControllerApi().getAllDaySheetNotConfirmed().then(daySheets => {
+      close();
+      daySheets = daySheets.sort((a, b) => {
+        if (a.date && b.date) {
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
         }
-    }
+        return 0;
+      });
+      setDaySheets(daySheets);
+    }).catch(() => {
+      toast.error(toastMessages.DAYSHEETS_NOT_LOADED);
+    }).finally(() => {
+      setLoading(false);
+    });
+  }
 
-    function loadDaySheets(userId: string) {
-        getDaySheetControllerApi().getAllDaySheetByParticipant({userId: userId}).then(daySheetDtos => {
-            close();
-            toast.success(toastMessages.DAYSHEETS_LOADED);
-            console.log(daySheetDtos);
+  const filterDaySheets = () => {
+    setDaySheetsFiltered(daySheets.filter(daySheet => {
+      if (participantSelection === allParticipants) {
+        return true;
+      }
+      return daySheet.owner?.userId === participantSelection ? true : false;
+    }));
+  }
 
-            const notConfirmedDaySheetDtos = daySheetDtos.filter(daySheetDto => !daySheetDto.confirmed);
-            setDaySheetDtos(notConfirmedDaySheetDtos);
-        }).catch(() => {
-            toast.error(toastMessages.DATA_NOT_LOADED);
-        });
-    }
-
-    const confirmDaySheet = async (id: number) => {
-        const updateDayRequest: UpdateConfirmedRequest = {
-          id: id
-        };
-
-        getDaySheetControllerApi().updateConfirmed(updateDayRequest).then(() => {
-            close();
-            toast.success(toastMessages.DAYSHEET_CONFIRMED);
-            if (userId) loadDaySheets(userId);
-        }).catch(() => {
-            toast.error(toastMessages.DAYSHEET_CONFIRMED_ERROR);
-        });
+  const confirmDaySheet = (id: number) => {
+    const updateDayRequest: ConfirmRequest = {
+      id: id
     };
 
-    const navigateToSingleDay = () => {
-        if (selectedDaySheetDto != undefined && selectedDaySheetDto.id != undefined) {
-            router.push(`/working-hours-single-day?day-sheet=${selectedDaySheetDto.id}`);
-        }
-    };
+    const confirmAction = () => getDaySheetControllerApi().confirm(updateDayRequest).then(() => {
+      close();
+      loadDaySheets();
+    })
 
-    const dateFunction = (daySheetDto: DaySheetDto): string => {
-        if (daySheetDto != undefined) {
-            if (daySheetDto.date) return daySheetDto.date.toLocaleDateString();
-        }
-        return '';
-    }
+    toast.promise(confirmAction(), {
+      loading: toastMessages.CONFIRMING,
+      success: toastMessages.DAYSHEET_CONFIRMED,
+      error: toastMessages.DAYSHEET_NOT_CONFIRMED,
+    });
+  };
 
-    const timeSumFunction = (daySheetDto: DaySheetDto): string => {
-        if (daySheetDto && daySheetDto.timeSum !== undefined) {
-            const totalSeconds = Math.floor(daySheetDto.timeSum / 1000); // converting milliseconds to seconds
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            return `${hours} hours and ${minutes} minutes`;
-        }
-        return '';
-    };
+  const navigateToSingleDay = (daySheet: DaySheetDto) => {
+    if (daySheet?.id) router.push(`/working-hours-check/${daySheet.id}`);
+  };
 
-    useEffect(() => {
-      loadPage();
-    }, []);
+  useEffect(() => {
+    loadDaySheets();
+    getUserControllerApi().getAllParticipants().then(participants => {
+      const participantsSelections = participants.map(participant => participant && ({
+        id: participant.userId ?? "",
+        label: participant.email ?? ""
+      })) ?? [];
 
-    return (
-      <>
-        {showDayNotesModal && (
-          <DayNotesModal 
-			  		close={() => setShowDayNotesModal(false)}
-            onSave={() => loadPage()}
-            daySheetDto={selectedDaySheetDto} />
-        )}
-        <div>
-            <Title1>Kontrolle Arbeitszeit</Title1>
-            <Table
-                data={daySheetDtos}
-                columns={[
-                    {
-                        header: "Datum",
-                        titleFunction: dateFunction
-                    },
-                    {
-                        header: "Notizen",
-                        title: "dayNotes"
-                    },
-                    {
-                        header: "Erfasste Arbeitszeit",
-                        titleFunction: timeSumFunction
-                    }
-                ]}
-                actions={[
-                    {
-                        icon: Checkmark24Regular,
-                        label: "Bestätigen",
-                        onClick: (id) => {
-                            let daySheetDto: DaySheetDto | undefined = daySheetDtos[id];
-                            if (daySheetDto !== undefined) {
-                                if (daySheetDto.id != undefined) {
-                                    confirmDaySheet(daySheetDto.id);
-                                }
-                            }
-                        }
-                    },
-                    {
-                        icon: Edit24Regular,
-                        onClick: (id) => {
-                            setSelectedDaySheetDto(daySheetDtos[id]);
-                            navigateToSingleDay();
-                        }
-                    },
-                    {
-                        icon: NoteAddRegular,
-                        label: "Notizen öffnen",
-                        onClick: (id) => {
-                            setSelectedDaySheetDto(daySheetDtos[id]);
-                            setShowDayNotesModal(true);
-                        },
-                    }
+      participantsSelections.unshift({ id: allParticipants, label: "Alle Teilnehmer" });
+      setParticipantSelections(participantsSelections);
+      setParticipantSelection(allParticipants);
+    });
+  }, []);
 
-                ]}>
+  useEffect(() => {
+    filterDaySheets();
+  }, [daySheets, participantSelection]);
 
-            </Table>
+  return (
+    <>
+      <div className="h-full flex flex-col">
+        <div className="flex flex-col sm:flex-row justify-between">
+          <Title1>Kontrolle Arbeitszeit</Title1>
+          <div className="mt-2 sm:mt-0">
+            <Select
+              className="w-40 inline-block mb-4"
+              placeholder="Teilnehmer"
+              data={participantSelections}
+              value={participantSelection}
+              onChange={(e) => setParticipantSelection(e.target.value)} />
+          </div>
         </div>
-      </>
-    );
+        <Table
+          data={daySheetsFiltered}
+          columns={[
+            {
+              header: "Datum",
+              title: "date",
+            },
+            {
+              header: "Erfasste Arbeitszeit",
+              titleFunction: (daySheet: DaySheetDto) => {
+                const miliseconds = daySheet.timeSum || 0;
+                return convertMilisecondsToTimeString(miliseconds);
+              }
+            },
+            {
+              header: "Teilnehmer",
+              titleFunction: (daySheet: DaySheetDto) => {
+                return daySheet.owner?.email || "";
+              }
+            }
+          ]}
+          actions={[
+            {
+              icon: ShiftsCheckmark24Regular,
+              label: "Bestätigen",
+              onClick: (id) => {
+                const daySheetId = daySheets[id]?.id;
+                daySheetId && confirmDaySheet(daySheetId);
+              }
+            },
+            {
+              icon: Edit24Regular,
+              onClick: (id) => {
+                const daySheet = daySheets[id];
+                daySheet && navigateToSingleDay(daySheet);
+              }
+            }
+          ]}
+          loading={loading}
+        />
+      </div>
+    </>
+  );
 };

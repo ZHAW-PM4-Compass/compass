@@ -15,7 +15,9 @@ import chroma from 'chroma-js';
 import { useEffect, useState } from "react";
 import Select from "@/components/select";
 import { getDaySheetControllerApi, getUserControllerApi } from "@/openapi/connector";
-import { RatingDtoRatingRoleEnum } from "@/openapi/compassClient";
+import { RatingDtoRatingRoleEnum, type UserDto } from "@/openapi/compassClient";
+
+import ReportGenerator from "@/components/reportgenerator";
 
 enum categorySelections {
   PARTICIPANT = "PARTICIPANT",
@@ -27,12 +29,12 @@ const getNextColor = (baseColor: string, level: number) => {
   return chroma.hex(baseColor).darken(level * 0.5).hex();
 }
 
-export default function OverviewPage() {
+export default function MonthlyOverviewPage() {
   const [categorySelection, setCategorySelection] = useState<any>(categorySelections.PARTICIPANT);
   const [participantId, setParticipantId] = useState<string>();
   const [month, setMonth] = useState<string>(new Date().toLocaleString('en-US', { month: '2-digit' }).padStart(2, '0'));
   const [year, setYear] = useState<string>(new Date().getFullYear().toString());
-  
+
   const [categories, setCategories] = useState<{ id: string, label: string }[]>([]);
   const [participants, setParticipants] = useState<{ id: string, label: string }[]>([]);
   const [months, setMonths] = useState<{ id: string, label: string }[]>([]);
@@ -43,6 +45,10 @@ export default function OverviewPage() {
 
   const [incidentCountPerDay, setIncidentCountPerDay] = useState<DatasetType>([]);
   const [dataset, setDataset] = useState<DatasetType>([]);
+
+  const [daySheets, setDaySheets] = useState<any[]>([]);
+  const [participantDtos, setParticipantDtos] = useState<UserDto[]>([]);
+  const [selectedParticipant, setSelectedParticipant] = useState<UserDto>();
 
   enum monthLabels {
     JANUARY = "Januar",
@@ -71,7 +77,6 @@ export default function OverviewPage() {
         id: (index + 1).toString().padStart(2, '0'),
         label: monthLabels[key as keyof typeof monthLabels]
       }
-      console.log(obj)
       return obj;
     }));
 
@@ -82,25 +87,33 @@ export default function OverviewPage() {
     setYears(yearsList);
 
     getUserControllerApi().getAllParticipants().then(participants => {
-      setParticipants(participants.map(participant => participant && ({ 
+      setParticipants(participants.map(participant => participant && ({
         id: participant.userId ?? "",
         label: participant.email ?? ""
       })) ?? []);
       participants[0] && setParticipantId(participants[0].userId);
+
+      setParticipantDtos(participants);
     });
   }, []);
 
   useEffect(() => {
-    console.log(month, year, participantId, categorySelection)
     setIncidentsSeries([
       { type: 'bar', dataKey: 'count', color: '#134e4a', label: 'Vorfälle' },
     ]);
+
+    if (participantId) {
+      const selectedParticipant = participantDtos.find(participant => participant.userId === participantId);
+      setSelectedParticipant(selectedParticipant);
+    }
 
     if (participantId && month && year) {
       getDaySheetControllerApi().getAllDaySheetByParticipantAndMonth({
         userId: participantId,
         month: `${year}-${month}`,
       }).then(daySheets => {
+        setDaySheets(daySheets);
+
         const incidentCountPerDay: { dayLabel: string, count: number }[] = [];
         const dayCountPerSelectedMonth = new Date(parseInt(year), parseInt(month), 0).getDate();
         const data: any[] = [];
@@ -114,7 +127,7 @@ export default function OverviewPage() {
             }
             return false;
           });
-          
+
           const monthLabelIndex = Object.keys(monthLabels)[parseInt(month) - 1] as keyof typeof monthLabels;
           const dayLabel = `${i}. ${monthLabels[monthLabelIndex].substring(0, 3)}`;
 
@@ -123,9 +136,13 @@ export default function OverviewPage() {
             count: daySheet?.incidents?.length ?? 0,
           });
 
-          const dataItem: any = { 
+          let workHours = daySheet?.timeSum ?? 0;
+          workHours = workHours / (1000 * 60 * 60);
+          workHours = Math.round(workHours * 100) / 100;
+
+          const dataItem: any = {
             dayLabel,
-            workHours: daySheet?.timeSum ?? 0,
+            workHours: workHours,
           }
           const moodRatings = daySheet?.moodRatings ?? [];
 
@@ -153,8 +170,6 @@ export default function OverviewPage() {
         dataSeriesSet.forEach((series, index) => series.color = getNextColor("#5eead5", index));
         dataSeriesSet.push({ type: 'line', dataKey: 'workHours', color: '#000', label: "Arbeitszeit", yAxisKey: 'leftAxis' });
 
-        console.log(dataSeriesSet)
-
         setIncidentCountPerDay(incidentCountPerDay);
         setDataset(data);
         setDataSeries(dataSeriesSet);
@@ -165,9 +180,18 @@ export default function OverviewPage() {
   return (
     <>
       <div className="h-full w-full flex flex-col">
-        <div className="flex flex-col xl:flex-row justify-between">
-          <Title1>Monatsübersicht</Title1>
-          <div className="mt-2 sm:mt-0">
+        <div className="flex flex-col lg:flex-row justify-between">
+          <div className="flex flex-row mb-3 lg:mb-0">
+            <Title1>Monatsbericht</Title1>
+            <div className="ml-4">
+              <ReportGenerator
+                month={`${year}-${month}`}
+                participant={selectedParticipant}
+                daySheets={daySheets}
+              />
+            </div>
+          </div>
+          <div className="mt-2 lg:mt-0">
             <Select
               className="w-32 inline-block mr-4 mb-4"
               placeholder="Monat"
@@ -194,7 +218,7 @@ export default function OverviewPage() {
               onChange={(e) => setParticipantId(e.target.value)} />
           </div>
         </div>
-    
+
         <div className="h-full overflow-x-auto flex flex-col space-y-4">
           <div className="min-w-[2200px] bg-white rounded-xl h-36">
             <ResponsiveChartContainer
@@ -215,10 +239,10 @@ export default function OverviewPage() {
               <LinePlot />
               <ChartsXAxis />
               <ChartsYAxis axisId="leftAxis" label="Vorfälle" />
-              <ChartsTooltip trigger="item" faded="global"/>
+              <ChartsTooltip trigger="item" faded="global" />
             </ResponsiveChartContainer>
           </div>
-            
+
           <div className="min-w-[2200px] bg-white rounded-xl grow">
             <ResponsiveChartContainer
               series={dataSeries as unknown as LineSeriesType[]}
@@ -237,7 +261,7 @@ export default function OverviewPage() {
               <ChartsGrid horizontal />
               <BarPlot />
               <LinePlot />
-              <MarkPlot /> 
+              <MarkPlot />
               <ChartsXAxis />
               <ChartsYAxis
                 axisId="leftAxis"
@@ -247,7 +271,7 @@ export default function OverviewPage() {
               <ChartsYAxis
                 axisId="rightAxis"
                 position="right"
-                label="Stimmungskategorien (in %)" 
+                label="Stimmungskategorien (in %)"
               />
               <ChartsTooltip />
             </ResponsiveChartContainer>

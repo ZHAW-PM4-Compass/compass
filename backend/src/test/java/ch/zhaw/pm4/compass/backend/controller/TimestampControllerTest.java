@@ -12,8 +12,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 import org.junit.Before;
@@ -67,11 +67,11 @@ public class TimestampControllerTest {
 	}
 
 	private TimestampDto getTimestampDto() {
-		return new TimestampDto(1l, 1l, Time.valueOf("13:00:00"), Time.valueOf("14:00:00"));
+		return new TimestampDto(1l, 1l, LocalTime.parse("13:00:00"), LocalTime.parse("14:00:00"));
 	}
 
 	private TimestampDto getUpdateTimestamp() {
-		return new TimestampDto(1l, 1l, Time.valueOf("13:00:00"), Time.valueOf("15:00:00"));
+		return new TimestampDto(1l, 1l, LocalTime.parse("13:00:00"), LocalTime.parse("15:00:00"));
 	}
 
 	@Before
@@ -96,8 +96,8 @@ public class TimestampControllerTest {
 						+ "\", \"end_time\": \"" + getTimestamp.getEnd_time().toString() + "\"}")
 				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(1l)).andExpect(jsonPath("$.day_sheet_id").value(1l))
-				.andExpect(jsonPath("$.start_time").value(getTimestamp.getStart_time().toString()))
-				.andExpect(jsonPath("$.end_time").value(getTimestamp.getEnd_time().toString()));
+				.andExpect(jsonPath("$.start_time").value(getTimestamp.getStart_time().toString() + ":00"))
+				.andExpect(jsonPath("$.end_time").value(getTimestamp.getEnd_time().toString() + ":00"));
 
 		verify(timestampService, times(1)).createTimestamp(any(TimestampDto.class), any(String.class));
 	}
@@ -172,8 +172,8 @@ public class TimestampControllerTest {
 						+ "\", \"end_time\": \"" + updateTimestamp.getEnd_time().toString() + "\"}")
 				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(1l)).andExpect(jsonPath("$.day_sheet_id").value(1l))
-				.andExpect(jsonPath("$.start_time").value(updateTimestamp.getStart_time().toString()))
-				.andExpect(jsonPath("$.end_time").value(updateTimestamp.getEnd_time().toString()));
+				.andExpect(jsonPath("$.start_time").value(updateTimestamp.getStart_time().toString() + ":00"))
+				.andExpect(jsonPath("$.end_time").value(updateTimestamp.getEnd_time().toString() + ":00"));
 
 		verify(timestampService, times(1)).updateTimestampById(any(TimestampDto.class), any(String.class));
 	}
@@ -226,8 +226,8 @@ public class TimestampControllerTest {
 				get("/timestamp/getById/" + getTimestamp.getId()).with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.id").value(1l))
 				.andExpect(jsonPath("$.day_sheet_id").value(1l))
-				.andExpect(jsonPath("$.start_time").value(getTimestamp.getStart_time().toString()))
-				.andExpect(jsonPath("$.end_time").value(getTimestamp.getEnd_time().toString()));
+				.andExpect(jsonPath("$.start_time").value(getTimestamp.getStart_time().toString() + ":00"))
+				.andExpect(jsonPath("$.end_time").value(getTimestamp.getEnd_time().toString() + ":00"));
 
 		verify(timestampService, times(1)).getTimestampById(any(Long.class), any(String.class));
 	}
@@ -240,11 +240,13 @@ public class TimestampControllerTest {
 		TimestampDto getTimestamp = getTimestampDto();
 		TimestampDto getTimestamp1 = getUpdateTimestamp();
 		getUpdateTimestamp().setId(2l);
-		getTimestamp1.setStart_time(Time.valueOf("14:00:00"));
-		getTimestamp1.setEnd_time(Time.valueOf("15:00:00"));
+		getTimestamp1.setStart_time(LocalTime.parse("14:00:00"));
+		getTimestamp1.setEnd_time(LocalTime.parse("15:00:00"));
 		DaySheet daySheet = getDaySheet();
-		daySheet.getTimestamps().add(new Timestamp(1l, Time.valueOf("13:00:00"), Time.valueOf("14:00:00"), daySheet));
-		daySheet.getTimestamps().add(new Timestamp(2l, Time.valueOf("14:00:00"), Time.valueOf("15:00:00"), daySheet));
+
+		daySheet.getTimestamps().add(new Timestamp(1l, LocalTime.parse("13:00:00"), LocalTime.parse("14:00:00"), daySheet));
+		daySheet.getTimestamps().add(new Timestamp(2l, LocalTime.parse("14:00:00"), LocalTime.parse("15:00:00"), daySheet));
+
 		ArrayList<TimestampDto> timestamps = new ArrayList<TimestampDto>();
 		timestamps.add(getTimestamp);
 		timestamps.add(getTimestamp1);
@@ -273,7 +275,7 @@ public class TimestampControllerTest {
 		// Act and Assert//.header("Authorization", "Bearer " + token))
 		mockMvc.perform(
 				get("/timestamp/allbydaysheetid/" + daySheet.getId()).with(SecurityMockMvcRequestPostProcessors.csrf()))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isOk());
 		verify(timestampService, times(1)).getAllTimestampsByDaySheetId(any(Long.class), any(String.class));
 	}
 
@@ -289,7 +291,7 @@ public class TimestampControllerTest {
 		// Act and Assert//.header("Authorization", "Bearer " + token))
 		mockMvc.perform(delete("/timestamp/" + timestamp.getId()).with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(status().isOk());
-		verify(timestampService, times(1)).deleteTimestamp(any(Long.class), any(String.class));
+		verify(timestampService, times(1)).deleteTimestamp(any(Long.class));
 	}
 
 	@Test
@@ -305,7 +307,7 @@ public class TimestampControllerTest {
 		// Act and Assert//.header("Authorization", "Bearer " + token))
 		mockMvc.perform(delete("/timestamp/" + timestamp.getId()).with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(status().isForbidden());
-		verify(timestampService, times(0)).deleteTimestamp(any(Long.class), any(String.class));
+		verify(timestampService, times(0)).deleteTimestamp(any(Long.class));
 	}
 
 	@Test
@@ -321,6 +323,6 @@ public class TimestampControllerTest {
 		// Act and Assert//.header("Authorization", "Bearer " + token))
 		mockMvc.perform(delete("/timestamp/" + timestamp.getId()).with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(status().isBadRequest());
-		verify(timestampService, times(0)).deleteTimestamp(any(Long.class), any(String.class));
+		verify(timestampService, times(0)).deleteTimestamp(any(Long.class));
 	}
 }

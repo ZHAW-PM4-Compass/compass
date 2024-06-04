@@ -1,20 +1,12 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
+import ch.zhaw.pm4.compass.backend.UserRole;
+import ch.zhaw.pm4.compass.backend.model.DaySheet;
+import ch.zhaw.pm4.compass.backend.model.LocalUser;
+import ch.zhaw.pm4.compass.backend.model.Timestamp;
+import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
+import ch.zhaw.pm4.compass.backend.service.DaySheetService;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +23,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import ch.zhaw.pm4.compass.backend.UserRole;
-import ch.zhaw.pm4.compass.backend.model.DaySheet;
-import ch.zhaw.pm4.compass.backend.model.LocalUser;
-import ch.zhaw.pm4.compass.backend.model.Timestamp;
-import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
-import ch.zhaw.pm4.compass.backend.service.DaySheetService;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -115,7 +111,6 @@ public class DaySheetControllerTest {
 	@WithMockUser(username = "testuser", roles = {})
 	public void testDayAlreadyExists() throws Exception {
 		// Arrange
-		DaySheet daySheet = getDaySheet();
 		when(daySheetService.createDay(any(DaySheetDto.class), any(String.class))).thenReturn(null);
 
 		mockMvc.perform(post("/daysheet").contentType(MediaType.APPLICATION_JSON)
@@ -150,12 +145,12 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testUpdateConfirmed() throws Exception {
+	void testConfirm() throws Exception {
 		// Arrange
 
 		DaySheetDto updateDay = getUpdateDaySheet();
 		updateDay.setConfirmed(true);
-		when(daySheetService.updateConfirmed(any(Long.class), any(String.class))).thenReturn(updateDay);
+		when(daySheetService.updateConfirmed(any(Long.class), any(Boolean.class), any(String.class))).thenReturn(updateDay);
 
 		// Act
 		mockMvc.perform(put("/daysheet/confirm/1").contentType(MediaType.APPLICATION_JSON)
@@ -163,7 +158,25 @@ public class DaySheetControllerTest {
 				.andExpect(jsonPath("$.id").value(1l))
 				.andExpect(jsonPath("$.confirmed").value(updateDay.getConfirmed().toString()));
 
-		verify(daySheetService, times(1)).updateConfirmed(any(Long.class), any(String.class));
+		verify(daySheetService, times(1)).updateConfirmed(any(Long.class), any(Boolean.class), any(String.class));
+	}
+
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testRevoke() throws Exception {
+		// Arrange
+
+		DaySheetDto updateDay = getUpdateDaySheet();
+		updateDay.setConfirmed(false);
+		when(daySheetService.updateConfirmed(any(Long.class), any(Boolean.class), any(String.class))).thenReturn(updateDay);
+
+		// Act
+		mockMvc.perform(put("/daysheet/revoke/1").contentType(MediaType.APPLICATION_JSON)
+						.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(1l))
+				.andExpect(jsonPath("$.confirmed").value(updateDay.getConfirmed().toString()));
+
+		verify(daySheetService, times(1)).updateConfirmed(any(Long.class), any(Boolean.class), any(String.class));
 	}
 
 	@Test
@@ -198,7 +211,7 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testGetAllByParticipant() throws Exception {
+	void testGetAllByParticipantByMonth() throws Exception {
 		List<DaySheetDto> daySheets = new ArrayList<>();
 		DaySheetDto day1 = getDaySheetDto();
 
@@ -207,15 +220,43 @@ public class DaySheetControllerTest {
 		day2.setDate(dateNow.plusDays(1));
 		daySheets.add(day1);
 		daySheets.add(day2);
-		when(daySheetService.getAllDaySheetByUser(any(String.class))).thenReturn(daySheets);
-		String res = mockMvc
-				.perform(get("/daysheet/getAllByParticipant/" + getDaySheet().getOwner().getId())
+		when(daySheetService.getAllDaySheetByUserAndMonth(any(String.class), any(YearMonth.class)))
+				.thenReturn(daySheets);
+		String res = mockMvc.perform(
+				get("/daysheet/getAllByParticipantAndMonth/" + getDaySheet().getOwner().getId() + "/" + YearMonth.now())
 						.contentType(MediaType.APPLICATION_JSON).with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 		assertEquals("[{\"id\":1,\"date\":\"" + dateNow.toString()
-				+ "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"moodRatings\":null,\"incidents\":null,\"timeSum\":0},{\"id\":2,\"date\":\""
+				+ "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"moodRatings\":null,\"incidents\":null,\"timeSum\":0,\"owner\":null},{\"id\":2,\"date\":\""
 				+ dateNow.plusDays(1).toString()
-				+ "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"moodRatings\":null,\"incidents\":null,\"timeSum\":0}]",
+				+ "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"moodRatings\":null,\"incidents\":null,\"timeSum\":0,\"owner\":null}]",
 				res);
+	}
+
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testGtDaySheetByParticipantAndDate() throws Exception {
+		DaySheetDto getDay = getDaySheetDto();
+		when(daySheetService.getDaySheetByUserAndDate(any(String.class), any(LocalDate.class),any(String.class)))
+				.thenReturn(getDay);
+		String res = mockMvc.perform(
+						get("/daysheet/getByParticipantAndDate/" + getDaySheet().getOwner().getId() + "/" + getDaySheet().getDate().toString())
+								.contentType(MediaType.APPLICATION_JSON).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+		assertEquals("{\"id\":1,\"date\":\"" + dateNow.toString()
+						+ "\",\"day_notes\":\"Testdate\",\"confirmed\":false,\"timestamps\":null,\"moodRatings\":null,\"incidents\":null,\"timeSum\":0,\"owner\":null}",
+				res);
+	}
+
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	void testGtDaySheetByParticipantAndDateNotExisting() throws Exception {
+		DaySheetDto getDay = getDaySheetDto();
+		when(daySheetService.getDaySheetByUserAndDate(any(String.class), any(LocalDate.class),any(String.class)))
+				.thenReturn(null);
+		mockMvc.perform(
+						get("/daysheet/getByParticipantAndDate/" + getDaySheet().getOwner().getId() + "/" + getDaySheet().getDate().toString())
+								.contentType(MediaType.APPLICATION_JSON).with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isNotFound());
 	}
 }

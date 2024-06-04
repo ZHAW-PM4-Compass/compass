@@ -24,6 +24,13 @@ import ch.zhaw.pm4.compass.backend.service.CategoryService;
 import ch.zhaw.pm4.compass.backend.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+/**
+ * Controller for handling operations related to categories.
+ * Provides endpoints for managing category details and associated operations.
+ *
+ * @author baumgnoa, bergecyr, brundar, cadowtil, elhaykar, sigritim, weberjas, zimmenoe
+ * @version 26.05.2024
+ */
 @Tag(name = "Category Controller", description = "Category Endpoint")
 @RestController
 @RequestMapping("/category")
@@ -33,12 +40,21 @@ public class CategoryController {
 	@Autowired
 	private CategoryService categoryService;
 
+	/**
+	 * Creates a new category with the provided details.
+	 *
+	 * @param category The category data transfer object containing the category details.
+	 * @param authentication Authentication object containing user identity.
+	 * @return ResponseEntity with the created CategoryDto or an appropriate error status.
+	 * @throws CategoryAlreadyExistsException if the category already exists.
+	 * @throws NotValidCategoryOwnerException if the user is not authorized to own the category.
+	 */
 	@PostMapping(produces = "application/json")
 	public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto category,
 			Authentication authentication) {
-		String callerId = authentication.getName();
-		UserRole callingRole = userService.getUserRole(callerId);
-		if (callingRole != UserRole.ADMIN) {
+		String userId = authentication.getName();
+		UserRole userRole = userService.getUserRole(userId);
+		if (userRole != UserRole.ADMIN) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 
@@ -49,11 +65,22 @@ public class CategoryController {
 		}
 	}
 
+	/**
+	 * Retrieves all categories.
+	 *
+	 * @return ResponseEntity with a list of all CategoryDto.
+	 */
 	@GetMapping(produces = "application/json")
 	public ResponseEntity<List<CategoryDto>> getAllCategories() {
 		return ResponseEntity.ok(categoryService.getAllCategories());
 	}
 
+	/**
+	 * Retrieves a category by its name without including ratings.
+	 *
+	 * @param name The name of the category.
+	 * @return ResponseEntity with the CategoryDto or NotFound status if it doesn't exist.
+	 */
 	@GetMapping(path = "/getByName/{name}", produces = "application/json")
 	public ResponseEntity<CategoryDto> getCategoryByName(@PathVariable String name) {
 		try {
@@ -63,6 +90,12 @@ public class CategoryController {
 		}
 	}
 
+	/**
+	 * Retrieves a category by its name including all associated ratings.
+	 *
+	 * @param name The name of the category.
+	 * @return ResponseEntity with the CategoryDto or NotFound status if it doesn't exist.
+	 */
 	@GetMapping(path = "/getByNameWithAllRatings/{name}", produces = "application/json")
 	public ResponseEntity<CategoryDto> getCategoryByNameWithRatings(@PathVariable String name) {
 		try {
@@ -72,6 +105,13 @@ public class CategoryController {
 		}
 	}
 
+	/**
+	 * Links users to an existing category based on the provided category details.
+	 *
+	 * @param category The category data transfer object with user links.
+	 * @param authentication Authentication object containing user identity.
+	 * @return ResponseEntity with the updated CategoryDto or an appropriate error status.
+	 */
 	@PostMapping(path = "/linkUsersToExistingCategory", produces = "application/json")
 	public ResponseEntity<CategoryDto> linkUsersToExistingCategory(@RequestBody CategoryDto category,
 			Authentication authentication) {
@@ -88,6 +128,12 @@ public class CategoryController {
 
 	}
 
+	/**
+	 * Retrieves a list of categories associated with a specific user ID.
+	 *
+	 * @param userId The user ID whose category list is being requested.
+	 * @return ResponseEntity with a list of CategoryDto or an appropriate error status.
+	 */
 	@GetMapping(path = "/getCategoryListByUserId/{userId}", produces = "application/json")
 	public ResponseEntity<List<CategoryDto>> getCategoryListByUserId(@PathVariable String userId) {
 		try {

@@ -31,6 +31,12 @@ import {
     TimestampDtoFromJSONTyped,
     TimestampDtoToJSON,
 } from './TimestampDto';
+import type { UserDto } from './UserDto';
+import {
+    UserDtoFromJSON,
+    UserDtoFromJSONTyped,
+    UserDtoToJSON,
+} from './UserDto';
 
 /**
  * 
@@ -86,6 +92,12 @@ export interface DaySheetDto {
      * @memberof DaySheetDto
      */
     timeSum?: number;
+    /**
+     * 
+     * @type {UserDto}
+     * @memberof DaySheetDto
+     */
+    owner?: UserDto;
 }
 
 /**
@@ -113,6 +125,7 @@ export function DaySheetDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'moodRatings': json['moodRatings'] == null ? undefined : ((json['moodRatings'] as Array<any>).map(RatingDtoFromJSON)),
         'incidents': json['incidents'] == null ? undefined : ((json['incidents'] as Array<any>).map(IncidentDtoFromJSON)),
         'timeSum': json['timeSum'] == null ? undefined : json['timeSum'],
+        'owner': json['owner'] == null ? undefined : UserDtoFromJSON(json['owner']),
     };
 }
 
@@ -127,6 +140,7 @@ export function DaySheetDtoToJSON(value?: DaySheetDto | null): any {
         'day_notes': value['dayNotes'],
         'confirmed': value['confirmed'],
         'timeSum': value['timeSum'],
+        'owner': UserDtoToJSON(value['owner']),
     };
 }
 

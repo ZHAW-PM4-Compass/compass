@@ -1,31 +1,30 @@
 package ch.zhaw.pm4.compass.backend.service;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
+import ch.zhaw.pm4.compass.backend.RatingType;
+import ch.zhaw.pm4.compass.backend.UserRole;
+import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
+import ch.zhaw.pm4.compass.backend.model.*;
+import ch.zhaw.pm4.compass.backend.model.dto.*;
+import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
+import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import ch.zhaw.pm4.compass.backend.UserRole;
-import ch.zhaw.pm4.compass.backend.model.DaySheet;
-import ch.zhaw.pm4.compass.backend.model.LocalUser;
-import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
-import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
-import ch.zhaw.pm4.compass.backend.repository.DaySheetRepository;
-import ch.zhaw.pm4.compass.backend.repository.LocalUserRepository;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class DaySheetServiceTest {
 	@Mock
@@ -35,6 +34,10 @@ class DaySheetServiceTest {
 
 	@Mock
 	private UserService userServiceMock;
+	@Mock
+	private TimestampService timestampService;
+	@Mock
+	private RatingService ratingService;
 
 	@InjectMocks
 	private DaySheetService daySheetService;
@@ -112,6 +115,34 @@ class DaySheetServiceTest {
 	}
 
 	@Test
+	public void testGetAllDaySheetByMonth() {
+		LocalUser user = new LocalUser(user_id, UserRole.PARTICIPANT);
+
+		DaySheet day1 = new DaySheet(1l, user, reportText, dateNow, true, new ArrayList<>());
+		DaySheet day2 = new DaySheet(2l, user, reportText, dateNow.plusDays(1), true, new ArrayList<>());
+		LocalDate monthFirst = dateNow.withDayOfMonth(1);
+		LocalDate monthLast = dateNow.withDayOfMonth(dateNow.lengthOfMonth());
+
+		List<DaySheet> jpaResponse = Arrays.asList(day1, day2);
+
+		when(daySheetRepository.findAllByDateBetween(monthFirst, monthLast)).thenReturn(jpaResponse);
+		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetByMonth(YearMonth.from(monthFirst),user.getId());
+
+		assertEquals(jpaResponse.size(), daySheets.size());
+
+		for (int i = 0; i < jpaResponse.size(); i++) {
+			DaySheet daySheetEntity = jpaResponse.get(i);
+			DaySheetDto daySheetDto = daySheets.get(i);
+
+			assertEquals(daySheetEntity.getId(), daySheetDto.getId());
+			assertEquals(daySheetEntity.getDayNotes(), daySheetDto.getDay_notes());
+			assertEquals(daySheetEntity.getDate(), daySheetDto.getDate());
+			assertEquals(daySheetEntity.getConfirmed(), daySheetDto.getConfirmed());
+			assertEquals(daySheetEntity.getTimestamps(), daySheetDto.getTimestamps());
+		}
+	}
+
+	@Test
 	public void testGetAllDaySheetByUserAndMonth() {
 		LocalUser user = new LocalUser(user_id, UserRole.PARTICIPANT);
 
@@ -141,13 +172,13 @@ class DaySheetServiceTest {
 
 	@Test
 	void testUpdateDaySheetNotes() {
+		LocalUser user = getLocalUser();
 		UpdateDaySheetDayNotesDto updateDay = getUpdateDaySheetDayNotesDto();
 		DaySheet daySheet = getDaySheet();
 		daySheet.setDayNotes(updateDay.getDay_notes());
-		when(daySheetRepository.findByIdAndOwnerId(any(Long.class), any(String.class)))
-				.thenReturn(Optional.of(daySheet));
+		when(daySheetRepository.findById(any(Long.class))).thenReturn(Optional.of(daySheet));
 		when(daySheetRepository.save(any(DaySheet.class))).thenReturn(daySheet);
-		DaySheetDto getDay = daySheetService.updateDayNotes(updateDay, user_id);
+		DaySheetDto getDay = daySheetService.updateDayNotes(updateDay,user.getId());
 		assertEquals(daySheet.getId(), getDay.getId());
 		assertEquals(daySheet.getDate(), getDay.getDate());
 		assertEquals(daySheet.getDayNotes(), getDay.getDay_notes());
@@ -160,11 +191,21 @@ class DaySheetServiceTest {
 		when(daySheetRepository.findById(any(Long.class))).thenReturn(Optional.of(daySheet));
 		when(userServiceMock.getUserRole(any(String.class))).thenReturn(UserRole.SOCIAL_WORKER);
 		when(daySheetRepository.save(any(DaySheet.class))).thenReturn(daySheet);
-		DaySheetDto getDay = daySheetService.updateConfirmed(1l, user_id);
+		DaySheetDto getDay = daySheetService.updateConfirmed(1l, true, user_id);
 		assertEquals(daySheet.getId(), getDay.getId());
 		assertEquals(daySheet.getDate(), getDay.getDate());
 		assertEquals(daySheet.getDayNotes(), getDay.getDay_notes());
 		assertEquals(daySheet.getConfirmed(), getDay.getConfirmed());
+	}
+
+	@Test
+	void testUpdateDaySheetConfirmedNullReturns() {
+		when(daySheetRepository.findById(1l)).thenReturn(Optional.empty());
+		assertNull(daySheetService.updateConfirmed(1l, true, user_id));
+
+		when(daySheetRepository.findById(1l)).thenReturn(Optional.of(getDaySheet()));
+		when(userServiceMock.getUserRole(user_id)).thenReturn(UserRole.PARTICIPANT);
+		assertNull(daySheetService.updateConfirmed(1l, true, user_id));
 	}
 
 	@Test
@@ -173,7 +214,7 @@ class DaySheetServiceTest {
 		DaySheet daySheet = getDaySheet();
 		daySheet.setDayNotes(updateDay.getDay_notes());
 		when(daySheetRepository.save(any(DaySheet.class))).thenReturn(daySheet);
-		assertNull(daySheetService.updateDayNotes(updateDay, user_id));
+		assertNull(daySheetService.updateDayNotes(updateDay,getLocalUser().getId()));
 	}
 
 	@Test
@@ -216,18 +257,107 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	void testGetAllDaySheetByParticipant() {
-		DaySheet day1 = new DaySheet(1l, getLocalUser(), reportText, dateNow, true, new ArrayList<>());
-		DaySheet day2 = new DaySheet(2l, getLocalUser(), reportText, dateNow.plusDays(1), true, new ArrayList<>());
-		List<DaySheet> daySheetList = new ArrayList<>();
-		daySheetList.add(day1);
-		daySheetList.add(day2);
-		when(daySheetRepository.findAllByOwnerId(any(String.class))).thenReturn(Optional.of(daySheetList));
+	void testGetAllDaySheetNotConfirmed() {
+		LocalUser user = new LocalUser(user_id, UserRole.PARTICIPANT);
 
-		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetByUser(user_id);
+		DaySheet day1 = new DaySheet(1l, user, reportText, dateNow, false, new ArrayList<>());
+		DaySheet day2 = new DaySheet(2l, user, reportText, dateNow.plusDays(1), false, new ArrayList<>());
 
-		assertEquals(2, daySheets.size());
-		assertEquals(1, daySheets.get(0).getId());
-		assertEquals(2, daySheets.get(1).getId());
+		List<DaySheet> jpaResponse = Arrays.asList(day1, day2);
+
+		when(daySheetRepository.findAllByConfirmedIsFalseAndOwner_Role(UserRole.PARTICIPANT)).thenReturn(jpaResponse);
+		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetNotConfirmed(user.getId());
+
+		assertEquals(jpaResponse.size(), daySheets.size());
+
+		for (int i = 0; i < jpaResponse.size(); i++) {
+			DaySheet daySheetEntity = jpaResponse.get(i);
+			DaySheetDto daySheetDto = daySheets.get(i);
+
+			assertEquals(daySheetEntity.getId(), daySheetDto.getId());
+			assertEquals(daySheetEntity.getDayNotes(), daySheetDto.getDay_notes());
+			assertEquals(daySheetEntity.getDate(), daySheetDto.getDate());
+			assertEquals(daySheetEntity.getConfirmed(), daySheetDto.getConfirmed());
+			assertEquals(daySheetEntity.getTimestamps(), daySheetDto.getTimestamps());
+		}
+	}
+
+	@Test
+	void testFullEntityToDtoConvert() throws NotValidCategoryOwnerException {
+		DaySheet daySheet = getDaySheet();
+		LocalUser user = getLocalUser();
+		LocalTime time1 = LocalTime.of(10, 0);
+		LocalTime time2 = LocalTime.of(11, 0);
+		Timestamp timestamp = new Timestamp(1l, time1, time2, daySheet);
+		TimestampDto timestampDto = new TimestampDto(1l, 1l, time1, time2);
+
+		Rating ratingOne = new Rating(3, RatingType.PARTICIPANT);
+		ratingOne.setCategory(new Category("Unit Test", 0, 10, List.of()));
+		ratingOne.setDaySheet(daySheet);
+		CategoryDto categoryDto = new CategoryDto(1l, "Cat", 1, 10);
+		RatingDto ratingDto = new RatingDto(categoryDto, new DaySheetDto(), 3, RatingType.PARTICIPANT);
+
+		Incident incident = new Incident(1l, "Inci Titlte", "A discription", daySheet);
+
+		daySheet.setTimestamps(List.of(timestamp));
+		daySheet.setMoodRatings(List.of(ratingOne));
+		daySheet.setIncidents(List.of(incident));
+
+		when(timestampService.convertTimestampToTimestampDto(timestamp)).thenReturn(timestampDto);
+		when(ratingService.convertEntityToDto(ratingOne)).thenReturn(ratingDto);
+
+		DaySheetDto returnDto = daySheetService.convertDaySheetToDaySheetDto(daySheet, null,"");
+
+		assertEquals(daySheet.getId(), returnDto.getId());
+		assertEquals(daySheet.getDate(), returnDto.getDate());
+		assertEquals(daySheet.getDayNotes(), returnDto.getDay_notes());
+		assertEquals(daySheet.getConfirmed(), returnDto.getConfirmed());
+		assertEquals(daySheet.getTimestamps().size(), returnDto.getTimestamps().size());
+		assertEquals(daySheet.getTimestamps().getFirst().getId(), returnDto.getTimestamps().getFirst().getId());
+		assertEquals(daySheet.getMoodRatings().size(), returnDto.getMoodRatings().size());
+		assertEquals(daySheet.getMoodRatings().getFirst().getRating(),
+				returnDto.getMoodRatings().getFirst().getRating());
+		assertEquals(daySheet.getIncidents().size(), returnDto.getIncidents().size());
+		assertEquals(daySheet.getIncidents().getFirst().getId(), returnDto.getIncidents().getFirst().getId());
+	}
+	@Test
+	void testGetDaySheetByUserAndDate()
+	{
+
+		LocalUser user = getLocalUser();
+		DaySheet daySheet = getDaySheet();
+		when(userServiceMock.getUserRole(any(String.class))).thenReturn(user.getRole());
+		when(daySheetRepository.findByDateAndOwnerId(any(LocalDate.class),any(String.class))).thenReturn(Optional.of(daySheet));
+		DaySheetDto returnDaySheetDto = daySheetService.getDaySheetByUserAndDate(user.getId(),daySheet.getDate(),user.getId());
+
+		assertEquals(daySheet.getId(),returnDaySheetDto.getId());
+	}
+	@Test
+	void testGetDaySheetByUserAndDateSocialWorkerTriesToGetParticipantsDaySheet()
+	{
+
+		LocalUser user = getLocalUser();
+		user.setRole(UserRole.SOCIAL_WORKER);
+		LocalUser owner = getLocalUser();
+		owner.setId("ownerId");
+		DaySheet daySheet = getDaySheet();
+		when(userServiceMock.getUserRole(any(String.class))).thenReturn(user.getRole());
+		when(daySheetRepository.findByDateAndOwnerId(any(LocalDate.class),any(String.class))).thenReturn(Optional.of(daySheet));
+		DaySheetDto returnDaySheetDto = daySheetService.getDaySheetByUserAndDate(owner.getId(),daySheet.getDate(),user.getId());
+
+		assertEquals(daySheet.getId(),returnDaySheetDto.getId());
+	}
+	@Test
+	void testGetDaySheetByUserAndDateParticipantTriesToGetAnotherParticipantsDaySheet()
+	{
+
+		LocalUser user = getLocalUser();
+		LocalUser owner = getLocalUser();
+		owner.setId("anotherParticipantId");
+		DaySheet daySheet = getDaySheet();
+		when(userServiceMock.getUserRole(any(String.class))).thenReturn(owner.getRole());
+		DaySheetDto returnDaySheetDto = daySheetService.getDaySheetByUserAndDate(user.getId(),daySheet.getDate(),owner.getId());
+
+		assertEquals(null,returnDaySheetDto);
 	}
 }

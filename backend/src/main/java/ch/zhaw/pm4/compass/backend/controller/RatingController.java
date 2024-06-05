@@ -72,8 +72,10 @@ public class RatingController {
 	@SchemaProperties()
 	public ResponseEntity<List<RatingDto>> createRatingsByDaySheetId(@PathVariable Long daySheetId, @RequestBody List<CreateRatingDto> createRatingDtos, Authentication authentication) {
 		try {
+
 			return ResponseEntity.ok(ratingService.createRatingsByDaySheetId(daySheetId, createRatingDtos, authentication.getName()));
 		} catch (DaySheetNotFoundException | CategoryNotFoundException | RatingAlreadyExistsException e) {
+			System.out.println(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}

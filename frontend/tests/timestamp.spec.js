@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+const { test, expect } = require('playwright-test-coverage');
 
 test.beforeEach('login charles leclerc (participant)', async ({ page }) => {
   await page.goto('http://localhost:3000/');
@@ -62,4 +62,5 @@ test('testing crud for timestamp', async ({ page }) => {
 
   //delete timestamp
   await page.getByRole('row', { name: ':15 17:30 9h 15min' }).getByRole('button').first().click();
+  
 });

@@ -12,6 +12,7 @@ import ch.zhaw.pm4.compass.backend.model.LocalUser;
 import ch.zhaw.pm4.compass.backend.model.Rating;
 import ch.zhaw.pm4.compass.backend.model.dto.*;
 import ch.zhaw.pm4.compass.backend.repository.CategoryRepository;
+import org.apache.catalina.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -41,10 +42,10 @@ public class CategoryServiceTest {
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
 		LocalUser localUser = new LocalUser("dcsdcdesec", UserRole.PARTICIPANT);
-		ParticipantDto participantDto = new ParticipantDto("dcsdcdesec");
+		UserDto userDto = new UserDto("id1", "Max", "Mustermann", "m.m@musti.ch", UserRole.PARTICIPANT, false);
 
 		ownersFull.add(localUser);
-		ownersDtoFull.add(participantDto);
+		ownersDtoFull.add(userDto);
 	}
 
 	private long categoryId = 1l;
@@ -54,8 +55,8 @@ public class CategoryServiceTest {
 
 	private List<LocalUser> ownersEmpty = List.of();
 	private List<LocalUser> ownersFull = new ArrayList<>();
-	private List<ParticipantDto> ownersDtoEmpty = List.of();
-	private List<ParticipantDto> ownersDtoFull = new ArrayList<>();
+	private List<UserDto> ownersDtoEmpty = List.of();
+	private List<UserDto> ownersDtoFull = new ArrayList<>();
 	private List<RatingDto> moodRatingsEmpty = List.of();
 
 	private CategoryDto getCategoryDto() {
@@ -90,14 +91,14 @@ public class CategoryServiceTest {
 		Category category = getCategory();
 		CategoryDto createCategory = getCategoryDto();
 		when(categoryRepository.findByName(createCategory.getName())).thenReturn(Optional.of(category));
-		CategoryDto resultCategory = categoryService.getCategoryByName(categoryName, false);
+		CategoryDto resultCategory = categoryService.getCategoryByName(categoryName);
 		assertEquals(createCategory, resultCategory);
 	}
 
 	@Test
 	public void whenGettingNonExistantCategoryName_expectException() {
 		when(categoryRepository.findByName(any())).thenReturn(Optional.empty());
-		assertThrows(NoSuchElementException.class, () -> categoryService.getCategoryByName(categoryName, false));
+		assertThrows(NoSuchElementException.class, () -> categoryService.getCategoryByName(categoryName));
 	}
 
 	@Test
@@ -107,8 +108,8 @@ public class CategoryServiceTest {
 		category.setCategoryOwners(ownersEmpty);
 		CategoryDto categoryDto = getCategoryDto();
 		categoryDto.setCategoryOwners(ownersDtoFull);
-		UserDto userDto = new UserDto(ownersDtoFull.getFirst().getId(), "", "", "", UserRole.PARTICIPANT, false);
-		when(userService.getUserById(ownersDtoFull.getFirst().getId())).thenReturn(userDto);
+		UserDto userDto = new UserDto(ownersDtoFull.getFirst().getUser_id(), "", "", "", UserRole.PARTICIPANT, false);
+		when(userService.getUserById(ownersDtoFull.getFirst().getUser_id())).thenReturn(userDto);
 		when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
 
 		assertThrows(GlobalCategoryException.class, () -> categoryService.linkUsersToExistingCategory(categoryDto));
@@ -124,7 +125,7 @@ public class CategoryServiceTest {
 		category.setCategoryOwners(ownersFull);
 		when(categoryRepository.save(any(Category.class))).thenReturn(category);
 
-		UserDto userDto = new UserDto(ownersDtoFull.getFirst().getId(), "", "", "", UserRole.PARTICIPANT, false);
+		UserDto userDto = new UserDto(ownersDtoFull.getFirst().getUser_id(), "", "", "", UserRole.PARTICIPANT, false);
 		when(userService.getUserById(userDto.getUser_id())).thenReturn(userDto);
 
 		CategoryDto resultCategory = categoryService.createCategory(createCategory);
@@ -132,8 +133,8 @@ public class CategoryServiceTest {
 		assertEquals(createCategory.getName(), resultCategory.getName());
 		assertEquals(createCategory.getCategoryOwners().size(), resultCategory.getCategoryOwners().size());
 		for (int i = 0; i < createCategory.getCategoryOwners().size(); i++) {
-			assertEquals(createCategory.getCategoryOwners().get(i).getId(),
-					resultCategory.getCategoryOwners().get(i).getId());
+			assertEquals(createCategory.getCategoryOwners().get(i).getUser_id(),
+					resultCategory.getCategoryOwners().get(i).getUser_id());
 		}
 	}
 
@@ -142,22 +143,22 @@ public class CategoryServiceTest {
 			throws CategoryAlreadyExistsException {
 		CategoryDto createCategory = getCategoryDto();
 		createCategory.setCategoryOwners(ownersDtoFull);
-		UserDto userDto = new UserDto(ownersDtoFull.getFirst().getId(), "", "", "", UserRole.SOCIAL_WORKER, false);
+		UserDto userDto = new UserDto(ownersDtoFull.getFirst().getUser_id(), "", "", "", UserRole.SOCIAL_WORKER, false);
 		when(userService.getUserById(userDto.getUser_id())).thenReturn(userDto);
 		assertThrows(NotValidCategoryOwnerException.class, () -> categoryService.createCategory(createCategory));
 	}
 
 	@Test
 	public void whenLinkingUsersToExistingPersonalCategory_expectSuccessfulLinking()
-			throws NotValidCategoryOwnerException, CategoryAlreadyExistsException, GlobalCategoryException {
+			throws NotValidCategoryOwnerException, GlobalCategoryException {
 		String partID = "second particip";
 		CategoryDto linkCategory = getCategoryDto();
-		ownersDtoFull.add(new ParticipantDto(partID));
+		ownersDtoFull.add(new UserDto("id2", "Max", "Mustermann", "m.m@musti.ch", UserRole.PARTICIPANT, false));
 		linkCategory.setCategoryOwners(ownersDtoFull);
 
-		UserDto userDto1 = new UserDto(ownersDtoFull.getFirst().getId(), "", "", "", UserRole.PARTICIPANT, false);
+		UserDto userDto1 = new UserDto(ownersDtoFull.getFirst().getUser_id(), "", "", "", UserRole.PARTICIPANT, false);
 		when(userService.getUserById(userDto1.getUser_id())).thenReturn(userDto1);
-		UserDto userDto2 = new UserDto(ownersDtoFull.getLast().getId(), "", "", "", UserRole.PARTICIPANT, false);
+		UserDto userDto2 = new UserDto(ownersDtoFull.getLast().getUser_id(), "", "", "", UserRole.PARTICIPANT, false);
 		when(userService.getUserById(userDto2.getUser_id())).thenReturn(userDto2);
 
 		Category category = getCategory();
@@ -175,8 +176,8 @@ public class CategoryServiceTest {
 		assertEquals(linkCategory.getName(), resultCategory.getName());
 		assertEquals(linkCategory.getCategoryOwners().size(), resultCategory.getCategoryOwners().size());
 		for (int i = 0; i < linkCategory.getCategoryOwners().size(); i++) {
-			assertEquals(linkCategory.getCategoryOwners().get(i).getId(),
-					resultCategory.getCategoryOwners().get(i).getId());
+			assertEquals(linkCategory.getCategoryOwners().get(i).getUser_id(),
+					resultCategory.getCategoryOwners().get(i).getUser_id());
 		}
 	}
 
@@ -237,8 +238,8 @@ public class CategoryServiceTest {
 
 		when(daySheetService.convertDaySheetToDaySheetDto(any(DaySheet.class), isNull(),any(String.class))).thenReturn(daySheetDto);
 
-		CategoryDto dtoOne = categoryService.convertEntityToDto(categoryUnderTest, false);
-		CategoryDto dtoTwo = categoryService.convertEntityToDto(categoryUnderTest, true);
+		CategoryDto dtoOne = categoryService.convertEntityToDto(categoryUnderTest, null);
+		CategoryDto dtoTwo = categoryService.convertEntityToDto(categoryUnderTest, null);
 
 		assertEquals(dtoOne.getId(), dtoTwo.getId(), categoryUnderTest.getId());
 		assertEquals(dtoOne.getName(), dtoTwo.getName(), categoryUnderTest.getName());

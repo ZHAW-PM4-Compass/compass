@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import ch.zhaw.pm4.compass.backend.model.dto.*;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -52,10 +53,6 @@ import ch.zhaw.pm4.compass.backend.exception.GlobalCategoryException;
 import ch.zhaw.pm4.compass.backend.exception.NotValidCategoryOwnerException;
 import ch.zhaw.pm4.compass.backend.exception.UserIsNotParticipantException;
 import ch.zhaw.pm4.compass.backend.model.Category;
-import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
-import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.ParticipantDto;
-import ch.zhaw.pm4.compass.backend.model.dto.RatingDto;
 import ch.zhaw.pm4.compass.backend.service.CategoryService;
 import ch.zhaw.pm4.compass.backend.service.UserService;
 
@@ -84,9 +81,9 @@ public class CategoryControllerTest {
 	private String categoryName = "Stress";
 	private int minValue = 1;
 	private int maxValue = 10;
-	private ParticipantDto participantDto = new ParticipantDto("dcsdcdesec");
-	private ParticipantDto participantDto2 = new ParticipantDto("dcsdcdesec2");
-	private List<ParticipantDto> ownersDtoFull = List.of(participantDto, participantDto2);
+	private UserDto userDto1 = new UserDto("id1", "Max", "Mustermann", "m.m@musti.ch", UserRole.PARTICIPANT, false);
+	private UserDto userDto2 = new UserDto("id1", "Max", "Mustermann", "m.m@musti.ch", UserRole.PARTICIPANT, false);
+	private List<UserDto> ownersDtoFull = List.of(userDto1, userDto2);
 
 	private CategoryDto getGlobalCategoryDto() {
 		return new CategoryDto(categoryId, categoryName, minValue, maxValue);
@@ -179,7 +176,7 @@ public class CategoryControllerTest {
 	@WithMockUser(username = "testuser", roles = {})
 	public void whenCallingGetEndpointWithName_expectReturn() throws Exception {
 		CategoryDto category = getGlobalCategoryDto();
-		when(categoryService.getCategoryByName(eq(categoryName), any())).thenReturn(category);
+		when(categoryService.getCategoryByName(eq(categoryName))).thenReturn(category);
 
 		mockMvc.perform(get("/category/getByName/" + categoryName).contentType(MediaType.APPLICATION_JSON)
 				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
@@ -189,7 +186,7 @@ public class CategoryControllerTest {
 				.andExpect(jsonPath("$.name").value(category.getName()))
 				.andExpect(jsonPath("$.categoryOwners").value(category.getCategoryOwners()));
 
-		verify(categoryService, times(1)).getCategoryByName(any(String.class), eq(false));
+		verify(categoryService, times(1)).getCategoryByName(any(String.class));
 	}
 
 	@Test
@@ -198,7 +195,7 @@ public class CategoryControllerTest {
 		CategoryDto category = getGlobalCategoryDto();
 		RatingDto rating = new RatingDto(new CategoryDto(), new DaySheetDto(), 5, RatingType.PARTICIPANT);
 		category.setMoodRatings(List.of(rating));
-		when(categoryService.getCategoryByName(eq(categoryName), any())).thenReturn(category);
+		when(categoryService.getCategoryByName(eq(categoryName))).thenReturn(category);
 
 		mockMvc.perform(get("/category/getByNameWithAllRatings/" + categoryName).contentType(MediaType.APPLICATION_JSON)
 				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
@@ -208,13 +205,13 @@ public class CategoryControllerTest {
 				.andExpect(jsonPath("$.name").value(category.getName()))
 				.andExpect(jsonPath("$.categoryOwners").value(category.getCategoryOwners()));
 
-		verify(categoryService, times(1)).getCategoryByName(any(String.class), eq(true));
+		verify(categoryService, times(1)).getCategoryByName(any(String.class));
 	}
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
 	public void whenCallingGetEndpointsWithNonExistantName_expectNotFound() throws Exception {
-		when(categoryService.getCategoryByName(eq(categoryName), any())).thenThrow(new NoSuchElementException());
+		when(categoryService.getCategoryByName(eq(categoryName))).thenThrow(new NoSuchElementException());
 
 		mockMvc.perform(get("/category/getByName/" + categoryName).contentType(MediaType.APPLICATION_JSON)
 				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isNotFound());
@@ -222,8 +219,8 @@ public class CategoryControllerTest {
 		mockMvc.perform(get("/category/getByNameWithAllRatings/" + categoryName).contentType(MediaType.APPLICATION_JSON)
 				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isNotFound());
 
-		verify(categoryService, times(1)).getCategoryByName(any(String.class), eq(false));
-		verify(categoryService, times(1)).getCategoryByName(any(String.class), eq(true));
+		verify(categoryService, times(1)).getCategoryByName(any(String.class));
+		verify(categoryService, times(1)).getCategoryByName(any(String.class));
 	}
 
 	@Test

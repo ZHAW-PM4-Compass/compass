@@ -61,6 +61,18 @@ public class CategoryService {
 	}
 
 	/**
+	 * Retrieves a category by its name, optionally including associated ratings.
+	 *
+	 * @param name The name of the category to retrieve.
+	 * @return The retrieved category as a DTO.
+	 * @throws NoSuchElementException if the category does not exist.
+	 */
+	public CategoryDto getCategoryByName(String name) throws NoSuchElementException {
+		List<UserDto> userDtos = userService.getAllUsers();
+		return convertEntityToDto(categoryRepository.findByName(name).orElseThrow(), userDtos);
+	}
+
+	/**
 	 * Retrieves all categories stored in the repository.
 	 *
 	 * @return A list of all categories as DTOs.

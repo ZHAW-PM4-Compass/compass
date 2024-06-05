@@ -89,4 +89,26 @@ public class CategoryController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
+
+	/**
+	 * Links users to an existing category based on the provided category details.
+	 *
+	 * @param category The category data transfer object with user links.
+	 * @param authentication Authentication object containing user identity.
+	 * @return ResponseEntity with the updated CategoryDto or an appropriate error status.
+	 */
+	@PostMapping(path = "/linkUsersToExistingCategory", produces = "application/json")
+	public ResponseEntity<CategoryDto> linkUsersToExistingCategory(@RequestBody CategoryDto category,
+																   Authentication authentication) {
+		String callerId = authentication.getName();
+		UserRole callingRole = userService.getUserRole(callerId);
+		if (callingRole != UserRole.ADMIN) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+		try {
+			return ResponseEntity.ok(categoryService.linkUsersToExistingCategory(category));
+		} catch (NotValidCategoryOwnerException | NoSuchElementException | GlobalCategoryException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+	}
 }

@@ -8,16 +8,18 @@ import Select from "@/components/select";
 import Table from "@/components/table";
 import { AppsAddIn24Regular, Save24Regular } from "@fluentui/react-icons";
 import { getUserControllerApi, getCategoryControllerApi } from "@/openapi/connector";
-import { CategoryDto, UserDto, ParticipantDto } from "@/openapi/compassClient";
+import { CategoryDto, UserDto } from "@/openapi/compassClient";
 import Title1 from "@/components/title1";
 import { toast } from "react-hot-toast";
 import toastMessages from "@/constants/toastMessages";
+import ConfirmModal from "@/components/confirmmodal";
 
 function CategoryCreateModal({ close, onSave, category }: Readonly<{
   close: () => void;
   onSave: () => void;
   category: CategoryDto | null;
 }>) {
+  const [showCreateConfirmModal, setShowCreateConfirmModal] = useState<boolean>(false);
   const [name, setName] = useState<string>(category?.name || "");
   const [min, setMin] = useState<number>(category?.minimumValue || 0);
   const [max, setMax] = useState<number>(category?.maximumValue || 10);
@@ -25,115 +27,98 @@ function CategoryCreateModal({ close, onSave, category }: Readonly<{
   const [selectedParticipants, setSelectedParticipants] = useState<UserDto[]>([]);
   const [participants, setParticipants] = useState<UserDto[]>([]);
 
-  useEffect(() => {
-    async function fetchUsers() {
-      const userApi = getUserControllerApi();
-      try {
-        const users = await userApi.getAllParticipants();
-        setParticipants(users);
-      } catch (error) {
-        console.error("Failed to fetch users", error);
-      }
-    }
-    fetchUsers();
-  }, []);
+  const loadUsers = () => {
+    getUserControllerApi().getAllParticipants().then((users) => {
+      setParticipants(users);
+    });
+  };
 
-  const handleSubmit = async () => {
-    const participantDtos: ParticipantDto[] = selectedParticipants.map(user => ({ id: user.userId }));
-
+  const createCategory = () => {
     const newCategory: CategoryDto = {
       name: name,
       minimumValue: min,
       maximumValue: max,
-      categoryOwners: assignment === "custom" ? participantDtos : [],
+      categoryOwners: assignment === "custom" ? selectedParticipants : [],
     };
 
-    try {
-      // Create the category
-      const createdCategory = await getCategoryControllerApi().createCategory({ categoryDto: newCategory });
-
-      // Success message and close modal
-      toast.success(toastMessages.CATEGORY_CREATED);
+    const createAction = () => getCategoryControllerApi().createCategory({
+      categoryDto: newCategory
+    }).then(() => {
       onSave();
       close();
-    } catch (error) {
-      // Error handling
-      toast.error(toastMessages.CATEGORY_NOT_CREATED);
-      console.error("Failed to create category or link users", error);
-    }
+    });
+
+    toast.promise(createAction(), {
+      loading: toastMessages.CREATING,
+      success: toastMessages.CATEGORY_CREATED,
+      error: toastMessages.CATEGORY_NOT_CREATED,
+    });
   };
 
+  useEffect(loadUsers, []);
+
   return (
-    <Modal
-      title="Kategorie erstellen"
-      footerActions={
-        <Button Icon={Save24Regular} onClick={handleSubmit}>
-          Speichern
-        </Button>
-      }
-      close={close}
-    >
-      <div className="flex">
-        <div className="w-1/3 pr-2">
-        <label>
-          Name:
-          <br />
+    <>
+      <Modal
+        title="Kategorie erstellen"
+        footerActions={
+          <Button Icon={Save24Regular} type="submit">
+            Speichern
+          </Button>
+        }
+        close={close}
+        onSubmit={() => setShowCreateConfirmModal(true)}
+      >
+        <div>
           <Input
             type="text"
             placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="mb-4"
+            required={true}
           />
-        </label>
-          <div className="flex">
-            <div className="w-1/4 pr-2">
-              <label>
-                Von:
-                <Input
-                  type="number"
-                  placeholder="Min"
-                  value={min.toString()}
-                  onChange={(e) => setMin(Number(e.target.value))}
-                  className="mb-4 w-20"
-                />
-              </label>
+          <div>
+            <div>
+              <span className="bg-black text-white px-3 py-2.5 rounded-l-md text-sm">von</span>
+              <Input
+                type="number"
+                placeholder="Min"
+                value={min.toString()}
+                onChange={(e) => setMin(Number(e.target.value))}
+                className="mb-4 mr-4 w-24 rounded-none rounded-r-md"
+                required={true}
+              />
             </div>
-            <div className="w-1/4 pl-2">
-              <label>
-                Bis:
-                <Input
-                  type="number"
-                  placeholder="Max"
-                  value={max.toString()}
-                  onChange={(e) => setMax(Number(e.target.value))}
-                  className="mb-4 w-20"
-                />
-              </label>
+            <div>
+              <span className="bg-black text-white px-3 py-2.5 rounded-l-md text-sm">bis</span>
+              <Input
+                type="number"
+                placeholder="Max"
+                value={max.toString()}
+                onChange={(e) => setMax(Number(e.target.value))}
+                className="mb-4 mr-4 w-24 rounded-none rounded-r-md"
+                required={true}
+              />
             </div>
           </div>
-          <label>
-            Zuteilung:
-            <br />
-            <Select
-              value={assignment}
-              onChange={(e) => setAssignment(e.target.value)}
-              className="mb-4"
-              data={[
-                { id: "global", label: "Alle Teilnehmer" },
-                { id: "custom", label: "Teilnehmer auswählen" },
-              ]}
-            />
-          </label>
+          <Select
+            value={assignment}
+            onChange={(e) => setAssignment(e.target.value)}
+            className="mb-4"
+            data={[
+              { id: "global", label: "Alle Teilnehmer" },
+              { id: "custom", label: "Teilnehmer auswählen" },
+            ]}
+          />
         </div>
-        <div className="w-1/2 pl-2">
+        <div>
           {assignment === "custom" && (
-            <div className="overflow-auto max-h-64">
-              Teilnehmer auswählen:
+            <div>
               {participants.map((participant) => (
                 <div
                   key={participant.userId}
-                  className="flex items-center mb-2"
+                  className="flex items-center mb-1 bg-slate-100 hover:bg-slate-200 rounded-md"
                 >
                   <input
                     type="checkbox"
@@ -154,67 +139,48 @@ function CategoryCreateModal({ close, onSave, category }: Readonly<{
                         );
                       }
                     }}
-                    className="w-6 h-6"
+                    className="w-4 h-4 ml-4"
                   />
-                  <span className="ml-2">
-                    {participant.givenName} {participant.familyName}
+                  <span className="text-sm px-3 py-2">
+                    {participant.givenName} {participant.familyName} ({participant.email})
                   </span>
                 </div>
               ))}
             </div>
           )}
         </div>
-      </div>
-    </Modal>
+      </Modal>
+      {showCreateConfirmModal && (
+        <ConfirmModal
+          title="Kategorie erstellen"
+          question="Möchtest du die Kategorie wirklich erstellen? Die Kategorie kann im Anschluss nicht mehr bearbeitet werden."
+          confirm={() => {
+            createCategory();
+            setShowCreateConfirmModal(false);
+          }}
+          abort={() => setShowCreateConfirmModal(false)} />
+      )}
+    </>
   );
 };
 
 export default function CategoryPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [selectedCategory, setSelectedCategory] = useState<CategoryDto | null>(
-    null
-  );
+  const [selectedCategory, setSelectedCategory] = useState<CategoryDto | null>(null);
   const [categories, setCategories] = useState<CategoryDto[]>([]);
-
-  const formatAssignment = async (category: CategoryDto) => {
-    if (!category.categoryOwners || category.categoryOwners.length === 0) {
-      return "Alle Teilnehmer";
-    }
-  
-    const namesPromises = category.categoryOwners.map(async (owner) => {
-      try {
-        const user = await getUserControllerApi().getUserById({ id: owner.id || '' });
-        return `${user.givenName} ${user.familyName}`;
-      } catch (error) {
-        console.error(`Failed to fetch user with id ${owner.id}`, error);
-        return "Unknown";
-      }
-    });
-  
-    const names = await Promise.all(namesPromises);
-    const sortedNames = names.sort();
-    const namesString = sortedNames.join(", ");
-    return namesString.length > 30 ? `${namesString.substring(0, 30)}...` : namesString;
-  };
-  
-  
 
   const loadCategories = () => {
     setLoading(true);
     getCategoryControllerApi().getAllCategories().then((categories) => {
-      const formattedCategories = categories.map(category => ({
-        ...category,
-        assignment: formatAssignment(category)
-      }));
-      setCategories(formattedCategories);
+      categories.sort((a, b) => (a?.name ?? '').localeCompare(b?.name ?? ''));
+      setCategories(categories);
     }).catch(() => {
       toast.error(toastMessages.CATEGORIES_NOT_LOADED);
     }).finally(() => {
       setLoading(false);
     });
   }
-  
 
   useEffect(loadCategories, []);
 
@@ -254,7 +220,12 @@ export default function CategoryPage() {
             },
             {
               header: "Zuweisung",
-              title: "assignment",
+              titleFunction: (category: CategoryDto) => {
+                if (category.categoryOwners?.length) {
+                  return category.categoryOwners.map((owner) => owner.email).join(", ");
+                }
+                return "Alle Teilnehmer";
+              }
             },
           ]}
           actions={[]}

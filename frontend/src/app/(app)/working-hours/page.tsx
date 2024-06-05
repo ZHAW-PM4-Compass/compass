@@ -76,10 +76,6 @@ export default function WorkingHoursPage() {
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().slice(0, 10));
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
-  const handleDateChange = (date: any) => {
-    setSelectedDate(date.target.value);
-  };
-
   const handlePrevDate = () => {
     let selectedDateObj = new Date(selectedDate);
     const newDate = new Date(selectedDate);
@@ -226,10 +222,21 @@ export default function WorkingHoursPage() {
               </div>
             )}
           </div>
-          <div className="mt-2 md:mt-0 flex flex-row space-x-4">
-            <IconButton Icon={ArrowLeft24Regular} onClick={handlePrevDate}></IconButton>
-            <Input type="date" name="date" value={selectedDate} onChange={handleDateChange} />
-            <IconButton Icon={ArrowRight24Regular} onClick={handleNextDate}></IconButton>
+          <div className="mt-2 md:mt-0 flex flex-row">
+            <IconButton
+              className="rounded-none rounded-l-md"
+              Icon={ArrowLeft24Regular}
+              onClick={handlePrevDate} />
+            <Input
+              className="rounded-none"
+              type="date"
+              name="date"
+              value={selectedDate}
+              onChange={event => setSelectedDate(event.target.value)} />
+            <IconButton
+              className="rounded-none rounded-r-md"
+              Icon={ArrowRight24Regular}
+              onClick={handleNextDate} />
           </div>
         </div>
         <Table

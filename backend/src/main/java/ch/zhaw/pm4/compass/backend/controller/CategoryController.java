@@ -76,59 +76,6 @@ public class CategoryController {
 	}
 
 	/**
-	 * Retrieves a category by its name without including ratings.
-	 *
-	 * @param name The name of the category.
-	 * @return ResponseEntity with the CategoryDto or NotFound status if it doesn't exist.
-	 */
-	@GetMapping(path = "/getByName/{name}", produces = "application/json")
-	public ResponseEntity<CategoryDto> getCategoryByName(@PathVariable String name) {
-		try {
-			return ResponseEntity.ok(categoryService.getCategoryByName(name, false));
-		} catch (NoSuchElementException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-	}
-
-	/**
-	 * Retrieves a category by its name including all associated ratings.
-	 *
-	 * @param name The name of the category.
-	 * @return ResponseEntity with the CategoryDto or NotFound status if it doesn't exist.
-	 */
-	@GetMapping(path = "/getByNameWithAllRatings/{name}", produces = "application/json")
-	public ResponseEntity<CategoryDto> getCategoryByNameWithRatings(@PathVariable String name) {
-		try {
-			return ResponseEntity.ok(categoryService.getCategoryByName(name, true));
-		} catch (NoSuchElementException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-	}
-
-	/**
-	 * Links users to an existing category based on the provided category details.
-	 *
-	 * @param category The category data transfer object with user links.
-	 * @param authentication Authentication object containing user identity.
-	 * @return ResponseEntity with the updated CategoryDto or an appropriate error status.
-	 */
-	@PostMapping(path = "/linkUsersToExistingCategory", produces = "application/json")
-	public ResponseEntity<CategoryDto> linkUsersToExistingCategory(@RequestBody CategoryDto category,
-			Authentication authentication) {
-		String callerId = authentication.getName();
-		UserRole callingRole = userService.getUserRole(callerId);
-		if (callingRole != UserRole.ADMIN) {
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-		}
-		try {
-			return ResponseEntity.ok(categoryService.linkUsersToExistingCategory(category));
-		} catch (NotValidCategoryOwnerException | NoSuchElementException | GlobalCategoryException e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
-
-	}
-
-	/**
 	 * Retrieves a list of categories associated with a specific user ID.
 	 *
 	 * @param userId The user ID whose category list is being requested.

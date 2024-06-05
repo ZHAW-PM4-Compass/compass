@@ -1,5 +1,6 @@
 package ch.zhaw.pm4.compass.backend.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
@@ -48,25 +49,15 @@ public class CategoryService {
 	 * @throws CategoryAlreadyExistsException if a category with the same name already exists.
 	 * @throws NotValidCategoryOwnerException if any of the category owners are not valid.
 	 */
-	public CategoryDto createCategory(CategoryDto createCategory)
-			throws CategoryAlreadyExistsException, NotValidCategoryOwnerException {
+	public CategoryDto createCategory(CategoryDto createCategory) throws CategoryAlreadyExistsException, NotValidCategoryOwnerException {
 		Category category = convertDtoToEntity(createCategory);
+
 		if (categoryRepository.findByName(category.getName()).isPresent()) {
 			throw new CategoryAlreadyExistsException(category);
 		}
-		return convertEntityToDto(categoryRepository.save(category), false);
-	}
 
-	/**
-	 * Retrieves a category by its name, optionally including associated ratings.
-	 *
-	 * @param name The name of the category to retrieve.
-	 * @param withRatings Indicates whether to include associated ratings in the returned DTO.
-	 * @return The retrieved category as a DTO.
-	 * @throws NoSuchElementException if the category does not exist.
-	 */
-	public CategoryDto getCategoryByName(String name, Boolean withRatings) throws NoSuchElementException {
-		return convertEntityToDto(categoryRepository.findByName(name).orElseThrow(), withRatings);
+		List<UserDto> userDtos = userService.getAllUsers();
+		return convertEntityToDto(categoryRepository.save(category), userDtos);
 	}
 
 	/**
@@ -75,7 +66,8 @@ public class CategoryService {
 	 * @return A list of all categories as DTOs.
 	 */
 	public List<CategoryDto> getAllCategories() {
-		return categoryRepository.findAll().stream().map(i -> convertEntityToDto(i, false)).toList();
+		List<UserDto> userDtos = userService.getAllUsers();
+		return categoryRepository.findAll().stream().map(i -> convertEntityToDto(i, userDtos)).toList();
 	}
 
 	/**
@@ -99,7 +91,7 @@ public class CategoryService {
 			}
 		}
 
-		return convertEntityToDto(categoryRepository.save(savedCategory), false);
+		return convertEntityToDto(categoryRepository.save(savedCategory), null);
 	}
 
 	/**
@@ -117,10 +109,11 @@ public class CategoryService {
 
 		Iterable<Category> globalCategories = categoryRepository.findGlobalCategories();
 		Iterable<Category> userCategories = categoryRepository.findAllByCategoryOwners(user);
+		List<UserDto> userDtos = userService.getAllUsers();
 
 		return Stream.concat(StreamSupport.stream(globalCategories.spliterator(), false),
 				StreamSupport.stream(userCategories.spliterator(), false)).map(i -> {
-					CategoryDto categoryDto = convertEntityToDto(i, false);
+					CategoryDto categoryDto = convertEntityToDto(i, userDtos);
 					categoryDto.setCategoryOwners(List.of());
 					return categoryDto;
 				}).toList();
@@ -137,10 +130,7 @@ public class CategoryService {
 	 *         necessary to be a category owner.
 	 */
 	public Category convertDtoToEntity(CategoryDto dto) throws NotValidCategoryOwnerException {
-		List<LocalUser> categoryOwners = dto.getCategoryOwners().stream().map(t -> {
-			UserDto i = userService.getUserById(t.getId());
-			return new LocalUser(i.getUser_id(), i.getRole());
-		}).toList();
+		List<LocalUser> categoryOwners = dto.getCategoryOwners().stream().map(userDto -> new LocalUser(userDto.getUser_id(),userDto.getRole())).toList();
 		return new Category(dto.getName(), dto.getMinimumValue(), dto.getMaximumValue(), categoryOwners);
 	}
 
@@ -151,21 +141,15 @@ public class CategoryService {
 	 * necessary for complete data representation in the DTO.
 	 *
 	 * @param entity The category entity to convert.
-	 * @param withRatings Flag indicating whether to include mood ratings in the resulting DTO.
 	 * @return The corresponding {@link CategoryDto} with or without mood ratings based on the provided flag.
 	 */
-  public CategoryDto convertEntityToDto(Category entity, Boolean withRatings) {
-    List<ParticipantDto> categoryOwnersDto = entity.getCategoryOwners().stream()
-        .map(t -> new ParticipantDto(t.getId())).toList();
-      CategoryDto dto = new CategoryDto(entity.getId(), entity.getName(), entity.getMinimumValue(),
-              entity.getMaximumValue(), categoryOwnersDto);
-      List<RatingDto> ratingDtoList = List.of();
-      if (withRatings) {
-          ratingDtoList = entity.getMoodRatings().stream().map(i -> new RatingDto(dto,
-                  daySheetService.convertDaySheetToDaySheetDto(i.getDaySheet(), null, ""), i.getRating(), i.getRatingRole()))
-                  .toList();
-      }
-      dto.setMoodRatings(ratingDtoList);
-      return dto;
+  public CategoryDto convertEntityToDto(Category entity, List<UserDto> userDtos) {
+	  List<UserDto> categoryOwnerDtos = new ArrayList<>();
+	  for (LocalUser i : entity.getCategoryOwners()) {
+		  UserDto userDto = userDtos.stream().filter(userFilter -> userFilter.getUser_id().equals(i.getId())).findFirst().orElse(null);
+		  categoryOwnerDtos.add(userDto);
+	  }
+
+	  return new CategoryDto(entity.getId(), entity.getName(), entity.getMinimumValue(), entity.getMaximumValue(), categoryOwnerDtos);
   }
 }

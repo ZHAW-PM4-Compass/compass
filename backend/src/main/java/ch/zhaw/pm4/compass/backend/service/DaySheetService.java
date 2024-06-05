@@ -233,7 +233,7 @@ public class DaySheetService {
 	 */
 	public DaySheetDto convertDaySheetToDaySheetDto(DaySheet daySheet, UserDto owner, String userId) {
 		UserRole userRole = !userId.isEmpty() ? userService.getUserRole(userId) : UserRole.PARTICIPANT;
-		System.out.println("User role: " + userRole);
+
 		List<TimestampDto> timestampDtos = new ArrayList<>();
 		List<RatingDto> moodRatingDtos = new ArrayList<>();
 		List<IncidentDto> incidentDtos = new ArrayList<>();

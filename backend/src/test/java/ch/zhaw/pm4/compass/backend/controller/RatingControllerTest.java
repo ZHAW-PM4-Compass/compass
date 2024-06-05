@@ -116,7 +116,7 @@ public class RatingControllerTest {
 		String result = mockMvc.perform(post("/rating/createRatingsByDaySheetId/" + 1).contentType(MediaType.APPLICATION_JSON)
 				.content(this.gson.toJson(createRatingList)).with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
-		assertEquals("[{\"category\":{\"id\":1,\"name\":\"Unit Test\",\"minimumValue\":0,\"maximumValue\":10,\"categoryOwners\":[],\"moodRatings\":[]},\"rating\":4,\"ratingRole\":\"PARTICIPANT\"}]",result);
+		assertEquals("[{\"category\":{\"id\":1,\"name\":\"Unit Test\",\"minimumValue\":0,\"maximumValue\":10,\"categoryOwners\":[]},\"rating\":4,\"ratingRole\":\"PARTICIPANT\"}]",result);
 	}
 	@Test
 	@WithMockUser(username = "testuser", roles = {})

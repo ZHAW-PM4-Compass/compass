@@ -90,20 +90,22 @@ public class CategoryService {
 	 * @throws NotValidCategoryOwnerException if any of the users are not valid category owners.
 	 * @throws GlobalCategoryException if the category is considered global and cannot have specific owners.
 	 */
-	public CategoryDto linkUsersToExistingCategory(CategoryDto linkCategory)
-			throws NotValidCategoryOwnerException, GlobalCategoryException {
+	public CategoryDto linkUsersToExistingCategory(CategoryDto linkCategory) throws NotValidCategoryOwnerException, GlobalCategoryException {
 		Category newCategoryConfig = convertDtoToEntity(linkCategory);
 		Category savedCategory = categoryRepository.findById(linkCategory.getId()).orElseThrow();
+		List<UserDto> userDtos = userService.getAllUsers();
+
 		if (savedCategory.getCategoryOwners().isEmpty()) {
 			throw new GlobalCategoryException();
 		}
+
 		for (LocalUser i : newCategoryConfig.getCategoryOwners()) {
 			if (!savedCategory.getCategoryOwners().contains(i)) {
 				savedCategory.getCategoryOwners().add(i);
 			}
 		}
 
-		return convertEntityToDto(categoryRepository.save(savedCategory), null);
+		return convertEntityToDto(categoryRepository.save(savedCategory), userDtos);
 	}
 
 	/**

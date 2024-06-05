@@ -134,7 +134,10 @@ export default function WorkingHoursCheckByIdPage({ params }: { params: { id: nu
   const deleteTimestamp = (id: number) => {
     const deleteAction = () => getTimestampControllerApi().deleteTimestamp({ id }).then(() => {
       loadTimestamps();
-    });
+    }).catch((error) => {
+      console.log("Error while deleting timestamp")
+      console.error(error);
+    })
 
     toast.promise(deleteAction(), {
       loading: toastMessages.DELETING,

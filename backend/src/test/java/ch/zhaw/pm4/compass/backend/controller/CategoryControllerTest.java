@@ -174,57 +174,6 @@ public class CategoryControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	public void whenCallingGetEndpointWithName_expectReturn() throws Exception {
-		CategoryDto category = getGlobalCategoryDto();
-		when(categoryService.getCategoryByName(eq(categoryName))).thenReturn(category);
-
-		mockMvc.perform(get("/category/getByName/" + categoryName).contentType(MediaType.APPLICATION_JSON)
-				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value(category.getId()))
-				.andExpect(jsonPath("$.minimumValue").value(category.getMinimumValue()))
-				.andExpect(jsonPath("$.maximumValue").value(category.getMaximumValue()))
-				.andExpect(jsonPath("$.name").value(category.getName()))
-				.andExpect(jsonPath("$.categoryOwners").value(category.getCategoryOwners()));
-
-		verify(categoryService, times(1)).getCategoryByName(any(String.class));
-	}
-
-	@Test
-	@WithMockUser(username = "testuser", roles = {})
-	public void whenCallingGetEndpointWithNameAndRatings_expectReturn() throws Exception {
-		CategoryDto category = getGlobalCategoryDto();
-		RatingDto rating = new RatingDto(new CategoryDto(), new DaySheetDto(), 5, RatingType.PARTICIPANT);
-		category.setMoodRatings(List.of(rating));
-		when(categoryService.getCategoryByName(eq(categoryName))).thenReturn(category);
-
-		mockMvc.perform(get("/category/getByNameWithAllRatings/" + categoryName).contentType(MediaType.APPLICATION_JSON)
-				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value(category.getId()))
-				.andExpect(jsonPath("$.minimumValue").value(category.getMinimumValue()))
-				.andExpect(jsonPath("$.maximumValue").value(category.getMaximumValue()))
-				.andExpect(jsonPath("$.name").value(category.getName()))
-				.andExpect(jsonPath("$.categoryOwners").value(category.getCategoryOwners()));
-
-		verify(categoryService, times(1)).getCategoryByName(any(String.class));
-	}
-
-	@Test
-	@WithMockUser(username = "testuser", roles = {})
-	public void whenCallingGetEndpointsWithNonExistantName_expectNotFound() throws Exception {
-		when(categoryService.getCategoryByName(eq(categoryName))).thenThrow(new NoSuchElementException());
-
-		mockMvc.perform(get("/category/getByName/" + categoryName).contentType(MediaType.APPLICATION_JSON)
-				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isNotFound());
-
-		mockMvc.perform(get("/category/getByNameWithAllRatings/" + categoryName).contentType(MediaType.APPLICATION_JSON)
-				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isNotFound());
-
-		verify(categoryService, times(1)).getCategoryByName(any(String.class));
-		verify(categoryService, times(1)).getCategoryByName(any(String.class));
-	}
-
-	@Test
-	@WithMockUser(username = "testuser", roles = {})
 	public void whenCallingLinkEndpointWithBadRequest_expectBadRequest() throws Exception {
 		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
 

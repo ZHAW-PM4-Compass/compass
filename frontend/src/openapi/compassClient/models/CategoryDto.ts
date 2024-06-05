@@ -13,12 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import type { RatingDto } from './RatingDto';
-import {
-    RatingDtoFromJSON,
-    RatingDtoFromJSONTyped,
-    RatingDtoToJSON,
-} from './RatingDto';
 import type { UserDto } from './UserDto';
 import {
     UserDtoFromJSON,
@@ -62,12 +56,6 @@ export interface CategoryDto {
      * @memberof CategoryDto
      */
     categoryOwners?: Array<UserDto>;
-    /**
-     * 
-     * @type {Array<RatingDto>}
-     * @memberof CategoryDto
-     */
-    moodRatings?: Array<RatingDto>;
 }
 
 /**
@@ -92,7 +80,6 @@ export function CategoryDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'minimumValue': json['minimumValue'] == null ? undefined : json['minimumValue'],
         'maximumValue': json['maximumValue'] == null ? undefined : json['maximumValue'],
         'categoryOwners': json['categoryOwners'] == null ? undefined : ((json['categoryOwners'] as Array<any>).map(UserDtoFromJSON)),
-        'moodRatings': json['moodRatings'] == null ? undefined : ((json['moodRatings'] as Array<any>).map(RatingDtoFromJSON)),
     };
 }
 
@@ -107,7 +94,6 @@ export function CategoryDtoToJSON(value?: CategoryDto | null): any {
         'minimumValue': value['minimumValue'],
         'maximumValue': value['maximumValue'],
         'categoryOwners': value['categoryOwners'] == null ? undefined : ((value['categoryOwners'] as Array<any>).map(UserDtoToJSON)),
-        'moodRatings': value['moodRatings'] == null ? undefined : ((value['moodRatings'] as Array<any>).map(RatingDtoToJSON)),
     };
 }
 

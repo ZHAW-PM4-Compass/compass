@@ -30,6 +30,10 @@ export interface GetCategoryListByUserIdRequest {
     userId: string;
 }
 
+export interface LinkUsersToExistingCategoryRequest {
+    categoryDto: CategoryDto;
+}
+
 /**
  * 
  */
@@ -121,6 +125,40 @@ export class CategoryControllerApi extends runtime.BaseAPI {
      */
     async getCategoryListByUserId(requestParameters: GetCategoryListByUserIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CategoryDto>> {
         const response = await this.getCategoryListByUserIdRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async linkUsersToExistingCategoryRaw(requestParameters: LinkUsersToExistingCategoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CategoryDto>> {
+        if (requestParameters['categoryDto'] == null) {
+            throw new runtime.RequiredError(
+                'categoryDto',
+                'Required parameter "categoryDto" was null or undefined when calling linkUsersToExistingCategory().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/category/linkUsersToExistingCategory`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CategoryDtoToJSON(requestParameters['categoryDto']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => CategoryDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async linkUsersToExistingCategory(requestParameters: LinkUsersToExistingCategoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CategoryDto> {
+        const response = await this.linkUsersToExistingCategoryRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

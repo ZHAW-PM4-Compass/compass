@@ -24,25 +24,6 @@ public class CategoryDto {
     private Integer minimumValue;
     private Integer maximumValue;
     private List<UserDto> categoryOwners;
-    private List<RatingDto> moodRatings;
-
-    /**
-     * Constructs a CategoryDto with all fields except mood ratings.
-     *
-     * @param id The unique identifier of the category.
-     * @param name The name of the category.
-     * @param minimumValue The minimum value for ratings within this category.
-     * @param maximumValue The maximum value for ratings within this category.
-     * @param categoryOwners The list of participants who own this category.
-     */
-    public CategoryDto(Long id, String name, Integer minimumValue, Integer maximumValue,
-                       List<UserDto> categoryOwners) {
-        this.id = id;
-        this.name = name;
-        this.minimumValue = minimumValue;
-        this.maximumValue = maximumValue;
-        this.categoryOwners = categoryOwners;
-    }
 
     /**
      * Constructs a CategoryDto using JSON properties, initializing the list of category owners.
@@ -60,6 +41,5 @@ public class CategoryDto {
         this.minimumValue = minimumValue;
         this.maximumValue = maximumValue;
         this.categoryOwners = new ArrayList<>();
-        this.moodRatings = new ArrayList<>();
     }
 }

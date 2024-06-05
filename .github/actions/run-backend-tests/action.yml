@@ -46,11 +46,12 @@ runs:
       shell: bash
       run: |
         for i in {1..40}; do
-          if curl -s http://localhost:8080/api > /dev/null; then
+          status=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost:8080/api)
+          if [ $status -eq 200 ] || [ $status -eq 401 ] || [ $status -eq 302 ]; then
             echo 'Backend is ready!'
             exit 0
           fi
-          echo 'Waiting for backend to be ready...'
+          echo 'Waiting for backend to be ready... Status code: ' $status
           docker ps -a
           docker logs test-container || true
           sleep 5

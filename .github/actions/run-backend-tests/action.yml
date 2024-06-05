@@ -42,23 +42,6 @@ runs:
           --name test-container \
           backend-tests
 
-    - name: Wait for Backend to be Ready
-      shell: bash
-      run: |
-        for i in {1..40}; do
-          status=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost:8080/api)
-          if [ $status -eq 200 ] || [ $status -eq 401 ] || [ $status -eq 302 ]; then
-            echo 'Backend is ready!'
-            exit 0
-          fi
-          echo 'Waiting for backend to be ready... Status code: ' $status
-          docker ps -a
-          docker logs test-container || true
-          sleep 5
-        done
-        echo 'Backend did not become ready in time'
-        exit 1
-
     - name: Run Gradle Tests in Docker Container
       shell: bash
       run: docker exec test-container gradle test -info

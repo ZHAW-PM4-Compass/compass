@@ -32,15 +32,6 @@ runs:
         npm run build
       shell: bash
 
-    - name: Wait for Backend to be Ready
-      shell: bash
-      run: |
-        until curl -s http://localhost:8080 > /dev/null; do
-          echo 'Waiting for backend to be ready...'
-          sleep 5
-        done
-        echo 'Backend is ready!'
-
     - name: Run Playwright Tests
       run: |
         cd ${{ inputs.working-directory }}

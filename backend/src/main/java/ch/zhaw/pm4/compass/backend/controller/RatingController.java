@@ -54,7 +54,6 @@ public class RatingController {
 
 			return ResponseEntity.ok(ratingService.createRatingsByDaySheetId(daySheetId, createRatingDtos, authentication.getName()));
 		} catch (DaySheetNotFoundException | CategoryNotFoundException | RatingAlreadyExistsException e) {
-			System.out.println(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}

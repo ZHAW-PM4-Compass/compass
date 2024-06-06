@@ -61,7 +61,6 @@ public class RatingService {
 			}
 
 			for (Rating existingRating : existingRatings) {
-				System.out.println(ratingType);
 				if (existingRating.getCategory().getId().equals(category.getId()) && existingRating.getRatingRole() == ratingType) {
 					throw new RatingAlreadyExistsException(category.getId());
 				}

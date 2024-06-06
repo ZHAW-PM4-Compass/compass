@@ -62,3 +62,4 @@ local
 
 # local properties
 application-local.properties
+backend/src/main/resources/application.properties

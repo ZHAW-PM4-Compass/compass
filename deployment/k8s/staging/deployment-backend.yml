@@ -28,6 +28,11 @@ spec:
                 configMapKeyRef:
                   name: compass-configmap
                   key: APP_URL
+            - name: SWAGGER_UI_ON
+              valueFrom:
+                configMapKeyRef:
+                  name: compass-configmap
+                  key: SWAGGER_UI_ON 
             - name: DOCKER_ON
               valueFrom:
                 configMapKeyRef:
@@ -76,7 +81,7 @@ spec:
             - name: AUTH0_MGMT_AUDIENCE
               valueFrom:
                 configMapKeyRef:
-                  key: AUTH0_ISSUER_BASE_URL
+                  key: AUTH0_MGMT_AUDIENCE
                   name: auth0-configmap
             - name: AUTH0_CLIENT_ID
               valueFrom:

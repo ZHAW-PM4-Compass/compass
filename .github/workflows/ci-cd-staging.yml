@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feat/landing
   workflow_dispatch: # enables manual trigger
 
 jobs:

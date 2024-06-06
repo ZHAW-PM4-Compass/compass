@@ -69,7 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set Up K8s and Redeploy Landing
-        uses: ./.github/actions/redeploy-k8s-frontend
+        uses: ./.github/actions/redeploy-k8s-landing
         with:
           kubeconfig_data: ${{ secrets.KUBE_CONFIG_DATA }}
           landing_image_tag: pm4compass/compass-landing:${{ github.sha }}

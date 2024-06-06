@@ -26,6 +26,12 @@ runs:
         npm install
       shell: bash
 
+    - name: Install Playwright Browsers
+      run: |
+        cd ${{ inputs.working-directory }}
+        npx playwright install
+      shell: bash
+
     - name: Build Project
       run: |
         cd ${{ inputs.working-directory }}

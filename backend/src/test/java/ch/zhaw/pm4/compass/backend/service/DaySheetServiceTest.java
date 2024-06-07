@@ -68,7 +68,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	public void whenCreateDaySheet_ExpectCorrectReturn() {
+	public void whenCreateDaySheet_expectCorrectReturn() {
 		DaySheet daySheet = getDaySheet();
 		DaySheetDto createDay = getDaySheetDto();
 		LocalUser localUser = getLocalUser();
@@ -80,7 +80,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	void whenGetDayById_ExpectCorrectReturn() {
+	void whenGetDayById_expectCorrectReturn() {
 		DaySheet daySheet = getDaySheet();
 		when(daySheetRepository.findByIdAndOwnerId(any(Long.class), any(String.class)))
 				.thenReturn(Optional.of(daySheet));
@@ -92,7 +92,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	public void whenGetDayByDate_ExpectCorrectReturn() {
+	public void whenGetDayByDate_expectCorrectReturn() {
 		DaySheet daySheet = getDaySheet();
 		when(daySheetRepository.findByDateAndOwnerId(any(LocalDate.class), any(String.class)))
 				.thenReturn(Optional.of(daySheet));
@@ -104,7 +104,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	void whenCreateExistingDaySheet_ExpectNull() {
+	void whenCreateExistingDaySheet_expectNull() {
 		DaySheet daySheet = getDaySheet();
 		DaySheetDto createDay = getDaySheetDto();
 		LocalUser localUser = getLocalUser();
@@ -115,7 +115,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	public void whenGetAllDaySheetByMonth_ExpectCorrectReturn() {
+	public void whenGetAllDaySheetByMonth_expectCorrectReturn() {
 		LocalUser user = new LocalUser(user_id, UserRole.PARTICIPANT);
 
 		DaySheet day1 = new DaySheet(1l, user, reportText, dateNow, true, new ArrayList<>());
@@ -143,7 +143,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	public void whenGetAllDaySheetByUserAndMonth_ExpectCorrectReturn() {
+	public void whenGetAllDaySheetByUserAndMonth_expectCorrectReturn() {
 		LocalUser user = new LocalUser(user_id, UserRole.PARTICIPANT);
 
 		DaySheet day1 = new DaySheet(1l, user, reportText, dateNow, true, new ArrayList<>());
@@ -171,7 +171,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	void whenUpdateDaySheetNotes_ExpectCorrectReturn() {
+	void whenUpdateDaySheetNotes_expectCorrectReturn() {
 		LocalUser user = getLocalUser();
 		UpdateDaySheetDayNotesDto updateDay = getUpdateDaySheetDayNotesDto();
 		DaySheet daySheet = getDaySheet();
@@ -185,7 +185,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	void whenUpdateDaySheetConfirmed_ExpectCorrectReturn() {
+	void whenUpdateDaySheetConfirmed_expectCorrectReturn() {
 		DaySheet daySheet = getDaySheet();
 		daySheet.setConfirmed(true);
 		when(daySheetRepository.findById(any(Long.class))).thenReturn(Optional.of(daySheet));
@@ -199,7 +199,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	void whenUpdateDaySheetConfirmed_ExpectNull() {
+	void whenUpdateDaySheetConfirmed_expectNull() {
 		when(daySheetRepository.findById(1l)).thenReturn(Optional.empty());
 		assertNull(daySheetService.updateConfirmed(1l, true, user_id));
 
@@ -209,7 +209,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	void whenUpdateNotExistingDaySheet_ExpectNull() {
+	void whenUpdateNotExistingDaySheet_expectNull() {
 		UpdateDaySheetDayNotesDto updateDay = getUpdateDaySheetDayNotesDto();
 		DaySheet daySheet = getDaySheet();
 		daySheet.setDayNotes(updateDay.getDay_notes());
@@ -218,7 +218,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	void whenGetDaySheetById_ExpectCorrectReturn() {
+	void whenGetDaySheetById_expectCorrectReturn() {
 		DaySheet daySheet = getDaySheet();
 		when(daySheetRepository.findByIdAndOwnerId(any(Long.class), any(String.class)))
 				.thenReturn(Optional.of(daySheet));
@@ -229,14 +229,14 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	void whenGetNotExistingDaySheetById_ExpectNull() {
+	void whenGetNotExistingDaySheetById_expectNull() {
 		DaySheet daySheet = getDaySheet();
 		when(daySheetRepository.findByIdAndOwnerId(any(Long.class), any(String.class))).thenReturn(Optional.empty());
 		assertNull(daySheetService.getDaySheetByIdAndUserId(daySheet.getId(), user_id));
 	}
 
 	@Test
-	void whenGetDaySheetByDate_ExpectCorrectReturn() {
+	void whenGetDaySheetByDate_expectCorrectReturn() {
 		DaySheet daySheet = getDaySheet();
 		when(daySheetRepository.findByDateAndOwnerId(any(LocalDate.class), any(String.class)))
 				.thenReturn(Optional.of(daySheet));
@@ -247,7 +247,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	void whenGetNotExistingDaySheetByDate_ExpectCorrectReturn() {
+	void whenGetNotExistingDaySheetByDate_expectCorrectReturn() {
 		DaySheet daySheet = getDaySheet();
 		List<DaySheet> returnlist = new ArrayList<DaySheet>();
 		returnlist.add(daySheet);
@@ -257,7 +257,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	void whenGetAllDaySheetNotConfirmed_ExpectCorrectReturn() {
+	void whenGetAllDaySheetNotConfirmed_expectCorrectReturn() {
 		LocalUser user = new LocalUser(user_id, UserRole.PARTICIPANT);
 
 		DaySheet day1 = new DaySheet(1l, user, reportText, dateNow, false, new ArrayList<>());
@@ -283,7 +283,7 @@ class DaySheetServiceTest {
 	}
 
 	@Test
-	void whenFullEntityToDtoConvert_ExpectCorrectReturn() throws NotValidCategoryOwnerException {
+	void whenFullEntityToDtoConvert_expectCorrectReturn() throws NotValidCategoryOwnerException {
 		DaySheet daySheet = getDaySheet();
 		LocalUser user = getLocalUser();
 		LocalTime time1 = LocalTime.of(10, 0);
@@ -321,7 +321,7 @@ class DaySheetServiceTest {
 		assertEquals(daySheet.getIncidents().getFirst().getId(), returnDto.getIncidents().getFirst().getId());
 	}
 	@Test
-	void whenGetDaySheetByUserAndDate_ExpectCorrectReturn()
+	void whenGetDaySheetByUserAndDate_expectCorrectReturn()
 	{
 
 		LocalUser user = getLocalUser();
@@ -333,7 +333,7 @@ class DaySheetServiceTest {
 		assertEquals(daySheet.getId(),returnDaySheetDto.getId());
 	}
 	@Test
-	void whenGetDaySheetByUserAndDateSocialWorkerTriesToGetParticipantsDaySheet_ExpectCorrectReturn()
+	void whenGetDaySheetByUserAndDateSocialWorkerTriesToGetParticipantsDaySheet_expectCorrectReturn()
 	{
 
 		LocalUser user = getLocalUser();
@@ -348,7 +348,7 @@ class DaySheetServiceTest {
 		assertEquals(daySheet.getId(),returnDaySheetDto.getId());
 	}
 	@Test
-	void whenGetDaySheetByUserAndDateParticipantTriesToGetAnotherParticipantsDaySheet_ExpectNull()
+	void whenGetDaySheetByUserAndDateParticipantTriesToGetAnotherParticipantsDaySheet_expectNull()
 	{
 
 		LocalUser user = getLocalUser();

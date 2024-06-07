@@ -77,7 +77,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingCreateTimestamp_ExpectCorrectReturn() throws Exception {
+	void whenCallingCreateTimestamp_expectCorrectReturn() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		when(timestampService.createTimestamp(any(TimestampDto.class), any(String.class))).thenReturn(getTimestamp);
@@ -98,7 +98,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingCreateTimestampOfNotExistingDaySheet_ExpectCorrectReturn() throws Exception {
+	void whenCallingCreateTimestampOfNotExistingDaySheet_expectCorrectReturn() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		when(timestampService.createTimestamp(any(TimestampDto.class), any(String.class))).thenReturn(getTimestamp);
@@ -116,7 +116,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingCreateTimestampOfConfirmedDaySheet_ExpectForbidden() throws Exception {
+	void whenCallingCreateTimestampOfConfirmedDaySheet_expectForbidden() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		DaySheetDto daySheet = getDaySheetDto();
@@ -136,7 +136,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	public void whenCallingCreateTimestampAlreadyExists_ExpectDoesNotExists() throws Exception {
+	public void whenCallingCreateTimestampAlreadyExists_expectDoesNotExists() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		when(timestampService.createTimestamp(any(TimestampDto.class), any(String.class))).thenReturn(null);
@@ -154,7 +154,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingUpdateTimestamp_ExpectCorrectResult() throws Exception {
+	void whenCallingUpdateTimestamp_expectCorrectResult() throws Exception {
 		TimestampDto updateTimestamp = getUpdateTimestamp();
 		when(timestampService.updateTimestampById(any(TimestampDto.class), any(String.class)))
 				.thenReturn(updateTimestamp);
@@ -174,7 +174,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingUpdateTimestampOfNotExistingDaySheet_ExpectBadRequest() throws Exception {
+	void whenCallingUpdateTimestampOfNotExistingDaySheet_expectBadRequest() throws Exception {
 		TimestampDto updateTimestamp = getUpdateTimestamp();
 		when(timestampService.updateTimestampById(any(TimestampDto.class), any(String.class)))
 				.thenReturn(updateTimestamp);
@@ -191,7 +191,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingUpdateTimestampOfConfirmedDaySheet_ExpectForbidden() throws Exception {
+	void whenCallingUpdateTimestampOfConfirmedDaySheet_expectForbidden() throws Exception {
 		DaySheetDto daySheet = getDaySheetDto();
 		daySheet.setConfirmed(true);
 		TimestampDto updateTimestamp = getUpdateTimestamp();
@@ -210,7 +210,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingGetTimestampById_ExpectCorrectReturn() throws Exception {
+	void whenCallingGetTimestampById_expectCorrectReturn() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		when(timestampService.getTimestampById(any(Long.class), any(String.class))).thenReturn(getTimestamp);
@@ -229,7 +229,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingGetAllTimestampsByDayId_ExpectCorrectReturn() throws Exception {
+	void whenCallingGetAllTimestampsByDayId_expectCorrectReturn() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		TimestampDto getTimestamp1 = getUpdateTimestamp();
@@ -260,7 +260,7 @@ public class TimestampControllerTest {
 	// todo til: fix please
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingGetAllTimestampsByDayId_ExpectEmptyReturn() throws Exception {
+	void whenCallingGetAllTimestampsByDayId_expectEmptyReturn() throws Exception {
 		// Arrange
 		DaySheet daySheet = getDaySheet();
 		ArrayList<TimestampDto> timestamps = new ArrayList<TimestampDto>();
@@ -275,7 +275,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenCallingDeleteTimestamp_ExpectOk() throws Exception {
+	void whenCallingDeleteTimestamp_expectOk() throws Exception {
 		// Arrange
 		TimestampDto timestamp = getTimestampDto();
 		DaySheetDto daySheet = getDaySheetDto();
@@ -290,7 +290,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenDeleteTimestampOfConfirmedDaySheet_ExpectForbidden() throws Exception {
+	void whenDeleteTimestampOfConfirmedDaySheet_expectForbidden() throws Exception {
 		// Arrange
 		TimestampDto timestamp = getTimestampDto();
 		DaySheetDto daySheet = getDaySheetDto();
@@ -306,7 +306,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void whenDeleteTimestampOfNotExistingDaySheet_ExpectBadRequest() throws Exception {
+	void whenDeleteTimestampOfNotExistingDaySheet_expectBadRequest() throws Exception {
 		// Arrange
 		TimestampDto timestamp = getTimestampDto();
 		DaySheetDto daySheet = getDaySheetDto();

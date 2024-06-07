@@ -76,7 +76,7 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testCreateDay() throws Exception {
+	void whenCallingCreateDay_ExpectCorrectResult() throws Exception {
 		// Arrange
 
 		// CreateDaySheetDto day = getCreateDaySheet();
@@ -96,7 +96,7 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testCreateDaySheetWithEmptyBody() throws Exception {
+	void whenCallingCreateDaySheetWithEmptyBody_ExpectForbidden() throws Exception {
 		// Arrange
 		DaySheetDto getDay = getDaySheetDto();
 
@@ -109,7 +109,7 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	public void testDayAlreadyExists() throws Exception {
+	public void whenCallingCreateDaySheetOfDayAlreadyExists_ExpectConflictStatus() throws Exception {
 		// Arrange
 		when(daySheetService.createDay(any(DaySheetDto.class), any(String.class))).thenReturn(null);
 
@@ -123,7 +123,7 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testUpdateDayNotes() throws Exception {
+	void whenCallingUpdateDayNotes_ExpectCorrectReturn() throws Exception {
 		// Arrange
 		DaySheetDto updateDay = getUpdateDaySheet();
 		updateDay.setConfirmed(false);
@@ -145,7 +145,7 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testConfirm() throws Exception {
+	void whenCallingConfirm_ExpectCorrectReturn() throws Exception {
 		// Arrange
 
 		DaySheetDto updateDay = getUpdateDaySheet();
@@ -163,7 +163,7 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testRevoke() throws Exception {
+	void whenCallingRevoke_ExpectCorrectReturn() throws Exception {
 		// Arrange
 
 		DaySheetDto updateDay = getUpdateDaySheet();
@@ -181,7 +181,7 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testGetDayByDate() throws Exception {
+	void whenCallingGetDayByDate_ExpectCorrectReturn() throws Exception {
 		// Arrange
 		DaySheetDto getDay = getDaySheetDto();
 		when(daySheetService.getDaySheetByDate(any(LocalDate.class), any(String.class))).thenReturn(getDay);
@@ -196,7 +196,7 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testGetDayById() throws Exception {
+	void whenCallingGetDayById_ExpectCorrectReturn() throws Exception {
 		// Arrange
 		DaySheetDto getDay = getDaySheetDto();
 		when(daySheetService.getDaySheetByIdAndUserId(any(Long.class), any(String.class))).thenReturn(getDay);
@@ -211,7 +211,7 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testGetAllByParticipantByMonth() throws Exception {
+	void whenCallingGetAllByParticipantByMonth_ExpectCorrectReturn() throws Exception {
 		List<DaySheetDto> daySheets = new ArrayList<>();
 		DaySheetDto day1 = getDaySheetDto();
 
@@ -235,7 +235,7 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testGtDaySheetByParticipantAndDate() throws Exception {
+	void whenCallingGtDaySheetByParticipantAndDate_ExpectCorrectReturn() throws Exception {
 		DaySheetDto getDay = getDaySheetDto();
 		when(daySheetService.getDaySheetByUserAndDate(any(String.class), any(LocalDate.class),any(String.class)))
 				.thenReturn(getDay);
@@ -250,7 +250,7 @@ public class DaySheetControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testGtDaySheetByParticipantAndDateNotExisting() throws Exception {
+	void whenCallingGtDaySheetByParticipantAndDateNotExisting_ExpectNotFound() throws Exception {
 		DaySheetDto getDay = getDaySheetDto();
 		when(daySheetService.getDaySheetByUserAndDate(any(String.class), any(LocalDate.class),any(String.class)))
 				.thenReturn(null);

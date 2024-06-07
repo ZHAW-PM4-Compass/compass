@@ -18,6 +18,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.zhaw.pm4.compass.backend.model.dto.CategoryDto;
+import ch.zhaw.pm4.compass.backend.service.UserService;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +56,6 @@ import ch.zhaw.pm4.compass.backend.service.IncidentService;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 public class IncidentControllerTest {
-
 	@Autowired
 	MockMvc mockMvc;
 	@Autowired
@@ -62,6 +63,8 @@ public class IncidentControllerTest {
 
 	@MockBean
 	private IncidentService incidentService;
+	@MockBean
+	private UserService userService;
 
 	private Gson gson = new GsonBuilder().registerTypeAdapter(LocalTime.class, new LocalTimeDeserializer())
 			.registerTypeAdapter(LocalTime.class, new LocalTimeSerializer())
@@ -89,6 +92,7 @@ public class IncidentControllerTest {
 	void testCreateIncident() throws Exception {
 		// Arrange
 		when(incidentService.createIncident(any(IncidentDto.class))).thenReturn(getIncidentDto());
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
 
 		// Act and Assert//
 		mockMvc.perform(post("/incident").contentType(MediaType.APPLICATION_JSON)
@@ -107,6 +111,7 @@ public class IncidentControllerTest {
 	void testUpdateIncident() throws Exception {
 		// Arrange
 		when(incidentService.updateIncident(any(IncidentDto.class))).thenReturn(getIncidentDto());
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
 
 		// Act and Assert//
 		mockMvc.perform(put("/incident").contentType(MediaType.APPLICATION_JSON)
@@ -124,7 +129,10 @@ public class IncidentControllerTest {
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
 	public void testDeleteIncident() throws Exception {
+		// Arrange
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
 		doNothing().when(incidentService).deleteIncident(any(Long.class));
+
 		// Act and Assert//
 		mockMvc.perform(delete("/incident/1").with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(status().isOk());
@@ -140,6 +148,7 @@ public class IncidentControllerTest {
 		incidentDtoList.add(getIncidentDto());
 
 		when(incidentService.getAll()).thenReturn(incidentDtoList);
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
 
 		// Act and Assert/
 		String res = mockMvc.perform(get("/incident/getAll").with(SecurityMockMvcRequestPostProcessors.csrf()))
@@ -156,4 +165,26 @@ public class IncidentControllerTest {
 		verify(incidentService, times(1)).getAll();
 	}
 
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	public void whenCallingAdminOrSocialWorkerProtectedEndpointsAsParticipant_expectForbidden() throws Exception {
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.PARTICIPANT);
+
+		mockMvc.perform(post("/incident").contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(getIncidentDto(), IncidentDto.class))
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+		mockMvc.perform(put("/incident").contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(getIncidentDto(), IncidentDto.class))
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+		mockMvc.perform(delete("/incident/1").contentType(MediaType.APPLICATION_JSON)
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+		mockMvc.perform(get("/incident/getAll").contentType(MediaType.APPLICATION_JSON)
+				.content(this.gson.toJson(getIncidentDto(), IncidentDto.class))
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+		verify(userService, times(4)).getUserRole(any(String.class));
+	}
 }

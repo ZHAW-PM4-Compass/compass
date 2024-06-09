@@ -21,7 +21,9 @@
     "serve-storybook": "run-s storybook:*",
     "test-storybook:ci": "start-server-and-test serve-storybook http://127.0.0.1:6006 test-storybook",
     "prepare": "husky",
-    "postbuild": "next-sitemap"
+    "postbuild": "next-sitemap",
+    "test:playwright": "playwright test",
+    "test:coverage": "NODE_ENV=test nyc --reporter=lcov --reporter=text npm run test:playwright"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",
@@ -64,7 +66,7 @@
     "@next/bundle-analyzer": "^14.1.1",
     "@percy/cli": "1.28.1",
     "@percy/playwright": "^1.0.4",
-    "@playwright/test": "^1.42.0",
+    "@playwright/test": "^1.44.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@storybook/addon-essentials": "^7.6.17",
@@ -85,6 +87,7 @@
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "autoprefixer": "^10.4.18",
+    "babel-plugin-istanbul": "^6.1.1",
     "codecov": "^3.8.3",
     "commitizen": "^4.3.0",
     "cross-env": "^7.0.3",
@@ -118,6 +121,8 @@
     "jest-fail-on-console": "^3.1.2",
     "lint-staged": "^15.2.2",
     "npm-run-all": "^4.1.5",
+    "nyc": "^15.1.0",
+    "playwright-test-coverage": "^1.2.12",
     "postcss": "^8.4.35",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
@@ -156,5 +161,32 @@
       "@semantic-release/github"
     ]
   },
-  "author": "Ixartz (https://github.com/ixartz)"
+  "nyc": {
+    "include": [
+      "src/**/*.js",
+      "src/**/*.jsx",
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "pages/**/*.js",
+      "pages/**/*.jsx",
+      "pages/**/*.ts",
+      "pages/**/*.tsx"
+    ],
+    "exclude": [
+      "playwright.config.ts",
+      "tests/**/*.js"
+    ],
+    "extension": [
+      ".js",
+      ".jsx",
+      ".ts",
+      ".tsx"
+    ],
+    "reporter": [
+      "lcov",
+      "text"
+    ],
+    "all": true,
+    "check-coverage": true
+  }
 }

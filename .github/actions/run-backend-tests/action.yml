@@ -91,7 +91,7 @@ runs:
     - name: Add Users to local_user Table
       shell: bash
       run: |
-        PGPASSWORD=test_password psql -h host.docker.internal -U postgres -d compass -c "\
+        PGPASSWORD=test_password psql -h 127.0.0.1 -p ${{ job.services.postgres.ports[5432] }} -U postgres -d compass -c "\
           INSERT INTO local_user (id, role) VALUES
           ('auth0|6640a6df7d1d70fe02cc72c9', 'PARTICIPANT'),
           ('auth0|6640a6717d1d70fe02cc729a', 'SOCIAL_WORKER');"

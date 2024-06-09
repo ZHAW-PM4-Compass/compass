@@ -143,7 +143,7 @@ export default function WorkingHoursCheckPage() {
               icon: ShiftsCheckmark24Regular,
               label: "Bestätigen",
               onClick: (id) => {
-                const daySheet = daySheets[id];
+                const daySheet = daySheetsFiltered[id];
                 daySheet && setSelectedDaySheet(daySheet);
                 setShowConfirmConfirmModal(true);
               }
@@ -151,7 +151,7 @@ export default function WorkingHoursCheckPage() {
             {
               icon: Edit24Regular,
               onClick: (id) => {
-                const daySheet = daySheets[id];
+                const daySheet = daySheetsFiltered[id];
                 daySheet && navigateToSingleDay(daySheet);
               }
             }

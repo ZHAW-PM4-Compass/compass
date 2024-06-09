@@ -143,7 +143,7 @@ public class DaySheetController {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 
-		return ResponseEntity.ok(daySheetService.getAllDaySheetByUserAndMonth(userId, month));
+		return ResponseEntity.ok(daySheetService.getAllDaySheetByUserAndMonth(userId, month, authentication.getName()));
 	}
 
 	/**

@@ -52,13 +52,21 @@ public class DaySheetService {
 	 */
 	public DaySheetDto createDay(DaySheetDto createDay, String userId) {
 		DaySheet daySheet = convertDaySheetDtoToDaySheet(createDay);
-		Optional<LocalUser> owner = localUserRepository.findById(userId);
-		if (owner.isEmpty())
-			return null;
+		UserRole userRole = userService.getUserRole(userId);
+
+		Optional<LocalUser> owner;
+		if (userRole == UserRole.SOCIAL_WORKER || userRole == UserRole.ADMIN) {
+			owner = localUserRepository.findById(createDay.getOwner().getUser_id());
+		} else {
+			owner = localUserRepository.findById(userId);
+		}
+		
+		if (owner.isEmpty()) return null;
+
 		daySheet.setOwner(owner.get());
 		Optional<DaySheet> optional = daySheetRepository.findByDateAndOwnerId(daySheet.getDate(), userId);
-		if (optional.isPresent())
-			return null;
+
+		if (optional.isPresent()) return null;
 		return convertDaySheetToDaySheetDto(daySheetRepository.save(daySheet), null, userId);
 	}
 
@@ -144,8 +152,8 @@ public class DaySheetService {
 	 * @param month The month and year to search within.
 	 * @return A list of day sheet DTOs for the specified user and month.
 	 */
-	public List<DaySheetDto> getAllDaySheetByUserAndMonth(String userId, YearMonth month) {
-		List<DaySheet> response = daySheetRepository.findAllByOwnerIdAndDateBetween(userId, month.atDay(1),
+	public List<DaySheetDto> getAllDaySheetByUserAndMonth(String ownerId, YearMonth month, String userId) {
+		List<DaySheet> response = daySheetRepository.findAllByOwnerIdAndDateBetween(ownerId, month.atDay(1),
 				month.atEndOfMonth());
 		return response.stream().map(daySheet -> convertDaySheetToDaySheetDto(daySheet, null, userId))
 				.collect(Collectors.toList());

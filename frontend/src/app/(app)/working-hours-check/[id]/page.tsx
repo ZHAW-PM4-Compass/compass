@@ -13,6 +13,7 @@ import toastMessages from "@/constants/toastMessages";
 import { convertMilisecondsToTimeString } from '@/utils/time';
 import { getFormattedDate } from '@/utils/date';
 import { useRouter } from 'next/navigation';
+import ConfirmModal from '@/components/confirmmodal';
 
 function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
   close: () => void;
@@ -62,6 +63,7 @@ function TimeStampUpdateModal({ close, onSave, timestamp }: Readonly<{
 }
 
 export default function WorkingHoursCheckByIdPage({ params }: { params: { id: number } }) {
+  const [showConfirmConfirmModal, setShowConfirmConfirmModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [daySheet, setDaySheet] = useState<DaySheetDto>();
   const [selectedTimestamp, setSelectedTimestamp] = useState<TimestampDto>();
@@ -132,7 +134,10 @@ export default function WorkingHoursCheckByIdPage({ params }: { params: { id: nu
   const deleteTimestamp = (id: number) => {
     const deleteAction = () => getTimestampControllerApi().deleteTimestamp({ id }).then(() => {
       loadTimestamps();
-    });
+    }).catch((error) => {
+      console.log("Error while deleting timestamp")
+      console.error(error);
+    })
 
     toast.promise(deleteAction(), {
       loading: toastMessages.DELETING,
@@ -163,12 +168,22 @@ export default function WorkingHoursCheckByIdPage({ params }: { params: { id: nu
   }, []);
 
   return (
-    <div>
+    <>
       {showUpdateModal && (
         <TimeStampUpdateModal
           close={() => setShowUpdateModal(false)}
           onSave={loadTimestamps}
           timestamp={selectedTimestamp} />
+      )}
+      {showConfirmConfirmModal && (
+        <ConfirmModal
+          title="Arbeitszeit bestätigen"
+          question="Möchten Sie die Arbeitszeit bestätigen? Dies kann rückgängig gemacht werden."
+          confirm={() => {
+            daySheet?.id && confirmDaySheet(daySheet.id);
+            setShowConfirmConfirmModal(false);
+          }}
+          abort={() => setShowConfirmConfirmModal(false)} />
       )}
       <div className="flex flex-col md:flex-row justify-between">
         <div>
@@ -259,9 +274,9 @@ export default function WorkingHoursCheckByIdPage({ params }: { params: { id: nu
             Icon={Checkmark24Regular}
             type="button"
             className="mb-4 bg-black text-white rounded-md"
-            onClick={() => daySheet?.id && confirmDaySheet(daySheet.id)}>Bestätigen</Button>
+            onClick={() => setShowConfirmConfirmModal(true)}>Bestätigen</Button>
         </div>
       </form>
-    </div>
+    </>
   );
 };

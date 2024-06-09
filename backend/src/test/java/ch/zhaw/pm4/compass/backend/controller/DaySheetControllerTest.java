@@ -225,7 +225,7 @@ public class DaySheetControllerTest {
 		day2.setDate(dateNow.plusDays(1));
 		daySheets.add(day1);
 		daySheets.add(day2);
-		when(daySheetService.getAllDaySheetByUserAndMonth(any(String.class), any(YearMonth.class)))
+		when(daySheetService.getAllDaySheetByUserAndMonth(any(String.class), any(YearMonth.class), any(String.class)))
 				.thenReturn(daySheets);
 		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
 

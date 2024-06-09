@@ -105,7 +105,7 @@ public class DaySheetController {
 	 */
 	@GetMapping(path = "/getAllNotConfirmed", produces = "application/json")
 	public ResponseEntity<List<DaySheetDto>> getAllDaySheetNotConfirmed(Authentication authentication) {
-		if(!authCheck(authentication)) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 
@@ -121,7 +121,7 @@ public class DaySheetController {
 	 */
 	@GetMapping(path = "/getAllByMonth/{month}", produces = "application/json")
 	public ResponseEntity<List<DaySheetDto>> getAllDaySheetByMonth(@PathVariable YearMonth month, Authentication authentication) {
-		if(!authCheck(authentication)) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 
@@ -139,7 +139,7 @@ public class DaySheetController {
 	@GetMapping(path = "/getAllByParticipantAndMonth/{userId}/{month}", produces = "application/json")
 	public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipantAndMonth(@PathVariable String userId,
 			@PathVariable YearMonth month, Authentication authentication) {
-		if(!authCheck(authentication)) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 
@@ -174,7 +174,7 @@ public class DaySheetController {
 	@PutMapping(path = "/updateDayNotes", produces = "application/json")
 	public ResponseEntity<DaySheetDto> updateDayNotes(@RequestBody UpdateDaySheetDayNotesDto updateDay,
 			Authentication authentication) {
-		if(!authCheck(authentication)) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 
@@ -195,7 +195,7 @@ public class DaySheetController {
 	 */
 	@PutMapping(path = "/confirm/{id}", produces = "application/json")
 	public ResponseEntity<DaySheetDto> confirm(@PathVariable Long id, Authentication authentication) {
-		if(!authCheck(authentication)) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 
@@ -217,7 +217,7 @@ public class DaySheetController {
 	@PutMapping(path = "/revoke/{id}", produces = "application/json")
 	public ResponseEntity<DaySheetDto> revoke(@PathVariable Long id, Authentication authentication) {
 		DaySheetDto response = daySheetService.updateConfirmed(id, false, authentication.getName());
-		if(!authCheck(authentication)) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 
@@ -234,7 +234,7 @@ public class DaySheetController {
 	 * @param authentication Authentication object containing the user's security credentials.
 	 * @return boolean if authentication is successfull or not.
 	 */
-	private boolean authCheck(Authentication authentication) {
+	private boolean isSocialWorkerOrAdmin(Authentication authentication) {
 		String callerId = authentication.getName();
 		UserRole callingRole = userService.getUserRole(callerId);
 		if (callingRole == UserRole.ADMIN || callingRole == UserRole.SOCIAL_WORKER) {

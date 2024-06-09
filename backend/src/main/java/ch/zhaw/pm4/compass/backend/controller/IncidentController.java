@@ -42,7 +42,7 @@ public class IncidentController {
 	@PostMapping(produces = "application/json")
 	@SchemaProperties()
 	public ResponseEntity<IncidentDto> createIncident(@RequestBody IncidentDto incident, Authentication authentication) {
-		if(!authCheck(authentication)) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 		try {
@@ -63,7 +63,7 @@ public class IncidentController {
 	@PutMapping(produces = "application/json")
 	@SchemaProperties()
 	public ResponseEntity<IncidentDto> updateIncident(@RequestBody IncidentDto incident, Authentication authentication) {
-		if(!authCheck(authentication)) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 		try {
@@ -83,7 +83,7 @@ public class IncidentController {
 	 */
 	@DeleteMapping(path = "/{id}")
 	public ResponseEntity<?> deleteIncident(@PathVariable Long id, Authentication authentication) {
-		if(!authCheck(authentication)) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 		try {
@@ -102,7 +102,7 @@ public class IncidentController {
 	 */
 	@GetMapping(path = "/getAll", produces = "application/json")
 	public ResponseEntity<List<IncidentDto>> getAllIncidents(Authentication authentication) {
-		if(!authCheck(authentication)) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 		return ResponseEntity.ok(incidentService.getAll());
@@ -114,7 +114,7 @@ public class IncidentController {
 	 * @param authentication Authentication object containing the user's security credentials.
 	 * @return boolean if authentication is successfull or not.
 	 */
-	private boolean authCheck(Authentication authentication) {
+	private boolean isSocialWorkerOrAdmin(Authentication authentication) {
 		String callerId = authentication.getName();
 		UserRole callingRole = userService.getUserRole(callerId);
 		if (callingRole == UserRole.ADMIN || callingRole == UserRole.SOCIAL_WORKER) {

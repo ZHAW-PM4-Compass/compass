@@ -1197,6 +1197,15 @@ section,
   transition: 0.9s;
   background-color: var(--heading-color);
 }
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+.col-md-6 img {
+  width: 100%;
+  height: auto;
+}
 
 /*.skills .text-with-image {
   display: flex;

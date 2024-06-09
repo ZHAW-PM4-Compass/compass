@@ -16,7 +16,7 @@ process.env.ENVIRONMENT_URL = baseURL;
 export default defineConfig({
   testDir: './tests',
   // Timeout per test
-  timeout: 30 * 1000,
+  timeout: 15  * 1000,
   // Run tests in files in parallel on CI
   fullyParallel: !!process.env.CI,
   // Fail the build on CI if you accidentally left test.only in the source code.
@@ -26,7 +26,7 @@ export default defineConfig({
   // Opt out of parallel tests on CI
   workers: process.env.CI ? 1 : undefined,
   // Limit the number of failures on CI to save resources
-  maxFailures: process.env.CI ? 10 : undefined,
+  maxFailures: process.env.CI ? 5 : undefined,
   // Reporter to use. See https://playwright.dev/docs/test-reporters
   reporter: process.env.CI ? 'github' : 'list',
 
@@ -35,7 +35,7 @@ export default defineConfig({
   webServer: {
     command: process.env.CI ? 'npm run start' : 'npm run dev',
     url: baseURL,
-    timeout: 2 * 60 * 1000,
+    timeout: 1 * 60 * 1000,
     reuseExistingServer: !process.env.CI,
   },
 

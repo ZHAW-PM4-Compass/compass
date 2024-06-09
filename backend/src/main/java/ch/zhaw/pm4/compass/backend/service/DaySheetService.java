@@ -55,8 +55,8 @@ public class DaySheetService {
 		UserRole userRole = userService.getUserRole(userId);
 
 		Optional<LocalUser> owner;
-		if (userRole == UserRole.SOCIAL_WORKER || userRole == UserRole.ADMIN) {
-			owner = localUserRepository.findById(createDay.getOwner().getUser_id());
+		if ((userRole == UserRole.SOCIAL_WORKER || userRole == UserRole.ADMIN) && createDay.getOwner() != null) {
+				owner = localUserRepository.findById(createDay.getOwner().getUser_id());
 		} else {
 			owner = localUserRepository.findById(userId);
 		}

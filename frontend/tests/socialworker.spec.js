@@ -9,6 +9,7 @@ test.beforeEach('login max verstappen (social worker)', async ({ page }) => {
   await page.getByRole('button', { name: 'Continue' }).click();
   await page.getByLabel('Password*').click();
   await page.getByLabel('Password*').fill('Test123$');
+  await page.waitForTimeout(500);
   await page.getByRole('button', { name: 'Continue' }).click();
   await page.waitForTimeout(3000);
 });
@@ -65,6 +66,7 @@ test('testing crud for timestamp', async ({ page }) => {
 
   //delete timestamp
   await page.getByRole('row', { name: ':15 17:30 9h 15min' }).getByRole('button').first().click();
+  await page.waitForTimeout(3000);
 });
 
 test('testing crud for incidents', async ({ page }) => {
@@ -98,6 +100,8 @@ test('testing crud for incidents', async ({ page }) => {
   //delete incident
   await page.getByRole('button', { name: 'Löschen' }).click();
   await page.waitForTimeout(1000);
+  await expect(page.getByRole('heading', { name: 'Vorfall löschen' })).toBeVisible();
+  await page.getByRole('button', { name: 'Bestätigen' }).click();
   await expect(page.getByRole('status')).toContainText('Vorfall gelöscht');
   await expect(page.locator('td')).toContainText('Keine Daten erfasst');
 });
@@ -117,13 +121,17 @@ test('testing confirm daysheet', async ({ page }) => {
   await page.waitForTimeout(3000);
   await page.getByRole('button', { name: 'Bestätigen' }).click();
   await page.waitForTimeout(500);
+  await expect(page.getByRole('heading', { name: 'Arbeitszeit bestätigen' })).toBeVisible();
+  await page.getByRole('button', { name: 'Bestätigen' }).first().click();
+  await page.waitForTimeout(500);
   await expect(page.getByText('DaySheet wurde bestätigt')).toBeVisible();
 });
 
 test('testing daily overview', async ({ page }) => {
   await page.locator('div:nth-child(7) > .w-5').click();
   await page.waitForTimeout(1000);
-  await page.getByRole('combobox').nth(3).selectOption('auth0|6640a6df7d1d70fe02cc72c9');
+  await page.getByRole('combobox').nth(3).selectOption('charles.leclerc@gmail.com');
+  await page.getByRole('combobox').first().selectOption('01');
   await page.waitForTimeout(500);
 
   // update notes
@@ -137,6 +145,8 @@ test('testing daily overview', async ({ page }) => {
 
   //unconfirm daysheet
   await page.getByRole('button').nth(1).click();
+  await page.waitForTimeout(500);
+  await page.getByRole('button', { name: 'Bestätigen' }).click();
   await page.waitForTimeout(1000);
   await expect(page.getByText('Bestätigung wurde zurü')).toBeVisible();
   await page.getByRole('cell', { name: 'Nein' }).locator('div').click();
@@ -146,7 +156,7 @@ test('testing daily overview', async ({ page }) => {
 
 test('testing monthly overview', async ({ page }) => {
   await page.locator('div:nth-child(8) > .w-5').click();
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(3000);
   await expect(page.locator('svg').filter({ hasText: '1. Jun2. Jun3. Jun4. Jun5.' }).first()).toBeVisible();
   await expect(page.locator('svg').filter({ hasText: '1. Jun2. Jun3. Jun4. Jun5.' }).nth(1)).toBeVisible();
   await expect(page.getByRole('button', { name: 'Rapport' })).toBeVisible();

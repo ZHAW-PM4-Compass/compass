@@ -220,7 +220,7 @@ public class DaySheetControllerTest {
 		day2.setDate(dateNow.plusDays(1));
 		daySheets.add(day1);
 		daySheets.add(day2);
-		when(daySheetService.getAllDaySheetByUserAndMonth(any(String.class), any(YearMonth.class)))
+		when(daySheetService.getAllDaySheetByUserAndMonth(any(String.class), any(YearMonth.class), any(String.class)))
 				.thenReturn(daySheets);
 		String res = mockMvc.perform(
 				get("/daysheet/getAllByParticipantAndMonth/" + getDaySheet().getOwner().getId() + "/" + YearMonth.now())

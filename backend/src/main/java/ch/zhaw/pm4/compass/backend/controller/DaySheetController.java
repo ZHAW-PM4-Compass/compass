@@ -118,7 +118,7 @@ public class DaySheetController {
 	@GetMapping(path = "/getAllByParticipantAndMonth/{userId}/{month}", produces = "application/json")
 	public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipantAndMonth(@PathVariable String userId,
 			@PathVariable YearMonth month, Authentication authentication) {
-		return ResponseEntity.ok(daySheetService.getAllDaySheetByUserAndMonth(userId, month));
+		return ResponseEntity.ok(daySheetService.getAllDaySheetByUserAndMonth(userId, month, authentication.getName()));
 	}
 
 	/**

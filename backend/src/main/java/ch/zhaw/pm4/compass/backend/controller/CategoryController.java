@@ -76,32 +76,17 @@ public class CategoryController {
 	}
 
 	/**
-	 * Retrieves a category by its name without including ratings.
+	 * Retrieves a list of categories associated with a specific user ID.
 	 *
-	 * @param name The name of the category.
-	 * @return ResponseEntity with the CategoryDto or NotFound status if it doesn't exist.
+	 * @param userId The user ID whose category list is being requested.
+	 * @return ResponseEntity with a list of CategoryDto or an appropriate error status.
 	 */
-	@GetMapping(path = "/getByName/{name}", produces = "application/json")
-	public ResponseEntity<CategoryDto> getCategoryByName(@PathVariable String name) {
+	@GetMapping(path = "/getCategoryListByUserId/{userId}", produces = "application/json")
+	public ResponseEntity<List<CategoryDto>> getCategoryListByUserId(@PathVariable String userId) {
 		try {
-			return ResponseEntity.ok(categoryService.getCategoryByName(name, false));
-		} catch (NoSuchElementException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-	}
-
-	/**
-	 * Retrieves a category by its name including all associated ratings.
-	 *
-	 * @param name The name of the category.
-	 * @return ResponseEntity with the CategoryDto or NotFound status if it doesn't exist.
-	 */
-	@GetMapping(path = "/getByNameWithAllRatings/{name}", produces = "application/json")
-	public ResponseEntity<CategoryDto> getCategoryByNameWithRatings(@PathVariable String name) {
-		try {
-			return ResponseEntity.ok(categoryService.getCategoryByName(name, true));
-		} catch (NoSuchElementException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return ResponseEntity.ok(categoryService.getCategoryListByUserId(userId));
+		} catch (UserIsNotParticipantException | NoSuchElementException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -114,7 +99,7 @@ public class CategoryController {
 	 */
 	@PostMapping(path = "/linkUsersToExistingCategory", produces = "application/json")
 	public ResponseEntity<CategoryDto> linkUsersToExistingCategory(@RequestBody CategoryDto category,
-			Authentication authentication) {
+																   Authentication authentication) {
 		String callerId = authentication.getName();
 		UserRole callingRole = userService.getUserRole(callerId);
 		if (callingRole != UserRole.ADMIN) {
@@ -123,22 +108,6 @@ public class CategoryController {
 		try {
 			return ResponseEntity.ok(categoryService.linkUsersToExistingCategory(category));
 		} catch (NotValidCategoryOwnerException | NoSuchElementException | GlobalCategoryException e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
-
-	}
-
-	/**
-	 * Retrieves a list of categories associated with a specific user ID.
-	 *
-	 * @param userId The user ID whose category list is being requested.
-	 * @return ResponseEntity with a list of CategoryDto or an appropriate error status.
-	 */
-	@GetMapping(path = "/getCategoryListByUserId/{userId}", produces = "application/json")
-	public ResponseEntity<List<CategoryDto>> getCategoryListByUserId(@PathVariable String userId) {
-		try {
-			return ResponseEntity.ok(categoryService.getCategoryListByUserId(userId));
-		} catch (UserIsNotParticipantException | NoSuchElementException e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}

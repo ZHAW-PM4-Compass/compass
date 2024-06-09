@@ -123,7 +123,7 @@ public class TimestampController {
 	 * @return ResponseEntity indicating the result of the operation or appropriate error status.
 	 */
 	@DeleteMapping(path = "/{id}")
-	public ResponseEntity<Object> deleteTimestamp(@PathVariable Long id, Authentication authentication) {
+	public ResponseEntity<?> deleteTimestamp(@PathVariable Long id, Authentication authentication) {
 		TimestampDto timestamp = timestampService.getTimestampById(id, authentication.getName());
 		if (timestamp == null)
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -134,6 +134,6 @@ public class TimestampController {
 		if (daySheet.getConfirmed())
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		timestampService.deleteTimestamp(id);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(id);
 	}
 }

@@ -69,7 +69,7 @@ runs:
       uses: codecov/codecov-action@v2
       with:
         token: ${{ inputs.codecov-token }}
-        directory: ${{ inputs.working-directory }}/test-results
+        directory: ${{ inputs.working-directory }}/coverage
         flags: frontend
         fail_ci_if_error: true
         verbose: true
@@ -78,4 +78,4 @@ runs:
       uses: actions/upload-artifact@v2
       with:
         name: frontend-test-results
-        path: ${{ inputs.working-directory }}/test-results
+        path: ${{ inputs.working-directory }}/coverage

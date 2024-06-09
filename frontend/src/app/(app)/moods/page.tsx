@@ -69,7 +69,6 @@ const MoodModal = ({
           },
         }).then((daySheet: DaySheetDto) => {
           daySheetId = daySheet.id;
-          console.log(daySheetId);
         });
       }
       return;

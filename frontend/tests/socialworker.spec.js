@@ -1,7 +1,6 @@
 const { test, expect } = require('playwright-test-coverage');
 
 test.beforeEach('login max verstappen (social worker)', async ({ page }) => {
-  test.setTimeout(120000);
   await page.waitForTimeout(1000);
   await page.goto('http://localhost:3000/');
   await page.getByRole('button', { name: 'Login' }).click();

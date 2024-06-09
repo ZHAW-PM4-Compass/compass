@@ -14,7 +14,7 @@ test.beforeEach('login charles leclerc (participant)', async ({ page }) => {
 
 test('testing crud for timestamp', async ({ page }) => {
   //create valid timestamp
-  await page.getByRole('img').nth(1).click();
+  await page.goto('http://localhost:3000/working-hours');
   await page.waitForTimeout(3000);
   await page.locator('input[name="date"]').fill('2024-01-01');
   await expect(page.getByRole('cell', { name: 'Keine Daten erfasst' })).toBeVisible();
@@ -69,8 +69,8 @@ test('testing crud for moods', async ({ page }) => {
   await page.getByText('Stimmung erfassen').click();
   await page.getByRole('textbox').fill('2024-01-01');
   await expect(page.locator('td')).toContainText('Keine Daten erfasst');
-  await page.getByRole('button', { name: 'Rating abgeben' }).click();
-  await expect(page.locator('h2')).toContainText('Rating abgeben');
+  await page.getByRole('button', { name: 'Bewertung erfassen' }).click();
+  await expect(page.locator('h2')).toContainText('Bewertung abgeben');
   await expect(page.getByRole('button', { name: 'Speichern' })).toBeVisible();
-  await page.locator('form div').filter({ hasText: 'Rating abgeben' }).getByRole('button').click();
+  await page.locator('form div').filter({ hasText: 'Speichern' }).getByRole('button').click();
 });

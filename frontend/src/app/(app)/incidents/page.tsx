@@ -279,14 +279,14 @@ export default function IncidentsPage() {
               icon: Delete24Regular,
               label: "Löschen",
               onClick: (id) => {
-                setSelectedIncident(incidents[id]);
+                setSelectedIncident(incidentsFiltered[id]);
                 setShowDeleteConfirmModal(true);
               }
             },
             {
               icon: Edit24Regular,
               onClick: (id) => {
-                setSelectedIncident(incidents[id]);
+                setSelectedIncident(incidentsFiltered[id]);
                 setShowUpdateModal(true);
               }
             }

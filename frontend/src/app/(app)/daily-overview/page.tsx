@@ -291,15 +291,15 @@ export default function DailyOverviewPage() {
               icon: Note24Regular,
               label: "Notizen",
               onClick: (id) => {
-                setSelectedDaySheet(daySheets[id]);
+                setSelectedDaySheet(daySheetsFiltered[id]);
                 setShowDayNotesModal(true);
               },
             },
             {
               icon: ShiftsProhibited24Regular,
-              hide: (id) => !daySheets[id]?.confirmed ?? false,
+              hide: (id) => !daySheetsFiltered[id]?.confirmed ?? false,
               onClick: (id) => {
-                setSelectedDaySheet(daySheets[id]);
+                setSelectedDaySheet(daySheetsFiltered[id]);
                 setShowRevokeConfirmModal(true);
               },
             }

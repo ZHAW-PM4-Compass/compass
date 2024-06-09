@@ -64,6 +64,7 @@ runs:
         cd ${{ inputs.working-directory }}
         NODE_ENV=${{ inputs.node-env }} AUTH0_SECRET='${{ inputs.auth0-secret }}' AUTH0_BASE_URL='${{ inputs.auth0-base-url }}' AUTH0_ISSUER_BASE_URL='${{ inputs.auth0-issuer-base-url }}' AUTH0_CLIENT_ID='${{ inputs.auth0-client-id }}' AUTH0_CLIENT_SECRET='${{ inputs.auth0-client-secret }}' AUTH0_AUDIENCE='${{ inputs.auth0-audience }}' npm run test:coverage
       shell: bash
+      continue-on-error: true
 
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v2

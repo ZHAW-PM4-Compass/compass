@@ -62,7 +62,6 @@ test('testing crud for timestamp', async ({ page }) => {
 
   //delete timestamp
   await page.getByRole('row', { name: ':15 17:30 9h 15min' }).getByRole('button').first().click();
-
 });
 
 test('testing crud for moods', async ({ page }) => {
@@ -73,4 +72,6 @@ test('testing crud for moods', async ({ page }) => {
   await expect(page.locator('h2')).toContainText('Bewertung abgeben');
   await expect(page.getByRole('button', { name: 'Speichern' })).toBeVisible();
   await page.locator('form div').filter({ hasText: 'Speichern' }).getByRole('button').click();
+  await page.waitForTimeout(500);
+  await page.getByRole('button', { name: 'Bestätigen' }).click();
 });

@@ -101,6 +101,7 @@ function UserUpdateModal({ close, onSave, user }: Readonly<{
 }>) {
   const [givenName, setGivenName] = useState(user?.givenName);
   const [familyName, setFamilyName] = useState(user?.familyName);
+  const [role, setRole] = useState(user?.role);
 
   const onSubmit = (formData: FormData) => {
     const updateUserRequest: UpdateUserRequest = {
@@ -145,7 +146,8 @@ function UserUpdateModal({ close, onSave, user }: Readonly<{
         name={formFields.ROLE}
         data={roles}
         required={true}
-        value={user?.role} />
+        value={role}
+        onChange={(event) => setRole(event.target.value)} />
       <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name={formFields.EMAIL} disabled={true} value={user?.email} />
     </Modal>
   );

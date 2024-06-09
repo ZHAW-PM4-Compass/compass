@@ -173,7 +173,6 @@ export default function MonthlyOverviewPage() {
         let indexSocialWorker = 0;
 
         dataSeriesSet.forEach((series) => {
-          console.log(series)
           if ((series?.id as String)?.startsWith(RatingDtoRatingRoleEnum?.Participant)) {
             series.color = getNextColor("#5eead5", indexParticpant++)
           } else if ((series?.id as String)?.startsWith(RatingDtoRatingRoleEnum?.SocialWorker)) {
@@ -186,7 +185,6 @@ export default function MonthlyOverviewPage() {
         setIncidentCountPerDay(incidentCountPerDay);
         setDataset(data);
         setDataSeries(dataSeriesSet);
-        console.log(dataSeriesSet)
       });
     }
   }, [categorySelection, participantId, month, year]);

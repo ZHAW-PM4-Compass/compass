@@ -31,24 +31,7 @@ export interface CreateRatingDto {
      * @memberof CreateRatingDto
      */
     rating?: number;
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateRatingDto
-     */
-    ratingRole?: CreateRatingDtoRatingRoleEnum;
 }
-
-
-/**
- * @export
- */
-export const CreateRatingDtoRatingRoleEnum = {
-    SocialWorker: 'SOCIAL_WORKER',
-    Participant: 'PARTICIPANT'
-} as const;
-export type CreateRatingDtoRatingRoleEnum = typeof CreateRatingDtoRatingRoleEnum[keyof typeof CreateRatingDtoRatingRoleEnum];
-
 
 /**
  * Check if a given object implements the CreateRatingDto interface.
@@ -69,7 +52,6 @@ export function CreateRatingDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
         
         'categoryId': json['categoryId'] == null ? undefined : json['categoryId'],
         'rating': json['rating'] == null ? undefined : json['rating'],
-        'ratingRole': json['ratingRole'] == null ? undefined : json['ratingRole'],
     };
 }
 
@@ -81,7 +63,6 @@ export function CreateRatingDtoToJSON(value?: CreateRatingDto | null): any {
         
         'categoryId': value['categoryId'],
         'rating': value['rating'],
-        'ratingRole': value['ratingRole'],
     };
 }
 

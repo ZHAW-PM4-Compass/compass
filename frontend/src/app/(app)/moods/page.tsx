@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, type SetStateAction } from "react";
+import { useState, useEffect } from "react";
 import Modal from "@/components/modal";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import Select from "@/components/select";
 import Table from "@/components/table";
-import { Edit24Regular, Save24Regular } from "@fluentui/react-icons";
+import { ArrowLeft24Regular, ArrowRight24Regular, PersonFeedback24Regular, Save24Regular } from "@fluentui/react-icons";
 import Slider from "@/components/slider";
 import {
   getUserControllerApi,
@@ -15,32 +15,34 @@ import {
   getDaySheetControllerApi,
 } from "@/openapi/connector";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { debounce } from "lodash";
 import toast from "react-hot-toast";
 import {
   CategoryDto,
+  UserDtoRoleEnum,
   type DaySheetDto,
   type RatingDto,
-  type UserDto,
 } from "@/openapi/compassClient";
+import toastMessages from "@/constants/toastMessages";
+import Title1 from "@/components/title1";
+import IconButton from "@/components/iconbutton";
+import ConfirmModal from "@/components/confirmmodal";
 
 const MoodModal = ({
   close,
   onSave,
   categories,
-  participants,
-  selectedParticipant,
-  setSelectedParticipant,
-  role,
+  daySheetId,
+  participantId,
+  selectedDate
 }: {
   close: () => void;
-  onSave: (ratings: any[]) => void;
+  onSave: () => void;
   categories: any[];
-  participants: { id: string; label: string }[] | undefined;
-  selectedParticipant: string;
-  setSelectedParticipant: (participant: string) => void;
-  role: string;
+  daySheetId: number | undefined;
+  participantId: string | undefined;
+  selectedDate: string;
 }) => {
+  const [showCreateConfirmModal, setShowCreateConfirmModal] = useState(false);
   const [moodValues, setMoodValues] = useState<{ [key: string]: number }>({});
 
   const handleMoodChange = (categoryId: any, value: number) => {
@@ -50,306 +52,291 @@ const MoodModal = ({
     }));
   };
 
-  const handleSubmit = () => {
+  const saveRatings = () => {
     const ratingsToSave = Object.keys(moodValues).map((categoryId) => ({
-      category: { id: Number(categoryId) },
+      categoryId: Number(categoryId),
       rating: moodValues[categoryId],
-      ratingRole: role,
     }));
-    console.log("Saving ratings:", ratingsToSave);
-    onSave(ratingsToSave);
-    close();
+
+    const saveAction = () => Promise.all([]).then(() => {
+      if (!daySheetId) {
+        return getDaySheetControllerApi().createDaySheet({
+          daySheetDto: {
+            date: new Date(selectedDate),
+            owner: {
+              userId: participantId || "",
+            }
+          },
+        }).then((daySheet: DaySheetDto) => {
+          daySheetId = daySheet.id;
+          console.log(daySheetId);
+        });
+      }
+      return;
+    }).then(() => getRatingControllerApi().createRatingsByDaySheetId({
+      daySheetId: daySheetId ?? 0,
+      createRatingDto: ratingsToSave,
+    }).then(() => {
+      onSave();
+      close();
+    }));
+
+    toast.promise(saveAction(), {
+      loading: toastMessages.CREATING,
+      success: toastMessages.RATING_CREATED,
+      error: toastMessages.RATING_NOT_CREATED,
+    });
   };
 
+  useEffect(() => {
+    const initialMoodValues = categories.reduce((acc, category) => {
+      acc[category.id] = category.minimumValue;
+      return acc;
+    }, {});
+
+    setMoodValues(initialMoodValues);
+  }, []);
+
   return (
-    <Modal
-      title="Rating abgeben"
-      footerActions={
-        <>
-          {role === "SOCIAL_WORKER" || role === "ADMIN" ? (
-            <Select
-              className="mr-4 w-48 inline-block"
-              name="participant"
-              required
-              data={participants || []} // Ensure that `data` is always an array
-              value={selectedParticipant}
-              onChange={(event) => setSelectedParticipant(event.target.value)}
-            />
-          ) : null}
-          <Button Icon={Save24Regular} type="submit" onClick={handleSubmit}>
-            Speichern
-          </Button>
-        </>
-      }
-      close={close}
-      onSubmit={handleSubmit}
-    >
-      <div className="flex flex-col">
-        {categories.map((category) => (
-          <div key={category.id} className="mb-4">
-            <label className="mb-4 font-bold" >{category.name}</label>
-            <Slider
-              min={category.minimumValue}
-              max={category.maximumValue}
-              onChange={(value) => handleMoodChange(category.id, value)}
-              name={""}
-            />
-          </div>
-        ))}
-      </div>
-    </Modal>
+    <>
+      <Modal
+        title="Bewertung abgeben"
+        footerActions={
+          <>
+            <Button Icon={Save24Regular} type="submit">
+              Speichern
+            </Button>
+          </>
+        }
+        close={close}
+        onSubmit={() => setShowCreateConfirmModal(true)}
+      >
+        <div className="flex flex-col">
+          {categories.map((category) => (
+            <div key={category.id} className="mb-4">
+              <label className="mb-4 font-bold" >{category.name}</label>
+              <Slider
+                min={category.minimumValue}
+                max={category.maximumValue}
+                onChange={(value) => handleMoodChange(category.id, value)}
+                name={""}
+              />
+            </div>
+          ))}
+        </div>
+      </Modal>
+      {showCreateConfirmModal && (
+        <ConfirmModal
+          title="Bewertung abgeben"
+          question="Möchten Sie die Bewertung abgeben? Diese kann im Anschluss nicht mehr angepasst werden."
+          confirm={() => {
+            saveRatings();
+            setShowCreateConfirmModal(false);
+          }}
+          abort={() => setShowCreateConfirmModal(false)} />
+      )}
+    </>
   );
 };
 
 const MoodTrackingPage = () => {
+  const [loading, setLoading] = useState(true);
+
   const { user } = useUser();
-  const [role, setRole] = useState("PARTICIPANT");
+  const [role, setRole] = useState<UserDtoRoleEnum | undefined>();
   const [showModal, setShowModal] = useState(false);
   const [ratings, setRatings] = useState<RatingDto[]>([]);
   const [categories, setCategories] = useState<CategoryDto[]>([]);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  );
-  const [participants, setParticipants] = useState<UserDto[]>([]);
-  const [selectedParticipant, setSelectedParticipant] = useState(
-    user?.sub || ""
-  );
-  const [daySheetId, setDaySheetId] = useState<number | null>(null);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
+  const [participants, setParticipants] = useState<{ id: string, label: string }[]>([]);
+  const [selectedParticipant, setSelectedParticipant] = useState<string | undefined>();
+  const [daySheetId, setDaySheetId] = useState<number | undefined>(undefined);
 
-  useEffect(() => {
-    const fetchDaySheet = async () => {
-      const daySheetApi = getDaySheetControllerApi();
-      try {
-        if (role === "PARTICIPANT") {
-          const daySheet = await daySheetApi.getDaySheetDate({
-            date: selectedDate,
-          });
-          setDaySheetId(daySheet?.id ?? null);
-          setRatings(daySheet?.moodRatings || []);
-          return;
-        } else {
-          const daySheet =
-            await daySheetApi.getDaySheetByParticipantAndDate({
-              userId: selectedParticipant,
-              date: selectedDate,
-            });
+  const handlePrevDate = () => {
+    let selectedDateObj = new Date(selectedDate);
+    const newDate = new Date(selectedDate);
 
-          if (daySheet) {
-            setDaySheetId(daySheet.id || null);
-            setRatings(daySheet.moodRatings || []);
-          } else {
-            setDaySheetId(null);
-            setRatings([]);
+    newDate.setDate(selectedDateObj.getDate() - 1);
+    setSelectedDate(newDate.toISOString().slice(0, 10));
+  };
+
+  const handleNextDate = () => {
+    let selectedDateObj = new Date(selectedDate);
+    const newDate = new Date(selectedDate);
+
+    newDate.setDate(selectedDateObj.getDate() + 1);
+    setSelectedDate(newDate.toISOString().slice(0, 10));
+  };
+
+  const loadUserRole = () => {
+    getUserControllerApi().getUserById({
+      id: user?.sub ?? "",
+    }).then((userDto) => {
+      setRole(userDto.role);
+      if (userDto.role === UserDtoRoleEnum.SocialWorker || userDto.role === UserDtoRoleEnum.Admin) {
+        getUserControllerApi().getAllParticipants().then(participantDtos => {
+          const participants = participantDtos.map((participantDto) => ({
+            id: participantDto.userId ?? "",
+            label: participantDto.email ?? "",
+          }));
+
+          setParticipants(participants);
+          const firstParticipant = participants[0];
+          if (firstParticipant?.id) {
+            setSelectedParticipant(firstParticipant.id);
           }
-
-          console.log("Fetched daySheetId:", daySheet?.id);
-        }
-      } catch (error) {
-        console.error("Failed to fetch daySheet", error);
-        toast.error("Failed to fetch daySheet");
+        });
+      } else {
+        setSelectedParticipant(user?.sub ?? "");
       }
-    };
-    fetchDaySheet();
-  }, [selectedDate, selectedParticipant]);
+    });
+  };
+
+  const loadRatings = () => {
+    setLoading(true);
+    Promise.all([]).then(() => {
+      if (role === UserDtoRoleEnum.Participant) {
+        return getDaySheetControllerApi().getDaySheetDate({
+          date: selectedDate,
+        });
+      } else {
+        return getDaySheetControllerApi().getDaySheetByParticipantAndDate({
+          userId: selectedParticipant || "",
+          date: selectedDate,
+        });
+      }
+    }).then((daySheet: DaySheetDto) => {
+      daySheet?.moodRatings?.sort((a, b) => {
+        const nameA = a.category?.name ?? "";
+        const nameB = b.category?.name ?? "";
+        const typeA = a.ratingRole ?? "";
+        const typeB = b.ratingRole ?? "";
+
+        return nameA.localeCompare(nameB) || typeA.localeCompare(typeB);
+      });
+      setRatings(daySheet?.moodRatings || []);
+      setDaySheetId(daySheet?.id);
+    }).catch(() => {
+      setRatings([]);
+      setDaySheetId(undefined);
+    }).finally(() => {
+      setLoading(false);
+    })
+  };
+
+  const loadCategories = (participantId: string) => {
+    getCategoryControllerApi().getCategoryListByUserId({
+      userId: participantId,
+    }).then(setCategories).catch(() => {
+      toast.error(toastMessages.CATEGORIES_NOT_LOADED);
+    });
+  };
 
   useEffect(() => {
-    if (user) {
-      fetchUserRole();
+    if (user?.sub) {
+      loadUserRole();
     }
   }, [user]);
 
   useEffect(() => {
-    fetchRatings();
+    if (selectedParticipant && selectedDate && role) {
+      loadRatings();
+      loadCategories(selectedParticipant);
+    }
   }, [selectedDate, selectedParticipant, role]);
-
-  const fetchUserRole = async () => {
-    try {
-      const userApi = getUserControllerApi();
-      const userDto = await userApi.getUserById({
-        id: user?.sub ?? "",
-      });
-      setRole(userDto.role || "");
-      if (userDto.role === "SOCIAL_WORKER" || userDto.role === "ADMIN") {
-        const users = await userApi.getAllParticipants();
-        setParticipants(users);
-        //first returned user to be set as selected participant
-        if (users.length > 0 && users[0]?.userId !== undefined) {
-          setSelectedParticipant(users[0].userId);
-          fetchCategories(users[0].userId);
-        } else {
-          setSelectedParticipant("");
-        }
-      } else if (userDto.role === "PARTICIPANT") {
-        const categoryApi = getCategoryControllerApi();
-        const categories = await categoryApi.getCategoryListByUserId({
-          userId: user?.sub ?? "",
-        });
-        setCategories(categories);
-      }
-      console.log("Fetched user role:", userDto.role);
-    } catch (error) {
-      console.error("Failed to fetch user role", error);
-    }
-  };
-
-  const fetchRatings = async () => {
-    const daySheetApi = getDaySheetControllerApi();
-    try {
-      if (role === "PARTICIPANT") {
-        const daySheet = await daySheetApi.getDaySheetDate({
-          date: selectedDate,
-        });
-        setRatings(daySheet?.moodRatings || []);
-      } else {
-
-        const daySheets = await daySheetApi.getAllDaySheetByParticipantAndMonth(
-          {
-            userId: selectedParticipant,
-            month: selectedDate.slice(0, 7),
-          }
-        );
-        const formattedSelectedDate = new Date(selectedDate.slice(0, 10))
-          .toISOString()
-          .split("T")[0];
-        const daySheet = daySheets.find(
-          (sheet) =>
-            sheet.date?.toISOString().split("T")[0] === formattedSelectedDate
-        );
-        setRatings(daySheet?.moodRatings || []);
-      }
-    } catch (error) {
-      console.error("Failed to fetch ratings", error);
-    }
-  };
-
-  const fetchCategories = async (participantId: string | undefined) => {
-    const categoryApi = getCategoryControllerApi();
-    try {
-      const categories = await categoryApi.getCategoryListByUserId({
-        userId: participantId || "",
-      });
-      setCategories(categories);
-      console.log(
-        "Fetched categories for participant:",
-        participantId,
-        categories
-      );
-    } catch (error) {
-      console.error("Failed to fetch categories", error);
-    }
-  };
-
-  const handleSaveRating = useCallback(
-    debounce(async (ratings) => {
-      const ratingApi = getRatingControllerApi();
-      try {
-
-        const createRatingDtos = ratings.map(
-          (rating: {
-            category: { id: any };
-            rating: any;
-          }) => ({
-            categoryId: rating.category.id,
-            rating: rating.rating,
-          })
-        );
-
-        await ratingApi.createRatingsByDaySheetId({
-          daySheetId: daySheetId ?? 0,
-          createRatingDto: createRatingDtos,
-        });
-        fetchRatings();
-      } catch (error) {
-        console.error("Failed to save rating", error);
-      }
-    }, 300),
-    [daySheetId]
-  );
-
-  const handleDateChange = (event: {
-    target: { value: SetStateAction<string> };
-  }) => {
-    setSelectedDate(event.target.value);
-  };
-
-  const handleParticipantChange = async (
-    participantId: SetStateAction<string>
-  ) => {
-    if (typeof participantId === "function") {
-      setSelectedParticipant((prevState) => {
-        const newParticipantId = participantId(prevState);
-        fetchCategories(newParticipantId);
-        return newParticipantId;
-      });
-    } else {
-      setSelectedParticipant(participantId);
-      await fetchCategories(participantId);
-    }
-  };
-
-  const participantsData = participants.map((participant) => ({
-    id: participant.userId ?? "",
-    label: participant.email ?? "",
-  }));
 
   return (
     <>
       {showModal && (
         <MoodModal
           close={() => setShowModal(false)}
-          onSave={handleSaveRating}
+          onSave={loadRatings}
           categories={categories}
-          participants={
-            role === "SOCIAL_WORKER" || role === "ADMIN"
-              ? participantsData
-              : undefined
-          }
-          selectedParticipant={selectedParticipant}
-          setSelectedParticipant={setSelectedParticipant}
-          role={role}
+          daySheetId={daySheetId}
+          participantId={selectedParticipant}
+          selectedDate={selectedDate}
         />
       )}
-      <div className="flex flex-col">
-        <div className="flex flex-row justify-between mr-2 mt-2 mb-4 space-x-2 w-full">
-          <Button
-            className="max-w-[200px] self-start"
-            Icon={Edit24Regular}
-            onClick={() => {
-              setShowModal(true);
-            }}
-          >
-            Rating abgeben
-          </Button>
-          {role === "SOCIAL_WORKER" || role === "ADMIN" ? (
-            <Select
-              className="mr-4 w-48 inline-block"
-              name="participant"
-              required
-              data={participantsData}
-              value={selectedParticipant}
-              onChange={(event) => handleParticipantChange(event.target.value)}
-            />
-          ) : null}
-          <Input
-            type="date"
-            name="date"
-            value={selectedDate}
-            onChange={handleDateChange}
-          />
+      <div className="h-full flex flex-col">
+        <div className="flex flex-col md:flex-row justify-between mb-4">
+          <Title1>Stimmung</Title1>
+          <div className="mt-2 md:mt-0 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+            {role === UserDtoRoleEnum.SocialWorker || role === UserDtoRoleEnum.Admin ? (
+              <Select
+                className="w-48 inline-block"
+                name="participant"
+                required
+                data={participants}
+                value={selectedParticipant}
+                onChange={(event) => setSelectedParticipant(event.target.value)}
+              />
+            ) : null}
+            <div className="mt-2 md:mt-0 flex flex-row">
+              <IconButton
+                className="rounded-none rounded-l-md"
+                Icon={ArrowLeft24Regular}
+                onClick={handlePrevDate} />
+              <Input
+                className="rounded-none"
+                type="date"
+                name="date"
+                value={selectedDate}
+                onChange={event => setSelectedDate(event.target.value)} />
+              <IconButton
+                className="rounded-none rounded-r-md"
+                Icon={ArrowRight24Regular}
+                onClick={handleNextDate} />
+            </div>
+          </div>
         </div>
         <Table
-          data={ratings.map((rating) => ({
-            category: rating.category?.name?.trim() ?? "",
-            participantName: rating.ratingRole,
-            rating: rating.rating,
-          }))}
+          data={ratings}
           columns={[
-            { header: "Kategorie", title: "category" },
-            { header: "Teilnehmer", title: "participantName" },
-            { header: "Angabe", title: "rating" },
+            {
+              header: "Kategorie",
+              titleFunction: (rating: RatingDto) => {
+                return rating.category?.name?.trim() ?? "";
+              }
+            },
+            {
+              header: "Rolle",
+              titleFunction: (rating: RatingDto) => {
+                return rating.ratingRole === "PARTICIPANT"
+                  ? "Teilnehmer"
+                  : "Sozialarbeiter";
+              }
+            },
+            {
+              header: "Bewertung",
+              titleFunction: (rating: RatingDto) => {
+                const ratingValue = rating.rating ?? 0;
+                const minimumValue = rating.category?.minimumValue ?? 0;
+                const maximumValue = rating.category?.maximumValue ?? 0;
+                const ratingWidth = 100 / (maximumValue - minimumValue) * (ratingValue - minimumValue);
+
+                return <div className="h-5 w-full bg-slate-300 rounded-full min-w-32 relative">
+                  <div className="h-full bg-black rounded-full absolute" style={{ width: `${ratingWidth}%` }}></div>
+                  <span className="font-bold text-white text-sm ml-3 w-full absolute">{rating.rating} / {rating.category?.maximumValue}</span>
+                </div>;
+              }
+            },
           ]}
           actions={[]}
+          loading={loading}
         />
+        {!loading && (
+          <div>
+            <Button
+              className="mt-4"
+              Icon={PersonFeedback24Regular}
+              onClick={() => {
+                setShowModal(true);
+              }}
+            >
+              Bewertung erfassen
+            </Button>
+          </div>
+        )}
       </div>
     </>
   );

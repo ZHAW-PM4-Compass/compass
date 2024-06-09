@@ -23,7 +23,7 @@
     "prepare": "husky",
     "postbuild": "next-sitemap",
     "test:playwright": "playwright test",
-    "test:coverage": "NODE_ENV=test nyc --reporter=html --reporter=text npm run test:playwright"
+    "test:coverage": "NODE_ENV=test nyc --reporter=lcov --reporter=text npm run test:playwright"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",
@@ -183,7 +183,7 @@
       ".tsx"
     ],
     "reporter": [
-      "html",
+      "lcov",
       "text"
     ],
     "all": true,

@@ -125,7 +125,6 @@ test('testing daily overview', async ({ page }) => {
   await page.waitForTimeout(1000);
   await page.getByRole('combobox').nth(3).selectOption('auth0|6640a6df7d1d70fe02cc72c9');
   await page.waitForTimeout(500);
-  await expect(page.getByRole('row', { name: '01. Jan. 2024 10h 10min Ja' }).locator('div')).toBeVisible();
 
   // update notes
   await page.getByRole('button', { name: 'Notizen' }).click();

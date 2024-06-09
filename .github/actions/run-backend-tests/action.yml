@@ -88,9 +88,13 @@ runs:
       shell: bash
       run: docker exec test-container gradle test -info
 
-    - name: Debug Copied Classes
+    - name: Add Users to local_user Table
       shell: bash
-      run: ls -la ./backend/build
+      run: |
+        docker exec -i test-container psql -U ${{ inputs.db-username }} -d ${{ inputs.db-host }} -c "\
+          INSERT INTO local_user (id, role) VALUES
+          ('auth0|6640a6df7d1d70fe02cc72c9', 'PARTICIPANT'),
+          ('auth0|6640a6717d1d70fe02cc729a', 'SOCIAL_WORKER');"
 
     - name: Upload Backend Test Results
       uses: actions/upload-artifact@v2

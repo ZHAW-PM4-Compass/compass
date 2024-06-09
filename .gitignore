@@ -63,3 +63,6 @@ local
 # local properties
 application-local.properties
 backend/src/main/resources/application.properties
+frontend/.nyc_output/*
+.nyc_output/
+frontend/.nyc_output/**/*

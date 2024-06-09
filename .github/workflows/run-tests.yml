@@ -1,9 +1,6 @@
 name: Front and Backend Tests
 
 on:
-  push:
-    branches:
-      - feature/babel-istanbul-coverage
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch: # enables manual trigger

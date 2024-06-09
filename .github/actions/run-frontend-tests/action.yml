@@ -50,7 +50,7 @@ runs:
     - name: Install Playwright Browsers
       run: |
         cd ${{ inputs.working-directory }}
-        npx playwright install
+        npx playwright install --with-deps
       shell: bash
 
     - name: Build Project

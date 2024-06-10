@@ -28,6 +28,11 @@ spec:
                 configMapKeyRef:
                   name: compass-configmap
                   key: APP_URL
+            - name: API_BASE_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: compass-configmap
+                  key: API_BASE_PATH
             - name: DDL_AUTO
               valueFrom:
                 configMapKeyRef:

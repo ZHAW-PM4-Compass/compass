@@ -154,7 +154,7 @@ class DaySheetServiceTest {
 		List<DaySheet> jpaResponse = Arrays.asList(day1, day2);
 
 		when(daySheetRepository.findAllByOwnerIdAndDateBetween(user_id, monthFirst, monthLast)).thenReturn(jpaResponse);
-		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetByUserAndMonth(user_id, YearMonth.from(monthFirst));
+		List<DaySheetDto> daySheets = daySheetService.getAllDaySheetByUserAndMonth(user_id, YearMonth.from(monthFirst), user_id);
 
 		assertEquals(jpaResponse.size(), daySheets.size());
 

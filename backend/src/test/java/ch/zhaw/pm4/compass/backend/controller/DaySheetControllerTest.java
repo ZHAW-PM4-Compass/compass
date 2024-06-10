@@ -5,8 +5,10 @@ import ch.zhaw.pm4.compass.backend.model.DaySheet;
 import ch.zhaw.pm4.compass.backend.model.LocalUser;
 import ch.zhaw.pm4.compass.backend.model.Timestamp;
 import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.IncidentDto;
 import ch.zhaw.pm4.compass.backend.model.dto.UpdateDaySheetDayNotesDto;
 import ch.zhaw.pm4.compass.backend.service.DaySheetService;
+import ch.zhaw.pm4.compass.backend.service.UserService;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +48,8 @@ public class DaySheetControllerTest {
 
 	@MockBean
 	private DaySheetService daySheetService;
-
+	@MockBean
+	private UserService userService;
 	@MockBean
 	@SuppressWarnings("unused")
 	private JwtDecoder jwtDecoder;
@@ -71,7 +74,6 @@ public class DaySheetControllerTest {
 	public void setup() {
 		mockMvc = MockMvcBuilders.webAppContextSetup(controller).apply(SecurityMockMvcConfigurers.springSecurity())
 				.build();
-
 	}
 
 	@Test
@@ -129,6 +131,7 @@ public class DaySheetControllerTest {
 		updateDay.setConfirmed(false);
 		when(daySheetService.updateDayNotes(any(UpdateDaySheetDayNotesDto.class), any(String.class)))
 				.thenReturn(updateDay);
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
 
 		// Act
 		mockMvc.perform(put("/daysheet/updateDayNotes").contentType(MediaType.APPLICATION_JSON)
@@ -151,6 +154,7 @@ public class DaySheetControllerTest {
 		DaySheetDto updateDay = getUpdateDaySheet();
 		updateDay.setConfirmed(true);
 		when(daySheetService.updateConfirmed(any(Long.class), any(Boolean.class), any(String.class))).thenReturn(updateDay);
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
 
 		// Act
 		mockMvc.perform(put("/daysheet/confirm/1").contentType(MediaType.APPLICATION_JSON)
@@ -169,6 +173,7 @@ public class DaySheetControllerTest {
 		DaySheetDto updateDay = getUpdateDaySheet();
 		updateDay.setConfirmed(false);
 		when(daySheetService.updateConfirmed(any(Long.class), any(Boolean.class), any(String.class))).thenReturn(updateDay);
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
 
 		// Act
 		mockMvc.perform(put("/daysheet/revoke/1").contentType(MediaType.APPLICATION_JSON)
@@ -220,8 +225,10 @@ public class DaySheetControllerTest {
 		day2.setDate(dateNow.plusDays(1));
 		daySheets.add(day1);
 		daySheets.add(day2);
-		when(daySheetService.getAllDaySheetByUserAndMonth(any(String.class), any(YearMonth.class)))
+		when(daySheetService.getAllDaySheetByUserAndMonth(any(String.class), any(YearMonth.class), any(String.class)))
 				.thenReturn(daySheets);
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
+
 		String res = mockMvc.perform(
 				get("/daysheet/getAllByParticipantAndMonth/" + getDaySheet().getOwner().getId() + "/" + YearMonth.now())
 						.contentType(MediaType.APPLICATION_JSON).with(SecurityMockMvcRequestPostProcessors.csrf()))
@@ -239,6 +246,8 @@ public class DaySheetControllerTest {
 		DaySheetDto getDay = getDaySheetDto();
 		when(daySheetService.getDaySheetByUserAndDate(any(String.class), any(LocalDate.class),any(String.class)))
 				.thenReturn(getDay);
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
+
 		String res = mockMvc.perform(
 						get("/daysheet/getByParticipantAndDate/" + getDaySheet().getOwner().getId() + "/" + getDaySheet().getDate().toString())
 								.contentType(MediaType.APPLICATION_JSON).with(SecurityMockMvcRequestPostProcessors.csrf()))
@@ -258,5 +267,33 @@ public class DaySheetControllerTest {
 						get("/daysheet/getByParticipantAndDate/" + getDaySheet().getOwner().getId() + "/" + getDaySheet().getDate().toString())
 								.contentType(MediaType.APPLICATION_JSON).with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	@WithMockUser(username = "testuser", roles = {})
+	public void whenCallingAdminOrSocialWorkerProtectedEndpointsAsParticipant_expectForbidden() throws Exception {
+		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.PARTICIPANT);
+
+		mockMvc.perform(get("/daysheet/getAllNotConfirmed").contentType(MediaType.APPLICATION_JSON)
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+		mockMvc.perform(get("/daysheet/getAllByMonth/" + YearMonth.now()).contentType(MediaType.APPLICATION_JSON)
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+		mockMvc.perform(get("/daysheet/getAllByParticipantAndMonth/" + getDaySheet().getOwner().getId() + "/" + YearMonth.now()).contentType(MediaType.APPLICATION_JSON)
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+		mockMvc.perform(put("/daysheet/updateDayNotes").contentType(MediaType.APPLICATION_JSON)
+				.content("{\"id\": 1,\"day_notes\": \"" + reportText + "1" + "\", \"date\": \"" + dateNow.toString()
+						+ "\", \"confirmed\": \"true\" }")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+		mockMvc.perform(put("/daysheet/confirm/1").contentType(MediaType.APPLICATION_JSON)
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+		mockMvc.perform(put("/daysheet/revoke/1").contentType(MediaType.APPLICATION_JSON)
+				.with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isForbidden());
+
+		verify(userService, times(6)).getUserRole(any(String.class));
 	}
 }

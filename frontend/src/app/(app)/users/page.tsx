@@ -14,8 +14,9 @@ import { toast } from 'react-hot-toast';
 import toastMessages from "@/constants/toastMessages";
 import RoleTitles from "@/constants/roleTitles";
 import type { AuthZeroUserDtoRoleEnum, CreateAuthZeroUserDtoRoleEnum, CreateUserRequest, UpdateUserRequest, UserDto } from "@/openapi/compassClient";
+import ConfirmModal from "@/components/confirmmodal";
 
-const auth0Timeout = 1500;
+const auth0Timeout = 3000;
 
 const roles = [
   {
@@ -100,6 +101,7 @@ function UserUpdateModal({ close, onSave, user }: Readonly<{
 }>) {
   const [givenName, setGivenName] = useState(user?.givenName);
   const [familyName, setFamilyName] = useState(user?.familyName);
+  const [role, setRole] = useState(user?.role);
 
   const onSubmit = (formData: FormData) => {
     const updateUserRequest: UpdateUserRequest = {
@@ -144,7 +146,8 @@ function UserUpdateModal({ close, onSave, user }: Readonly<{
         name={formFields.ROLE}
         data={roles}
         required={true}
-        value={user?.role} />
+        value={role}
+        onChange={(event) => setRole(event.target.value)} />
       <Input type="email" placeholder="Email" className="mb-4 mr-4 w-64 block" name={formFields.EMAIL} disabled={true} value={user?.email} />
     </Modal>
   );
@@ -154,6 +157,7 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [users, setUsers] = useState<UserDto[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserDto>();
 
@@ -219,6 +223,16 @@ export default function UsersPage() {
           onSave={loadUsers}
           user={selectedUser} />
       )}
+      {showDeleteConfirmModal && (
+        <ConfirmModal
+          title="Benutzer löschen"
+          question="Möchten Sie diesen Benutzer wirklich löschen? Der Benutzer bleibt im System erhalten."
+          confirm={() => {
+            selectedUser?.userId && deleteUser(selectedUser.userId);
+            setShowDeleteConfirmModal(false);
+          }}
+          abort={() => setShowDeleteConfirmModal(false)} />
+      )}
       <div className="h-full flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between mb-4">
           <Title1>Benutzerverwaltung</Title1>
@@ -263,8 +277,8 @@ export default function UsersPage() {
               icon: Delete24Regular,
               label: "Löschen",
               onClick: (id) => {
-                const user = users[id];
-                user?.userId && deleteUser(user.userId)
+                setSelectedUser(users[id]);
+                setShowDeleteConfirmModal(true);
               },
               hide: (id) => {
                 const user = users[id] as UserDto;

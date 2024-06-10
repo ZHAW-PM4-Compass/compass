@@ -17,7 +17,6 @@ export default function Modal({ children, title, footerActions, close, onSubmit 
     onSubmit && onSubmit(formData);
   }
 
-
   useEffect(() => {
     const handleEsc = (event: any) => {
       if (event.keyCode === 27) close();

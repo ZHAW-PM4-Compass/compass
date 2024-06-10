@@ -13,6 +13,7 @@ import Modal from "@/components/modal";
 import Button from "@/components/button";
 import TextArea from "@/components/textarea";
 import { convertMilisecondsToTimeString } from "@/utils/time";
+import ConfirmModal from "@/components/confirmmodal";
 
 const allParticipants = "ALL_PARTICIPANTS";
 
@@ -83,6 +84,7 @@ function DayNotesModal({ close, onSave, daySheetDto }: Readonly<{
 export default function DailyOverviewPage() {
   const [loading, setLoading] = useState(true);
   const [showDayNotesModal, setShowDayNotesModal] = useState(false);
+  const [showRevokeConfirmModal, setShowRevokeConfirmModal] = useState(false);
 
   const [participantSelection, setParticipantSelection] = useState<any>();
   const [month, setMonth] = useState<string>(new Date().toLocaleString('en-US', { month: '2-digit' }).padStart(2, '0'));
@@ -194,6 +196,16 @@ export default function DailyOverviewPage() {
           onSave={loadDaySheets}
           daySheetDto={selectedDaySheet} />
       )}
+      {showRevokeConfirmModal && (
+        <ConfirmModal
+          title="Arbeitszeit Bestätigung"
+          question="Möchten Sie die Arbeitszeit Bestätigung rückgängig machen?"
+          confirm={() => {
+            selectedDaySheet?.id && revokeDaySheet(selectedDaySheet.id);
+            setShowRevokeConfirmModal(false);
+          }}
+          abort={() => setShowRevokeConfirmModal(false)} />
+      )}
       <div className="h-full flex flex-col">
         <div className="flex flex-col md:flex-row justify-between">
           <Title1>Tagesübersicht</Title1>
@@ -279,16 +291,16 @@ export default function DailyOverviewPage() {
               icon: Note24Regular,
               label: "Notizen",
               onClick: (id) => {
-                setSelectedDaySheet(daySheets[id]);
+                setSelectedDaySheet(daySheetsFiltered[id]);
                 setShowDayNotesModal(true);
               },
             },
             {
               icon: ShiftsProhibited24Regular,
-              hide: (id) => !daySheets[id]?.confirmed ?? false,
+              hide: (id) => !daySheetsFiltered[id]?.confirmed ?? false,
               onClick: (id) => {
-                const daySheetId = daySheets[id]?.id;
-                daySheetId && revokeDaySheet(daySheetId);
+                setSelectedDaySheet(daySheetsFiltered[id]);
+                setShowRevokeConfirmModal(true);
               },
             }
           ]}

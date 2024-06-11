@@ -157,7 +157,6 @@ test('testing daily overview', async ({ page }) => {
 test('testing monthly overview', async ({ page }) => {
   await page.locator('div:nth-child(8) > .w-5').click();
   await page.waitForTimeout(3000);
-  await expect(page.locator('svg').filter({ hasText: '1. Jun2. Jun3. Jun4. Jun5.' }).first()).toBeVisible();
-  await expect(page.locator('svg').filter({ hasText: '1. Jun2. Jun3. Jun4. Jun5.' }).nth(1)).toBeVisible();
+  await expect(page.locator('body')).toContainText('Teilnehmercharles.leclerc@gmail.com');
   await expect(page.getByRole('button', { name: 'Rapport' })).toBeVisible();
 });

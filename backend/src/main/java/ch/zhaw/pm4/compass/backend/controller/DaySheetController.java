@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
+import ch.zhaw.pm4.compass.backend.UserRole;
+import ch.zhaw.pm4.compass.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class DaySheetController {
 	@Autowired
 	private DaySheetService daySheetService;
+	@Autowired
+	private UserService userService;
+
 
 	/**
 	 * Creates a new day sheet with provided details. Only accessible if the user's role allows.
@@ -45,11 +50,15 @@ public class DaySheetController {
 	@PostMapping(produces = "application/json")
 	public ResponseEntity<DaySheetDto> createDaySheet(@RequestBody DaySheetDto daySheet,
 			Authentication authentication) {
-		if (daySheet.getDate() == null)
+		if (daySheet.getDate() == null) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+
 		DaySheetDto response = daySheetService.createDay(daySheet, authentication.getName());
-		if (response == null)
+		if (response == null) {
 			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
+
 		return ResponseEntity.ok(response);
 	}
 
@@ -64,8 +73,10 @@ public class DaySheetController {
 	@GetMapping(path = "/getById/{id}", produces = "application/json")
 	public ResponseEntity<DaySheetDto> getDaySheetById(@PathVariable Long id, Authentication authentication) {
 		DaySheetDto response = daySheetService.getDaySheetByIdAndUserId(id, authentication.getName());
-		if (response == null)
+		if (response == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
 		return ResponseEntity.ok(response);
 	}
 
@@ -79,8 +90,10 @@ public class DaySheetController {
 	@GetMapping(path = "/getByDate/{date}", produces = "application/json")
 	public ResponseEntity<DaySheetDto> getDaySheetDate(@PathVariable String date, Authentication authentication) {
 		DaySheetDto response = daySheetService.getDaySheetByDate(LocalDate.parse(date), authentication.getName());
-		if (response == null)
+		if (response == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
 		return ResponseEntity.ok(response);
 	}
 
@@ -92,6 +105,10 @@ public class DaySheetController {
 	 */
 	@GetMapping(path = "/getAllNotConfirmed", produces = "application/json")
 	public ResponseEntity<List<DaySheetDto>> getAllDaySheetNotConfirmed(Authentication authentication) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+
 		return ResponseEntity.ok(daySheetService.getAllDaySheetNotConfirmed(authentication.getName()));
 	}
 
@@ -104,6 +121,10 @@ public class DaySheetController {
 	 */
 	@GetMapping(path = "/getAllByMonth/{month}", produces = "application/json")
 	public ResponseEntity<List<DaySheetDto>> getAllDaySheetByMonth(@PathVariable YearMonth month, Authentication authentication) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+
 		return ResponseEntity.ok(daySheetService.getAllDaySheetByMonth(month, authentication.getName()));
 	}
 
@@ -118,7 +139,11 @@ public class DaySheetController {
 	@GetMapping(path = "/getAllByParticipantAndMonth/{userId}/{month}", produces = "application/json")
 	public ResponseEntity<List<DaySheetDto>> getAllDaySheetByParticipantAndMonth(@PathVariable String userId,
 			@PathVariable YearMonth month, Authentication authentication) {
-		return ResponseEntity.ok(daySheetService.getAllDaySheetByUserAndMonth(userId, month));
+		if(!isSocialWorkerOrAdmin(authentication)) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+
+		return ResponseEntity.ok(daySheetService.getAllDaySheetByUserAndMonth(userId, month, authentication.getName()));
 	}
 
 	/**
@@ -132,9 +157,10 @@ public class DaySheetController {
 	public ResponseEntity<DaySheetDto> getDaySheetByParticipantAndDate(@PathVariable String userId, @PathVariable String date, Authentication authentication) {
 		LocalDate localDate = LocalDate.parse(date);
 		DaySheetDto response = daySheetService.getDaySheetByUserAndDate(userId, localDate, authentication.getName());
-
-		if (response == null)
+		if (response == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
 		return ResponseEntity.ok(response);
 	}
 
@@ -148,9 +174,15 @@ public class DaySheetController {
 	@PutMapping(path = "/updateDayNotes", produces = "application/json")
 	public ResponseEntity<DaySheetDto> updateDayNotes(@RequestBody UpdateDaySheetDayNotesDto updateDay,
 			Authentication authentication) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+
 		DaySheetDto response = daySheetService.updateDayNotes(updateDay, authentication.getName());
-		if (response == null)
+		if (response == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
 		return ResponseEntity.ok(response);
 	}
 
@@ -163,9 +195,15 @@ public class DaySheetController {
 	 */
 	@PutMapping(path = "/confirm/{id}", produces = "application/json")
 	public ResponseEntity<DaySheetDto> confirm(@PathVariable Long id, Authentication authentication) {
+		if(!isSocialWorkerOrAdmin(authentication)) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+
 		DaySheetDto response = daySheetService.updateConfirmed(id, true, authentication.getName());
-		if (response == null)
+		if (response == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
 		return ResponseEntity.ok(response);
 	}
 
@@ -179,8 +217,30 @@ public class DaySheetController {
 	@PutMapping(path = "/revoke/{id}", produces = "application/json")
 	public ResponseEntity<DaySheetDto> revoke(@PathVariable Long id, Authentication authentication) {
 		DaySheetDto response = daySheetService.updateConfirmed(id, false, authentication.getName());
-		if (response == null)
+		if(!isSocialWorkerOrAdmin(authentication)) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+
+		if (response == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
 		return ResponseEntity.ok(response);
+	}
+
+	/**
+	 * Checks if user is allowed to access the ressource (admin or Social worker)
+	 *
+	 * @param authentication Authentication object containing the user's security credentials.
+	 * @return boolean if authentication is successfull or not.
+	 */
+	private boolean isSocialWorkerOrAdmin(Authentication authentication) {
+		String callerId = authentication.getName();
+		UserRole callingRole = userService.getUserRole(callerId);
+		if (callingRole == UserRole.ADMIN || callingRole == UserRole.SOCIAL_WORKER) {
+			return true;
+		}
+
+		return false;
 	}
 }

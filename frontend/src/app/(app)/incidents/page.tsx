@@ -6,7 +6,6 @@ import Input from "@/components/input";
 import Modal from "@/components/modal";
 import Table from "@/components/table";
 import Title1 from "@/components/title1";
-import Roles from "@/constants/roles";
 import { Delete24Regular, Edit24Regular, Save24Regular, Add24Regular } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
@@ -17,6 +16,7 @@ import type { CreateIncidentRequest, UpdateIncidentRequest } from "@/openapi/com
 import TextArea from "@/components/textarea";
 import Select from "@/components/select";
 import React from "react";
+import ConfirmModal from "@/components/confirmmodal";
 
 const allParticipants = "ALL_PARTICIPANTS";
 
@@ -27,11 +27,9 @@ enum formFields {
   PARTICIPANT = "participant"
 }
 
-function IncidentCreateModal({ close, onSave, userId, partSelectActive, participants }: Readonly<{
+function IncidentCreateModal({ close, onSave, participants }: Readonly<{
   close: () => void;
   onSave: () => void;
-  userId?: string;
-  partSelectActive?: boolean;
   participants?: UserDto[];
 }>) {
   const onSubmit = (formData: FormData) => {
@@ -44,7 +42,7 @@ function IncidentCreateModal({ close, onSave, userId, partSelectActive, particip
         title: formData.get(formFields.TITLE) as string,
         description: formData.get(formFields.DESCRIPTION) as string,
         user: {
-          userId: partSelectActive ? formData.get(formFields.PARTICIPANT) as string : userId
+          userId: formData.get(formFields.PARTICIPANT) as string
         }
       }
     };
@@ -70,18 +68,14 @@ function IncidentCreateModal({ close, onSave, userId, partSelectActive, particip
     <Modal
       title="Vorfall erfassen"
       footerActions={
-        partSelectActive ? (
-          <>
-            <Select
-              className="mr-4 w-48 inline-block"
-              name={formFields.PARTICIPANT}
-              required={true}
-              data={participantsData ?? []} />
-            <Button Icon={Save24Regular} type="submit">Speichern</Button>
-          </>
-        ) : (
+        <>
+          <Select
+            className="mr-4 w-48 inline-block"
+            name={formFields.PARTICIPANT}
+            required={true}
+            data={participantsData ?? []} />
           <Button Icon={Save24Regular} type="submit">Speichern</Button>
-        )
+        </>
       }
       close={close}
       onSubmit={onSubmit}
@@ -93,11 +87,10 @@ function IncidentCreateModal({ close, onSave, userId, partSelectActive, particip
   );
 }
 
-function IncidentUpdateModal({ close, onSave, incidentDto, partSelectActive }: Readonly<{
+function IncidentUpdateModal({ close, onSave, incidentDto }: Readonly<{
   close: () => void;
   onSave: () => void;
   incidentDto: IncidentDto | undefined;
-  partSelectActive?: boolean;
 }>) {
   const [title, setTitle] = useState(incidentDto?.title);
   const [description, setDescription] = useState(incidentDto?.description);
@@ -141,14 +134,10 @@ function IncidentUpdateModal({ close, onSave, incidentDto, partSelectActive }: R
     <Modal
       title="Vorfall bearbeiten"
       footerActions={
-        partSelectActive ? (
-          <>
-            <Input className="mr-4 w-48 inline-block" name={formFields.PARTICIPANT} disabled={true} value={incidentDto?.user?.email} />
-            <Button Icon={Save24Regular} type="submit">Speichern</Button>
-          </>
-        ) : (
+        <>
+          <Input className="mr-4 w-48 inline-block" name={formFields.PARTICIPANT} disabled={true} value={incidentDto?.user?.email} />
           <Button Icon={Save24Regular} type="submit">Speichern</Button>
-        )
+        </>
       }
       close={close}
       onSubmit={onSubmit}
@@ -164,17 +153,29 @@ export default function IncidentsPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [partSelectActive, setPartSelectActive] = useState(true);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [incidents, setIncidents] = useState<IncidentDto[]>([]);
   const [incidentsFiltered, setIncidentsFiltered] = useState<IncidentDto[]>([]);
   const [selectedIncident, setSelectedIncident] = useState<IncidentDto>();
-  const [userId, setUserId] = useState("");
   const [participants, setParticipants] = useState<UserDto[]>([]);
 
   const [participantSelection, setParticipantSelection] = useState<any>();
   const [participantSelections, setParticipantSelections] = useState<{ id: string, label: string }[]>([]);
 
-  const { user } = useUser();
+  const loadParticipants = () => {
+    getUserControllerApi().getAllParticipants().then(participants => {
+      setParticipants(participants);
+
+      const participantsSelections = participants.map(participant => participant && ({
+        id: participant.userId ?? "",
+        label: participant.email ?? ""
+      })) ?? [];
+
+      participantsSelections.unshift({ id: allParticipants, label: "Alle Teilnehmer" });
+      setParticipantSelections(participantsSelections);
+      setParticipantSelection(allParticipants);
+    });
+  }
 
   const loadIncidents = () => {
     setLoading(true);
@@ -208,26 +209,9 @@ export default function IncidentsPage() {
   }
 
   useEffect(() => {
-    setUserId(user?.sub || "");
-    user?.sub && getUserControllerApi().getUserById({ id: user.sub }).then(userDto => {
-      if (userDto.role === Roles.SOCIAL_WORKER || userDto.role === Roles.ADMIN) {
-        setPartSelectActive(true);
-        getUserControllerApi().getAllParticipants().then(participants => {
-          setParticipants(participants);
-
-          const participantsSelections = participants.map(participant => participant && ({
-            id: participant.userId ?? "",
-            label: participant.email ?? ""
-          })) ?? [];
-
-          participantsSelections.unshift({ id: allParticipants, label: "Alle Teilnehmer" });
-          setParticipantSelections(participantsSelections);
-          setParticipantSelection(allParticipants);
-        });
-      }
-    });
+    loadParticipants();
     loadIncidents();
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     filterIncidents();
@@ -239,16 +223,23 @@ export default function IncidentsPage() {
         <IncidentCreateModal
           close={() => setShowCreateModal(false)}
           onSave={loadIncidents}
-          userId={userId}
-          partSelectActive={partSelectActive}
           participants={participants} />
       )}
       {showUpdateModal && (
         <IncidentUpdateModal
           close={() => setShowUpdateModal(false)}
           onSave={loadIncidents}
-          incidentDto={selectedIncident}
-          partSelectActive={partSelectActive} />
+          incidentDto={selectedIncident} />
+      )}
+      {showDeleteConfirmModal && (
+        <ConfirmModal
+          title="Vorfall löschen"
+          question="Möchten Sie diesen Vorfall wirklich löschen? Dieser kann nicht wiederhergestellt werden."
+          confirm={() => {
+            selectedIncident?.id && deleteIncident(selectedIncident.id);
+            setShowDeleteConfirmModal(false);
+          }}
+          abort={() => setShowDeleteConfirmModal(false)} />
       )}
       <div className="h-full flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between">
@@ -288,14 +279,14 @@ export default function IncidentsPage() {
               icon: Delete24Regular,
               label: "Löschen",
               onClick: (id) => {
-                const incident = incidents[id];
-                incident?.id && deleteIncident(incident.id)
+                setSelectedIncident(incidentsFiltered[id]);
+                setShowDeleteConfirmModal(true);
               }
             },
             {
               icon: Edit24Regular,
               onClick: (id) => {
-                setSelectedIncident(incidents[id]);
+                setSelectedIncident(incidentsFiltered[id]);
                 setShowUpdateModal(true);
               }
             }

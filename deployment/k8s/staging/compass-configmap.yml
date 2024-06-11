@@ -8,7 +8,7 @@ metadata:
 data:
   APP_URL: compass-staging.pm4.init-lab.ch
   DDL_AUTO: update
-  NEXT_PUBLIC_API_BASE_PATH: https://compass-staging.pm4.init-lab.ch
+  API_BASE_PATH: https://compass-staging.pm4.init-lab.ch
   DOCKER_ON: "false"
   SWAGGER_UI_ON: "false"
   SECURITY_LOG_LEVEL: DEBUG

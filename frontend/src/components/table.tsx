@@ -1,8 +1,9 @@
 import { getFormattedDate } from "@/utils/date"
 import Loading from "./loading"
 
-const Header = ({ columns }: Readonly<{
+const Header = ({ columns, actions }: Readonly<{
   columns: Array<{ header: string, title?: string }>
+  actions?: Array<{ icon: any, label?: string, onClick: (id: number) => void, hide?: (id: number) => boolean }>
 }>) => {
   return (
     <thead className="bg-slate-200 w-full">
@@ -12,7 +13,9 @@ const Header = ({ columns }: Readonly<{
             <th key={index} className="py-2 px-6 text-left text-sm">{column.header}</th>
           )
         })}
-        <th></th>
+        {actions && actions.length > 0 && (
+          <th className="py-2 px-6 text-right text-sm">Aktionen</th>
+        )}
       </tr>
     </thead>
   )
@@ -35,16 +38,18 @@ const Item = ({ itemIndex, item, columns, actions }: Readonly<{
           </td>
         )
       })}
-      <td className="text-right text-md pr-2 min-w-52">
-        {actions && actions.map((action, index) => {
-          return (
-            <button key={index} onClick={() => action.onClick(itemIndex)} className={`rounded-md hover:bg-slate-100 text-sm mr-2 px-2 py-1.5 focus:outline-2 focus:outline-black duration-200 ${!action.label && "w-9"}`} hidden={action.hide ? action.hide(itemIndex) : false}>
-              {action.icon && <action.icon className="w-5 h-5 mr-2" />}
-              {action.label}
-            </button>
-          )
-        })}
-      </td>
+      {actions && actions.length > 0 && (
+        <td className="text-right text-md pr-2 min-w-52">
+          {actions && actions.map((action, index) => {
+            return (
+              <button key={index} onClick={() => action.onClick(itemIndex)} className={`rounded-md hover:bg-slate-100 text-sm mr-2 px-2 py-1.5 focus:outline-2 focus:outline-black duration-200 ${!action.label && "w-9"}`} hidden={action.hide ? action.hide(itemIndex) : false}>
+                {action.icon && <action.icon className="w-5 h-5 mr-2" />}
+                {action.label}
+              </button>
+            )
+          })}
+        </td>
+      )}
     </tr>
   )
 }
@@ -60,7 +65,10 @@ export default function Table({ className, data, columns, actions, loading, cust
   return (
     <div className="overflow-auto">
       <table className={`table-auto w-full rounded-lg overflow-hidden ${className}`}>
-        <Header columns={columns}></Header>
+        <Header
+          columns={columns}
+          actions={actions}
+        ></Header>
         <tbody>
           {loading && (
             <>

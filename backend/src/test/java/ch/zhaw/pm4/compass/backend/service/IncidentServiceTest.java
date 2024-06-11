@@ -71,7 +71,7 @@ public class IncidentServiceTest {
   }
 
   @Test
-  public void TestCreateIncident() throws DaySheetNotFoundException {
+  public void whenCreateIncident_expectSameIncidentDto() throws DaySheetNotFoundException {
     when(daySheetService.getDaySheetByDate(any(LocalDate.class), any(String.class))).thenReturn(getDaySheetDto());
     when(incidentRepository.save(any(Incident.class))).thenReturn(getIncident());
 
@@ -83,7 +83,7 @@ public class IncidentServiceTest {
   }
 
   @Test
-  public void TestupdateIncident() throws IncidentNotFoundException {
+  public void whenUpdateIncident_expectSameIncidentDto() throws IncidentNotFoundException {
     when(incidentRepository.findById(any(Long.class))).thenReturn(Optional.of(getIncident()));
     when(incidentRepository.save(any(Incident.class))).thenReturn(getIncident());
 
@@ -93,14 +93,14 @@ public class IncidentServiceTest {
   }
 
   @Test
-  public void TestDeleteIncident() throws IncidentNotFoundException {
+  public void whenDeleteIncident_expectCorrectReturn() throws IncidentNotFoundException {
     when(incidentRepository.findById(any(Long.class))).thenReturn(Optional.of(getIncident()));
     incidentService.deleteIncident(getIncident().getId());
     verify(incidentRepository, times(1)).delete(any(Incident.class));
   }
 
   @Test
-  public void TestGetAllAdmin() {
+  public void whenGetAllAdmin_expectListWithAdminUsers() {
     UserDto user = getUserDto();
     user.setRole(UserRole.ADMIN);
     user.setUser_id("auth0|23sdfyl22ffowqpmclbdfffffffrwsdff");
@@ -109,7 +109,7 @@ public class IncidentServiceTest {
   }
 
   @Test
-  public void TestGetAllParticipant() {
+  public void whenGetAllParticipant_expectListWithParticipants() {
     UserDto user = getUserDto();
     user.setRole(UserRole.PARTICIPANT);
 
@@ -132,13 +132,13 @@ public class IncidentServiceTest {
     }
 
   @Test
-  public void TestConvertDtoToEntity() {
+  public void whenConvertDtoToEntity_expectCorrectIncident() {
     Incident resultIncident = incidentService.convertDtoToEntity(getIncidentDto());
     assertEquals(resultIncident.getTitle(), getIncidentDto().getTitle());
   }
 
   @Test
-  public void TestConvertEntityToDto() {
+  public void whenConvertEntityToDto_expectCorrectIncidentDto() {
     IncidentDto resultIncident = incidentService.convertEntityToDto(getIncident(), getUserDto());
     assertEquals(resultIncident.getId(), getIncident().getId());
     assertEquals(resultIncident.getTitle(), getIncident().getTitle());

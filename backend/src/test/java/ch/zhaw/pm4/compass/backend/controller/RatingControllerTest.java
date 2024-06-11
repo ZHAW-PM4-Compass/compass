@@ -120,7 +120,7 @@ public class RatingControllerTest {
 	}
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	public void whenCallingCreateRatingsByDaySheetId_expectBadrequest() throws Exception {
+	public void whenCallingCreateRatingsByDaySheetId_expectBadRequest() throws Exception {
 		List<CreateRatingDto> createRatingList = new ArrayList<>();
 		createRatingList.add(createRatingDtoOne);
 		when(ratingService.createRatingsByDaySheetId(any(Long.class), any(List.class), any(String.class))).thenThrow(new RatingAlreadyExistsException(1L));

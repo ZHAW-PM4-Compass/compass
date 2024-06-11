@@ -89,7 +89,7 @@ public class IncidentControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testCreateIncident() throws Exception {
+	void whenCallingCreateIncident_expectCorrectIncidentDto() throws Exception {
 		// Arrange
 		when(incidentService.createIncident(any(IncidentDto.class))).thenReturn(getIncidentDto());
 		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
@@ -108,7 +108,7 @@ public class IncidentControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testUpdateIncident() throws Exception {
+	void whenCallingUpdateIncident_expectCorrectIncidentDto() throws Exception {
 		// Arrange
 		when(incidentService.updateIncident(any(IncidentDto.class))).thenReturn(getIncidentDto());
 		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
@@ -128,9 +128,10 @@ public class IncidentControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	public void testDeleteIncident() throws Exception {
+	public void whenCallingDeleteIncident_expectDeleteIncidentCalledOneTime() throws Exception {
 		// Arrange
 		when(userService.getUserRole(any(String.class))).thenReturn(UserRole.ADMIN);
+
 		doNothing().when(incidentService).deleteIncident(any(Long.class));
 
 		// Act and Assert//
@@ -142,7 +143,7 @@ public class IncidentControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void getGetAll() throws Exception {
+	void whenCallingGetAll_expectCorrectIncidentDtoList() throws Exception {
 		// Arrange
 		List<IncidentDto> incidentDtoList = new ArrayList<>();
 		incidentDtoList.add(getIncidentDto());

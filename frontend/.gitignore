@@ -54,9 +54,6 @@ local
 # vercel
 .vercel
 
-# Sentry Config File
-.sentryclirc
-
 # compass
 frontend/.env*
 /test-results/

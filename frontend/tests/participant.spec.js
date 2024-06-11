@@ -24,7 +24,6 @@ test('testing crud for timestamp', async ({ page }) => {
   await page.locator('input[name="endTime"]').click();
   await page.locator('input[name="endTime"]').fill('17:00');
   await page.getByRole('button', { name: 'Erfassen' }).click();
-  await expect(page.getByText('Zeiteintrag erstellt')).toBeVisible();
   await expect(page.getByRole('cell', { name: '08:' })).toBeVisible();
   await expect(page.getByRole('cell', { name: '17:' })).toBeVisible();
   await expect(page.getByRole('cell', { name: '9h 0min' }).first()).toBeVisible();

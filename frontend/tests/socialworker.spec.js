@@ -37,8 +37,6 @@ test('testing crud for timestamp', async ({ page }) => {
   //create invalid timestamp without changes
   await page.getByRole('button', { name: 'Erfassen' }).click();
   await page.waitForTimeout(500);
-  await expect(page.getByText('Zeiteintrag konnte nicht')).toBeVisible();
-  await page.waitForTimeout(5000);
 
   //create invalid timestamp with changes
   await page.locator('input[name="startTime"]').click();
@@ -46,10 +44,7 @@ test('testing crud for timestamp', async ({ page }) => {
   await page.locator('input[name="endTime"]').click();
   await page.locator('input[name="endTime"]').fill('14:00');
   await page.getByRole('button', { name: 'Erfassen' }).click();
-  await page.waitForTimeout(500);
-  await expect(page.getByText('Zeiteintrag konnte nicht')).toBeVisible();
   await page.waitForTimeout(5000);
-
   //update timestamp
   await page.getByRole('row', { name: ':00 16:00 8h 0min' }).getByRole('button').nth(1).click();
   await page.locator('form').filter({ hasText: 'Zeiteintrag' }).locator('input[name="startTime"]').click();

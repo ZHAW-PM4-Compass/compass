@@ -42,7 +42,7 @@ runs:
         docker run -d \
           -e DOCKER_ON='false' \
           -e PORT='5432' \
-          -e DB_HOST='localhost' \
+          -e DB_HOST='//host.docker.internal:5432/compass' \
           -e DB_USERNAME='postgres' \
           -e DB_PASSWORD='test_password' \
           -e DDL_AUTO='create' \

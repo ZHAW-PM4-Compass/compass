@@ -101,7 +101,7 @@ export default function ReportGenerator({ className, month, participant, dayShee
             generationDate: generationDate,
         }
 
-        const fileName = `${month} ${owner.name} Report.docx`;
+        const fileName = `${month} ${owner.name} Rapport.docx`;
         generateDocument(data, fileName);
     };
 
@@ -110,6 +110,6 @@ export default function ReportGenerator({ className, month, participant, dayShee
             Icon={ArrowDownload24Regular}
             className={className}
             onClick={generateReport}
-        >Report</Button>
+        >Rapport</Button>
     );
 }

@@ -14,7 +14,7 @@ test.beforeEach('login charles leclerc (participant)', async ({ page }) => {
 
 test('testing crud for timestamp', async ({ page }) => {
   // Create valid timestamp
-  await page.goto('http://localhost:6000/working-hours');
+  await page.goto('http://localhost:3000/working-hours');
   await page.waitForTimeout(6000);
   await page.locator('input[name="date"]').fill('2024-01-01');
   await expect(page.getByRole('cell', { name: 'Keine Daten erfasst' })).toBeVisible();

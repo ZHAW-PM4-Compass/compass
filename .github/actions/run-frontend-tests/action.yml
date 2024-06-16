@@ -51,7 +51,7 @@ runs:
           -e AUTH0_CLIENT_ID='${{ inputs.auth0-client-id }}' \
           -e AUTH0_CLIENT_SECRET='${{ inputs.auth0-client-secret }}' \
           -e AUTH0_MGMT_AUDIENCE='${{ inputs.auth0-audience }}' \
-          -e APP_URL='http://localhost' \
+          -e APP_URL='localhost:3000' \
           -e SECURITY_LOG_LEVEL='DEBUG' \
           -e SWAGGER_UI_ON='false' \
           --add-host host.docker.internal:host-gateway \

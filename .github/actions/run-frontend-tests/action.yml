@@ -36,6 +36,38 @@ runs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Start Backend Container
+      shell: bash
+      run: |
+        docker run -d \
+          -e DOCKER_ON='true' \
+          -e PORT='5432' \
+          -e DB_HOST='localhost' \
+          -e DB_USERNAME='postgres' \
+          -e DB_PASSWORD='test_password' \
+          -e DDL_AUTO='update' \
+          -e AUTH0_ISSUER_BASE_URL='${{ inputs.auth0-issuer-base-url }}' \
+          -e AUTH0_AUDIENCE='${{ inputs.auth0-audience }}' \
+          -e AUTH0_CLIENT_ID='${{ inputs.auth0-client-id }}' \
+          -e AUTH0_CLIENT_SECRET='${{ inputs.auth0-client-secret }}' \
+          -e AUTH0_MGMT_AUDIENCE='${{ inputs.auth0-audience }}' \
+          -e APP_URL='http://localhost' \
+          -e SECURITY_LOG_LEVEL='DEBUG' \
+          -e SWAGGER_UI_ON='true' \
+          --add-host host.docker.internal:host-gateway \
+          -v $(pwd)/backend/build:/app/build \
+          -p 3000:3000 \
+          --name test-container \
+          backend-tests
+
+    - name: Add Users to local_user Table
+      shell: bash
+      run: |
+        PGPASSWORD=test_password psql -h 127.0.0.1 -p 5432 -U postgres -d compass -c "\
+          INSERT INTO local_user (id, role) VALUES
+          ('auth0|6640a6df7d1d70fe02cc72c9', 'PARTICIPANT'),
+          ('auth0|6640a6717d1d70fe02cc729a', 'SOCIAL_WORKER');"
+
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:

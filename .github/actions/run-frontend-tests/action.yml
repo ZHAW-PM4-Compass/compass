@@ -41,7 +41,7 @@ runs:
       run: |
         docker run -d \
           -e DOCKER_ON='false' \
-          -e PORT='5432' \
+          -e PORT='8080' \
           -e DB_HOST='//host.docker.internal:5432/compass' \
           -e DB_USERNAME='postgres' \
           -e DB_PASSWORD='test_password' \
@@ -56,7 +56,7 @@ runs:
           -e SWAGGER_UI_ON='false' \
           --add-host host.docker.internal:host-gateway \
           -v $(pwd)/backend/build:/app/build \
-          -p 3000:3000 \
+          -p 8080:8080 \
           --name test-container \
           backend-tests
 

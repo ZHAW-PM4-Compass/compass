@@ -1,6 +1,26 @@
 const { test, expect } = require('playwright-test-coverage');
 
 test.beforeEach('login charles leclerc (participant)', async ({ page }) => {
+
+  page.on('console', msg => {
+    for (let i = 0; i < msg.args().length; ++i)
+      console.log(`${i}: ${msg.args()[i]}`);
+  });
+
+  page.on('response', response => {
+    console.log(`Response: ${response.url()} - ${response.status()}`);
+    response.text().then(text => {
+      console.log(`Response body: ${text}`);
+    }).catch(err => {
+      console.error(`Error reading response body: ${err}`);
+    });
+  });
+
+  page.on('request', request => {
+    console.log(`Request: ${request.url()}`);
+  });
+
+  
   await page.goto('http://localhost:3000/');
   await page.getByRole('button', { name: 'Login' }).click();
   await page.getByLabel('Email address*').click();

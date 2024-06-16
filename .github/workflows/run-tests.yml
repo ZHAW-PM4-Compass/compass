@@ -88,11 +88,11 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: backend-tests-image
-          path: ./backend-tests
+          path: .
 
-      - name: Load Backend Docker Image
-        shell: bash
-        run: docker load -i ./backend-tests/backend-tests.tar.gz
+      - name: Load Docker Image
+        run: |
+          gunzip -c backend-tests.tar.gz | docker load
 
       - name: Run Frontend Tests and Upload Coverage
         uses: ./.github/actions/run-frontend-tests

@@ -2,20 +2,9 @@
   "presets": ["next/babel"],
   "env": {
     "test": {
-      "plugins": ["babel-plugin-istanbul"],
-      "only": ["src/components/**/*", "src/app/**/*"]
+      "plugins": ["babel-plugin-istanbul"]
     }
   },
-  "ignore": [
-    "node_modules",
-    "node_modules/**/*",
-    ".next",
-    "out",
-    ".git",
-    "src/middleware.tsx",
-    "src/openapi/*",
-    "src/openapi/**/*",
-    "**/chunk-*.js"
-  ],
+  "ignore": ["node_modules", ".next", "out", ".git"],
   "compact": true
 }

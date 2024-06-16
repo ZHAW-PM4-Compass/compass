@@ -90,7 +90,7 @@ public class UserControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testCreateUser() throws Exception {
+	void whenCallingCreateUser_expectCorrectAuthZeroUserDto() throws Exception {
 		// Arrange
 		when(userService.createUser(any(CreateAuthZeroUserDto.class))).thenReturn(getUserDto());
 
@@ -110,7 +110,7 @@ public class UserControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testDeleteUser() throws Exception {
+	void whenCallingDeleteUser_expectCorrectAuthZeroUserDto() throws Exception {
 		when(userService.deleteUser(anyString())).thenReturn(getUserDto());
 
 		// Act
@@ -125,7 +125,7 @@ public class UserControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testUpdateUser() throws Exception {
+	void whenCallingUpdateUser_expectCorrectAuthZeroUserDto() throws Exception {
 		// Arrange
 		when(userService.updateUser(anyString(), any(AuthZeroUserDto.class))).thenReturn(getUserDto());
 
@@ -145,7 +145,7 @@ public class UserControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testRestoreUser() throws Exception {
+	void whenCallingRestoreUser_expectRestoreUserCalledOneTime() throws Exception {
 		// Arrange
 		when(userService.restoreUser(anyString())).thenReturn(getUserDto());
 
@@ -159,7 +159,7 @@ public class UserControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testGetById() throws Exception {
+	void whenCallingGetById_expectCorrectAuthZeroUserDto() throws Exception {
 		// Arrange
 		when(userService.getUserById(anyString())).thenReturn(getUserDto());
 
@@ -177,7 +177,7 @@ public class UserControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testGetAllUsers() throws Exception {
+	void whenCallingGetAllUser_expectCorrectUserDtoList() throws Exception {
 		List<UserDto> userDtoList = new ArrayList<>();
 		userDtoList.add(getUserDto());
 
@@ -193,7 +193,7 @@ public class UserControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testAllParticipants() throws Exception {
+	void whenCallingGetAllParticipants_expectCorrectUserDtoList() throws Exception {
 		List<UserDto> userDtoList = new ArrayList<>();
 		userDtoList.add(getUserDto());
 

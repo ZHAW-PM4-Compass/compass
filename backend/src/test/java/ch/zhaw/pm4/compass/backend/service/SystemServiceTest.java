@@ -31,7 +31,7 @@ public class SystemServiceTest {
   }
 
   @Test
-  public void testIsBackendReachable() {
+  public void whenIsBackendReachable_expectTrue() {
     SystemService systemService = new SystemService();
     boolean result = systemService.isBackendReachable();
 
@@ -39,7 +39,7 @@ public class SystemServiceTest {
   }
 
   @Test
-  public void testIsDatabaseReachable() {
+  public void whenIsDatabaseReachable_expectTrue() {
     Query query = mock(Query.class);
 
     doReturn(1).when(query).getSingleResult();
@@ -51,7 +51,7 @@ public class SystemServiceTest {
   }
 
   @Test
-  public void testIsAuth0Reachable() {
+  public void whenIsAuthZeroReachable_expectTrue() {
     doReturn("token").when(userService).getToken();
     assertTrue(systemService.isAuth0Reachable());
 

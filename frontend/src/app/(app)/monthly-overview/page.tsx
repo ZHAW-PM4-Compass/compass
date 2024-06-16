@@ -147,17 +147,19 @@ export default function MonthlyOverviewPage() {
           const moodRatings = daySheet?.moodRatings ?? [];
 
           moodRatings.forEach(rating => {
-            const categoryKey = `category${rating.category?.id}`
-            if (rating.rating && rating.category?.name && (categorySelection === categorySelections.ALL || (categorySelection === categorySelections.PARTICIPANT && rating.ratingRole === RatingDtoRatingRoleEnum.Participant) || (categorySelection === categorySelections.SOCIAL_WORKER && rating.ratingRole === RatingDtoRatingRoleEnum.SocialWorker))) {
+            const categoryId = `${rating.ratingRole}_${rating.category?.id}`
+
+            if (rating.rating !== undefined && rating.category?.name && (categorySelection === categorySelections.ALL || (categorySelection === categorySelections.PARTICIPANT && rating.ratingRole === RatingDtoRatingRoleEnum.Participant) || (categorySelection === categorySelections.SOCIAL_WORKER && rating.ratingRole === RatingDtoRatingRoleEnum.SocialWorker))) {
               const min = rating.category?.minimumValue ?? 0;
               const max = rating.category?.maximumValue ?? 100;
 
-              dataItem[categoryKey] = (rating.rating - min) / (max - min) * 100;
+              dataItem[categoryId] = (rating.rating - min) / (max - min) * 100;
 
-              if (!dataSeriesSet.find(series => series.id === categoryKey)) {
+              if (!dataSeriesSet.find(series => series.id === categoryId)) {
                 dataSeriesSet.push({
                   type: 'bar',
-                  dataKey: categoryKey,
+                  id: categoryId,
+                  dataKey: categoryId,
                   yAxisKey: 'rightAxis',
                   label: rating.category.name,
                 });
@@ -167,7 +169,17 @@ export default function MonthlyOverviewPage() {
           data.push(dataItem);
         }
 
-        dataSeriesSet.forEach((series, index) => series.color = getNextColor("#5eead5", index));
+        let indexParticpant = 0;
+        let indexSocialWorker = 0;
+
+        dataSeriesSet.forEach((series) => {
+          if ((series?.id as String)?.startsWith(RatingDtoRatingRoleEnum?.Participant)) {
+            series.color = getNextColor("#5eead5", indexParticpant++)
+          } else if ((series?.id as String)?.startsWith(RatingDtoRatingRoleEnum?.SocialWorker)) {
+            series.color = getNextColor("#ff7f50", indexSocialWorker++)
+          }
+        });
+
         dataSeriesSet.push({ type: 'line', dataKey: 'workHours', color: '#000', label: "Arbeitszeit", yAxisKey: 'leftAxis' });
 
         setIncidentCountPerDay(incidentCountPerDay);

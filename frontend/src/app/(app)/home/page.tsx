@@ -2,20 +2,14 @@
 
 import Title1 from "@/components/title1";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { Poppins } from "next/font/google";
 import { useRouter } from "next/navigation";
-
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ["400", "500", "600"],
-})
 
 export default function IncidentsPage() {
   const router = useRouter();
   const { user } = useUser();
 
   return (  
-    <div className={`h-full flex flex-col md:pt-10 lg:px-10 xl:px-20 overflow-y-auto ${poppins.className}`}>
+    <div className={`h-full flex flex-col md:pt-10 lg:px-10 xl:px-20 overflow-y-auto`}>
       <div className="flex flex-col lg:flex-row lg:space-x-8 space-y-4 lg:space-y-0">
         <div className="flex-1 lg:py-16">
           {user?.given_name ? 

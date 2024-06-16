@@ -26,14 +26,6 @@ export interface CreateCategoryRequest {
     categoryDto: CategoryDto;
 }
 
-export interface GetCategoryByNameRequest {
-    name: string;
-}
-
-export interface GetCategoryByNameWithRatingsRequest {
-    name: string;
-}
-
 export interface GetCategoryListByUserIdRequest {
     userId: string;
 }
@@ -102,68 +94,6 @@ export class CategoryControllerApi extends runtime.BaseAPI {
      */
     async getAllCategories(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CategoryDto>> {
         const response = await this.getAllCategoriesRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
-     */
-    async getCategoryByNameRaw(requestParameters: GetCategoryByNameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CategoryDto>> {
-        if (requestParameters['name'] == null) {
-            throw new runtime.RequiredError(
-                'name',
-                'Required parameter "name" was null or undefined when calling getCategoryByName().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/category/getByName/{name}`.replace(`{${"name"}}`, encodeURIComponent(String(requestParameters['name']))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => CategoryDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    async getCategoryByName(requestParameters: GetCategoryByNameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CategoryDto> {
-        const response = await this.getCategoryByNameRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     */
-    async getCategoryByNameWithRatingsRaw(requestParameters: GetCategoryByNameWithRatingsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CategoryDto>> {
-        if (requestParameters['name'] == null) {
-            throw new runtime.RequiredError(
-                'name',
-                'Required parameter "name" was null or undefined when calling getCategoryByNameWithRatings().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/category/getByNameWithAllRatings/{name}`.replace(`{${"name"}}`, encodeURIComponent(String(requestParameters['name']))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => CategoryDtoFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    async getCategoryByNameWithRatings(requestParameters: GetCategoryByNameWithRatingsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CategoryDto> {
-        const response = await this.getCategoryByNameWithRatingsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

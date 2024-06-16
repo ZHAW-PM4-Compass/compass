@@ -97,14 +97,14 @@ class UserServiceTest {
 	}
 
 	@Test
-	public void testGetUserById() throws IOException {
+	public void whenGetUserById_expectSameUserDto() throws IOException {
 		prepareCRUDTest();
 		UserDto resultUserDto = userService.getUserById(getUserDto().getUser_id());
 		compareUserDto(userDto, resultUserDto);
 	}
 
 	@Test
-	public void testGetAllUsers() throws IOException {
+	public void whenGetAllUser_expectListWithSameAuthZeroUserDto() throws IOException {
 		ArrayList<CreateAuthZeroUserDto> authZeroUserDtoList = new ArrayList<>();
 		authZeroUserDtoList.add(getCreateAuthZeroUserDto());
 		ArrayList<UserDto> userDtoList = new ArrayList<>();
@@ -126,7 +126,7 @@ class UserServiceTest {
 	}
 
 	@Test
-	public void testGetAllParticipants() throws IOException {
+	public void whenGetAllParticipants_expectListOfParticipantsWithSameAuthZeroUserDto() throws IOException {
 		ArrayList<CreateAuthZeroUserDto> authZeroUserDtoList = new ArrayList<>();
 		authZeroUserDtoList.add(getCreateAuthZeroUserDto());
 		ArrayList<UserDto> userDtoList = new ArrayList<>();
@@ -148,7 +148,7 @@ class UserServiceTest {
 	}
 
 	@Test
-	public void testGetAllParticipantsNegative() throws IOException {
+	public void whenGetAllParticipantsWithNoParticipantsPersisted_expectEmptyList() throws IOException {
 		ArrayList<CreateAuthZeroUserDto> authZeroUserDtoList = new ArrayList<>();
 		authZeroUserDtoList.add(getCreateAuthZeroUserDto());
 		ArrayList<UserDto> userDtoList = new ArrayList<>();
@@ -170,7 +170,7 @@ class UserServiceTest {
 	}
 
 	@Test
-	public void testGetAllLocalUser() {
+	public void whenGetAllLocalUser_expectMapWithSameUserDtos() {
 		ArrayList<LocalUser> localUsers = new ArrayList<>();
 		localUsers.add(getLocalUser());
 
@@ -181,21 +181,21 @@ class UserServiceTest {
 	}
 
 	@Test
-	public void testCreateUser() throws IOException {
+	public void whenCreateUser_expectSameUserDto() throws IOException {
 		prepareCRUDTest();
 		UserDto resultUserDto = userService.createUser(getCreateAuthZeroUserDto());
 		compareUserDto(userDto, resultUserDto);
 	}
 
 	@Test
-	public void testUpdateUser() throws IOException {
+	public void whenUpdateUser_expectSameUserDto() throws IOException {
 		prepareCRUDTest();
 		UserDto resultUserDto = userService.updateUser(userDto.getUser_id(), getAuthZeroUserDto());
 		compareUserDto(userDto, resultUserDto);
 	}
 
 	@Test
-	public void testGetToken() throws IOException {
+	public void whenGetToken_expectAuthZeroToken() throws IOException {
 		// Auth0
 		mockAuthZeroCall();
 		when(response.body().string()).thenReturn("{ \"access_token\" : \"" + authZeroTestToken + "\"}");
@@ -204,7 +204,7 @@ class UserServiceTest {
 	}
 
 	@Test
-	public void testMapAuthZeroUserToUserDto() {
+	public void whenMapAuthZeroUserToUserDto_expectSameUserDto() {
 		AuthZeroUserDto authZeroUserDto = new AuthZeroUserDto(userDto.getEmail(), userDto.getGiven_name(),
 				userDto.getFamily_name(), userDto.getRole(), userDto.getDeleted());
 		UserDto resultUserDto = userService.mapAuthZeroUserToUserDto(userDto.getUser_id(), authZeroUserDto);
@@ -212,7 +212,6 @@ class UserServiceTest {
 		compareUserDto(userDto, resultUserDto);
 	}
 
-	@Test
 	public void prepareCRUDTest() throws IOException {
 		Gson gson = new GsonBuilder().registerTypeAdapter(LocalTime.class, new LocalTimeDeserializer())
 				.registerTypeAdapter(LocalTime.class, new LocalTimeSerializer())
@@ -231,21 +230,21 @@ class UserServiceTest {
 	}
 
 	@Test
-	public void testDeleteUser() throws IOException {
+	public void whenDeleteUser_expectSameUserDto() throws IOException {
 		prepareCRUDTest();
 		UserDto resultUserDto = userService.deleteUser(userDto.getUser_id());
 		compareUserDto(userDto, resultUserDto);
 	}
 
 	@Test
-	public void restoreUser() throws IOException {
+	public void whenRestoreUser_expectSameUserDto() throws IOException {
 		prepareCRUDTest();
 		UserDto resultUserDto = userService.restoreUser(userDto.getUser_id());
 		compareUserDto(userDto, resultUserDto);
 	}
 
 	@Test
-	public void testGetUserRole() {
+	public void whenGetUserRole_expectSameUserRole() {
 		when(localUserRepository.findById(any(String.class))).thenReturn(Optional.of(getLocalUser()));
 		assertEquals(userService.getUserRole(getUserDto().getUser_id()), userDto.getRole());
 	}

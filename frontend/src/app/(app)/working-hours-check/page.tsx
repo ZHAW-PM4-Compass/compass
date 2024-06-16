@@ -13,15 +13,18 @@ import { getDaySheetControllerApi, getUserControllerApi } from "@/openapi/connec
 import toastMessages from "@/constants/toastMessages";
 import { convertMilisecondsToTimeString } from '@/utils/time';
 import Select from '@/components/select';
+import ConfirmModal from '@/components/confirmmodal';
 
 const allParticipants = "ALL_PARTICIPANTS";
 
 export default function WorkingHoursCheckPage() {
+  const [showConfirmConfirmModal, setShowConfirmConfirmModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [daySheets, setDaySheets] = useState<DaySheetDto[]>([]);
   const [daySheetsFiltered, setDaySheetsFiltered] = useState<DaySheetDto[]>([]);
   const [participantSelection, setParticipantSelection] = useState<any>();
   const [participantSelections, setParticipantSelections] = useState<{ id: string, label: string }[]>([]);
+  const [selectedDaySheet, setSelectedDaySheet] = useState<DaySheetDto>();
   const router = useRouter();
 
   const loadDaySheets = () => {
@@ -92,6 +95,16 @@ export default function WorkingHoursCheckPage() {
 
   return (
     <>
+      {showConfirmConfirmModal && (
+        <ConfirmModal
+          title="Arbeitszeit bestätigen"
+          question="Möchten Sie die Arbeitszeit bestätigen? Dies kann rückgängig gemacht werden."
+          confirm={() => {
+            selectedDaySheet?.id && confirmDaySheet(selectedDaySheet.id);
+            setShowConfirmConfirmModal(false);
+          }}
+          abort={() => setShowConfirmConfirmModal(false)} />
+      )}
       <div className="h-full flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between">
           <Title1>Kontrolle Arbeitszeit</Title1>
@@ -130,14 +143,15 @@ export default function WorkingHoursCheckPage() {
               icon: ShiftsCheckmark24Regular,
               label: "Bestätigen",
               onClick: (id) => {
-                const daySheetId = daySheets[id]?.id;
-                daySheetId && confirmDaySheet(daySheetId);
+                const daySheet = daySheetsFiltered[id];
+                daySheet && setSelectedDaySheet(daySheet);
+                setShowConfirmConfirmModal(true);
               }
             },
             {
               icon: Edit24Regular,
               onClick: (id) => {
-                const daySheet = daySheets[id];
+                const daySheet = daySheetsFiltered[id];
                 daySheet && navigateToSingleDay(daySheet);
               }
             }

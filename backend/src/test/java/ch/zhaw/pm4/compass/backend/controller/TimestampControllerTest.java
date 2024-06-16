@@ -1,21 +1,11 @@
 package ch.zhaw.pm4.compass.backend.controller;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-
+import ch.zhaw.pm4.compass.backend.model.DaySheet;
+import ch.zhaw.pm4.compass.backend.model.Timestamp;
+import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
+import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
+import ch.zhaw.pm4.compass.backend.service.DaySheetService;
+import ch.zhaw.pm4.compass.backend.service.TimestampService;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +22,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import ch.zhaw.pm4.compass.backend.model.DaySheet;
-import ch.zhaw.pm4.compass.backend.model.Timestamp;
-import ch.zhaw.pm4.compass.backend.model.dto.DaySheetDto;
-import ch.zhaw.pm4.compass.backend.model.dto.TimestampDto;
-import ch.zhaw.pm4.compass.backend.service.DaySheetService;
-import ch.zhaw.pm4.compass.backend.service.TimestampService;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+
+import static junit.framework.TestCase.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -83,7 +77,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testCreateTimestamp() throws Exception {
+	void whenCallingCreateTimestamp_expectCorrectReturn() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		when(timestampService.createTimestamp(any(TimestampDto.class), any(String.class))).thenReturn(getTimestamp);
@@ -104,7 +98,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testCreateTimestampOfNotExistingDaySheet() throws Exception {
+	void whenCallingCreateTimestampOfNotExistingDaySheet_expectCorrectReturn() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		when(timestampService.createTimestamp(any(TimestampDto.class), any(String.class))).thenReturn(getTimestamp);
@@ -122,7 +116,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testCreateTimestampOfConfirmedDaySheet() throws Exception {
+	void whenCallingCreateTimestampOfConfirmedDaySheet_expectForbidden() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		DaySheetDto daySheet = getDaySheetDto();
@@ -142,7 +136,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	public void testTimestampAlreadyExists() throws Exception {
+	public void whenCallingCreateTimestampAlreadyExists_expectDoesNotExists() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		when(timestampService.createTimestamp(any(TimestampDto.class), any(String.class))).thenReturn(null);
@@ -157,10 +151,10 @@ public class TimestampControllerTest {
 		verify(timestampService, times(1)).createTimestamp(any(TimestampDto.class), any(String.class));
 	}
 
-	// todo til: fix please
+
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testUpdateTimestamp() throws Exception {
+	void whenCallingUpdateTimestamp_expectCorrectResult() throws Exception {
 		TimestampDto updateTimestamp = getUpdateTimestamp();
 		when(timestampService.updateTimestampById(any(TimestampDto.class), any(String.class)))
 				.thenReturn(updateTimestamp);
@@ -180,7 +174,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testUpdateTimestampOfNotExistingDaySheet() throws Exception {
+	void whenCallingUpdateTimestampOfNotExistingDaySheet_expectBadRequest() throws Exception {
 		TimestampDto updateTimestamp = getUpdateTimestamp();
 		when(timestampService.updateTimestampById(any(TimestampDto.class), any(String.class)))
 				.thenReturn(updateTimestamp);
@@ -197,7 +191,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testUpdateTimestampOfConfirmedDaySheet() throws Exception {
+	void whenCallingUpdateTimestampOfConfirmedDaySheet_expectForbidden() throws Exception {
 		DaySheetDto daySheet = getDaySheetDto();
 		daySheet.setConfirmed(true);
 		TimestampDto updateTimestamp = getUpdateTimestamp();
@@ -216,7 +210,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testGetTimestampById() throws Exception {
+	void whenCallingGetTimestampById_expectCorrectReturn() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		when(timestampService.getTimestampById(any(Long.class), any(String.class))).thenReturn(getTimestamp);
@@ -232,10 +226,10 @@ public class TimestampControllerTest {
 		verify(timestampService, times(1)).getTimestampById(any(Long.class), any(String.class));
 	}
 
-	// todo til: fix please
+
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testGetAllTimestampsByDayId() throws Exception {
+	void whenCallingGetAllTimestampsByDayId_expectCorrectReturn() throws Exception {
 		// Arrange
 		TimestampDto getTimestamp = getTimestampDto();
 		TimestampDto getTimestamp1 = getUpdateTimestamp();
@@ -266,7 +260,7 @@ public class TimestampControllerTest {
 	// todo til: fix please
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testGetAllTimestampsByDayIdEmpty() throws Exception {
+	void whenCallingGetAllTimestampsByDayId_expectEmptyReturn() throws Exception {
 		// Arrange
 		DaySheet daySheet = getDaySheet();
 		ArrayList<TimestampDto> timestamps = new ArrayList<TimestampDto>();
@@ -281,7 +275,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testDeleteTimestamp() throws Exception {
+	void whenCallingDeleteTimestamp_expectOk() throws Exception {
 		// Arrange
 		TimestampDto timestamp = getTimestampDto();
 		DaySheetDto daySheet = getDaySheetDto();
@@ -296,7 +290,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testDeleteTimestampOfConfirmedDaySheet() throws Exception {
+	void whenDeleteTimestampOfConfirmedDaySheet_expectForbidden() throws Exception {
 		// Arrange
 		TimestampDto timestamp = getTimestampDto();
 		DaySheetDto daySheet = getDaySheetDto();
@@ -312,7 +306,7 @@ public class TimestampControllerTest {
 
 	@Test
 	@WithMockUser(username = "testuser", roles = {})
-	void testDeleteTimestampOfNotExistingDaySheet() throws Exception {
+	void whenDeleteTimestampOfNotExistingDaySheet_expectBadRequest() throws Exception {
 		// Arrange
 		TimestampDto timestamp = getTimestampDto();
 		DaySheetDto daySheet = getDaySheetDto();

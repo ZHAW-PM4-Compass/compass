@@ -47,6 +47,9 @@ enum toastMessages {
   CATEGORY_NOT_CREATED = "Kategorie konnte nicht erstellt werden",
   CATEGORY_UPDATED = "Kategorie aktualisiert",
   CATEGORY_NOT_UPDATED = "Kategorie konnte nicht aktualisiert werden",
+  RATINGS_NOT_LOADED = "Bewertungen konnten nicht geladen werden",
+  RATING_CREATED = "Bewertung erstellt",
+  RATING_NOT_CREATED = "Bewertung konnte nicht erstellt werden",
 
   USER_DELETED = "User gelöscht",
   USER_NOT_DELETED = "User konnte nicht gelöscht werden",

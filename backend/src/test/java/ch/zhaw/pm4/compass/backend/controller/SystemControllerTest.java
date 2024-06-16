@@ -46,7 +46,7 @@ public class SystemControllerTest {
 
     @Test
     @WithMockUser(username = "testuser", roles = {})
-    void testGetSystemStatus() throws Exception {
+    void whenCallingGetSystemStatus_expectCorrectSystemStatus() throws Exception {
         when(systemService.isBackendReachable()).thenReturn(true);
         when(systemService.isDatabaseReachable()).thenReturn(true);
         when(systemService.isAuth0Reachable()).thenReturn(true);

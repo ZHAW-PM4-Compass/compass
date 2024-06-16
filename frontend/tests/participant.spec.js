@@ -2,24 +2,22 @@ const { test, expect } = require('playwright-test-coverage');
 
 test.beforeEach('login charles leclerc (participant)', async ({ page }) => {
 
-  page.on('console', msg => {
-    for (let i = 0; i < msg.args().length; ++i)
-      console.log(`${i}: ${msg.args()[i]}`);
-  });
-
+  // Log only failed network requests (status codes 4xx and 5xx)
   page.on('response', response => {
-    console.log(`Response: ${response.url()} - ${response.status()}`);
-    response.text().then(text => {
-      console.log(`Response body: ${text}`);
-    }).catch(err => {
-      console.error(`Error reading response body: ${err}`);
-    });
+    if (response.status() >= 400) {
+      console.log(`Failed response: ${response.url()} - ${response.status()}`);
+      response.text().then(text => {
+        console.log(`Response body: ${text}`);
+      }).catch(err => {
+        console.error(`Error reading response body: ${err}`);
+      });
+    }
   });
 
-  page.on('request', request => {
-    console.log(`Request: ${request.url()}`);
+  // log failed requests as well
+  page.on('requestfailed', request => {
+    console.log(`Failed request: ${request.url()} - ${request.failure().errorText}`);
   });
-
   
   await page.goto('http://localhost:3000/');
   await page.getByRole('button', { name: 'Login' }).click();

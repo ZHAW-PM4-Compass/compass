@@ -40,12 +40,12 @@ runs:
       shell: bash
       run: |
         docker run -d \
-          -e DOCKER_ON='true' \
+          -e DOCKER_ON='false' \
           -e PORT='5432' \
           -e DB_HOST='localhost' \
           -e DB_USERNAME='postgres' \
           -e DB_PASSWORD='test_password' \
-          -e DDL_AUTO='update' \
+          -e DDL_AUTO='create' \
           -e AUTH0_ISSUER_BASE_URL='${{ inputs.auth0-issuer-base-url }}' \
           -e AUTH0_AUDIENCE='${{ inputs.auth0-audience }}' \
           -e AUTH0_CLIENT_ID='${{ inputs.auth0-client-id }}' \
@@ -53,12 +53,26 @@ runs:
           -e AUTH0_MGMT_AUDIENCE='${{ inputs.auth0-audience }}' \
           -e APP_URL='http://localhost' \
           -e SECURITY_LOG_LEVEL='DEBUG' \
-          -e SWAGGER_UI_ON='true' \
+          -e SWAGGER_UI_ON='false' \
           --add-host host.docker.internal:host-gateway \
           -v $(pwd)/backend/build:/app/build \
           -p 3000:3000 \
           --name test-container \
           backend-tests
+
+    - name: Wait for Database Schema Creation
+      shell: bash
+      run: |
+        for i in {1..24}; do
+          if PGPASSWORD=test_password psql -h 127.0.0.1 -p 5432 -U postgres -d compass -c "SELECT 1 FROM local_user LIMIT 1;" > /dev/null 2>&1; then
+            echo "Database schema is ready."
+            exit 0
+          fi
+          echo "Waiting for database schema to be created..."
+          sleep 5
+        done
+        echo "Database schema was not created within the expected time."
+        exit 1
 
     - name: Add Users to local_user Table
       shell: bash

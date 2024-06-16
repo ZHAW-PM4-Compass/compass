@@ -565,6 +565,10 @@ h6 {
   }
 }
 
+.footer {
+  --background-color: color-mix(in srgb, var(--heading-color), transparent 95%);
+}
+
 .footer .footer-top {
   padding-top: 50px;
 }
@@ -786,6 +790,10 @@ section,
   overflow: clip;
 }
 
+.feature-container {
+  padding-top:180px;
+}
+
 @media (max-width: 1199px) {
 
   section,
@@ -799,7 +807,6 @@ section,
 --------------------------------------------------------------*/
 .section-title {
   text-align: center;
-  padding-bottom: 60px;
   position: relative;
 }
 
@@ -846,6 +853,8 @@ section,
 # Hero Section
 --------------------------------------------------------------*/
 .hero {
+  background-image: url('../img/compass-stock-blue.png');
+  background-size: cover;
   --background-color: #37517e;
   --default-color: #ffffff;
   --heading-color: #ffffff;
@@ -863,6 +872,10 @@ section,
   font-size: 48px;
   font-weight: 700;
   line-height: 56px;
+}
+
+.hero img {
+  box-shadow: 10px 10px 20px 5px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
 .hero p {
@@ -952,7 +965,6 @@ section,
 --------------------------------------------------------------*/
 .clients {
   --background-color: color-mix(in srgb, var(--heading-color), transparent 95%);
-  padding: 12px 0;
 }
 
 .clients .swiper {
@@ -1414,6 +1426,9 @@ section,
 # Call To Action Section
 --------------------------------------------------------------*/
 .call-to-action {
+  background-image:url(../img/compass-stock.jpg);
+  background-size: cover;
+  background-position: center;
   --background-color: #000000;
   --default-color: #ffffff;
   --contrast-color: #ffffff;
@@ -1579,6 +1594,9 @@ section,
 /*--------------------------------------------------------------
 # Team Section
 --------------------------------------------------------------*/
+.team {
+  --background-color: color-mix(in srgb, var(--heading-color), transparent 95%);
+}
 .team .team-member {
   box-shadow: 0px 2px 15px color-mix(in srgb, var(--default-color), transparent 90%);
   position: relative;

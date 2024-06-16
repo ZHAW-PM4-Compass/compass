@@ -13,8 +13,7 @@
     "out",
     ".git",
     "src/middleware.tsx",
-    "src/openapi/*",
-    "src/openapi/**/*",
+    "src/openapi/connector.ts",
     "**/chunk-*.js"
   ],
   "compact": true

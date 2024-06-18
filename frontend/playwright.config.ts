@@ -6,18 +6,18 @@ process.env.ENVIRONMENT_URL = baseURL;
 
 export default defineConfig({
   testDir: './tests',
-  timeout: 60 * 1000,
+  timeout: 120 * 1000,
   fullyParallel: !!process.env.CI,
   forbidOnly: !!process.env.CI,
-  retries: 1,
+  retries: 0,
   workers: 1,
-  maxFailures: 2,
+  maxFailures: 1,
   reporter: process.env.CI ? [['github'], ['list'], ['html', { outputFolder: 'test-results' }]] : [['list']],
 
   webServer: {
     command: process.env.CI ? 'npm run dev' : 'npm run dev',
     url: baseURL,
-    timeout: 2 * 60 * 1000,
+    timeout: 4 * 60 * 1000,
     reuseExistingServer: !process.env.CI,
   },
 

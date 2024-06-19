@@ -61,6 +61,17 @@ runs:
       shell: bash
       run: docker build -t backend-tests -f ./docker/test/Dockerfile.backend .
 
+    - name: Save Docker Image as Artifact
+      shell: bash
+      run: |
+        docker save backend-tests | gzip > backend-tests.tar.gz
+
+    - name: Upload Docker Image Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: backend-tests-image
+        path: backend-tests.tar.gz
+
     - name: Start Backend Container
       shell: bash
       run: |
@@ -87,14 +98,6 @@ runs:
     - name: Run Gradle Tests in Docker Container
       shell: bash
       run: docker exec test-container gradle test -info
-
-    - name: Add Users to local_user Table
-      shell: bash
-      run: |
-        PGPASSWORD=test_password psql -h 127.0.0.1 -p ${{ job.services.postgres.ports[5432] }} -U postgres -d compass -c "\
-          INSERT INTO local_user (id, role) VALUES
-          ('auth0|6640a6df7d1d70fe02cc72c9', 'PARTICIPANT'),
-          ('auth0|6640a6717d1d70fe02cc729a', 'SOCIAL_WORKER');"
 
     - name: Upload Backend Test Results
       uses: actions/upload-artifact@v2

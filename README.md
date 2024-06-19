@@ -96,7 +96,6 @@ This project uses Jest for unit testing and Playwright for integration and E2E t
   npx playwright install
   npm run test:e2e
   ```
-Refer to the code block from `frontend/README.md` lines 294-304 for more details.
 
 ## Additional Information
 - [Tailwind CSS](https://tailwindcss.com/docs) for styling.

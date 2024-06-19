@@ -2,9 +2,11 @@ coverage:
   status:
     project:
       default:
-        target: 0%
+        target: 40%
         threshold: 5%
 ignore:
+  - "backend/src/main/java/ch/zhaw/pm4/compass/backend/model/dto/**/*"
+  - "backend/src/main/java/ch/zhaw/pm4/compass/backend/exception/**/*"
   - "node_modules/**/*"
   - "public/**/*"
   - "migrations/**/*"
